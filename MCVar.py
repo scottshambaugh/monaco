@@ -10,29 +10,30 @@ class MCVar:
         self.distvars = distvars
         self.ndraws = ndraws
         self.nvals = ndraws + 1
-        self.firstdrawismean = True
+        self.firstdrawisev = True
         self.vals = np.array([])
         
         self.draw()
         
         
-    def setFirstDrawMean(self, truefalse):
+    def setFirstDrawEV(self, truefalse):
         if truefalse == True:
-           self.firstdrawismean = True
+           self.firstdrawisev = True
            self.nvals = self.ndraws + 1
         else:
-           self.firstdrawismean = False
+           self.firstdrawisev = False
            self.nvals = self.ndraws
          
     
     def draw(self):
         self.vals = np.array([])
-        
-        if self.firstdrawismean:
+        dist = self.dist(*self.distvars)
+
+        if self.firstdrawisev:
             self.nvals = self.ndraws + 1
-            self.vals = np.append(self.vals, self.dist.mean())
+            self.vals = np.append(self.vals, dist.expect())
   
-        self.vals = np.append(self.vals, self.dist.rvs(*self.distvars, size=self.ndraws))
+        self.vals = np.append(self.vals, dist.rvs(size=self.ndraws))
         
         
     def hist(self, ax = np.NaN):
