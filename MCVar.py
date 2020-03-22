@@ -67,3 +67,12 @@ class MCVar:
         plt.ylabel('Probability Density')
 
 
+'''
+## Test ##
+np.random.seed(74494861)
+from scipy.stats import *
+var = MCVar('Test', randint, (1, 5), 1000)
+var.hist()
+var = MCVar('Test', norm, (10, 4), 1000)
+var.hist()
+#'''
