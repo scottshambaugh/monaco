@@ -1,10 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import rv_continuous, rv_discrete, mode
+from MCVal import MCVal
 #from scipy.stats import *
 
 class MCVar:
-    def __init__(self, name, dist, distvars, ndraws, seed = np.random.get_state()[1][0]):
+    def __init__(self, name, dist, distvars, ndraws, seed=np.random.get_state()[1][0]):
         self.seed = seed
         self.name = name
         self.dist = dist
@@ -35,6 +36,15 @@ class MCVar:
             self.vals = np.append(self.vals, dist.expect())
   
         self.vals = np.append(self.vals, dist.rvs(size=self.ndraws))
+        
+    
+    def getVal(self, ndraw):
+        isev = False
+        if (ndraw == 0) and self.firstdrawisev:
+            isev = True
+            
+        val = MCVal(self.vals[ndraw], self.name, ndraw, self.dist, isev)
+        return(val)
         
         
     def hist(self, ax = np.NaN):
@@ -74,5 +84,10 @@ from scipy.stats import *
 var = MCVar('Test', randint, (1, 5), 1000)
 var.hist()
 var = MCVar('Test', norm, (10, 4), 1000)
+var.hist()
+xk = (1, 4, 5)
+pk = np.ones(len(xk))/len(xk)
+custom = rv_discrete(name='custom', values=(xk, pk))
+var = MCVar('Test', custom, (), 1000)
 var.hist()
 #'''
