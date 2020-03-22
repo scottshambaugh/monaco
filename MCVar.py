@@ -37,12 +37,12 @@ class MCVar:
         self.vals = np.append(self.vals, dist.rvs(size=self.ndraws))
         
         
-    def hist(self, ax = np.NaN, nbins = 50):
+    def hist(self, ax = np.NaN):
         if np.isnan(ax):
             fig, ax = plt.subplots(1, 1)
         
         # histogram
-        counts, bins = np.histogram(self.vals, bins=nbins)
+        counts, bins = np.histogram(self.vals, bins='auto')
         binwidth = mode(np.diff(bins))[0]
         bins = np.concatenate((bins - binwidth/2, bins[-1] + binwidth/2))
         counts, bins = np.histogram(self.vals, bins=bins)
