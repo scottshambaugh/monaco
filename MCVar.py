@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.stats import rv_continuous, rv_discrete, mode
 #from scipy.stats import *
 
 class MCVar:
@@ -36,18 +37,33 @@ class MCVar:
         self.vals = np.append(self.vals, dist.rvs(size=self.ndraws))
         
         
-    def hist(self, ax = np.NaN):
+    def hist(self, ax = np.NaN, nbins = 50):
         if np.isnan(ax):
             fig, ax = plt.subplots(1, 1)
         
         # histogram
-        plt.hist(self.vals, density=True, histtype='stepfilled', facecolor='k', alpha=0.5)
+        counts, bins = np.histogram(self.vals, bins=nbins)
+        binwidth = mode(np.diff(bins))[0]
+        bins = np.concatenate((bins - binwidth/2, bins[-1] + binwidth/2))
+        counts, bins = np.histogram(self.vals, bins=bins)
+
+        # continuous
+        if isinstance(self.dist, rv_continuous):
+            plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=True, histtype='bar', facecolor='k', alpha=0.5)
+            xlim = ax.get_xlim()
+            x = np.arange(xlim[0], xlim[1], (xlim[1] - xlim[0])/100)
+            dist = self.dist(*self.distvars)
+            plt.plot(x, dist.pdf(x), color='k', alpha=0.9)
+            
+        elif isinstance(self.dist, rv_discrete):
+            plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False, histtype='bar', facecolor='k', alpha=0.5)
+            xlim = ax.get_xlim()
+            x = np.concatenate(([xlim[0]], bins, [xlim[1]]))
+            dist = self.dist(*self.distvars)
+            pdf = np.diff(dist.cdf(x))
+            plt.step(x[1:], pdf, color='k', alpha=0.9)
+
         plt.xlabel(self.name)
         plt.ylabel('Probability Density')
 
-        # pdf
-        xlim = ax.get_xlim()
-        x = np.arange(xlim[0], xlim[1], (xlim[1] - xlim[0])/100)
-        rv = self.dist(*self.distvars)
-        plt.plot(x, rv.pdf(x), color='k', alpha=0.9)
 
