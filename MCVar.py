@@ -16,15 +16,15 @@ class MCVar:
         self.vals = np.array([])
         
         self.draw()
-        
-    
+
+
     def setNDraws(self, ndraws):  # ndraws is an integer
         self.ndraws = ndraws
         self.setFirstDrawNom(self.firstdrawisnom)
         self.seed = np.random.get_state()[1][0]
         self.draw()
-        
-        
+
+
     def setFirstDrawNom(self, firstdrawisnom):  # firstdrawisnom is a boolean
         if firstdrawisnom:
            self.firstdrawisnom = True
@@ -32,8 +32,8 @@ class MCVar:
         else:
            self.firstdrawisnom = False
            self.nvals = self.ndraws
-         
-    
+
+
     def draw(self):
         self.vals = np.array([])
         dist = self.dist(*self.distargs)
@@ -43,8 +43,8 @@ class MCVar:
             self.vals = np.append(self.vals, self.getNom())
   
         self.vals = np.append(self.vals, dist.rvs(size=self.ndraws))
-        
-    
+
+
     def getVal(self, ndraw):  # ndraw is an integer
         isnom = False
         if (ndraw == 0) and self.firstdrawisnom:
@@ -52,8 +52,8 @@ class MCVar:
             
         val = MCVal(self.name, ndraw, self.vals[ndraw], self.dist, isnom)
         return(val)
-        
-        
+
+
     def getNom(self):
         dist = self.dist(*self.distargs)
         ev = dist.expect()
@@ -72,8 +72,8 @@ class MCVar:
         
         else:
             return np.NaN
-  
-        
+
+
     def hist(self):
         # TODO: take in an axis as an argument
         fig, ax = plt.subplots(1, 1)

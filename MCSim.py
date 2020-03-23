@@ -14,39 +14,47 @@ class MCSim:
         self.endtime = None
         self.runtime = None
         
-        self.mccases = []        
         self.mcvars = mcvars  # mcvar is a single or list of MCVar objects
         # Package length 1 into an interable list
         if not isinstance(self.mcvars, list):
             self.mcvars = [self.mcvars,]
         
+        self.mccases = []        
         self.setNCases(self.ncases)
-        
-        
-    def addVar(self, name, dist, distargs):  # mcvar is a single MCVar object 
+
+
+    def addVar(self, name, dist, distargs):  
+        # name is a string
+        # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous 
+        # distargs is a tuple of the arguments to the above distribution
         self.mcvars.append(MCVar(name, dist, distargs, self.ncases))
-      
-        
-    def setNCases(self, ncases):
+
+
+    def setNCases(self, ncases):  # ncases is an int
         self.ncases = ncases
         np.random.seed(self.seed)
-        if (self.mcvars != []):
+        if self.mcvars == []:
+            self.clearCases()
+        else:
             for mcvar in self.mcvars:
                 mcvar.setNDraws(ncases)
             if self.mccases != []:
                 self.genCases()
-        else:
-            self.clearCases()
-    
+
 
     def genCases(self):
-        self.mccases = []
+        self.clearCases()
         for ncase in range(self.ncases):
             self.mccases.append(MCCase(ncase, self.mcvars))
-            
-            
+
+
     def clearCases(self):
         self.mccases = []
+
+
+    def clearVars(self):
+        self.mcvars = []
+        self.setNCases(self.ncases)
 
 
 '''

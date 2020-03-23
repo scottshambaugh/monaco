@@ -1,6 +1,4 @@
-#import datetime
-#from MCVar import MCVar
-#from MCVal import MCVal
+#from datetime import datetime
 
 class MCCase():
     def __init__(self, ncase, mcvars):
@@ -15,12 +13,14 @@ class MCCase():
             self.mcvars = (self.mcvars,)
         
         self.mcvals = self.getMCVals()
-        
+
+
     def getMCVals(self):
         mcvals = []
         for mcvar in self.mcvars:
             mcvals.append(mcvar.getVal(self.ncase))
         return mcvals
+
 
 '''
 ## Test ##
