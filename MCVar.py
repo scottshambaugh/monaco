@@ -4,21 +4,22 @@ from scipy.stats import rv_continuous, rv_discrete, mode
 from MCVal import MCVal
 
 class MCVar:
-    def __init__(self, name, dist, distvars, ndraws, seed=np.random.get_state()[1][0]):
-        self.seed = seed
-        self.name = name
-        self.dist = dist # must be a continuous or discrete distribution from scipy.stats 
-        self.distvars = distvars
-        self.ndraws = ndraws
-        self.nvals = ndraws + 1
+    def __init__(self, name, dist, distargs, ndraws, seed=np.random.get_state()[1][0]):
+        self.name = name          # name is a string
+        self.dist = dist          # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous 
+        self.distargs = distargs  # distargs is a tuple of the arguments to the above distribution
+        self.ndraws = ndraws      # ndraws is an integer
+        self.seed = seed          # seed is a number between 0 and 2^32-1
+        
         self.firstdrawisnom = True
+        self.nvals = ndraws + 1
         self.vals = np.array([])
         
         self.draw()
         
         
-    def setFirstDrawEV(self, truefalse):
-        if truefalse == True:
+    def setFirstDrawNom(self, firstdrawisnom):  # firstdrawisnom is a boolean
+        if firstdrawisnom:
            self.firstdrawisnom = True
            self.nvals = self.ndraws + 1
         else:
@@ -28,7 +29,7 @@ class MCVar:
     
     def draw(self):
         self.vals = np.array([])
-        dist = self.dist(*self.distvars)
+        dist = self.dist(*self.distargs)
 
         if self.firstdrawisnom:
             self.nvals = self.ndraws + 1
@@ -37,17 +38,17 @@ class MCVar:
         self.vals = np.append(self.vals, dist.rvs(size=self.ndraws))
         
     
-    def getVal(self, ndraw):
+    def getVal(self, ndraw):  # ndraw is an integer
         isnom = False
         if (ndraw == 0) and self.firstdrawisnom:
             isnom = True
             
-        val = MCVal(self.vals[ndraw], self.name, ndraw, self.dist, isnom)
+        val = MCVal(self.name, ndraw, self.vals[ndraw], self.dist, isnom)
         return(val)
         
         
     def getNom(self):
-        dist = self.dist(*self.distvars)
+        dist = self.dist(*self.distargs)
         ev = dist.expect()
         
         if isinstance(self.dist, rv_continuous):
@@ -66,9 +67,9 @@ class MCVar:
             return np.NaN
   
         
-    def hist(self, ax = np.NaN):
-        if np.isnan(ax):
-            fig, ax = plt.subplots(1, 1)
+    def hist(self):
+        # TODO: take in an axis as an argument
+        fig, ax = plt.subplots(1, 1)
         
         # Histogram generation
         counts, bins = np.histogram(self.vals, bins='auto')
@@ -81,7 +82,7 @@ class MCVar:
             plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=True, histtype='bar', facecolor='k', alpha=0.5)
             xlim = ax.get_xlim()
             x = np.arange(xlim[0], xlim[1], (xlim[1] - xlim[0])/100)
-            dist = self.dist(*self.distvars)
+            dist = self.dist(*self.distargs)
             plt.plot(x, dist.pdf(x), color='k', alpha=0.9)
         
         # Discrete distribution
@@ -89,7 +90,7 @@ class MCVar:
             plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False, histtype='bar', facecolor='k', alpha=0.5)
             xlim = ax.get_xlim()
             x = np.concatenate(([xlim[0]], bins, [xlim[1]]))
-            dist = self.dist(*self.distvars)
+            dist = self.dist(*self.distargs)
             pdf = np.diff(dist.cdf(x))
             plt.step(x[1:], pdf, color='k', alpha=0.9)
 
