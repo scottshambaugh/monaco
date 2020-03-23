@@ -2,17 +2,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import rv_continuous, rv_discrete, mode
 from MCVal import MCVal
-#from scipy.stats import *
 
 class MCVar:
     def __init__(self, name, dist, distvars, ndraws, seed=np.random.get_state()[1][0]):
         self.seed = seed
         self.name = name
-        self.dist = dist
+        self.dist = dist # must be a continuous or discrete distribution from scipy.stats 
         self.distvars = distvars
         self.ndraws = ndraws
         self.nvals = ndraws + 1
-        self.firstdrawisev = True
+        self.firstdrawisnom = True
         self.vals = np.array([])
         
         self.draw()
@@ -20,10 +19,10 @@ class MCVar:
         
     def setFirstDrawEV(self, truefalse):
         if truefalse == True:
-           self.firstdrawisev = True
+           self.firstdrawisnom = True
            self.nvals = self.ndraws + 1
         else:
-           self.firstdrawisev = False
+           self.firstdrawisnom = False
            self.nvals = self.ndraws
          
     
@@ -31,40 +30,61 @@ class MCVar:
         self.vals = np.array([])
         dist = self.dist(*self.distvars)
 
-        if self.firstdrawisev:
+        if self.firstdrawisnom:
             self.nvals = self.ndraws + 1
-            self.vals = np.append(self.vals, dist.expect())
+            self.vals = np.append(self.vals, self.getNom())
   
         self.vals = np.append(self.vals, dist.rvs(size=self.ndraws))
         
     
     def getVal(self, ndraw):
-        isev = False
-        if (ndraw == 0) and self.firstdrawisev:
-            isev = True
+        isnom = False
+        if (ndraw == 0) and self.firstdrawisnom:
+            isnom = True
             
-        val = MCVal(self.vals[ndraw], self.name, ndraw, self.dist, isev)
+        val = MCVal(self.vals[ndraw], self.name, ndraw, self.dist, isnom)
         return(val)
         
+        
+    def getNom(self):
+        dist = self.dist(*self.distvars)
+        ev = dist.expect()
+        
+        if isinstance(self.dist, rv_continuous):
+            return ev
+
+        # For a discrete distribution, we take the nearest discrete value closest to the expected value
+        elif isinstance(self.dist, rv_discrete):
+            eps = np.finfo(float).eps
+            p = dist.cdf(ev)
+            ev_candidates = np.array([dist.ppf(p - eps), dist.ppf(p), dist.ppf(p + eps)])
+            ev_candidates_dist = abs(ev_candidates - ev)
+            ev_closest = ev_candidates[np.argmin(ev_candidates_dist)]
+            return ev_closest
+        
+        else:
+            return np.NaN
+  
         
     def hist(self, ax = np.NaN):
         if np.isnan(ax):
             fig, ax = plt.subplots(1, 1)
         
-        # histogram
+        # Histogram generation
         counts, bins = np.histogram(self.vals, bins='auto')
         binwidth = mode(np.diff(bins))[0]
         bins = np.concatenate((bins - binwidth/2, bins[-1] + binwidth/2))
         counts, bins = np.histogram(self.vals, bins=bins)
 
-        # continuous
+        # Continuous distribution
         if isinstance(self.dist, rv_continuous):
             plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=True, histtype='bar', facecolor='k', alpha=0.5)
             xlim = ax.get_xlim()
             x = np.arange(xlim[0], xlim[1], (xlim[1] - xlim[0])/100)
             dist = self.dist(*self.distvars)
             plt.plot(x, dist.pdf(x), color='k', alpha=0.9)
-            
+        
+        # Discrete distribution
         elif isinstance(self.dist, rv_discrete):
             plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False, histtype='bar', facecolor='k', alpha=0.5)
             xlim = ax.get_xlim()
@@ -85,9 +105,10 @@ var = MCVar('Test', randint, (1, 5), 1000)
 var.hist()
 var = MCVar('Test', norm, (10, 4), 1000)
 var.hist()
-xk = (1, 4, 5)
+xk = (1, 5, 6)
 pk = np.ones(len(xk))/len(xk)
 custom = rv_discrete(name='custom', values=(xk, pk))
 var = MCVar('Test', custom, (), 1000)
 var.hist()
+print(var.getVal(0).val)
 #'''

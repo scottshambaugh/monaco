@@ -1,13 +1,13 @@
 import numpy as np
 
 class MCVal():
-    def __init__(self, val, name, ndraw, dist, isev = False, seed=np.random.get_state()[1][0]):
+    def __init__(self, val, name, ndraw, dist, isnom = False, seed=np.random.get_state()[1][0]):
         self.val = val
         self.name = name
         self.ndraw = ndraw
         self.seed = seed
         self.dist = dist
-        self.isev = isev
+        self.isnom = isnom
 
 '''
 ## Test ##
