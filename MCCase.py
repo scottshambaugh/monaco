@@ -5,13 +5,13 @@
 class MCCase():
     def __init__(self, ncase, mcvars):
         self.ncase = ncase    # ncase is an integer
-        self.mcvars = mcvars  # mcvars is a single instance or tuple of multiple MCVar objects
+        self.mcvars = mcvars  # mcvars is a single, list, or tuple of multiple MCVar objects
         self.starttime = None
         self.endtime = None
         self.runtime = None
         
         # Package length 1 into an interable tuple
-        if ~isinstance(self.mcvars, tuple):
+        if not isinstance(self.mcvars, list) and not isinstance(self.mcvars, tuple):
             self.mcvars = (self.mcvars,)
         
         self.mcvals = self.getMCVals()

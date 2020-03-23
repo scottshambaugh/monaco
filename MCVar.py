@@ -4,7 +4,7 @@ from scipy.stats import rv_continuous, rv_discrete, mode
 from MCVal import MCVal
 
 class MCVar:
-    def __init__(self, name, dist, distargs, ndraws, seed=np.random.get_state()[1][0]):
+    def __init__(self, name, dist, distargs, ndraws=0, seed=np.random.get_state()[1][0]):
         self.name = name          # name is a string
         self.dist = dist          # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous 
         self.distargs = distargs  # distargs is a tuple of the arguments to the above distribution
@@ -15,6 +15,13 @@ class MCVar:
         self.nvals = ndraws + 1
         self.vals = np.array([])
         
+        self.draw()
+        
+    
+    def setNDraws(self, ndraws):  # ndraws is an integer
+        self.ndraws = ndraws
+        self.setFirstDrawNom(self.firstdrawisnom)
+        self.seed = np.random.get_state()[1][0]
         self.draw()
         
         
