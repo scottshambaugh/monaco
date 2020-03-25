@@ -4,7 +4,7 @@ from MCCase import MCCase
 from MCVar import MCVar
 
 class MCSim:
-    def __init__(self, name, ncases, mcvars=[], seed=np.random.get_state()[1][0]):
+    def __init__(self, name, ncases, seed=np.random.get_state()[1][0]):
         self.name = name          # name is a string
         self.ncases = ncases      # ndraws is an integer
         self.seed = seed          # seed is a number between 0 and 2^32-1
@@ -14,11 +14,7 @@ class MCSim:
         self.endtime = None
         self.runtime = None
         
-        self.mcvars = mcvars  # mcvar is a single or list of MCVar objects
-        # Package length 1 into an interable list
-        if not isinstance(self.mcvars, list):
-            self.mcvars = [self.mcvars,]
-        
+        self.mcvars = dict()     
         self.mccases = []        
         self.setNCases(self.ncases)
 
@@ -27,16 +23,16 @@ class MCSim:
         # name is a string
         # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous 
         # distargs is a tuple of the arguments to the above distribution
-        self.mcvars.append(MCVar(name, dist, distargs, self.ncases))
+        self.mcvars[name] = MCVar(name, dist, distargs, self.ncases)
 
 
-    def setNCases(self, ncases):  # ncases is an int
+    def setNCases(self, ncases):  # ncases is an integer
         self.ncases = ncases
         np.random.seed(self.seed)
-        if self.mcvars == []:
+        if self.mcvars == dict():
             self.clearCases()
         else:
-            for mcvar in self.mcvars:
+            for mcvar in self.mcvars.values():
                 mcvar.setNDraws(ncases)
             if self.mccases != []:
                 self.genCases()
@@ -53,7 +49,7 @@ class MCSim:
 
 
     def clearVars(self):
-        self.mcvars = []
+        self.mcvars = dict()
         self.setNCases(self.ncases)
 
 
@@ -61,12 +57,12 @@ class MCSim:
 ## Test ##
 from scipy.stats import *
 np.random.seed(74494861)
-var1 = MCVar('Var1', randint, (1, 5), 20)
-sim = MCSim('Sim', 10, var1)
+sim = MCSim('Sim', 10)
+sim.addVar('Var1', randint, (1, 5))
 sim.addVar('Var2', norm, (10, 4))
 sim.genCases()
-print(sim.mcvars[0].name)
-print(sim.mccases[0].mcvals[0].val)
-print(sim.mcvars[1].name)
-print(sim.mccases[0].mcvals[1].val)
+print(sim.mcvars['Var1'].name)
+print(sim.mccases[0].mcvals['Var1'].val)
+print(sim.mcvars['Var2'].name)
+print(sim.mccases[0].mcvals['Var2'].val)
 #'''

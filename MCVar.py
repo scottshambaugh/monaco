@@ -65,7 +65,7 @@ class MCVar:
         elif isinstance(self.dist, rv_discrete):
             eps = np.finfo(float).eps
             p = dist.cdf(ev)
-            ev_candidates = np.array([dist.ppf(p - eps), dist.ppf(p), dist.ppf(p + eps)])
+            ev_candidates = dist.ppf([p - eps, p, p + eps])
             ev_candidates_dist = abs(ev_candidates - ev)
             ev_closest = ev_candidates[np.argmin(ev_candidates_dist)]
             return ev_closest
@@ -109,14 +109,15 @@ class MCVar:
 ## Test ##
 np.random.seed(74494861)
 from scipy.stats import *
-var = MCVar('Test', randint, (1, 5), 1000)
-var.hist()
-var = MCVar('Test', norm, (10, 4), 1000)
-var.hist()
+mcvars = dict()
+mcvars['randint'] = MCVar('randint', randint, (1, 5), 1000)
+mcvars['randint'].hist()
+mcvars['norm'] = MCVar('norm', norm, (10, 4), 1000)
+mcvars['norm'].hist()
 xk = (1, 5, 6)
 pk = np.ones(len(xk))/len(xk)
 custom = rv_discrete(name='custom', values=(xk, pk))
-var = MCVar('Test', custom, (), 1000)
-var.hist()
+mcvars['custom'] = MCVar('custom', custom, (), 1000)
+mcvars['custom'].hist()
 print(var.getVal(0).val)
 #'''
