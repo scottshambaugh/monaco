@@ -5,18 +5,87 @@ def rocket_example(sequence, massprops, propulsion, aero, launchsite):
     # Constants
     g = 9.81   # gravitational acceleration [m/s^2]
     dt = 0.01  # simulation timestep [s]
-    flightstage = 'prelaunch'  # prelaunch, poweredflight, coastflight, parachute, or landed
+    d2r = np.pi/180  # degrees to radians conversion [rad/deg]
+    flightstage = 'prelaunch'  # prelaunch, ignition, poweredflight, coastflight, parachute, or landed
+    tapogee = 0  # time at apogee [s]
+    timeout = 1000 # simulation timeout [s]
     
     # Time histories
-    t = [0,]  # simulation time [t]
-    m = [massprops.wetmass,]  # total mass [kg]
-    T = [0,]  # thrust [N]
-    pos = [[0,0,0],]  # position [x,y,z] [m]: x = alt above sea level, y = easting, z = northing
-    vel = [[0,0,0],]  # position [vx,vy,vz] [m/s]: x = vertical, y = easterly, z = northerly
-    acc = [[0,0,0],]  # acceleration [ax,ay,az] [m/s^2]: x = vertical, y = easterly, z = northerly
+    t = np.array([0])  # simulation time [t]
+    m = np.array([massprops['wetmass']])  # total mass [kg]
+    T = np.array([0])  # thrust [N]
+    pos = np.array([[0,0,0]])  # position [x,y,z] [m]: x = alt above sea level, y = easting, z = northing
+    vel = np.array([[0,0,0]])  # velocity [vx,vy,vz] [m/s]: vx = vertical, vy = easterly, vz = northerly
+    acc = np.array([[0,0,0]])  # acceleration [ax,ay,az] [m/s^2]: ax = vertical, ay = easterly, az = northerly
     
+    windvel = aero['windspd']*np.array([0, -np.sin(d2r*aero['windazi']), -np.cos(d2r*aero['windazi'])])
+    thrustvec = np.array([np.cos(d2r*launchsite['launchangle']), np.sin(d2r*launchsite['launchangle']), np.sin(d2r*launchsite['launchangle'])]) \
+                * np.array([1, np.sin(d2r*launchsite['launchazi']), np.cos(d2r*launchsite['launchazi'])])
     
-    return False
+    # Main calculation loop
+    i = 0 
+    while flightstage != 'landed':
+        
+        i = i+1
+        t = np.append(t, t[i-1] + dt)   
+
+        # Check for events and state transitions
+        if flightstage == 'prelaunch':
+            if t[i] >= sequence['ignition']:
+                flightstage = 'ignition'
+        elif flightstage == 'poweredflight':
+            if T[i-1] <= 0:
+                flightstage = 'coastflight'
+        elif flightstage == 'coastflight':
+            if vel[i-2][0] >= 0 and vel[i-1][0] <= 0:
+                tapogee = t[i-1]
+            if t[i] >= (tapogee + sequence['parachute_delay']):
+                flightstage = 'parachute'
+        
+        # Look up aero data based on if parachute is deployed
+        if flightstage == 'parachute':
+            area = np.array([aero['area_ax_parachute'], aero['area_lat_parachute'], aero['area_lat_parachute']])
+            cd = np.array([aero['cd_ax_parachute'], aero['cd_lat_parachute'], aero['cd_lat_parachute']])
+        else:
+            area = np.array([aero['area_ax_flight'], aero['area_lat_flight'], aero['area_lat_flight']])
+            cd = np.array([aero['cd_ax_flight'], aero['cd_lat_flight'], aero['cd_lat_flight']])
+
+        # Look up thrust and mass flow data
+        mdot = np.interp(t[i]-sequence['ignition'], propulsion['prop_time'], propulsion['prop_massflow'])
+        m = np.append(m, m[i-1] + mdot*dt)
+        T = np.append(T, np.interp(t[i]-sequence['ignition'], propulsion['prop_time'], propulsion['prop_thrust']))
+        
+        # Calculate and add up forces
+        velfreestream = vel[i-1]-windvel
+        Faero = -0.5*calcRho(pos[i-1][0])*(velfreestream**2)*np.sign(velfreestream)*cd*area
+        Fg = np.array([-m[i]*g, 0, 0])
+        Fthrust = T[i]*thrustvec       
+        Ftot = Faero + Fg + Fthrust
+        
+        # Check for liftoff, restrict vehicle if still on ground
+        if flightstage == 'ignition' and Ftot[0] > 0:
+            flightstage = 'poweredflight'
+        elif flightstage in ('prelaunch', 'ignition'):
+            Ftot = np.array([0,0,0])
+
+        # Integrate equations of motion
+        acc = np.append(acc, [Ftot/m[i]], axis=0)
+        vel = np.append(vel, [vel[i-1] + acc[i]*dt], axis=0)
+        pos = np.append(pos, [pos[i-1] + vel[i]*dt], axis=0)
+        
+        # Check for landing
+        if flightstage not in ('prelaunch', 'ignition') and pos[i][0] <= 0:
+            acc[i] = np.array([0,0,0])
+            vel[i] = np.array([0,0,0])
+            pos[i][0] = 0
+            flightstage = 'landed'
+        
+        # Check for timeout
+        if t[i] > timeout:
+            print('Timeout')
+            return 'Timeout'
+            
+    return (t, m, T, pos, vel, acc)
     
     
 def calcRho(alt):  # alt is altitude above sea level [m]
@@ -41,37 +110,52 @@ def calcRho(alt):  # alt is altitude above sea level [m]
 ### Test ###
 sequence = {
     'ignition' : 1, # time that engines are lit [s]
-    'parachute_delay' : 3, # time after apogee to open parachute [s]
+    'parachute_delay' : 10, # time after apogee to open parachute [s]
     }
 
 massprops = {
-    'drymass': 1,  # dry mass of rocket [kg]
-    'wetmass': 3,  # wet mass of rocket [kg]
+    'drymass': 2,  # dry mass of rocket [kg]
+    'wetmass': 4,  # wet mass of rocket [kg]
     }
 
 propulsion = {
-    'prop_time':      [0, 0.1,   5,  9.9, 10], # thrust curve time [s]
-    'prop_thrust' :   [0,   5,   5,    4,  0], # thrust curve thrust [N]
-    'prop_massflow' : [0, 0.1, 0.1, 0.08,  0], # thrust curve mass flow [kg/s]
+    'prop_time':      [0,  0.1,    5,   9.9, 10], # thrust curve time [s]
+    'prop_thrust' :   [0,  100,  100,    10,  0], # thrust curve thrust [N]
+    'prop_massflow' : [0, -0.2, -0.2, -0.01,  0], # thrust curve mass flow [kg/s]
     }
 
 aero = {
-    'windspd' : 2,                # wind speed [m/s]
-    'windazi' : 0,                # azimuth from north wind is blowing from [deg]
-    'area_ax_flight' :     0.01,  # axial area during flight [m^2]
-    'area_lat_flight' :    0.05,  # lateral area during flight [m^2]
-    'area_ax_parachute' :  0.25,  # axial area during parachute [m^2]
-    'area_lat_parachute' : 0.15,  # lateral area during parachute [m^2]
-    'cd_ax_flight' :     0.1,     # axial drag coefficient during flight []
-    'cd_lat_flight' :    1.0,     # lateral drag coefficient during flight []
-    'cd_ax_parachute' :  2.0,     # axial drag coefficient during parachute []
-    'cd_lat_parachute' : 1.2,     # lateral drag coefficient during parachute []
+    'windspd' : 2,                 # wind speed [m/s]
+    'windazi' : 10,                # azimuth from north wind is blowing from [deg]
+    'area_ax_flight' :     0.005,  # axial area during flight [m^2]
+    'area_lat_flight' :    0.05,   # lateral area during flight [m^2]
+    'area_ax_parachute' :  0.25,   # axial area during parachute [m^2]
+    'area_lat_parachute' : 0.15,   # lateral area during parachute [m^2]
+    'cd_ax_flight' :     0.3,      # axial drag coefficient during flight []
+    'cd_lat_flight' :    1.0,      # lateral drag coefficient during flight []
+    'cd_ax_parachute' :  2.0,      # axial drag coefficient during parachute []
+    'cd_lat_parachute' : 1.2,      # lateral drag coefficient during parachute []
     }
 
 launchsite = {
-    'launchangle' : 10, # launch angle from vertical [deg]
+    'launchangle' : 2,  # launch angle from vertical [deg]
     'launchazi' : 0,    # launch azimuth from north [deg]
     }
 
-rocket_example(sequence, massprops, propulsion, aero, launchsite)
+(t, m, T, pos, vel, acc) = rocket_example(sequence, massprops, propulsion, aero, launchsite)
+
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.plot(pos[:,1], pos[:,2], pos[:,0])
+ax.set_xlabel('E')
+ax.set_ylabel('N')
+ax.set_zlabel('Alt')
+
+fig = plt.figure()
+plt.plot(t,vel[:,0],'b')
+plt.plot(t,acc[:,0],'r')
+fig = plt.figure()
+plt.plot(t,m)
 #'''
