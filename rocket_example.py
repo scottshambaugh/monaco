@@ -7,7 +7,7 @@ def rocket_example(sequence, massprops, propulsion, aero, launchsite):
     dt = 0.01  # simulation timestep [s]
     d2r = np.pi/180  # degrees to radians conversion [rad/deg]
     flightstage = 'prelaunch'  # prelaunch, ignition, poweredflight, coastflight, parachute, or landed
-    tapogee = 0  # time at apogee [s]
+    tapogee = None  # time at apogee [s]
     timeout = 1000 # simulation timeout [s]
     
     # Time histories
@@ -39,7 +39,7 @@ def rocket_example(sequence, massprops, propulsion, aero, launchsite):
         elif flightstage == 'coastflight':
             if vel[i-2][0] >= 0 and vel[i-1][0] <= 0:
                 tapogee = t[i-1]
-            if t[i] >= (tapogee + sequence['parachute_delay']):
+            if tapogee != None and t[i] >= (tapogee + sequence['parachute_delay']):
                 flightstage = 'parachute'
         
         # Look up aero data based on if parachute is deployed
@@ -83,8 +83,8 @@ def rocket_example(sequence, massprops, propulsion, aero, launchsite):
         # Check for timeout
         if t[i] > timeout:
             print('Timeout')
-            return 'Timeout'
-            
+            return None
+
     return (t, m, T, pos, vel, acc)
     
     
@@ -110,7 +110,7 @@ def calcRho(alt):  # alt is altitude above sea level [m]
 ### Test ###
 sequence = {
     'ignition' : 1, # time that engines are lit [s]
-    'parachute_delay' : 10, # time after apogee to open parachute [s]
+    'parachute_delay' : 3, # time after apogee to open parachute [s]
     }
 
 massprops = {
@@ -119,21 +119,21 @@ massprops = {
     }
 
 propulsion = {
-    'prop_time':      [0,  0.1,    5,   9.9, 10], # thrust curve time [s]
-    'prop_thrust' :   [0,  100,  100,    10,  0], # thrust curve thrust [N]
-    'prop_massflow' : [0, -0.2, -0.2, -0.01,  0], # thrust curve mass flow [kg/s]
+    'prop_time':      [0,  0.1,  9.9, 10], # thrust curve time [s]
+    'prop_thrust' :   [0,  100,  100,  0], # thrust curve thrust [N]
+    'prop_massflow' : [0, -0.2, -0.2,  0], # thrust curve mass flow [kg/s]
     }
 
 aero = {
     'windspd' : 2,                 # wind speed [m/s]
     'windazi' : 10,                # azimuth from north wind is blowing from [deg]
-    'area_ax_flight' :     0.005,  # axial area during flight [m^2]
-    'area_lat_flight' :    0.05,   # lateral area during flight [m^2]
-    'area_ax_parachute' :  0.25,   # axial area during parachute [m^2]
-    'area_lat_parachute' : 0.15,   # lateral area during parachute [m^2]
+    'area_ax_flight' :     0.01,   # axial area during flight [m^2]
+    'area_lat_flight' :    0.10,   # lateral area during flight [m^2]
+    'area_ax_parachute' :  0.40,   # axial area during parachute [m^2]
+    'area_lat_parachute' : 0.25,   # lateral area during parachute [m^2]
     'cd_ax_flight' :     0.3,      # axial drag coefficient during flight []
     'cd_lat_flight' :    1.0,      # lateral drag coefficient during flight []
-    'cd_ax_parachute' :  2.0,      # axial drag coefficient during parachute []
+    'cd_ax_parachute' :  1.5,      # axial drag coefficient during parachute []
     'cd_lat_parachute' : 1.2,      # lateral drag coefficient during parachute []
     }
 
@@ -156,6 +156,4 @@ ax.set_zlabel('Alt')
 fig = plt.figure()
 plt.plot(t,vel[:,0],'b')
 plt.plot(t,acc[:,0],'r')
-fig = plt.figure()
-plt.plot(t,m)
 #'''
