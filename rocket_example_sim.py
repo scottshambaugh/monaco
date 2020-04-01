@@ -1,10 +1,10 @@
 import numpy as np
 
-def rocket_example(sequence, massprops, propulsion, aero, launchsite):
+def rocket_example_sim(sequence, massprops, propulsion, aero, launchsite):
     
     # Constants
     g = 9.81   # gravitational acceleration [m/s^2]
-    dt = 0.01  # simulation timestep [s]
+    dt = 0.1  # simulation timestep [s]
     d2r = np.pi/180  # degrees to radians conversion [rad/deg]
     flightstage = 'prelaunch'  # prelaunch, ignition, poweredflight, coastflight, parachute, or landed
     tapogee = None  # time at apogee [s]
@@ -142,7 +142,7 @@ launchsite = {
     'launchazi' : 0,    # launch azimuth from north [deg]
     }
 
-(t, m, T, pos, vel, acc) = rocket_example(sequence, massprops, propulsion, aero, launchsite)
+(t, m, T, pos, vel, acc) = rocket_example_sim(sequence, massprops, propulsion, aero, launchsite)
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -156,4 +156,6 @@ ax.set_zlabel('Alt')
 fig = plt.figure()
 plt.plot(t,vel[:,0],'b')
 plt.plot(t,acc[:,0],'r')
+plt.xlabel('Time [s]')
+plt.legend(('Vertical Vel [m/s]','Vertical Accel [m/s^s]'))
 #'''

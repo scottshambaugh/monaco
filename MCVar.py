@@ -11,10 +11,13 @@ class MCVar:
         self.ndraws = ndraws      # ndraws is an integer
         self.seed = seed          # seed is a number between 0 and 2^32-1
         
+        if not isinstance(self.distargs, tuple):
+            self.distargs = (self.distargs,)
+
         self.firstdrawisnom = True
         self.nvals = ndraws + 1
         self.vals = np.array([])
-        
+                
         self.draw()
 
 
