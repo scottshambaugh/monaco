@@ -1,23 +1,32 @@
 #from datetime import datetime
 
 class MCCase():
-    def __init__(self, ncase, mcvars):
+    def __init__(self, ncase, mcinvars):
         self.ncase = ncase    # ncase is an integer
-        self.mcvars = mcvars  # mcvars is a dict of MCVar objects
+        self.mcinvars = mcinvars  # mcvars is a dict of MCVar objects
+        self.mcoutvars = dict()
         self.starttime = None
         self.endtime = None
         self.runtime = None
         
-        self.mcvals = self.getMCVals()
+        self.mcinvals = self.getMCInVals()
+        self.mcoutvals = dict()
 
 
-    def getMCVals(self):
+    def getMCInVals(self):
         mcvals = dict()
-        for mcvar in self.mcvars.values():
+        for mcvar in self.mcinvars.values():
             mcval = mcvar.getVal(self.ncase)
             mcvals[mcval.name] = mcval
         return mcvals
 
+    def getMCOutVals(self):
+        mcvals = dict()
+        for mcvar in self.mcoutvars.values():
+            mcval = mcvar.getVal(self.ncase)
+            mcvals[mcval.name] = mcval
+        return mcvals
+    
 
 '''
 ### Test ###

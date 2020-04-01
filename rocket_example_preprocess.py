@@ -16,16 +16,16 @@ def rocket_example_preprocess(mccase):
         }
     
     aero = {
-        'windspd' : 2,                             # wind speed [m/s]
-        'windazi' : mccase.mcvals['windazi'].val,  # azimuth from north wind is blowing from [deg]
-        'area_ax_flight' :     0.01,               # axial area during flight [m^2]
-        'area_lat_flight' :    0.10,               # lateral area during flight [m^2]
-        'area_ax_parachute' :  0.40,               # axial area during parachute [m^2]
-        'area_lat_parachute' : 0.25,               # lateral area during parachute [m^2]
-        'cd_ax_flight' :     0.3,                  # axial drag coefficient during flight []
-        'cd_lat_flight' :    1.0,                  # lateral drag coefficient during flight []
-        'cd_ax_parachute' :  1.5,                  # axial drag coefficient during parachute []
-        'cd_lat_parachute' : 1.2,                  # lateral drag coefficient during parachute []
+        'windspd' : 2,                               # wind speed [m/s]
+        'windazi' : mccase.mcinvals['windazi'].val,  # azimuth from north wind is blowing from [deg]
+        'area_ax_flight' :     0.01,                 # axial area during flight [m^2]
+        'area_lat_flight' :    0.10,                 # lateral area during flight [m^2]
+        'area_ax_parachute' :  0.40,                 # axial area during parachute [m^2]
+        'area_lat_parachute' : 0.25,                 # lateral area during parachute [m^2]
+        'cd_ax_flight' :     0.3,                    # axial drag coefficient during flight []
+        'cd_lat_flight' :    1.0,                    # lateral drag coefficient during flight []
+        'cd_ax_parachute' :  1.5,                    # axial drag coefficient during parachute []
+        'cd_lat_parachute' : 1.2,                    # lateral drag coefficient during parachute []
         }
     
     launchsite = {

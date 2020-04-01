@@ -7,7 +7,9 @@ from rocket_example_postprocess import rocket_example_postprocess
 from rocket_example_sim import rocket_example_sim
 
 ncases = 5
-sim = MCSim('Rocket', 5)
+seed=123098
+
+sim = MCSim('Rocket', ncases, seed)
 
 sim.addInVar('windazi', uniform, (0, 360))
 

@@ -133,7 +133,13 @@ class MCInVar(MCVar):
 
 ### MCOutVar Class ###
 class MCOutVar(MCVar):
-    pass
+    def getVal(self, ndraw):  # ndraw is an integer
+        isnom = False
+        if (ndraw == 0) and self.firstdrawisnom:
+            isnom = True
+            
+        val = MCOutVal(self.name, ndraw, self.vals[ndraw], isnom)
+        return(val)
 
 
 
