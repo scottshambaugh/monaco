@@ -1,31 +1,19 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import rv_continuous, rv_discrete, mode
-from MCVal import MCVal
+from MCVal import *
 
+### MCVar Base Class ###
 class MCVar:
-    def __init__(self, name, dist, distargs, ndraws=0, seed=np.random.get_state()[1][0]):
+    def __init__(self, name, ndraws=0, firstdrawisnom=True):
         self.name = name          # name is a string
-        self.dist = dist          # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous 
-        self.distargs = distargs  # distargs is a tuple of the arguments to the above distribution
         self.ndraws = ndraws      # ndraws is an integer
-        self.seed = seed          # seed is a number between 0 and 2^32-1
-        
-        if not isinstance(self.distargs, tuple):
-            self.distargs = (self.distargs,)
 
-        self.firstdrawisnom = True
+        self.firstdrawisnom = firstdrawisnom
         self.nvals = ndraws + 1
+        self.setFirstDrawNom(firstdrawisnom)
+        
         self.vals = np.array([])
-                
-        self.draw()
-
-
-    def setNDraws(self, ndraws):  # ndraws is an integer
-        self.ndraws = ndraws
-        self.setFirstDrawNom(self.firstdrawisnom)
-        self.seed = np.random.get_state()[1][0]
-        self.draw()
 
 
     def setFirstDrawNom(self, firstdrawisnom):  # firstdrawisnom is a boolean
@@ -37,6 +25,41 @@ class MCVar:
            self.nvals = self.ndraws
 
 
+    def setNDraws(self, ndraws):  # ndraws is an integer
+        raise NotImplementedError() # abstract method
+
+    def getVal(self, ndraw):  # ndraw is an integer
+        raise NotImplementedError() # abstract method
+
+    def getNom(self):
+        raise NotImplementedError() # abstract method
+
+    def hist(self):
+        raise NotImplementedError() # abstract method
+
+
+
+### MCInVar Class ###
+class MCInVar(MCVar):
+    def __init__(self, name, dist, distargs, ndraws=0, seed=np.random.get_state()[1][0], firstdrawisnom=True):
+        super().__init__(name, ndraws, firstdrawisnom)
+        self.dist = dist          # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous 
+        self.distargs = distargs  # distargs is a tuple of the arguments to the above distribution
+        self.seed = seed          # seed is a number between 0 and 2^32-1
+        
+        if not isinstance(self.distargs, tuple):
+            self.distargs = (self.distargs,)
+        
+        self.draw()
+
+
+    def setNDraws(self, ndraws):  # ndraws is an integer
+        self.ndraws = ndraws
+        self.setFirstDrawNom(self.firstdrawisnom)
+        self.seed = np.random.get_state()[1][0]
+        self.draw()
+        
+        
     def draw(self):
         self.vals = np.array([])
         dist = self.dist(*self.distargs)
@@ -46,15 +69,6 @@ class MCVar:
             self.vals = np.append(self.vals, self.getNom())
   
         self.vals = np.append(self.vals, dist.rvs(size=self.ndraws))
-
-
-    def getVal(self, ndraw):  # ndraw is an integer
-        isnom = False
-        if (ndraw == 0) and self.firstdrawisnom:
-            isnom = True
-            
-        val = MCVal(self.name, ndraw, self.vals[ndraw], self.dist, isnom)
-        return(val)
 
 
     def getNom(self):
@@ -75,6 +89,14 @@ class MCVar:
         
         else:
             return np.NaN
+
+    def getVal(self, ndraw):  # ndraw is an integer
+        isnom = False
+        if (ndraw == 0) and self.firstdrawisnom:
+            isnom = True
+            
+        val = MCInVal(self.name, ndraw, self.vals[ndraw], self.dist, isnom)
+        return(val)
 
 
     def hist(self):
@@ -108,19 +130,26 @@ class MCVar:
         plt.ylabel('Probability Density')
 
 
+
+### MCOutVar Class ###
+class MCOutVar(MCVar):
+    pass
+
+
+
 '''
-## Test ##
+### Test ###
 np.random.seed(74494861)
 from scipy.stats import *
 mcvars = dict()
-mcvars['randint'] = MCVar('randint', randint, (1, 5), 1000)
+mcvars['randint'] = MCInVar('randint', randint, (1, 5), 1000)
 mcvars['randint'].hist()
-mcvars['norm'] = MCVar('norm', norm, (10, 4), 1000)
+mcvars['norm'] = MCInVar('norm', norm, (10, 4), 1000)
 mcvars['norm'].hist()
 xk = (1, 5, 6)
 pk = np.ones(len(xk))/len(xk)
 custom = rv_discrete(name='custom', values=(xk, pk))
-mcvars['custom'] = MCVar('custom', custom, (), 1000)
+mcvars['custom'] = MCInVar('custom', custom, (), 1000)
 mcvars['custom'].hist()
 print(var.getVal(0).val)
 #'''

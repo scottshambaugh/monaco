@@ -1,7 +1,7 @@
 import numpy as np
 from datetime import datetime
 from MCCase import MCCase
-from MCVar import MCVar
+from MCVar import *
 
 class MCSim:
     def __init__(self, name, ncases, seed=np.random.get_state()[1][0]):
@@ -19,11 +19,11 @@ class MCSim:
         self.setNCases(self.ncases)
 
 
-    def addVar(self, name, dist, distargs):  
+    def addInVar(self, name, dist, distargs):  
         # name is a string
         # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous 
         # distargs is a tuple of the arguments to the above distribution
-        self.mcvars[name] = MCVar(name, dist, distargs, self.ncases)
+        self.mcvars[name] = MCInVar(name, dist, distargs, self.ncases)
 
 
     def setNCases(self, ncases):  # ncases is an integer
@@ -54,12 +54,12 @@ class MCSim:
 
 
 '''
-## Test ##
+### Test ###
 from scipy.stats import *
 np.random.seed(74494861)
 sim = MCSim('Sim', 10)
-sim.addVar('Var1', randint, (1, 5))
-sim.addVar('Var2', norm, (10, 4))
+sim.addInVar('Var1', randint, (1, 5))
+sim.addInVar('Var2', norm, (10, 4))
 sim.genCases()
 print(sim.mcvars['Var1'].name)
 print(sim.mccases[0].mcvals['Var1'].val)

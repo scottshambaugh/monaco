@@ -20,12 +20,12 @@ class MCCase():
 
 
 '''
-## Test ##
+### Test ###
 import numpy as np
 from scipy.stats import *
-from MCVar import MCVar
+from MCVar import *
 np.random.seed(74494861)
-var = {'Test':MCVar('Test', norm, (10, 4), 10)}
+var = {'Test':MCInVar('Test', norm, (10, 4), 10)}
 case = MCCase(0, var)
 print(case.mcvals['Test'].val)
 #'''
