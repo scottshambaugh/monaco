@@ -145,6 +145,31 @@ class MCOutVar(MCVar):
             
         val = MCOutVal(self.name, ncase, self.vals[ncase], isnom)
         return(val)
+        
+    
+    def getNom(self):
+        val = None
+        if self.firstcaseisnom:
+            val = self.vals[0]            
+        return(val)
+
+
+    def hist(self):
+        # TODO: take in an axis as an argument
+        fig, ax = plt.subplots(1, 1)
+        
+        # Histogram generation
+        counts, bins = np.histogram(self.vals, bins='auto')
+        binwidth = mode(np.diff(bins))[0]
+        bins = np.concatenate((bins - binwidth/2, bins[-1] + binwidth/2))
+        counts, bins = np.histogram(self.vals, bins=bins)
+
+        plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False, histtype='bar', facecolor='k', alpha=0.5)
+        if self.firstcaseisnom:
+            plt.plot([self.getNom(), self.getNom()], ax.get_ylim(), 'k-')
+
+        plt.xlabel(self.name)
+        plt.ylabel('Probability Density')
 
 
 
@@ -165,7 +190,8 @@ mcinvars['custom'].hist()
 print(mcinvars['custom'].getVal(0).val)
 
 mcoutvars = dict()
-mcoutvars['test'] = MCOutVar('test', [0, 1, 2, 3], firstcaseisnom=True)
+mcoutvars['test'] = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
 print(mcoutvars['test'].getVal(1).val)
+mcoutvars['test'].hist()
 
 #'''

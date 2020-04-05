@@ -23,12 +23,14 @@ class MCCase():
             mcvals[mcval.name] = mcval
         return mcvals
 
+
     def getMCOutVals(self):
         mcvals = dict()
         for mcvar in self.mcoutvars.values():
             mcval = mcvar.getVal(self.ncase)
             mcvals[mcval.name] = mcval
         return mcvals
+    
     
     def addOutVal(self, name, val):
         self.mcoutvals[name] = MCOutVal(name, self.ncase, val, self.isnom)

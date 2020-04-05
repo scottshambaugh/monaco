@@ -36,6 +36,7 @@ class MCSim:
             for mcvar in self.mcinvars.values():
                 mcvar.setFirstCaseNom(firstcaseisnom)
 
+
     def addInVar(self, name, dist, distargs):  
         # name is a string
         # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous 
@@ -73,6 +74,7 @@ class MCSim:
             self.mcoutvars[varname] = MCOutVar(varname, vals, self.ndraws, self.firstcaseisnom)
             for i in range(self.ncases):
                 self.mccases[i].mcoutvars[varname] = self.mcoutvars[varname]
+
 
     def clearCases(self):
         self.mccases = []
