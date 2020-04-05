@@ -1,7 +1,7 @@
 import numpy as np
 from datetime import datetime
 from MCCase import MCCase
-from MCVar import *
+from MCVar import MCInVar, MCOutVar
 
 class MCSim:
     def __init__(self, name, ndraws, firstcaseisnom=True, seed=np.random.get_state()[1][0]):
@@ -18,6 +18,7 @@ class MCSim:
         self.runtime = None
         
         self.mcinvars = dict()     
+        self.mcoutvars = dict()     
         self.mccases = []        
         
         self.setFirstCaseNom(firstcaseisnom)
@@ -39,7 +40,7 @@ class MCSim:
         # name is a string
         # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous 
         # distargs is a tuple of the arguments to the above distribution
-        self.mcinvars[name] = MCInVar(name, dist, distargs, self.ncases, self.firstcaseisnom)
+        self.mcinvars[name] = MCInVar(name, dist, distargs, self.ndraws, self.ncases, self.firstcaseisnom)
 
 
     def setNDraws(self, ndraws):  # ncases is an integer
@@ -63,6 +64,15 @@ class MCSim:
                 isnom = True
             self.mccases.append(MCCase(ncase, self.mcinvars, isnom))
 
+
+    def genOutVars(self):
+        for varname in self.mccases[0].mcoutvals.keys():
+            vals = []
+            for i in range(self.ncases):
+                vals.append(self.mccases[i].mcoutvals[varname].val)
+            self.mcoutvars[varname] = MCOutVar(varname, vals, self.ndraws, self.firstcaseisnom)
+            for i in range(self.ncases):
+                self.mccases[i].mcoutvars[varname] = self.mcoutvars[varname]
 
     def clearCases(self):
         self.mccases = []

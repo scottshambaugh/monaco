@@ -5,15 +5,13 @@ from MCVal import MCInVal, MCOutVal
 
 ### MCVar Base Class ###
 class MCVar:
-    def __init__(self, name, ndraws=0, firstcaseisnom=True):
+    def __init__(self, name, ndraws, firstcaseisnom):
         self.name = name          # name is a string
         self.ndraws = ndraws      # ndraws is an integer
-
         self.firstcaseisnom = firstcaseisnom
         self.ncases = ndraws + 1
         self.setFirstCaseNom(firstcaseisnom)
         
-        self.vals = np.array([])
 
 
     def setFirstCaseNom(self, firstcaseisnom):  # firstdrawisnom is a boolean
@@ -24,7 +22,7 @@ class MCVar:
            self.firstcaseisnom = False
            self.ncases = self.ndraws
 
-    def getVal(self, ndraw):  # ndraw is an integer
+    def getVal(self, ncase):  # ncase is an integer
         raise NotImplementedError() # abstract method
 
     def getNom(self):
@@ -37,12 +35,13 @@ class MCVar:
 
 ### MCInVar Class ###
 class MCInVar(MCVar):
-    def __init__(self, name, dist, distargs, ndraws=0, seed=np.random.get_state()[1][0], firstcaseisnom=True):
+    def __init__(self, name, dist, distargs, ndraws,  seed=np.random.get_state()[1][0], firstcaseisnom=True):
         super().__init__(name, ndraws, firstcaseisnom)
         self.dist = dist          # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous 
         self.distargs = distargs  # distargs is a tuple of the arguments to the above distribution
         self.seed = seed          # seed is a number between 0 and 2^32-1
-        
+        self.vals = []
+
         if not isinstance(self.distargs, tuple):
             self.distargs = (self.distargs,)
         
@@ -57,14 +56,14 @@ class MCInVar(MCVar):
         
         
     def draw(self):
-        self.vals = np.array([])
+        self.vals = []
         dist = self.dist(*self.distargs)
 
         if self.firstcaseisnom:
             self.ncases = self.ndraws + 1
-            self.vals = np.append(self.vals, self.getNom())
+            self.vals.append(self.getNom())
   
-        self.vals = np.append(self.vals, dist.rvs(size=self.ndraws))
+        self.vals.extend(dist.rvs(size=self.ndraws).tolist())
 
 
     def getNom(self):
@@ -86,12 +85,12 @@ class MCInVar(MCVar):
         else:
             return np.NaN
 
-    def getVal(self, ndraw):  # ndraw is an integer
+    def getVal(self, ncase):  # ncase is an integer
         isnom = False
-        if (ndraw == 0) and self.firstcaseisnom:
+        if (ncase == 0) and self.firstcaseisnom:
             isnom = True
             
-        val = MCInVal(self.name, ndraw, self.vals[ndraw], self.dist, isnom)
+        val = MCInVal(self.name, ncase, self.vals[ncase], self.dist, isnom)
         return(val)
 
 
@@ -129,7 +128,16 @@ class MCInVar(MCVar):
 
 ### MCOutVar Class ###
 class MCOutVar(MCVar):
-    
+    def __init__(self, name, vals, ndraws=None, firstcaseisnom=True):
+        if ndraws == None:
+            ndraws = len(vals)
+            if firstcaseisnom:
+                ndraws = ndraws - 1
+        
+        super().__init__(name, ndraws, firstcaseisnom)
+        self.vals = vals  # vals is a list
+
+
     def getVal(self, ncase):  # ncase is an integer
         isnom = False
         if (ncase == 0) and self.firstcaseisnom:
@@ -154,6 +162,10 @@ pk = np.ones(len(xk))/len(xk)
 custom = rv_discrete(name='custom', values=(xk, pk))
 mcinvars['custom'] = MCInVar('custom', custom, (), 1000)
 mcinvars['custom'].hist()
+print(mcinvars['custom'].getVal(0).val)
 
 mcoutvars = dict()
+mcoutvars['test'] = MCOutVar('test', [0, 1, 2, 3], firstcaseisnom=True)
+print(mcoutvars['test'].getVal(1).val)
+
 #'''
