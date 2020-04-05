@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.stats import rv_continuous, rv_discrete, mode
+from scipy.stats import rv_continuous, rv_discrete, mode, describe
 from MCVal import MCInVal, MCOutVal
 
 ### MCVar Base Class ###
@@ -11,8 +11,8 @@ class MCVar:
         self.firstcaseisnom = firstcaseisnom
         self.ncases = ndraws + 1
         self.setFirstCaseNom(firstcaseisnom)
+        self.vals = []
         
-
 
     def setFirstCaseNom(self, firstcaseisnom):  # firstdrawisnom is a boolean
         if firstcaseisnom:
@@ -21,6 +21,11 @@ class MCVar:
         else:
            self.firstcaseisnom = False
            self.ncases = self.ndraws
+
+
+    def stats(self):
+        return describe(self.vals)
+
 
     def getVal(self, ncase):  # ncase is an integer
         raise NotImplementedError() # abstract method
@@ -40,7 +45,6 @@ class MCInVar(MCVar):
         self.dist = dist          # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous 
         self.distargs = distargs  # distargs is a tuple of the arguments to the above distribution
         self.seed = seed          # seed is a number between 0 and 2^32-1
-        self.vals = []
 
         if not isinstance(self.distargs, tuple):
             self.distargs = (self.distargs,)
@@ -193,5 +197,6 @@ mcoutvars = dict()
 mcoutvars['test'] = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
 print(mcoutvars['test'].getVal(1).val)
 mcoutvars['test'].hist()
+print(mcoutvars['test'].stats())
 
 #'''

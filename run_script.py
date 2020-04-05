@@ -21,4 +21,4 @@ for i in range(sim.ncases):
 
 sim.genOutVars()
 print(sim.mcoutvars['Landing Dist'].vals)
-print(describe(sim.mcoutvars['Landing Dist'].vals))
+print(sim.mcoutvars['Landing Dist'].stats())
