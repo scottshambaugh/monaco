@@ -24,16 +24,14 @@ class MCVar:
 
 
     def stats(self):
-        return describe(self.vals)
+        stats = describe(self.vals)
+        return stats
 
 
     def getVal(self, ncase):  # ncase is an integer
         raise NotImplementedError() # abstract method
 
     def getNom(self):
-        raise NotImplementedError() # abstract method
-
-    def hist(self):
         raise NotImplementedError() # abstract method
 
 
@@ -95,38 +93,7 @@ class MCInVar(MCVar):
             isnom = True
             
         val = MCInVal(self.name, ncase, self.vals[ncase], self.dist, isnom)
-        return(val)
-
-
-    def hist(self):
-        # TODO: take in an axis as an argument
-        fig, ax = plt.subplots(1, 1)
-        
-        # Histogram generation
-        counts, bins = np.histogram(self.vals, bins='auto')
-        binwidth = mode(np.diff(bins))[0]
-        bins = np.concatenate((bins - binwidth/2, bins[-1] + binwidth/2))
-        counts, bins = np.histogram(self.vals, bins=bins)
-
-        # Continuous distribution
-        if isinstance(self.dist, rv_continuous):
-            plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=True, histtype='bar', facecolor='k', alpha=0.5)
-            xlim = ax.get_xlim()
-            x = np.arange(xlim[0], xlim[1], (xlim[1] - xlim[0])/100)
-            dist = self.dist(*self.distargs)
-            plt.plot(x, dist.pdf(x), color='k', alpha=0.9)
-        
-        # Discrete distribution
-        elif isinstance(self.dist, rv_discrete):
-            plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False, histtype='bar', facecolor='k', alpha=0.5)
-            xlim = ax.get_xlim()
-            x = np.concatenate(([xlim[0]], bins, [xlim[1]]))
-            dist = self.dist(*self.distargs)
-            pdf = np.diff(dist.cdf(x))
-            plt.step(x[1:], pdf, color='k', alpha=0.9)
-
-        plt.xlabel(self.name)
-        plt.ylabel('Probability Density')
+        return val
 
 
 
@@ -148,55 +115,36 @@ class MCOutVar(MCVar):
             isnom = True
             
         val = MCOutVal(self.name, ncase, self.vals[ncase], isnom)
-        return(val)
+        return val
         
     
     def getNom(self):
         val = None
         if self.firstcaseisnom:
             val = self.vals[0]            
-        return(val)
-
-
-    def hist(self):
-        # TODO: take in an axis as an argument
-        fig, ax = plt.subplots(1, 1)
-        
-        # Histogram generation
-        counts, bins = np.histogram(self.vals, bins='auto')
-        binwidth = mode(np.diff(bins))[0]
-        bins = np.concatenate((bins - binwidth/2, bins[-1] + binwidth/2))
-        counts, bins = np.histogram(self.vals, bins=bins)
-
-        plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False, histtype='bar', facecolor='k', alpha=0.5)
-        if self.firstcaseisnom:
-            plt.plot([self.getNom(), self.getNom()], ax.get_ylim(), 'k-')
-
-        plt.xlabel(self.name)
-        plt.ylabel('Probability Density')
+        return val
 
 
 
 '''
 ### Test ###
 np.random.seed(74494861)
-from scipy.stats import *
+from scipy.stats import norm, randint
 mcinvars = dict()
 mcinvars['randint'] = MCInVar('randint', randint, (1, 5), 1000)
-mcinvars['randint'].hist()
+print(mcinvars['randint'].stats())
 mcinvars['norm'] = MCInVar('norm', norm, (10, 4), 1000)
-mcinvars['norm'].hist()
+print(mcinvars['norm'].stats())
 xk = np.array([1, 5, 6])
 pk = np.ones(len(xk))/len(xk)
 custom = rv_discrete(name='custom', values=(xk, pk))
 mcinvars['custom'] = MCInVar('custom', custom, (), 1000)
-mcinvars['custom'].hist()
+print(mcinvars['custom'].stats())
 print(mcinvars['custom'].getVal(0).val)
 
 mcoutvars = dict()
 mcoutvars['test'] = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
 print(mcoutvars['test'].getVal(1).val)
-mcoutvars['test'].hist()
 print(mcoutvars['test'].stats())
 
 #'''
