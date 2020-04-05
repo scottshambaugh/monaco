@@ -12,6 +12,7 @@ class MCInVal(MCVal):
         self.dist = dist    # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous
 
 class MCOutVal(MCVal):
+    # No additional methods or variables
     pass
 
 
