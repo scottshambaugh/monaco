@@ -102,9 +102,10 @@ def MCPlot2DScatter(mcvarx, mcvary):
     fig, ax = plt.subplots(1, 1)
     colorblack = [[0,0,0],]
     colorred = [[1,0,0],]
-    
+    idx = int(mcvarx.firstcaseisnom)
+
     if not mcvarx.firstcaseisnom or mcvarx.ndraws > 0:
-        plt.scatter(mcvarx.vals, mcvary.vals, edgecolors=None, c=colorblack, alpha=0.5)
+        plt.scatter(mcvarx.vals[idx:-1], mcvary.vals[idx:-1], edgecolors=None, c=colorblack, alpha=0.5)
     if mcvarx.firstcaseisnom:
         plt.scatter(mcvarx.vals[0], mcvary.vals[0], edgecolors=None, c=colorred, alpha=1)        
 
@@ -116,8 +117,8 @@ def MCPlot2DScatter(mcvarx, mcvary):
 def MCPlot2DLine(mcvarx, mcvary):
     fig, ax = plt.subplots(1, 1)
     
-    if not mcvarx.firstcaseisnom or mcvarx.ndraws > 0:
-        for i in range(mcvarx.ncases):
+    if mcvarx.ndraws > 0:
+        for i in range(int(mcvarx.firstcaseisnom), mcvarx.ncases):
             plt.plot(mcvarx.vals[i], mcvary.vals[i], 'k-', alpha=0.5)
     if mcvarx.firstcaseisnom:
         plt.plot(mcvarx.vals[0], mcvary.vals[0], 'r-', alpha=1)     
@@ -132,9 +133,10 @@ def MCPlot3DScatter(mcvarx, mcvary, mcvarz):
     ax = fig.add_subplot(111, projection='3d')
     colorblack = [[0,0,0],]
     colorred = [[1,0,0],]
+    idx = int(mcvarx.firstcaseisnom)
     
-    if not mcvarx.firstcaseisnom or mcvarx.ndraws > 0:
-        ax.scatter(mcvarx.vals, mcvary.vals,  mcvarz.vals, edgecolors=None, c=colorblack, alpha=0.5)
+    if mcvarx.ndraws > 0:
+        ax.scatter(mcvarx.vals[idx:-1], mcvary.vals[idx:-1],  mcvarz.vals[idx:-1], edgecolors=None, c=colorblack, alpha=0.5)
     if mcvarx.firstcaseisnom:
         ax.scatter(mcvarx.vals[0], mcvary.vals[0], mcvarz.vals[0], edgecolors=None, c=colorred, alpha=1)        
 
@@ -148,11 +150,11 @@ def MCPlot3DLine(mcvarx, mcvary, mcvarz):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     
-    if not mcvarx.firstcaseisnom or mcvarx.ndraws > 0:
-        for i in range(mcvarx.ncases):
+    if mcvarx.ndraws > 0:
+        for i in range(int(mcvarx.firstcaseisnom), mcvarx.ncases):
             ax.plot(mcvarx.vals[i], mcvary.vals[i], mcvarz.vals[i], 'k-', alpha=0.5)
     if mcvarx.firstcaseisnom:
-        ax.plot(mcvarx.vals[0], mcvary.vals[0], mcvarz.vals[0], 'r-', alpha=0.5)
+        ax.plot(mcvarx.vals[0], mcvary.vals[0], mcvarz.vals[0], 'r-', alpha=1)
         
     ax.set_xlabel(mcvarx.name)
     ax.set_ylabel(mcvary.name)
@@ -165,6 +167,7 @@ def MCPlot3DLine(mcvarx, mcvary, mcvarz):
 ### Test ###
 np.random.seed(74494861)
 from scipy.stats import randint, norm
+from IPython import get_ipython
 mcinvars = dict()
 mcinvars['randint'] = MCInVar('randint', randint, (1, 5), 1000)
 mcinvars['norm'] = MCInVar('norm', norm, (10, 4), 1000)
