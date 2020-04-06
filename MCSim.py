@@ -4,16 +4,19 @@ from MCCase import MCCase
 from MCVar import MCInVar, MCOutVar
 
 class MCSim:
-    def __init__(self, name, ndraws, firstcaseisnom=True, seed=np.random.get_state()[1][0]):
+    def __init__(self, name, ndraws, fcns, firstcaseisnom=True, seed=np.random.get_state()[1][0]):
         self.name = name                     # name is a string
         self.ndraws = ndraws                 # ndraws is an integer
         self.firstcaseisnom = firstcaseisnom # firstcaseisnom is a boolean
         self.ncases = ndraws + 1
+        
+        self.fcns = fcns
 
         self.seed = seed                     # seed is a number between 0 and 2^32-1
         np.random.seed(seed)
         
-        self.starttime = datetime.now()
+        self.inittime = datetime.now()
+        self.starttime = None
         self.endtime = None
         self.runtime = None
         
@@ -84,18 +87,33 @@ class MCSim:
         self.mcinvars = dict()
         self.setNDraws(self.ndraws)
         
-    
-    def markEndTime(self):
+            
+    def runSim(self):
+        self.starttime = datetime.now()
+        
+        self.genCases()
+        for i in range(self.ncases):
+            self.runCase(self.mccases[i])
+        self.genOutVars()
+
         self.endtime = datetime.now()
         self.runtime = self.endtime - self.starttime
-        
+
+
+    def runCase(self, mccase):
+        mccase.starttime = datetime.now()
+        sim_input = self.fcns['preprocess'](mccase)
+        sim_raw_output = self.fcns['run'](*sim_input)
+        self.fcns['postprocess'](mccase, *sim_raw_output)
+        mccase.endtime = datetime.now()
+        mccase.runtime = mccase.endtime - mccase.starttime
 
 
 '''
 ### Test ###
 from scipy.stats import *
 np.random.seed(74494861)
-sim = MCSim('Sim', 10)
+sim = MCSim('Sim', 10, dict())
 sim.addInVar('Var1', randint, (1, 5))
 sim.addInVar('Var2', norm, (10, 4))
 sim.genCases()

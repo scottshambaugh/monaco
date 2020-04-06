@@ -2,26 +2,23 @@ from scipy.stats import uniform
 from MCSim import MCSim
 from MCPlot import MCPlot
 
+from rocket_example_sim import rocket_example_sim
 from rocket_example_preprocess import rocket_example_preprocess
 from rocket_example_postprocess import rocket_example_postprocess
-from rocket_example_sim import rocket_example_sim
+fcns ={'preprocess' :rocket_example_preprocess,   \
+       'run'        :rocket_example_sim,          \
+       'postprocess':rocket_example_postprocess}
 
 ndraws = 25
 seed=123098
 
-sim = MCSim('Rocket', ndraws, seed)
+sim = MCSim('Rocket', ndraws, fcns, seed)
 
 sim.addInVar('windazi', uniform, (0, 360))
 sim.addInVar('windspd', uniform, (0, 2))
 
-sim.genCases()
-for i in range(sim.ncases):
-    sim_input = rocket_example_preprocess(sim.mccases[i])
-    sim_raw_output = rocket_example_sim(*sim_input)
-    rocket_example_postprocess(sim.mccases[i], *sim_raw_output)
-sim.genOutVars()
+sim.runSim()
 
-sim.markEndTime()
 print(sim.runtime)
 
 print(sim.mcoutvars['Landing Dist'].stats())
