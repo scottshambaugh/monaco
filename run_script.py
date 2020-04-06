@@ -20,7 +20,10 @@ for i in range(sim.ncases):
     sim_raw_output = rocket_example_sim(*sim_input)
     rocket_example_postprocess(sim.mccases[i], *sim_raw_output)
 sim.genOutVars()
-print(sim.mcoutvars['Landing Dist'].vals)
+
+sim.markEndTime()
+print(sim.runtime)
+
 print(sim.mcoutvars['Landing Dist'].stats())
 MCPlot(sim.mcoutvars['Time'], sim.mcoutvars['Distance'])
 MCPlot(sim.mcoutvars['Landing Dist'])

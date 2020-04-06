@@ -83,6 +83,12 @@ class MCSim:
     def clearInVars(self):
         self.mcinvars = dict()
         self.setNDraws(self.ndraws)
+        
+    
+    def markEndTime(self):
+        self.endtime = datetime.now()
+        self.runtime = self.endtime - self.starttime
+        
 
 
 '''
