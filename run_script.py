@@ -6,7 +6,7 @@ from rocket_example_preprocess import rocket_example_preprocess
 from rocket_example_postprocess import rocket_example_postprocess
 from rocket_example_sim import rocket_example_sim
 
-ndraws = 50
+ndraws = 5
 seed=123098
 
 sim = MCSim('Rocket', ndraws, seed)

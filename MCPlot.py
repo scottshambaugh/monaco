@@ -60,7 +60,7 @@ def MCPlot(mcvarx, mcvary = None, mcvarz = None):
 
 
 
-def MCPlotHist(mcvar):
+def MCPlotHist(mcvar, cumulative=False):
     fig, ax = plt.subplots(1, 1)
 
     # Histogram generation
@@ -72,29 +72,43 @@ def MCPlotHist(mcvar):
     if isinstance(mcvar, MCInVar): 
         # Continuous distribution
         if isinstance(mcvar.dist, rv_continuous):
-            plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=True, histtype='bar', facecolor='k', alpha=0.5)
+            plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=True, cumulative=cumulative, histtype='bar', facecolor='k', alpha=0.5)
             xlim = ax.get_xlim()
             x = np.arange(xlim[0], xlim[1], (xlim[1] - xlim[0])/100)
             dist = mcvar.dist(*mcvar.distargs)
-            plt.plot(x, dist.pdf(x), color='k', alpha=0.9)
+            if cumulative:
+                plt.plot(x, dist.cdf(x), color='k', alpha=0.9)
+            else:
+                plt.plot(x, dist.pdf(x), color='k', alpha=0.9)
         
         # Discrete distribution
         elif isinstance(mcvar.dist, rv_discrete):
-            plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False, histtype='bar', facecolor='k', alpha=0.5)
+            plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False, cumulative=cumulative, histtype='bar', facecolor='k', alpha=0.5)
             xlim = ax.get_xlim()
             x = np.concatenate(([xlim[0]], bins, [xlim[1]]))
             dist = mcvar.dist(*mcvar.distargs)
-            pdf = np.diff(dist.cdf(x))
-            plt.step(x[1:], pdf, color='k', alpha=0.9)
+            if cumulative:
+                plt.step(x, dist.cdf(x), color='k', alpha=0.9)
+            else:
+                pdf = np.diff(dist.cdf(x))
+                plt.step(x[1:], pdf, color='k', alpha=0.9)
         
     elif isinstance(mcvar, MCOutVar): 
-        plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False, histtype='bar', facecolor='k', alpha=0.5)
+        plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False, cumulative=cumulative, histtype='bar', facecolor='k', alpha=0.5)
     
     if mcvar.firstcaseisnom:
         plt.plot([mcvar.getNom(), mcvar.getNom()], ax.get_ylim(), 'r-')
 
     plt.xlabel(mcvar.name)
-    plt.ylabel('Probability Density')
+    if cumulative:
+        plt.ylabel('Cumulative Probability')
+    else:
+        plt.ylabel('Probability Density')
+
+
+
+def MCPlotCDF(mcvar):
+    MCPlotHist(mcvar, cumulative=True)
 
 
 
@@ -178,6 +192,9 @@ mcoutvars['test'] = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
 MCPlot(mcinvars['randint'])  # MCPlotHist
 MCPlot(mcinvars['norm'])  # MCPlotHist
 MCPlot(mcoutvars['test'])  # MCPlotHist
+MCPlotCDF(mcinvars['randint'])  # MCPlotCDF
+MCPlotCDF(mcinvars['norm'])  # MCPlotCDF
+MCPlotCDF(mcoutvars['test'])  # MCPlotCDF
 
 MCPlot(mcinvars['randint'], mcinvars['norm'])  # MCPlot2DScatter
 MCPlot(mcinvars['randint'], mcinvars['norm'],  mcinvars['norm2'])  # MCPlot3DScatter
