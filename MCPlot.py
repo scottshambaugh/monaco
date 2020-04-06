@@ -7,28 +7,35 @@ from copy import copy
 
 
 def MCPlot(mcvarx, mcvary = None, mcvarz = None):
-    # Split
+    # Split larger vars
     if mcvary == None and mcvarz == None:
         if mcvarx.size[0] not in (1, 2, 3):
             raise ValueError(f'Invalid variable size at index 0: ({mcvarx.size[0]},{mcvarx.size[1]})')
-        elif mcvarx.size[0] == 2:
-            mcvary = MCOutVar(mcvarx.name + ' [1]', mcvarx.vals[1], mcvarx.ndraws, mcvarx.firstcaseisnom)
-            mcvarx = MCOutVar(mcvarx.name + ' [0]', mcvarx.vals[0], mcvarx.ndraws, mcvarx.firstcaseisnom)
-        elif mcvarx.size[0] == 3:
-            mcvarz = MCOutVar(mcvarx.name + ' [2]', mcvarx.vals[2], mcvarx.ndraws, mcvarx.firstcaseisnom)
-            mcvary = MCOutVar(mcvarx.name + ' [1]', mcvarx.vals[1], mcvarx.ndraws, mcvarx.firstcaseisnom)
-            mcvarx = MCOutVar(mcvarx.name + ' [0]', mcvarx.vals[0], mcvarx.ndraws, mcvarx.firstcaseisnom)
+        elif mcvarx.size[0] in (2, 3):
+            mcvarx_split = mcvarx.split()
+            origname = mcvarx.name
+            origsize = mcvarx.size
+            mcvarx = mcvarx_split[origname + ' [0]']
+            mcvary = mcvarx_split[origname + ' [1]']
+            if origsize[0] == 3:
+                mcvarz = mcvarx_split[origname + ' [2]']
             
     elif mcvarz == None:
-        if mcvarx.size[0] + mcvary.size[0] not in (2, 3):
+        if    (mcvarx.size[0] not in (1, 2)) \
+          and (mcvary.size[0] not in (1, 2)) \
+          and (mcvarx.size[0] + mcvary.size[0] not in (2, 3)):
             raise ValueError(f'Invalid variable sizes at index 0: ({mcvarx.size[0]},{mcvarx.size[1]}), ({mcvary.size[0]},{mcvary.size[1]})')
         elif mcvarx.size[0] == 2:
+            mcvarx_split = mcvarx.split()
+            origname = mcvarx.name
             mcvarz = mcvary
-            mcvary = MCOutVar(mcvarx.name + ' [1]', mcvarx.vals[1], mcvarx.ndraws, mcvarx.firstcaseisnom)
-            mcvarx = MCOutVar(mcvarx.name + ' [0]', mcvarx.vals[0], mcvarx.ndraws, mcvarx.firstcaseisnom)
+            mcvarx = mcvarx_split[origname + ' [0]']
+            mcvary = mcvarx_split[origname + ' [1]']
         elif mcvary.size[0] == 2:
-            mcvarz = MCOutVar(mcvary.name + ' [2]', mcvary.vals[1], mcvary.ndraws, mcvary.firstcaseisnom)
-            mcvary = MCOutVar(mcvary.name + ' [1]', mcvary.vals[0], mcvary.ndraws, mcvary.firstcaseisnom)
+            mcvary_split = mcvary.split()
+            origname = mcvary.name
+            mcvary = mcvary_split[origname + ' [0]']
+            mcvarz = mcvary_split[origname + ' [1]']
 
     # Single Variable Plots
     if mcvary == None and mcvarz == None:
@@ -119,7 +126,7 @@ def MCPlot2DScatter(mcvarx, mcvary):
     idx = int(mcvarx.firstcaseisnom)
 
     if not mcvarx.firstcaseisnom or mcvarx.ndraws > 0:
-        plt.scatter(mcvarx.vals[idx:-1], mcvary.vals[idx:-1], edgecolors=None, c=colorblack, alpha=0.5)
+        plt.scatter(mcvarx.vals[idx:-1], mcvary.vals[idx:-1], edgecolors=None, c=colorblack, alpha=0.4)
     if mcvarx.firstcaseisnom:
         plt.scatter(mcvarx.vals[0], mcvary.vals[0], edgecolors=None, c=colorred, alpha=1)        
 
@@ -133,7 +140,7 @@ def MCPlot2DLine(mcvarx, mcvary):
     
     if mcvarx.ndraws > 0:
         for i in range(int(mcvarx.firstcaseisnom), mcvarx.ncases):
-            plt.plot(mcvarx.vals[i], mcvary.vals[i], 'k-', alpha=0.5)
+            plt.plot(mcvarx.vals[i], mcvary.vals[i], 'k-', alpha=0.3)
     if mcvarx.firstcaseisnom:
         plt.plot(mcvarx.vals[0], mcvary.vals[0], 'r-', alpha=1)     
 
@@ -150,7 +157,7 @@ def MCPlot3DScatter(mcvarx, mcvary, mcvarz):
     idx = int(mcvarx.firstcaseisnom)
     
     if mcvarx.ndraws > 0:
-        ax.scatter(mcvarx.vals[idx:-1], mcvary.vals[idx:-1],  mcvarz.vals[idx:-1], edgecolors=None, c=colorblack, alpha=0.5)
+        ax.scatter(mcvarx.vals[idx:-1], mcvary.vals[idx:-1],  mcvarz.vals[idx:-1], edgecolors=None, c=colorblack, alpha=0.4)
     if mcvarx.firstcaseisnom:
         ax.scatter(mcvarx.vals[0], mcvary.vals[0], mcvarz.vals[0], edgecolors=None, c=colorred, alpha=1)        
 
@@ -166,7 +173,7 @@ def MCPlot3DLine(mcvarx, mcvary, mcvarz):
     
     if mcvarx.ndraws > 0:
         for i in range(int(mcvarx.firstcaseisnom), mcvarx.ncases):
-            ax.plot(mcvarx.vals[i], mcvary.vals[i], mcvarz.vals[i], 'k-', alpha=0.5)
+            ax.plot(mcvarx.vals[i], mcvary.vals[i], mcvarz.vals[i], 'k-', alpha=0.3)
     if mcvarx.firstcaseisnom:
         ax.plot(mcvarx.vals[0], mcvary.vals[0], mcvarz.vals[0], 'r-', alpha=1)
         

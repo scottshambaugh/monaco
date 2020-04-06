@@ -119,7 +119,6 @@ class MCOutVar(MCVar):
             self.size = (1, 1)
 
 
-
     def getVal(self, ncase):  # ncase is an integer
         isnom = False
         if (ncase == 0) and self.firstcaseisnom:
@@ -134,6 +133,20 @@ class MCOutVar(MCVar):
         if self.firstcaseisnom:
             val = self.vals[0]            
         return val
+    
+    
+    def split(self):
+        if self.size[0] == 1:
+            return self
+        else:
+            mcvars = dict()
+            for i in range(self.size[0]):
+                name = self.name + f' [{i}]'
+                vals = []
+                for j in range(self.ncases):
+                    vals.append(self.vals[j][i])
+                mcvars[name] = MCOutVar(name, vals, self.ndraws, self.firstcaseisnom)
+            return mcvars
 
 
 
@@ -158,4 +171,8 @@ mcoutvars['test'] = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
 print(mcoutvars['test'].getVal(1).val)
 print(mcoutvars['test'].stats())
 
+v = np.array([[1,1],[2,2],[3,3]])
+mcoutvars['test2'] = MCOutVar('test2', [v, v, v, v, v])
+mcoutvars.update(mcoutvars['test2'].split())
+print(mcoutvars['test2 [0]'].vals)
 #'''

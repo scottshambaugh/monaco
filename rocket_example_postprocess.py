@@ -8,11 +8,12 @@ def rocket_example_postprocess(mccase, t, m, T, pos, vel, acc):
     mccase.addOutVal('Velocity', vel)
     mccase.addOutVal('Acceleration', acc)
 
-    mccase.addOutVal('Landing E', pos[-1,1])
-    mccase.addOutVal('Landing N', pos[-1,2])
+    mccase.addOutVal('Landing E', pos[0,-1])
+    mccase.addOutVal('Landing N', pos[1,-1])
 
-    landing_dist = np.sqrt(pos[-1,1]**2 + pos[-1,2]**2)
-    mccase.addOutVal('Landing Dist', landing_dist)
+    distance = np.sqrt(pos[0,:]**2 + pos[1,:]**2)
+    mccase.addOutVal('Distance', distance)
+    mccase.addOutVal('Landing Dist', distance[-1])
     
-    mccase.addOutVal('Alt', pos[:,0])
+    mccase.addOutVal('Alt', pos[2,:])
 

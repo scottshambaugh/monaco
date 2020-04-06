@@ -14,13 +14,13 @@ def rocket_example_sim(sequence, massprops, propulsion, aero, launchsite):
     t = np.array([0])  # simulation time [t]
     m = np.array([massprops['wetmass']])  # total mass [kg]
     T = np.array([0])  # thrust [N]
-    pos = np.array([[0,0,0]])  # position [x,y,z] [m]: x = alt above sea level, y = easting, z = northing
-    vel = np.array([[0,0,0]])  # velocity [vx,vy,vz] [m/s]: vx = vertical, vy = easterly, vz = northerly
-    acc = np.array([[0,0,0]])  # acceleration [ax,ay,az] [m/s^2]: ax = vertical, ay = easterly, az = northerly
+    pos = np.array([[0,0,0]])  # position [x,y,z] [m]: x = easting, y = northing, z = alt above sea level
+    vel = np.array([[0,0,0]])  # velocity [vx,vy,vz] [m/s]: vx = easterly, vy = northerly, vz = vertically
+    acc = np.array([[0,0,0]])  # acceleration [ax,ay,az] [m/s^2]: vx = easterly, vy = northerly, vz = vertically
     
-    windvel = aero['windspd']*np.array([0, -np.sin(d2r*aero['windazi']), -np.cos(d2r*aero['windazi'])])
-    thrustvec = np.array([np.cos(d2r*launchsite['launchangle']), np.sin(d2r*launchsite['launchangle']), np.sin(d2r*launchsite['launchangle'])]) \
-                * np.array([1, np.sin(d2r*launchsite['launchazi']), np.cos(d2r*launchsite['launchazi'])])
+    windvel = aero['windspd']*np.array([-np.sin(d2r*aero['windazi']), -np.cos(d2r*aero['windazi']), 0])
+    thrustvec = np.array([np.sin(d2r*launchsite['launchangle']), np.sin(d2r*launchsite['launchangle']), np.cos(d2r*launchsite['launchangle'])]) \
+                * np.array([np.sin(d2r*launchsite['launchazi']), np.cos(d2r*launchsite['launchazi']), 1])
     
     # Main calculation loop
     i = 0 
@@ -37,7 +37,7 @@ def rocket_example_sim(sequence, massprops, propulsion, aero, launchsite):
             if T[i-1] <= 0:
                 flightstage = 'coastflight'
         elif flightstage == 'coastflight':
-            if vel[i-2][0] >= 0 and vel[i-1][0] <= 0:
+            if vel[i-2][2] >= 0 and vel[i-1][2] <= 0:
                 tapogee = t[i-1]
             if tapogee != None and t[i] >= (tapogee + sequence['parachute_delay']):
                 flightstage = 'parachute'
@@ -57,13 +57,13 @@ def rocket_example_sim(sequence, massprops, propulsion, aero, launchsite):
         
         # Calculate and add up forces
         velfreestream = vel[i-1]-windvel
-        Faero = -0.5*calcRho(pos[i-1][0])*(velfreestream**2)*np.sign(velfreestream)*cd*area
-        Fg = np.array([-m[i]*g, 0, 0])
+        Faero = -0.5*calcRho(pos[i-1][2])*(velfreestream**2)*np.sign(velfreestream)*cd*area
+        Fg = np.array([0, 0, -m[i]*g])
         Fthrust = T[i]*thrustvec       
         Ftot = Faero + Fg + Fthrust
         
         # Check for liftoff, restrict vehicle if still on ground
-        if flightstage == 'ignition' and Ftot[0] > 0:
+        if flightstage == 'ignition' and Ftot[2] > 0:
             flightstage = 'poweredflight'
         elif flightstage in ('prelaunch', 'ignition'):
             Ftot = np.array([0,0,0])
@@ -74,10 +74,10 @@ def rocket_example_sim(sequence, massprops, propulsion, aero, launchsite):
         pos = np.append(pos, [pos[i-1] + vel[i]*dt], axis=0)
         
         # Check for landing
-        if flightstage not in ('prelaunch', 'ignition') and pos[i][0] <= 0:
+        if flightstage not in ('prelaunch', 'ignition') and pos[i][2] <= 0:
             acc[i] = np.array([0,0,0])
             vel[i] = np.array([0,0,0])
-            pos[i][0] = 0
+            pos[i][2] = 0
             flightstage = 'landed'
         
         # Check for timeout
@@ -85,7 +85,7 @@ def rocket_example_sim(sequence, massprops, propulsion, aero, launchsite):
             print('Timeout')
             return None
 
-    return (t, m, T, pos, vel, acc)
+    return (t, m, T.transpose(), pos.transpose(), vel.transpose(), acc.transpose())
     
     
 def calcRho(alt):  # alt is altitude above sea level [m]
@@ -148,14 +148,14 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-ax.plot(pos[:,1], pos[:,2], pos[:,0])
+ax.plot(pos[0,:], pos[1,:], pos[2,:])
 ax.set_xlabel('E')
 ax.set_ylabel('N')
 ax.set_zlabel('Alt')
 
 fig = plt.figure()
-plt.plot(t,vel[:,0],'b')
-plt.plot(t,acc[:,0],'r')
+plt.plot(t,vel[2,:],'b')
+plt.plot(t,acc[2,:],'r')
 plt.xlabel('Time [s]')
 plt.legend(('Vertical Vel [m/s]','Vertical Accel [m/s^s]'))
 #'''
