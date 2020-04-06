@@ -13,3 +13,6 @@ def rocket_example_postprocess(mccase, t, m, T, pos, vel, acc):
 
     landing_dist = np.sqrt(pos[-1,1]**2 + pos[-1,2]**2)
     mccase.addOutVal('Landing Dist', landing_dist)
+    
+    mccase.addOutVal('Alt', pos[:,0])
+

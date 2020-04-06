@@ -39,13 +39,14 @@ class MCCase():
 '''
 ### Test ###
 import numpy as np
-from scipy.stats import *
-from MCVar import *
+from scipy.stats import norm
+from MCVar import MCInVar
 np.random.seed(74494861)
 var = {'Test':MCInVar('Test', norm, (10, 4), 10)}
 case = MCCase(0, var, False)
 print(case.mcinvals['Test'].val)
 
-case.addOutVal('TestOut', 1)
+case.addOutVal('TestOut', [[0,0],[0,0],[0,0]])
 print(case.mcoutvals['TestOut'].val)
+print(case.mcoutvals['TestOut'].size)
 #'''

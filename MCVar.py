@@ -12,6 +12,7 @@ class MCVar:
         self.ncases = ndraws + 1
         self.setFirstCaseNom(firstcaseisnom)
         self.vals = []
+        self.size = None
         
 
     def setFirstCaseNom(self, firstcaseisnom):  # firstdrawisnom is a boolean
@@ -43,6 +44,7 @@ class MCInVar(MCVar):
         self.dist = dist          # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous 
         self.distargs = distargs  # distargs is a tuple of the arguments to the above distribution
         self.seed = seed          # seed is a number between 0 and 2^32-1
+        self.size = (1, 1)
 
         if not isinstance(self.distargs, tuple):
             self.distargs = (self.distargs,)
@@ -107,6 +109,15 @@ class MCOutVar(MCVar):
         
         super().__init__(name, ndraws, firstcaseisnom)
         self.vals = vals  # vals is a list
+        
+        if isinstance(vals[0],(list, tuple, np.ndarray)):
+            if isinstance(vals[0][0],(list, tuple, np.ndarray)):
+                self.size = (len(vals[0]), len(vals[0][0]))
+            else:
+                self.size = (1, len(vals[0]))
+        else:
+            self.size = (1, 1)
+
 
 
     def getVal(self, ncase):  # ncase is an integer

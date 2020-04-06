@@ -16,7 +16,7 @@ def rocket_example_preprocess(mccase):
         }
     
     aero = {
-        'windspd' : 2,                               # wind speed [m/s]
+        'windspd' : mccase.mcinvals['windspd'].val,  # wind speed [m/s]
         'windazi' : mccase.mcinvals['windazi'].val,  # azimuth from north wind is blowing from [deg]
         'area_ax_flight' :     0.01,                 # axial area during flight [m^2]
         'area_lat_flight' :    0.10,                 # lateral area during flight [m^2]
