@@ -9,10 +9,10 @@ fcns ={'preprocess' :rocket_example_preprocess,   \
        'run'        :rocket_example_sim,          \
        'postprocess':rocket_example_postprocess}
 
-ndraws = 25
+ndraws = 5
 seed=123098
 
-sim = MCSim('Rocket', ndraws, fcns, seed)
+sim = MCSim('Rocket', ndraws, fcns, seed, cores=1)
 
 sim.addInVar('windazi', uniform, (0, 360))
 sim.addInVar('windspd', uniform, (0, 2))

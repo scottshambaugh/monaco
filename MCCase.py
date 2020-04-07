@@ -14,6 +14,9 @@ class MCCase():
         
         self.mcinvals = self.getMCInVals()
         self.mcoutvals = dict()
+        
+        self.siminput = None
+        self.simoutput = None
 
 
     def getMCInVals(self):

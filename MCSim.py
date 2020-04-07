@@ -2,9 +2,13 @@ import numpy as np
 from datetime import datetime
 from MCCase import MCCase
 from MCVar import MCInVar, MCOutVar
+from multiprocessing import cpu_count
+from pathos.pools import ParallelPool
+from pathos.helpers import shutdown
+
 
 class MCSim:
-    def __init__(self, name, ndraws, fcns, firstcaseisnom=True, seed=np.random.get_state()[1][0]):
+    def __init__(self, name, ndraws, fcns, firstcaseisnom=True, seed=np.random.get_state()[1][0], cores=cpu_count()):
         self.name = name                     # name is a string
         self.ndraws = ndraws                 # ndraws is an integer
         self.firstcaseisnom = firstcaseisnom # firstcaseisnom is a boolean
@@ -19,6 +23,8 @@ class MCSim:
         self.starttime = None
         self.endtime = None
         self.runtime = None
+        
+        self.cores = cores  # cores is an integer
         
         self.mcinvars = dict()     
         self.mcoutvars = dict()     
@@ -62,11 +68,12 @@ class MCSim:
 
     def genCases(self):
         self.clearCases()
-        for ncase in range(self.ncases):
+        for i in range(self.ncases):
             isnom = False
-            if self.firstcaseisnom and ncase == 0:
+            if self.firstcaseisnom and i == 0:
                 isnom = True
-            self.mccases.append(MCCase(ncase, self.mcinvars, isnom))
+            self.mccases.append(MCCase(i, self.mcinvars, isnom))
+            self.mccases[i].siminput = self.fcns['preprocess'](self.mccases[i])
 
 
     def genOutVars(self):
@@ -87,26 +94,43 @@ class MCSim:
         self.mcinvars = dict()
         self.setNDraws(self.ndraws)
         
-            
+                    
     def runSim(self):
         self.starttime = datetime.now()
         
         self.genCases()
-        for i in range(self.ncases):
-            self.runCase(self.mccases[i])
+
+        if self.cores == 1:
+            for i in range(self.ncases):
+                self.runCaseSingleThread(self.mccases[i])
+        else:
+            sim_inputs = []
+            for i in range(self.ncases):
+                for j, e in enumerate(self.mccases[i].siminput):
+                    if i == 0:
+                        sim_inputs.append([None]*self.ncases)
+                    sim_inputs[j][i] = e
+            print(f'Running on {self.cores} cores...')
+            sim_raw_outputs = ParallelPool(self.cores).map(self.fcns['run'], *sim_inputs)
+            shutdown()
+
+            for i in range(self.ncases):
+                self.fcns['postprocess'](self.mccases[i], *sim_raw_outputs[i])
+
         self.genOutVars()
 
         self.endtime = datetime.now()
         self.runtime = self.endtime - self.starttime
 
 
-    def runCase(self, mccase):
+
+    def runCaseSingleThread(self, mccase):
         mccase.starttime = datetime.now()
-        sim_input = self.fcns['preprocess'](mccase)
-        sim_raw_output = self.fcns['run'](*sim_input)
+        sim_raw_output = self.fcns['run'](*mccase.siminput)
         self.fcns['postprocess'](mccase, *sim_raw_output)
         mccase.endtime = datetime.now()
         mccase.runtime = mccase.endtime - mccase.starttime
+        
 
 
 '''
