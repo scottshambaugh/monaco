@@ -1,7 +1,7 @@
 import numpy as np
 from datetime import datetime
-from MCCase import MCCase
-from MCVar import MCInVar, MCOutVar
+from PyMonteCarlo.MCCase import MCCase
+from PyMonteCarlo.MCVar import MCInVar, MCOutVar
 from multiprocessing import cpu_count
 from pathos.pools import ParallelPool
 from pathos.helpers import shutdown

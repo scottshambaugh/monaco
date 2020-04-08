@@ -1,7 +1,6 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from scipy.stats import rv_continuous, rv_discrete, mode, describe
-from MCVal import MCInVal, MCOutVal
+from scipy.stats import rv_continuous, rv_discrete, describe
+from PyMonteCarlo.MCVal import MCInVal, MCOutVal
 
 ### MCVar Base Class ###
 class MCVar:

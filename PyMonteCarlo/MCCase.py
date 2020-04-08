@@ -1,5 +1,4 @@
-#from datetime import datetime
-from MCVal import MCOutVal
+from PyMonteCarlo.MCVal import MCOutVal
 
 class MCCase():
     def __init__(self, ncase, mcinvars, isnom):

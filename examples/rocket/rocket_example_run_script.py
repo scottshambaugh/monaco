@@ -1,6 +1,6 @@
 from scipy.stats import uniform
-from MCSim import MCSim
-from MCPlot import MCPlot
+from PyMonteCarlo.MCSim import MCSim
+from PyMonteCarlo.MCPlot import MCPlot
 
 from rocket_example_sim import rocket_example_sim
 from rocket_example_preprocess import rocket_example_preprocess

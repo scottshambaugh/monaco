@@ -14,5 +14,6 @@
 * Save/load results to file
 * Continue partial results
 * Progress bar
-* Set up directory structure
+* ~~Set up directory structure~~
 * Get custom distributions working
+* Break out tests

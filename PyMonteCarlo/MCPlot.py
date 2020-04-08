@@ -2,7 +2,7 @@ import numpy as np
 from scipy.stats import rv_continuous, rv_discrete, mode
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from MCVar import MCInVar, MCOutVar
+from PyMonteCarlo.MCVar import MCInVar, MCOutVar
 from copy import copy
 
 
