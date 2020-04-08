@@ -17,3 +17,12 @@
 * ~~Set up directory structure~~
 * Get custom distributions working
 * Break out tests
+
+### Directory Structure:
+
+* [build](build/README.md)
+* [examples](examples/README.md)
+    - [rocket](examples/rocket/README.md)
+* [PyMonteCarlo](PyMonteCarlo/README.md)
+* [templates](templates/README.md)
+* [test](test/README.md)
