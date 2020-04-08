@@ -34,9 +34,10 @@ class MCCase():
         return mcvals
     
     
-    def addOutVal(self, name, val):
+    def addOutVal(self, name, val, split=True):
         self.mcoutvals[name] = MCOutVal(name, self.ncase, val, self.isnom)
-        self.mcoutvals.update(self.mcoutvals[name].split())
+        if split:
+            self.mcoutvals.update(self.mcoutvals[name].split())
 
 '''
 ### Test ###

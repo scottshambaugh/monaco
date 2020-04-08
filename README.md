@@ -1,8 +1,9 @@
 # PyMonteCarlo
 
-*TODO:*
+**TODO:**
 
 * Flesh out README
+* ~~Automatically split outvars~~
 * Get parallelism working fast
 * Make parallelism repeatable
 * Covariance matrix output for single vars
@@ -14,3 +15,4 @@
 * Continue partial results
 * Progress bar
 * Set up directory structure
+* Get custom distributions working
