@@ -33,6 +33,13 @@ class MCOutVal(MCVal):
         else:
             self.size = (1, 1)
 
+    def split(self):
+        mcvals = dict()
+        if self.size[0] > 1:
+            for i in range(self.size[0]):
+                name = self.name + f' [{i}]'
+                mcvals[name] = MCOutVal(name, self.ncase, self.val[i], self.isnom)
+        return mcvals
 
 
 '''
@@ -43,4 +50,6 @@ print(a.val)
 b = MCOutVal('Test', 1, [[0,0],[0,0],[0,0]], True)
 print(b.size)
 print(b.val)
+bsplit = b.split()
+print(bsplit['Test [0]'].val)
 #'''

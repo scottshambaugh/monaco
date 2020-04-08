@@ -16,7 +16,6 @@ class MCCase():
         self.mcoutvals = dict()
         
         self.siminput = None
-        self.simoutput = None
 
 
     def getMCInVals(self):
@@ -37,7 +36,7 @@ class MCCase():
     
     def addOutVal(self, name, val):
         self.mcoutvals[name] = MCOutVal(name, self.ncase, val, self.isnom)
-
+        self.mcoutvals.update(self.mcoutvals[name].split())
 
 '''
 ### Test ###

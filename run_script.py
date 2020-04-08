@@ -22,6 +22,7 @@ sim.runSim()
 print(sim.runtime)
 
 print(sim.mcoutvars['Landing Dist'].stats())
+MCPlot(sim.mcoutvars['Velocity [2]'], sim.mcoutvars['Acceleration [2]'], sim.mcoutvars['Position [2]'])
 MCPlot(sim.mcoutvars['Time'], sim.mcoutvars['Distance'])
 MCPlot(sim.mcoutvars['Landing Dist'])
 MCPlot(sim.mcoutvars['Landing E'], sim.mcoutvars['Landing N'])

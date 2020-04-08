@@ -104,18 +104,20 @@ class MCSim:
             for i in range(self.ncases):
                 self.runCaseSingleThread(self.mccases[i])
         else:
+            # Restructure so that input tuples are by variable rather than case
             sim_inputs = []
             for i in range(self.ncases):
                 for j, e in enumerate(self.mccases[i].siminput):
                     if i == 0:
                         sim_inputs.append([None]*self.ncases)
                     sim_inputs[j][i] = e
+                    
             print(f'Running on {self.cores} cores...')
             sim_raw_outputs = ParallelPool(self.cores).map(self.fcns['run'], *sim_inputs)
             shutdown()
 
-            for i in range(self.ncases):
-                self.fcns['postprocess'](self.mccases[i], *sim_raw_outputs[i])
+            for i, sim_raw_output in enumerate(sim_raw_outputs):
+                self.fcns['postprocess'](self.mccases[i], *sim_raw_output)
 
         self.genOutVars()
 

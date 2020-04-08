@@ -136,17 +136,15 @@ class MCOutVar(MCVar):
     
     
     def split(self):
-        if self.size[0] == 1:
-            return self
-        else:
-            mcvars = dict()
+        mcvars = dict()
+        if self.size[0] > 1:
             for i in range(self.size[0]):
                 name = self.name + f' [{i}]'
                 vals = []
                 for j in range(self.ncases):
                     vals.append(self.vals[j][i])
                 mcvars[name] = MCOutVar(name, vals, self.ndraws, self.firstcaseisnom)
-            return mcvars
+        return mcvars
 
 
 
