@@ -37,7 +37,7 @@ class MCSim:
         self.setFirstCaseNom(firstcaseisnom)
         self.setNDraws(self.ndraws)
         
-        self.corr = None
+        self.corrcoeff = None
         self.corrvarlist = None
 
 
@@ -111,21 +111,23 @@ class MCSim:
                 allvals.append(self.mcoutvars[var].vals)
                 self.corrvarlist.append(self.mcoutvars[var].name)
                 j = j+1
+        self.corrcoeff = np.corrcoef(np.array(allvals))
 
 
     def corr(self):
         self.genCorrelationMatrix()
-        return self.corr
+        return self.corrcoeff, self.corrvarlist
 
 
     def clearCases(self):
         self.mccases = []
         self.mcoutvars = dict()
-        self.corr = None
+        self.corrcoeff = None
         self.corrvarlist = None
 
 
-    def clearInVars(self):
+    def reset(self):
+        self.clearCases()
         self.mcinvars = dict()
         self.ninvars = 0
         self.setNDraws(self.ndraws)
@@ -178,6 +180,5 @@ print(sim.mcinvars['Var1'].name)
 print(sim.mccases[0].mcinvals['Var1'].val)
 print(sim.mcinvars['Var2'].name)
 print(sim.mccases[0].mcinvals['Var2'].val)
-print(sim.corr)
-print(sim.corrvarlist)
+print(sim.corr())
 #'''

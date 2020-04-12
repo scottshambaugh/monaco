@@ -149,6 +149,7 @@ def MCPlot2DLine(mcvarx, mcvary):
 
 
 
+
 def MCPlot3DScatter(mcvarx, mcvary, mcvarz):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -183,12 +184,42 @@ def MCPlot3DLine(mcvarx, mcvary, mcvarz):
 
 
 
+def MCPlotCorr(corrcoeff, corrvarnames):
+    fig, ax = plt.subplots(1, 1)
+    im = ax.imshow(corrcoeff, cmap="RdBu", vmin=-1, vmax=1)
+    n = corrcoeff.shape[1]
+    
+    ax.set_xticks(np.arange(n))
+    ax.set_yticks(np.arange(n))
+    ax.set_xticklabels(corrvarnames)
+    ax.set_yticklabels(corrvarnames)
+    ax.tick_params(top=True, bottom=False, labeltop=True, labelbottom=False)
+    plt.setp(ax.get_xticklabels(), rotation=-30, ha='right', rotation_mode='anchor')
+    
+    for edge, spine in ax.spines.items():
+        spine.set_visible(False)
+
+    ax.set_xticks(np.arange(n+1)-.5, minor=True)
+    ax.set_yticks(np.arange(n+1)-.5, minor=True)
+    ax.grid(which='minor', color='w', linestyle='-', linewidth=3)
+    ax.tick_params(which='minor', bottom=False, left=False)
+    
+    threshold = 0.6
+    textcolors = ["black", "white"]
+    kw = {'horizontalalignment':'center', 'verticalalignment':'center'}
+
+    texts = []
+    for i in range(n):
+        for j in range(n):
+            kw.update(color=textcolors[int(abs(corrcoeff[i, j]) > threshold)])
+            text = im.axes.text(j, i, f'{corrcoeff[i, j]:.2f}', **kw)
+            texts.append(text)
+
 
 '''
 ### Test ###
 np.random.seed(74494861)
 from scipy.stats import randint, norm
-from IPython import get_ipython
 mcinvars = dict()
 mcinvars['randint'] = MCInVar('randint', randint, (1, 5), 1000)
 mcinvars['norm'] = MCInVar('norm', norm, (10, 4), 1000)
@@ -214,4 +245,6 @@ var3 = MCOutVar('testz', [1*v, 2*v, 0*v, -1*v, -1*v], firstcaseisnom=True)
 MCPlot(var2)  # MCPlot2DLine
 MCPlot(var1, var2)  # MCPlot2DLine
 MCPlot(var1, var2, var3)  # MCPlot3DLine
+
+MCPlotCorr(np.array([[1, 0.1111],[-0.1111, -1]]), ['Test1', 'Test2'])
 #'''
