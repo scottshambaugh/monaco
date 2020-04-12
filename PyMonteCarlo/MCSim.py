@@ -2,13 +2,15 @@ import numpy as np
 from datetime import datetime
 from PyMonteCarlo.MCCase import MCCase
 from PyMonteCarlo.MCVar import MCInVar, MCOutVar
-from multiprocessing import cpu_count
-from pathos.pools import ParallelPool
-from pathos.helpers import shutdown
+from psutil import cpu_count
+#from multiprocessing.pool import ThreadPool as Pool
+#from multiprocessing import Pool
+from pathos.pools import ProcessPool as Pool
+#from pathos.helpers import shutdown
 
 
 class MCSim:
-    def __init__(self, name, ndraws, fcns, firstcaseisnom=True, seed=np.random.get_state()[1][0], cores=cpu_count()):
+    def __init__(self, name, ndraws, fcns, firstcaseisnom=True, seed=np.random.get_state()[1][0], cores=cpu_count(logical=False)):
         self.name = name                     # name is a string
         self.ndraws = ndraws                 # ndraws is an integer
         self.firstcaseisnom = firstcaseisnom # firstcaseisnom is a boolean
@@ -32,7 +34,9 @@ class MCSim:
         
         self.setFirstCaseNom(firstcaseisnom)
         self.setNDraws(self.ndraws)
-
+        
+        self.corr = None
+        self.corrvarlist = None
 
     def setFirstCaseNom(self, firstcaseisnom):  # firstdrawisnom is a boolean
         if firstcaseisnom:
@@ -84,10 +88,13 @@ class MCSim:
             self.mcoutvars[varname] = MCOutVar(varname, vals, self.ndraws, self.firstcaseisnom)
             for i in range(self.ncases):
                 self.mccases[i].mcoutvars[varname] = self.mcoutvars[varname]
+        self.genCorrelationMatrix()
 
 
     def clearCases(self):
         self.mccases = []
+        self.mcoutvars = dict()
+        self.genCorrelationMatrix()
 
 
     def clearInVars(self):
@@ -102,22 +109,14 @@ class MCSim:
 
         if self.cores == 1:
             for i in range(self.ncases):
-                self.runCaseSingleThread(self.mccases[i])
+                self.runCaseWorker(self.mccases[i])
         else:
-            # Restructure so that input tuples are by variable rather than case
-            sim_inputs = []
-            for i in range(self.ncases):
-                for j, e in enumerate(self.mccases[i].siminput):
-                    if i == 0:
-                        sim_inputs.append([None]*self.ncases)
-                    sim_inputs[j][i] = e
-                    
-            print(f'Running on {self.cores} cores...')
-            sim_raw_outputs = ParallelPool(self.cores).map(self.fcns['run'], *sim_inputs)
-            shutdown()
-
-            for i, sim_raw_output in enumerate(sim_raw_outputs):
-                self.fcns['postprocess'](self.mccases[i], *sim_raw_output)
+            p = Pool(self.cores)
+            p.map(self.runCaseWorker, self.mccases)
+#            p.close()
+#            p.join()
+            p.terminate()
+            p.restart()
 
         self.genOutVars()
 
@@ -125,8 +124,7 @@ class MCSim:
         self.runtime = self.endtime - self.starttime
 
 
-
-    def runCaseSingleThread(self, mccase):
+    def runCaseWorker(self, mccase):
         mccase.starttime = datetime.now()
         sim_raw_output = self.fcns['run'](*mccase.siminput)
         self.fcns['postprocess'](mccase, *sim_raw_output)
@@ -134,12 +132,30 @@ class MCSim:
         mccase.runtime = mccase.endtime - mccase.starttime
         
 
+    def genCorrelationMatrix(self):
+        self.corrvarlist = []
+        allvals = []
+        j = 0
+        for var in self.mcinvars.keys():
+            if self.mcinvars[var].isscalar:
+                allvals.append(self.mcinvars[var].vals)
+                self.corrvarlist.append(self.mcinvars[var].name)
+                j = j+1
+        for var in self.mcoutvars.keys():
+            if self.mcoutvars[var].isscalar:
+                allvals.append(self.mcoutvars[var].vals)
+                self.corrvarlist.append(self.mcoutvars[var].name)
+                j = j+1
+        self.corr = np.corrcoef(np.array(allvals))
+
 
 '''
 ### Test ###
-from scipy.stats import *
+def dummyfcn(*args):
+    return 1
+from scipy.stats import norm, randint
 np.random.seed(74494861)
-sim = MCSim('Sim', 10, dict())
+sim = MCSim('Sim', 10, {'preprocess':dummyfcn, 'run':dummyfcn, 'postprocess':dummyfcn})
 sim.addInVar('Var1', randint, (1, 5))
 sim.addInVar('Var2', norm, (10, 4))
 sim.genCases()
@@ -147,4 +163,6 @@ print(sim.mcinvars['Var1'].name)
 print(sim.mccases[0].mcinvals['Var1'].val)
 print(sim.mcinvars['Var2'].name)
 print(sim.mccases[0].mcinvals['Var2'].val)
+print(sim.corr)
+print(sim.corrvarlist)
 #'''

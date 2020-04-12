@@ -4,10 +4,11 @@
 
 * Flesh out README
 * ~~Automatically split outvars~~
+* Rocket example using ode
 * Get parallelism working fast
 * Make parallelism repeatable
-* Covariance matrix output for single vars
-* Covariance matrix input?
+* ~~Correlation matrix output for scalars~~
+* Correlation matrix input?
 * Dataframe support
 * More examples
 * Order statistics
@@ -16,6 +17,7 @@
 * Progress bar
 * ~~Set up directory structure~~
 * Get custom distributions working
+* Allow for custom distributions linked to keys 
 * Break out tests
 
 ### Directory Structure:

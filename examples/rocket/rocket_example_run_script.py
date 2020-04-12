@@ -9,7 +9,7 @@ fcns ={'preprocess' :rocket_example_preprocess,   \
        'run'        :rocket_example_sim,          \
        'postprocess':rocket_example_postprocess}
 
-ndraws = 5
+ndraws = 8
 seed=123098
 
 sim = MCSim('Rocket', ndraws, fcns, seed, cores=1)
@@ -21,8 +21,9 @@ sim.runSim()
 
 print(sim.runtime)
 
-print(sim.mcoutvars['Landing Dist'].stats())
-MCPlot(sim.mcoutvars['Time'], sim.mcoutvars['Distance'])
-MCPlot(sim.mcoutvars['Landing Dist'])
-MCPlot(sim.mcoutvars['Landing E'], sim.mcoutvars['Landing N'])
+#print(sim.mcoutvars['Landing Dist'].stats())
+#MCPlot(sim.mcoutvars['Time'], sim.mcoutvars['Distance'])
+#MCPlot(sim.mcoutvars['Landing Dist'])
+#MCPlot(sim.mcoutvars['Landing E'], sim.mcoutvars['Landing N'])
 MCPlot(sim.mcoutvars['Position'])
+    

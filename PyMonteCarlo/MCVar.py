@@ -12,6 +12,7 @@ class MCVar:
         self.setFirstCaseNom(firstcaseisnom)
         self.vals = []
         self.size = None
+        self.isscalar = None
         
 
     def setFirstCaseNom(self, firstcaseisnom):  # firstdrawisnom is a boolean
@@ -44,6 +45,7 @@ class MCInVar(MCVar):
         self.distargs = distargs  # distargs is a tuple of the arguments to the above distribution
         self.seed = seed          # seed is a number between 0 and 2^32-1
         self.size = (1, 1)
+        self.isscalar = True
 
         if not isinstance(self.distargs, tuple):
             self.distargs = (self.distargs,)
@@ -114,8 +116,10 @@ class MCOutVar(MCVar):
                 self.size = (len(vals[0]), len(vals[0][0]))
             else:
                 self.size = (1, len(vals[0]))
+                self.isscalar = False
         else:
             self.size = (1, 1)
+            self.isscalar = True
 
 
     def getVal(self, ncase):  # ncase is an integer
