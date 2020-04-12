@@ -39,8 +39,8 @@ class MCVar:
 
 ### MCInVar Class ###
 class MCInVar(MCVar):
-    def __init__(self, name, dist, distargs, ndraws,  seed=np.random.get_state()[1][0], firstcaseisnom=True):
-        super().__init__(name, ndraws, firstcaseisnom)
+    def __init__(self, name, dist, distargs, ndraws, seed=np.random.get_state()[1][0], firstcaseisnom=True):
+        super().__init__(name=name, ndraws=ndraws, firstcaseisnom=firstcaseisnom)
         self.dist = dist          # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous 
         self.distargs = distargs  # distargs is a tuple of the arguments to the above distribution
         self.seed = seed          # seed is a number between 0 and 2^32-1
@@ -95,7 +95,7 @@ class MCInVar(MCVar):
         if (ncase == 0) and self.firstcaseisnom:
             isnom = True
             
-        val = MCInVal(self.name, ncase, self.vals[ncase], self.dist, isnom)
+        val = MCInVal(name=self.name, ncase=ncase, val=self.vals[ncase], dist=self.dist, isnom=isnom)
         return val
 
 
@@ -127,7 +127,7 @@ class MCOutVar(MCVar):
         if (ncase == 0) and self.firstcaseisnom:
             isnom = True
             
-        val = MCOutVal(self.name, ncase, self.vals[ncase], isnom)
+        val = MCOutVal(name=self.name, ncase=ncase, val=self.vals[ncase], isnom=isnom)
         return val
         
     
@@ -146,7 +146,7 @@ class MCOutVar(MCVar):
                 vals = []
                 for j in range(self.ncases):
                     vals.append(self.vals[j][i])
-                mcvars[name] = MCOutVar(name, vals, self.ndraws, self.firstcaseisnom)
+                mcvars[name] = MCOutVar(name=name, vals=vals, ndraws=self.ndraws, firstcaseisnom=self.firstcaseisnom)
         return mcvars
 
 

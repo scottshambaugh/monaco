@@ -60,7 +60,8 @@ class MCSim:
         self.ninvars += 1
         generator = np.random.RandomState(self.seed)
         self.invarseeds = generator.randint(0, 2**31-1, size=self.ninvars)
-        self.mcinvars[name] = MCInVar(name, dist, distargs, self.ndraws, self.invarseeds[self.ninvars-1], self.firstcaseisnom)
+        self.mcinvars[name] = MCInVar(name=name, dist=dist, distargs=distargs, ndraws=self.ndraws, \
+                                      seed=self.invarseeds[self.ninvars-1], firstcaseisnom=self.firstcaseisnom)
 
 
     def setNDraws(self, ndraws):  # ncases is an integer
@@ -81,7 +82,7 @@ class MCSim:
             isnom = False
             if self.firstcaseisnom and i == 0:
                 isnom = True
-            self.mccases.append(MCCase(i, self.mcinvars, isnom))
+            self.mccases.append(MCCase(ncase=i, mcinvars=self.mcinvars, isnom=isnom))
             self.mccases[i].siminput = self.fcns['preprocess'](self.mccases[i])
         #self.genCorrelationMatrix()
 
@@ -91,7 +92,7 @@ class MCSim:
             vals = []
             for i in range(self.ncases):
                 vals.append(self.mccases[i].mcoutvals[varname].val)
-            self.mcoutvars[varname] = MCOutVar(varname, vals, self.ndraws, self.firstcaseisnom)
+            self.mcoutvars[varname] = MCOutVar(name=varname, vals=vals, ndraws=self.ndraws, firstcaseisnom=self.firstcaseisnom)
             for i in range(self.ncases):
                 self.mccases[i].mcoutvars[varname] = self.mcoutvars[varname]
 

@@ -13,10 +13,10 @@ ndraws = 8
 seed=12362398
 
 def rocket_example_run_script():
-    sim = MCSim('Rocket', ndraws, fcns, seed=seed, cores=1)
+    sim = MCSim(name='Rocket', ndraws=ndraws, fcns=fcns, firstcaseisnom=True, seed=seed, cores=1)
     
-    sim.addInVar('windazi', uniform, (0, 360))
-    sim.addInVar('windspd', uniform, (0, 2))
+    sim.addInVar(name='windazi', dist=uniform, distargs=(0, 360))
+    sim.addInVar(name='windspd', dist=uniform, distargs=(0, 2))
     
     sim.runSim()
     

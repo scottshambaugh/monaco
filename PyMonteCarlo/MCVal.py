@@ -38,7 +38,7 @@ class MCOutVal(MCVal):
         if self.size[0] > 1:
             for i in range(self.size[0]):
                 name = self.name + f' [{i}]'
-                mcvals[name] = MCOutVal(name, self.ncase, self.val[i], self.isnom)
+                mcvals[name] = MCOutVal(name=name, ncase=self.ncase, val=self.val[i], isnom=self.isnom)
         return mcvals
 
 
