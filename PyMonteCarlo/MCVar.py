@@ -5,9 +5,10 @@ from PyMonteCarlo.MCVal import MCInVal, MCOutVal
 ### MCVar Base Class ###
 class MCVar:
     def __init__(self, name, ndraws, firstcaseisnom):
-        self.name = name          # name is a string
-        self.ndraws = ndraws      # ndraws is an integer
-        self.firstcaseisnom = firstcaseisnom
+        self.name = name                      # name is a string
+        self.ndraws = ndraws                  # ndraws is an integer
+        self.firstcaseisnom = firstcaseisnom  # firstcaseisnom is a boolean
+        
         self.ncases = ndraws + 1
         self.setFirstCaseNom(firstcaseisnom)
         self.vals = []
@@ -44,6 +45,7 @@ class MCInVar(MCVar):
         self.dist = dist          # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous 
         self.distargs = distargs  # distargs is a tuple of the arguments to the above distribution
         self.seed = seed          # seed is a number between 0 and 2^32-1
+        
         self.size = (1, 1)
         self.isscalar = True
 
@@ -108,7 +110,7 @@ class MCOutVar(MCVar):
             if firstcaseisnom:
                 ndraws = ndraws - 1
         
-        super().__init__(name, ndraws, firstcaseisnom)
+        super().__init__(name=name, ndraws=ndraws, firstcaseisnom=firstcaseisnom)
         self.vals = vals  # vals is a list
         
         if isinstance(vals[0],(list, tuple, np.ndarray)):

@@ -3,7 +3,6 @@ from datetime import datetime
 from PyMonteCarlo.MCCase import MCCase
 from PyMonteCarlo.MCVar import MCInVar, MCOutVar
 from psutil import cpu_count
-#from multiprocessing.pool import ThreadPool as Pool
 #from multiprocessing import Pool
 #from pathos.pools import ProcessPool as Pool
 from pathos.pools import ThreadPool as Pool
@@ -12,33 +11,31 @@ from pathos.pools import ThreadPool as Pool
 
 class MCSim:
     def __init__(self, name, ndraws, fcns, firstcaseisnom=True, seed=np.random.get_state()[1][0], cores=cpu_count(logical=False)):
-        self.name = name                     # name is a string
-        self.ndraws = ndraws                 # ndraws is an integer
-        self.firstcaseisnom = firstcaseisnom # firstcaseisnom is a boolean
-        self.ncases = ndraws + 1
-        
-        self.fcns = fcns
+        self.name = name                      # name is a string
+        self.ndraws = ndraws                  # ndraws is an integer
+        self.fcns = fcns                      # fcns is a dict with keys 'preprocess', 'run', 'postprocess' for those functions
+        self.firstcaseisnom = firstcaseisnom  # firstcaseisnom is a boolean
+        self.seed = seed                      # seed is a number between 0 and 2^32-1
+        self.cores = cores                    # cores is an integer
 
-        self.seed = seed                     # seed is a number between 0 and 2^32-1
         self.invarseeds = None
         
         self.inittime = datetime.now()
         self.starttime = None
         self.endtime = None
-        self.runtime = None
-        
-        self.cores = cores  # cores is an integer
+        self.runtime = None        
         
         self.mcinvars = dict()     
         self.mcoutvars = dict()     
         self.mccases = []
         self.ninvars = 0
         
-        self.setFirstCaseNom(firstcaseisnom)
-        self.setNDraws(self.ndraws)
-        
         self.corrcoeff = None
         self.corrvarlist = None
+
+        self.ncases = ndraws + 1
+        self.setFirstCaseNom(firstcaseisnom)
+        self.setNDraws(self.ndraws)
 
 
     def setFirstCaseNom(self, firstcaseisnom):  # firstdrawisnom is a boolean
@@ -67,17 +64,14 @@ class MCSim:
     def setNDraws(self, ndraws):  # ncases is an integer
         self.ndraws = ndraws
         self.setFirstCaseNom(self.firstcaseisnom)
-        if self.mcinvars == dict():
-            self.clearCases()
-        else:
-            for mcvar in self.mcinvars.values():
-                mcvar.setNDraws(ndraws)
-            if self.mccases != []:
-                self.genCases()
+        for mcinvar in self.mcinvars.values():
+            mcinvar.setNDraws(ndraws)
+        if self.mcinvars != dict():
+            self.genCases()
 
 
     def genCases(self):
-        self.clearCases()
+        self.clearResults()
         for i in range(self.ncases):
             isnom = False
             if self.firstcaseisnom and i == 0:
@@ -119,7 +113,7 @@ class MCSim:
         return self.corrcoeff, self.corrvarlist
 
 
-    def clearCases(self):
+    def clearResults(self):
         self.mccases = []
         self.mcoutvars = dict()
         self.corrcoeff = None
@@ -127,11 +121,14 @@ class MCSim:
 
 
     def reset(self):
-        self.clearCases()
+        self.clearResults()
         self.mcinvars = dict()
         self.ninvars = 0
         self.setNDraws(self.ndraws)
         self.invarseeds = None
+        self.starttime = None
+        self.endtime = None
+        self.runtime = None
         
                     
     def runSim(self):
@@ -156,7 +153,7 @@ class MCSim:
         self.runtime = self.endtime - self.starttime
 
 
-    def runCaseWorker(self, mccase):
+    def runCaseWorker(self, mccase):  # mccase is an MCCase object
         mccase.starttime = datetime.now()
         sim_raw_output = self.fcns['run'](*mccase.siminput)
         self.fcns['postprocess'](mccase, *sim_raw_output)

@@ -2,8 +2,8 @@ from PyMonteCarlo.MCVal import MCOutVal
 
 class MCCase():
     def __init__(self, ncase, mcinvars, isnom):
-        self.ncase = ncase    # ncase is an integer
-        self.isnom = isnom    # isnom is a boolean
+        self.ncase = ncase        # ncase is an integer
+        self.isnom = isnom        # isnom is a boolean
         self.mcinvars = mcinvars  # mcvars is a dict of MCVar objects
         self.mcoutvars = dict()
         

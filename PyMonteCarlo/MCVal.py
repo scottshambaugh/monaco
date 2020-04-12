@@ -7,7 +7,8 @@ class MCVal():
         self.ncase = ncase  # ncase is an integer
         self.val = val      # val can be anything
         self.isnom = isnom  # isnom is a boolean
-        self.size = None    # size is a tuple 
+        
+        self.size = None
 
 
 
@@ -16,6 +17,7 @@ class MCInVal(MCVal):
     def __init__(self, name, ncase, val, dist, isnom = False):
         super().__init__(name, ncase, val, isnom)
         self.dist = dist    # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous
+        
         self.size = (1, 1)
 
 
