@@ -6,7 +6,7 @@
 * ~~Automatically split outvars~~
 * Rocket example using ode
 * Get parallelism working fast
-* Make parallelism repeatable
+* ~~Make parallelism repeatable~~
 * ~~Correlation matrix output for scalars~~
 * Correlation matrix input?
 * Dataframe support
@@ -17,7 +17,7 @@
 * Progress bar
 * ~~Set up directory structure~~
 * Get custom distributions working
-* Allow for custom distributions linked to keys 
+* Map custom discrete distributions to keys that pass to functions
 * Break out tests
 
 ### Directory Structure:

@@ -56,7 +56,6 @@ class MCInVar(MCVar):
     def setNDraws(self, ndraws):  # ndraws is an integer
         self.ndraws = ndraws
         self.setFirstCaseNom(self.firstcaseisnom)
-        self.seed = np.random.get_state()[1][0]
         self.draw()
         
         
@@ -68,6 +67,7 @@ class MCInVar(MCVar):
             self.ncases = self.ndraws + 1
             self.vals.append(self.getNom())
   
+        np.random.seed(self.seed)
         self.vals.extend(dist.rvs(size=self.ndraws).tolist())
 
 
@@ -153,17 +153,19 @@ class MCOutVar(MCVar):
 
 '''
 ### Test ###
-np.random.seed(74494861)
 from scipy.stats import norm, randint
+generator = np.random.RandomState(74494861)
+invarseeds = generator.randint(0, 2**31-1, size=10)
+
 mcinvars = dict()
-mcinvars['randint'] = MCInVar('randint', randint, (1, 5), 1000)
+mcinvars['randint'] = MCInVar('randint', randint, (1, 5), 1000, seed=invarseeds[0])
 print(mcinvars['randint'].stats())
-mcinvars['norm'] = MCInVar('norm', norm, (10, 4), 1000)
+mcinvars['norm'] = MCInVar('norm', norm, (10, 4), 1000, seed=invarseeds[1])
 print(mcinvars['norm'].stats())
 xk = np.array([1, 5, 6])
 pk = np.ones(len(xk))/len(xk)
 custom = rv_discrete(name='custom', values=(xk, pk))
-mcinvars['custom'] = MCInVar('custom', custom, (), 1000)
+mcinvars['custom'] = MCInVar('custom', custom, (), 1000, seed=invarseeds[2])
 print(mcinvars['custom'].stats())
 print(mcinvars['custom'].getVal(0).val)
 

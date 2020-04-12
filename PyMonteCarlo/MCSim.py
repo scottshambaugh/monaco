@@ -5,7 +5,8 @@ from PyMonteCarlo.MCVar import MCInVar, MCOutVar
 from psutil import cpu_count
 #from multiprocessing.pool import ThreadPool as Pool
 #from multiprocessing import Pool
-from pathos.pools import ProcessPool as Pool
+#from pathos.pools import ProcessPool as Pool
+from pathos.pools import ThreadPool as Pool
 #from pathos.helpers import shutdown
 
 
@@ -19,7 +20,7 @@ class MCSim:
         self.fcns = fcns
 
         self.seed = seed                     # seed is a number between 0 and 2^32-1
-        np.random.seed(seed)
+        self.invarseeds = None
         
         self.inittime = datetime.now()
         self.starttime = None
@@ -30,13 +31,15 @@ class MCSim:
         
         self.mcinvars = dict()     
         self.mcoutvars = dict()     
-        self.mccases = []        
+        self.mccases = []
+        self.ninvars = 0
         
         self.setFirstCaseNom(firstcaseisnom)
         self.setNDraws(self.ndraws)
         
         self.corr = None
         self.corrvarlist = None
+
 
     def setFirstCaseNom(self, firstcaseisnom):  # firstdrawisnom is a boolean
         if firstcaseisnom:
@@ -54,13 +57,15 @@ class MCSim:
         # name is a string
         # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous 
         # distargs is a tuple of the arguments to the above distribution
-        self.mcinvars[name] = MCInVar(name, dist, distargs, self.ndraws, self.ncases, self.firstcaseisnom)
+        self.ninvars += 1
+        generator = np.random.RandomState(self.seed)
+        self.invarseeds = generator.randint(0, 2**31-1, size=self.ninvars)
+        self.mcinvars[name] = MCInVar(name, dist, distargs, self.ndraws, self.invarseeds[self.ninvars-1], self.firstcaseisnom)
 
 
     def setNDraws(self, ndraws):  # ncases is an integer
         self.ndraws = ndraws
         self.setFirstCaseNom(self.firstcaseisnom)
-        np.random.seed(self.seed)
         if self.mcinvars == dict():
             self.clearCases()
         else:
@@ -78,6 +83,7 @@ class MCSim:
                 isnom = True
             self.mccases.append(MCCase(i, self.mcinvars, isnom))
             self.mccases[i].siminput = self.fcns['preprocess'](self.mccases[i])
+        #self.genCorrelationMatrix()
 
 
     def genOutVars(self):
@@ -88,18 +94,41 @@ class MCSim:
             self.mcoutvars[varname] = MCOutVar(varname, vals, self.ndraws, self.firstcaseisnom)
             for i in range(self.ncases):
                 self.mccases[i].mcoutvars[varname] = self.mcoutvars[varname]
+
+
+    def genCorrelationMatrix(self):
+        self.corrvarlist = []
+        allvals = []
+        j = 0
+        for var in self.mcinvars.keys():
+            if self.mcinvars[var].isscalar:
+                allvals.append(self.mcinvars[var].vals)
+                self.corrvarlist.append(self.mcinvars[var].name)
+                j = j+1
+        for var in self.mcoutvars.keys():
+            if self.mcoutvars[var].isscalar:
+                allvals.append(self.mcoutvars[var].vals)
+                self.corrvarlist.append(self.mcoutvars[var].name)
+                j = j+1
+
+
+    def corr(self):
         self.genCorrelationMatrix()
+        return self.corr
 
 
     def clearCases(self):
         self.mccases = []
         self.mcoutvars = dict()
-        self.genCorrelationMatrix()
+        self.corr = None
+        self.corrvarlist = None
 
 
     def clearInVars(self):
         self.mcinvars = dict()
+        self.ninvars = 0
         self.setNDraws(self.ndraws)
+        self.invarseeds = None
         
                     
     def runSim(self):
@@ -130,23 +159,8 @@ class MCSim:
         self.fcns['postprocess'](mccase, *sim_raw_output)
         mccase.endtime = datetime.now()
         mccase.runtime = mccase.endtime - mccase.starttime
-        
+        return
 
-    def genCorrelationMatrix(self):
-        self.corrvarlist = []
-        allvals = []
-        j = 0
-        for var in self.mcinvars.keys():
-            if self.mcinvars[var].isscalar:
-                allvals.append(self.mcinvars[var].vals)
-                self.corrvarlist.append(self.mcinvars[var].name)
-                j = j+1
-        for var in self.mcoutvars.keys():
-            if self.mcoutvars[var].isscalar:
-                allvals.append(self.mcoutvars[var].vals)
-                self.corrvarlist.append(self.mcoutvars[var].name)
-                j = j+1
-        self.corr = np.corrcoef(np.array(allvals))
 
 
 '''
