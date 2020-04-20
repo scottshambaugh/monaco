@@ -31,6 +31,7 @@ def rocket_example_run_script():
     #MCPlot(sim.mcoutvars['Time'], sim.mcoutvars['Distance'])
     #MCPlot(sim.mcoutvars['Landing Dist'])
     #MCPlot(sim.mcoutvars['Landing E'], sim.mcoutvars['Landing N'])
+    #MCPlot(sim.mcoutvars['Time'], sim.mcoutvars['Flight Stage'])    
     MCPlot(sim.mcoutvars['Position'])
     return sim
 

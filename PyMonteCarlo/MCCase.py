@@ -33,8 +33,8 @@ class MCCase():
         return mcvals
     
     
-    def addOutVal(self, name, val, split=True):
-        self.mcoutvals[name] = MCOutVal(name=name, ncase=self.ncase, val=val, isnom=self.isnom)
+    def addOutVal(self, name, val, split=True, valmap=None):
+        self.mcoutvals[name] = MCOutVal(name=name, ncase=self.ncase, val=val, valmap=valmap, isnom=self.isnom)
         if split:
             self.mcoutvals.update(self.mcoutvals[name].split())
 
@@ -52,4 +52,7 @@ print(case.mcinvals['Test'].val)
 case.addOutVal('TestOut', [[0,0],[0,0],[0,0]])
 print(case.mcoutvals['TestOut'].val)
 print(case.mcoutvals['TestOut'].size)
+valmap = {'a':0,'b':-1,'c':-2,'d':-3,'e':-4,'f':-5}
+case.addOutVal('TestOut2', [['a','b'],['c','d'],['e','f']], valmap = valmap)
+print(case.mcoutvals['TestOut2'].num)
 #'''

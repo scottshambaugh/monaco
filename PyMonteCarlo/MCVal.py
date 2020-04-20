@@ -1,6 +1,6 @@
 import numpy as np
 from itertools import chain
-from copy import copy
+from copy import copy, deepcopy
 
 ### MCVal Base Class ###
 class MCVal():
@@ -66,7 +66,10 @@ class MCOutVal(MCVal):
         
         self.genSize()
         if valmap == None:
-            self.extractValMap()            
+            self.valmapsource = 'auto'
+            self.extractValMap()    
+        else:
+            self.valmapsource = 'assigned'
         self.mapVal()
         self.genNumMap()
         
@@ -102,7 +105,7 @@ class MCOutVal(MCVal):
         elif self.isscalar:
             self.num = self.valmap[self.val]
         else:
-            num = copy(self.val)
+            num = deepcopy(self.val)
             if self.size[0] == 1:
                 for i in range(self.size[1]):
                     num[i] = self.valmap[self.val[i]]

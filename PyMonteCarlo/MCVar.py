@@ -154,13 +154,17 @@ class MCOutVar(MCVar):
             
     
     def extractValMap(self):
-        if self.getVal(0).valmap != None:
-            uniquevals = set()
-            for i in range(self.ncases):
-                uniquevals.update(self.getVal(i).valmap.keys())
-            self.valmap = dict()
-            for i, val in enumerate(uniquevals):
-                self.valmap[val] = i
+        Val0 = self.getVal(0)
+        if Val0.valmap != None:
+            if Val0.valmapsource == 'auto':
+                uniquevals = set()
+                for i in range(self.ncases):
+                    uniquevals.update(self.getVal(i).valmap.keys())
+                self.valmap = dict()
+                for i, val in enumerate(uniquevals):
+                    self.valmap[val] = i
+            else:
+                self.valmap = Val0.valmap
 
 
     def genNumMap(self):

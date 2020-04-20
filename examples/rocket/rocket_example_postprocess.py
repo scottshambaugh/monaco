@@ -1,6 +1,10 @@
 import numpy as np
 
 def rocket_example_postprocess(mccase, t, m, flightstage, T, pos, vel, acc):
+    
+    valmap = {'prelaunch':0, 'ignition':1, 'poweredflight':2, 'coastflight':3, 'parachute':4, 'landed':5}
+    mccase.addOutVal('Flight Stage', flightstage, valmap=valmap)
+
     mccase.addOutVal('Time', t)
     mccase.addOutVal('Mass', m)
     mccase.addOutVal('Thrust', T)
