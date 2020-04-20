@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.stats import rv_continuous, rv_discrete, describe
 from PyMonteCarlo.MCVal import MCInVal, MCOutVal
+from copy import copy
 
 ### MCVar Base Class ###
 class MCVar:
@@ -12,6 +13,9 @@ class MCVar:
         self.ncases = ndraws + 1
         self.setFirstCaseNom(firstcaseisnom)
         self.vals = []
+        self.valmap = None
+        self.nums = []
+        self.nummap = None
         self.size = None
         self.isscalar = None
         
@@ -26,7 +30,7 @@ class MCVar:
 
 
     def stats(self):
-        stats = describe(self.vals)
+        stats = describe(self.nums)
         return stats
 
 
@@ -40,19 +44,34 @@ class MCVar:
 
 ### MCInVar Class ###
 class MCInVar(MCVar):
-    def __init__(self, name, dist, distargs, ndraws, seed=np.random.get_state()[1][0], firstcaseisnom=True):
+    def __init__(self, name, dist, distargs, ndraws, nummap=None, seed=np.random.get_state()[1][0], firstcaseisnom=True):
         super().__init__(name=name, ndraws=ndraws, firstcaseisnom=firstcaseisnom)
         self.dist = dist          # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous 
         self.distargs = distargs  # distargs is a tuple of the arguments to the above distribution
         self.seed = seed          # seed is a number between 0 and 2^32-1
+        self.nummap = nummap      # nummap is a dict
         
-        self.size = (1, 1)
         self.isscalar = True
+        self.size = (1, 1)
 
         if not isinstance(self.distargs, tuple):
             self.distargs = (self.distargs,)
         
+        self.genValMap()
         self.draw()
+
+
+    def mapNums(self):
+        self.vals = copy(self.nums)
+        for i in range(self.ncases):
+            self.vals[i] = self.getVal(i).val
+            
+            
+    def genValMap(self):
+        if self.nummap == None:
+            self.valmap = None
+        else:
+            self.valmap = {val:num for num, val in self.nummap.items()}
 
 
     def setNDraws(self, ndraws):  # ndraws is an integer
@@ -62,15 +81,16 @@ class MCInVar(MCVar):
         
         
     def draw(self):
-        self.vals = []
+        self.nums = []
         dist = self.dist(*self.distargs)
 
         if self.firstcaseisnom:
             self.ncases = self.ndraws + 1
-            self.vals.append(self.getNom())
+            self.nums.append(self.getNom())
   
         np.random.seed(self.seed)
-        self.vals.extend(dist.rvs(size=self.ndraws).tolist())
+        self.nums.extend(dist.rvs(size=self.ndraws).tolist())
+        self.mapNums()
 
 
     def getNom(self):
@@ -90,38 +110,56 @@ class MCInVar(MCVar):
             return ev_closest
         
         else:
-            return np.NaN
+            return None
+
 
     def getVal(self, ncase):  # ncase is an integer
         isnom = False
         if (ncase == 0) and self.firstcaseisnom:
             isnom = True
             
-        val = MCInVal(name=self.name, ncase=ncase, val=self.vals[ncase], dist=self.dist, isnom=isnom)
+        val = MCInVal(name=self.name, ncase=ncase, num=self.nums[ncase], dist=self.dist, nummap=self.nummap, isnom=isnom)
         return val
 
 
 
 ### MCOutVar Class ###
 class MCOutVar(MCVar):
-    def __init__(self, name, vals, ndraws=None, firstcaseisnom=True):
+    def __init__(self, name, vals, valmap=None, ndraws=None, firstcaseisnom=True):
         if ndraws == None:
             ndraws = len(vals)
             if firstcaseisnom:
                 ndraws = ndraws - 1
         
         super().__init__(name=name, ndraws=ndraws, firstcaseisnom=firstcaseisnom)
-        self.vals = vals  # vals is a list
+        self.vals = vals      # vals is a list
+        self.valmap = valmap
+        
+        self.genNumMap()
+        self.mapVals()
         
         if isinstance(vals[0],(list, tuple, np.ndarray)):
+            self.isscalar = False
             if isinstance(vals[0][0],(list, tuple, np.ndarray)):
                 self.size = (len(vals[0]), len(vals[0][0]))
             else:
                 self.size = (1, len(vals[0]))
-                self.isscalar = False
         else:
-            self.size = (1, 1)
             self.isscalar = True
+            self.size = (1, 1)
+
+
+    def genNumMap(self):
+        if self.valmap == None:
+            self.nummap = None
+        else:
+            self.nummap = {num:val for val, num in self.valmap.items()}
+
+
+    def mapVals(self):
+        self.nums = copy(self.vals)
+        for i in range(self.ncases):
+            self.nums[i] = self.getVal(i).num  
 
 
     def getVal(self, ncase):  # ncase is an integer
@@ -129,7 +167,7 @@ class MCOutVar(MCVar):
         if (ncase == 0) and self.firstcaseisnom:
             isnom = True
             
-        val = MCOutVal(name=self.name, ncase=ncase, val=self.vals[ncase], isnom=isnom)
+        val = MCOutVal(name=self.name, ncase=ncase, val=self.vals[ncase], valmap=self.valmap, isnom=isnom)
         return val
         
     
@@ -148,7 +186,8 @@ class MCOutVar(MCVar):
                 vals = []
                 for j in range(self.ncases):
                     vals.append(self.vals[j][i])
-                mcvars[name] = MCOutVar(name=name, vals=vals, ndraws=self.ndraws, firstcaseisnom=self.firstcaseisnom)
+                mcvars[name] = MCOutVar(name=name, vals=vals, ndraws=self.ndraws, \
+                                        valmap=self.valmap, firstcaseisnom=self.firstcaseisnom)
         return mcvars
 
 
@@ -170,6 +209,9 @@ custom = rv_discrete(name='custom', values=(xk, pk))
 mcinvars['custom'] = MCInVar('custom', custom, (), 1000, seed=invarseeds[2])
 print(mcinvars['custom'].stats())
 print(mcinvars['custom'].getVal(0).val)
+mcinvars['map'] = MCInVar('map', custom, (), 10, nummap={1:'a',5:'e',6:'f'}, seed=invarseeds[3])
+print(mcinvars['map'].vals)
+print(mcinvars['map'].stats())
 
 mcoutvars = dict()
 mcoutvars['test'] = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
@@ -179,5 +221,5 @@ print(mcoutvars['test'].stats())
 v = np.array([[1,1],[2,2],[3,3]])
 mcoutvars['test2'] = MCOutVar('test2', [v, v, v, v, v])
 mcoutvars.update(mcoutvars['test2'].split())
-print(mcoutvars['test2 [0]'].vals)
+print(mcoutvars['test2 [0]'].nums)
 #'''

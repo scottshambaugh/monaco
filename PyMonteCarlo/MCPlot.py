@@ -44,9 +44,9 @@ def MCPlot(mcvarx, mcvary = None, mcvarz = None):
         else:
             mcvart = copy(mcvarx)
             mcvart.name = 'Simulation Steps'
-            vals = []
-            vals.extend([[*range(mcvarx.size[1])] for i in range(mcvart.ncases)])
-            mcvart.vals = vals
+            nums = []
+            nums.extend([[*range(mcvarx.size[1])] for i in range(mcvart.ncases)])
+            mcvart.nums = nums
             MCPlot2DLine(mcvart, mcvarx)
 
     # Two Variable Plots
@@ -71,10 +71,10 @@ def MCPlotHist(mcvar, cumulative=False):
     fig, ax = plt.subplots(1, 1)
 
     # Histogram generation
-    counts, bins = np.histogram(mcvar.vals, bins='auto')
+    counts, bins = np.histogram(mcvar.nums, bins='auto')
     binwidth = mode(np.diff(bins))[0]
     bins = np.concatenate((bins - binwidth/2, bins[-1] + binwidth/2))
-    counts, bins = np.histogram(mcvar.vals, bins=bins)
+    counts, bins = np.histogram(mcvar.nums, bins=bins)
     
     if isinstance(mcvar, MCInVar): 
         # Continuous distribution
@@ -126,9 +126,9 @@ def MCPlot2DScatter(mcvarx, mcvary):
     idx = int(mcvarx.firstcaseisnom)
 
     if not mcvarx.firstcaseisnom or mcvarx.ndraws > 0:
-        plt.scatter(mcvarx.vals[idx:-1], mcvary.vals[idx:-1], edgecolors=None, c=colorblack, alpha=0.4)
+        plt.scatter(mcvarx.nums[idx:-1], mcvary.nums[idx:-1], edgecolors=None, c=colorblack, alpha=0.4)
     if mcvarx.firstcaseisnom:
-        plt.scatter(mcvarx.vals[0], mcvary.vals[0], edgecolors=None, c=colorred, alpha=1)        
+        plt.scatter(mcvarx.nums[0], mcvary.nums[0], edgecolors=None, c=colorred, alpha=1)        
 
     plt.xlabel(mcvarx.name)
     plt.ylabel(mcvary.name)
@@ -140,9 +140,9 @@ def MCPlot2DLine(mcvarx, mcvary):
     
     if mcvarx.ndraws > 0:
         for i in range(int(mcvarx.firstcaseisnom), mcvarx.ncases):
-            plt.plot(mcvarx.vals[i], mcvary.vals[i], 'k-', alpha=0.3)
+            plt.plot(mcvarx.nums[i], mcvary.nums[i], 'k-', alpha=0.3)
     if mcvarx.firstcaseisnom:
-        plt.plot(mcvarx.vals[0], mcvary.vals[0], 'r-', alpha=1)     
+        plt.plot(mcvarx.nums[0], mcvary.nums[0], 'r-', alpha=1)     
 
     plt.xlabel(mcvarx.name)
     plt.ylabel(mcvary.name)
@@ -157,9 +157,9 @@ def MCPlot3DScatter(mcvarx, mcvary, mcvarz):
     idx = int(mcvarx.firstcaseisnom)
     
     if mcvarx.ndraws > 0:
-        ax.scatter(mcvarx.vals[idx:-1], mcvary.vals[idx:-1],  mcvarz.vals[idx:-1], edgecolors=None, c=colorblack, alpha=0.4)
+        ax.scatter(mcvarx.nums[idx:-1], mcvary.nums[idx:-1],  mcvarz.nums[idx:-1], edgecolors=None, c=colorblack, alpha=0.4)
     if mcvarx.firstcaseisnom:
-        ax.scatter(mcvarx.vals[0], mcvary.vals[0], mcvarz.vals[0], edgecolors=None, c=colorred, alpha=1)        
+        ax.scatter(mcvarx.nums[0], mcvary.nums[0], mcvarz.nums[0], edgecolors=None, c=colorred, alpha=1)        
 
     ax.set_xlabel(mcvarx.name)
     ax.set_ylabel(mcvary.name)
@@ -173,9 +173,9 @@ def MCPlot3DLine(mcvarx, mcvary, mcvarz):
     
     if mcvarx.ndraws > 0:
         for i in range(int(mcvarx.firstcaseisnom), mcvarx.ncases):
-            ax.plot(mcvarx.vals[i], mcvary.vals[i], mcvarz.vals[i], 'k-', alpha=0.3)
+            ax.plot(mcvarx.nums[i], mcvary.nums[i], mcvarz.nums[i], 'k-', alpha=0.3)
     if mcvarx.firstcaseisnom:
-        ax.plot(mcvarx.vals[0], mcvary.vals[0], mcvarz.vals[0], 'r-', alpha=1)
+        ax.plot(mcvarx.nums[0], mcvary.nums[0], mcvarz.nums[0], 'r-', alpha=1)
         
     ax.set_xlabel(mcvarx.name)
     ax.set_ylabel(mcvary.name)

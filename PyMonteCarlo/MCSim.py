@@ -50,14 +50,14 @@ class MCSim:
                 mcvar.setFirstCaseNom(firstcaseisnom)
 
 
-    def addInVar(self, name, dist, distargs):  
+    def addInVar(self, name, dist, distargs, nummap=None):  
         # name is a string
         # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous 
         # distargs is a tuple of the arguments to the above distribution
         self.ninvars += 1
         generator = np.random.RandomState(self.seed)
         self.invarseeds = generator.randint(0, 2**31-1, size=self.ninvars)
-        self.mcinvars[name] = MCInVar(name=name, dist=dist, distargs=distargs, ndraws=self.ndraws, \
+        self.mcinvars[name] = MCInVar(name=name, dist=dist, distargs=distargs, ndraws=self.ndraws, nummap=nummap, \
                                       seed=self.invarseeds[self.ninvars-1], firstcaseisnom=self.firstcaseisnom)
 
 
@@ -84,28 +84,33 @@ class MCSim:
     def genOutVars(self):
         for varname in self.mccases[0].mcoutvals.keys():
             vals = []
+            valmap = set()
             for i in range(self.ncases):
                 vals.append(self.mccases[i].mcoutvals[varname].val)
-            self.mcoutvars[varname] = MCOutVar(name=varname, vals=vals, ndraws=self.ndraws, firstcaseisnom=self.firstcaseisnom)
+                if self.mccases[i].mcoutvals[varname].valmap == None:
+                    valmap = None
+                else:
+                    valmap.update(self.mccases[i].mcoutvals[varname].valmap.keys())
+            self.mcoutvars[varname] = MCOutVar(name=varname, vals=vals, valmap=valmap, ndraws=self.ndraws, firstcaseisnom=self.firstcaseisnom)
             for i in range(self.ncases):
                 self.mccases[i].mcoutvars[varname] = self.mcoutvars[varname]
 
 
     def genCorrelationMatrix(self):
         self.corrvarlist = []
-        allvals = []
+        allnums = []
         j = 0
         for var in self.mcinvars.keys():
             if self.mcinvars[var].isscalar:
-                allvals.append(self.mcinvars[var].vals)
+                allnums.append(self.mcinvars[var].nums)
                 self.corrvarlist.append(self.mcinvars[var].name)
                 j = j+1
         for var in self.mcoutvars.keys():
             if self.mcoutvars[var].isscalar:
-                allvals.append(self.mcoutvars[var].vals)
+                allnums.append(self.mcoutvars[var].nums)
                 self.corrvarlist.append(self.mcoutvars[var].name)
                 j = j+1
-        self.corrcoeff = np.corrcoef(np.array(allvals))
+        self.corrcoeff = np.corrcoef(np.array(allnums))
 
 
     def corr(self):

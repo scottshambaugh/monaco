@@ -6,7 +6,7 @@ def rocket_example_sim(sequence, massprops, propulsion, aero, launchsite):
     g = 9.81   # gravitational acceleration [m/s^2]
     dt = 0.1  # simulation timestep [s]
     d2r = np.pi/180  # degrees to radians conversion [rad/deg]
-    flightstage = 'prelaunch'  # prelaunch, ignition, poweredflight, coastflight, parachute, or landed
+    flightstage = ['prelaunch']  # prelaunch, ignition, poweredflight, coastflight, parachute, or landed
     tapogee = None  # time at apogee [s]
     timeout = 1000 # simulation timeout [s]
     
@@ -24,26 +24,27 @@ def rocket_example_sim(sequence, massprops, propulsion, aero, launchsite):
     
     # Main calculation loop
     i = 0 
-    while flightstage != 'landed':
+    while flightstage[i] != 'landed':
         
         i = i+1
         t = np.append(t, t[i-1] + dt)   
+        flightstage.append(flightstage[i-1])   
 
         # Check for events and state transitions
-        if flightstage == 'prelaunch':
+        if flightstage[i] == 'prelaunch':
             if t[i] >= sequence['ignition']:
-                flightstage = 'ignition'
-        elif flightstage == 'poweredflight':
+                flightstage[i] = 'ignition'
+        elif flightstage[i] == 'poweredflight':
             if T[i-1] <= 0:
-                flightstage = 'coastflight'
-        elif flightstage == 'coastflight':
+                flightstage[i] = 'coastflight'
+        elif flightstage[i] == 'coastflight':
             if vel[i-2][2] >= 0 and vel[i-1][2] <= 0:
                 tapogee = t[i-1]
             if tapogee != None and t[i] >= (tapogee + sequence['parachute_delay']):
-                flightstage = 'parachute'
+                flightstage[i] = 'parachute'
         
         # Look up aero data based on if parachute is deployed
-        if flightstage == 'parachute':
+        if flightstage[i] == 'parachute':
             area = np.array([aero['area_ax_parachute'], aero['area_lat_parachute'], aero['area_lat_parachute']])
             cd = np.array([aero['cd_ax_parachute'], aero['cd_lat_parachute'], aero['cd_lat_parachute']])
         else:
@@ -63,9 +64,9 @@ def rocket_example_sim(sequence, massprops, propulsion, aero, launchsite):
         Ftot = Faero + Fg + Fthrust
         
         # Check for liftoff, restrict vehicle if still on ground
-        if flightstage == 'ignition' and Ftot[2] > 0:
-            flightstage = 'poweredflight'
-        elif flightstage in ('prelaunch', 'ignition'):
+        if flightstage[i] == 'ignition' and Ftot[2] > 0:
+            flightstage[i] = 'poweredflight'
+        elif flightstage[i] in ('prelaunch', 'ignition'):
             Ftot = np.array([0,0,0])
 
         # Integrate equations of motion
@@ -74,18 +75,18 @@ def rocket_example_sim(sequence, massprops, propulsion, aero, launchsite):
         pos = np.append(pos, [pos[i-1] + vel[i]*dt], axis=0)
         
         # Check for landing
-        if flightstage not in ('prelaunch', 'ignition') and pos[i][2] <= 0:
+        if flightstage[i] not in ('prelaunch', 'ignition') and pos[i][2] <= 0:
             acc[i] = np.array([0,0,0])
             vel[i] = np.array([0,0,0])
             pos[i][2] = 0
-            flightstage = 'landed'
+            flightstage[i] = 'landed'
         
         # Check for timeout
         if t[i] > timeout:
             print('Timeout')
             return None
 
-    return (t, m, T.transpose(), pos.transpose(), vel.transpose(), acc.transpose())
+    return (t, m, flightstage, T.transpose(), pos.transpose(), vel.transpose(), acc.transpose())
     
     
 def calcRho(alt):  # alt is altitude above sea level [m]
@@ -142,7 +143,7 @@ launchsite = {
     'launchazi' : 0,    # launch azimuth from north [deg]
     }
 
-(t, m, T, pos, vel, acc) = rocket_example_sim(sequence, massprops, propulsion, aero, launchsite)
+(t, m, flightstage, T, pos, vel, acc) = rocket_example_sim(sequence, massprops, propulsion, aero, launchsite)
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D

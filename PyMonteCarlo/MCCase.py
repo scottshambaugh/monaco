@@ -38,6 +38,7 @@ class MCCase():
         if split:
             self.mcoutvals.update(self.mcoutvals[name].split())
 
+
 '''
 ### Test ###
 import numpy as np

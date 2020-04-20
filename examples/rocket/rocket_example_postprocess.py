@@ -1,6 +1,6 @@
 import numpy as np
 
-def rocket_example_postprocess(mccase, t, m, T, pos, vel, acc):
+def rocket_example_postprocess(mccase, t, m, flightstage, T, pos, vel, acc):
     mccase.addOutVal('Time', t)
     mccase.addOutVal('Mass', m)
     mccase.addOutVal('Thrust', T)

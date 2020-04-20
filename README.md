@@ -4,7 +4,6 @@
 
 * Flesh out README
 * ~~Automatically split outvars~~
-* Rocket example using ode
 * Get parallelism working fast
 * ~~Make parallelism repeatable~~
 * ~~Correlation matrix output for scalars~~
@@ -19,6 +18,8 @@
 * Get custom distributions working
 * Map custom discrete distributions to keys that pass to functions
 * Break out tests
+* Put in license
+* 3sig / X% / Mean / Min / Max lines/shaded areas on plot 
 
 ### Directory Structure:
 
