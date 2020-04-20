@@ -84,13 +84,20 @@ class MCSim:
     def genOutVars(self):
         for varname in self.mccases[0].mcoutvals.keys():
             vals = []
-            valmap = set()
+            uniquevals = set()
             for i in range(self.ncases):
                 vals.append(self.mccases[i].mcoutvals[varname].val)
                 if self.mccases[i].mcoutvals[varname].valmap == None:
-                    valmap = None
+                    uniquevals = None
                 else:
-                    valmap.update(self.mccases[i].mcoutvals[varname].valmap.keys())
+                    uniquevals.update(self.mccases[i].mcoutvals[varname].valmap.keys())
+                    
+            valmap = None
+            if uniquevals != None:
+                valmap = dict()
+                for i, val in enumerate(uniquevals):
+                    valmap[val] = i
+
             self.mcoutvars[varname] = MCOutVar(name=varname, vals=vals, valmap=valmap, ndraws=self.ndraws, firstcaseisnom=self.firstcaseisnom)
             for i in range(self.ncases):
                 self.mccases[i].mcoutvars[varname] = self.mcoutvars[varname]

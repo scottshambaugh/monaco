@@ -40,7 +40,7 @@ def rocket_example_sim(sequence, massprops, propulsion, aero, launchsite):
         elif flightstage[i] == 'coastflight':
             if vel[i-2][2] >= 0 and vel[i-1][2] <= 0:
                 tapogee = t[i-1]
-            if tapogee != None and t[i] >= (tapogee + sequence['parachute_delay']):
+            if tapogee != None and t[i] >= (tapogee + sequence['parachute_delay']) and not sequence['parachute_failure']:
                 flightstage[i] = 'parachute'
         
         # Look up aero data based on if parachute is deployed
@@ -110,8 +110,9 @@ def calcRho(alt):  # alt is altitude above sea level [m]
 '''
 ### Test ###
 sequence = {
-    'ignition' : 1, # time that engines are lit [s]
-    'parachute_delay' : 3, # time after apogee to open parachute [s]
+    'ignition' : 1,              # time that engines are lit [s]
+    'parachute_delay' : 3,       # time after apogee to open parachute [s]
+    'parachute_failure' : True, # whether the parachute fails to deploy (boolean)
     }
 
 massprops = {

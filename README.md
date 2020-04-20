@@ -16,10 +16,12 @@
 * Progress bar
 * ~~Set up directory structure~~
 * Get custom distributions working
-* Map custom discrete distributions to keys that pass to functions
+* ~~Map custom discrete distributions to keys that pass to functions~~
 * Break out tests
 * Put in license
 * 3sig / X% / Mean / Min / Max lines/shaded areas on plot 
+* Highlight specific case on plot
+* Seed invars with name hash
 
 ### Directory Structure:
 

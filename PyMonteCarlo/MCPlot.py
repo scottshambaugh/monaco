@@ -42,12 +42,14 @@ def MCPlot(mcvarx, mcvary = None, mcvarz = None):
         if mcvarx.size[1] == 1:
             MCPlotHist(mcvarx)
         else:
-            mcvart = copy(mcvarx)
-            mcvart.name = 'Simulation Steps'
+            mcvary = copy(mcvarx)
+            mcvarx = copy(mcvarx) # don't overwrite the underlying object
+            mcvarx.name = 'Simulation Steps'
             nums = []
-            nums.extend([[*range(mcvarx.size[1])] for i in range(mcvart.ncases)])
-            mcvart.nums = nums
-            MCPlot2DLine(mcvart, mcvarx)
+            nums.extend([[*range(mcvary.size[1])] for i in range(mcvarx.ncases)])
+            mcvarx.nums = nums
+            mcvarx.nummap = None
+            MCPlot2DLine(mcvarx, mcvary)
 
     # Two Variable Plots
     elif mcvarz == None:
@@ -64,8 +66,8 @@ def MCPlot(mcvarx, mcvary = None, mcvarz = None):
             
         elif mcvarx.size[1] > 1 and mcvary.size[1] > 1 and mcvarz.size[1] > 1:
             MCPlot3DLine(mcvarx, mcvary, mcvarz)
-
-
+    
+    
 
 def MCPlotHist(mcvar, cumulative=False):
     fig, ax = plt.subplots(1, 1)
@@ -111,7 +113,8 @@ def MCPlotHist(mcvar, cumulative=False):
         plt.ylabel('Cumulative Probability')
     else:
         plt.ylabel('Probability Density')
-
+    applyCategoryLabels(ax, mcvar)
+        
 
 
 def MCPlotCDF(mcvar):
@@ -132,6 +135,7 @@ def MCPlot2DScatter(mcvarx, mcvary):
 
     plt.xlabel(mcvarx.name)
     plt.ylabel(mcvary.name)
+    applyCategoryLabels(ax, mcvarx, mcvary)
 
 
 
@@ -146,6 +150,7 @@ def MCPlot2DLine(mcvarx, mcvary):
 
     plt.xlabel(mcvarx.name)
     plt.ylabel(mcvary.name)
+    applyCategoryLabels(ax, mcvarx, mcvary)
 
 
 
@@ -164,6 +169,7 @@ def MCPlot3DScatter(mcvarx, mcvary, mcvarz):
     ax.set_xlabel(mcvarx.name)
     ax.set_ylabel(mcvary.name)
     ax.set_zlabel(mcvarz.name)
+    applyCategoryLabels(ax, mcvarx, mcvary, mcvarz)
 
 
 
@@ -180,6 +186,7 @@ def MCPlot3DLine(mcvarx, mcvary, mcvarz):
     ax.set_xlabel(mcvarx.name)
     ax.set_ylabel(mcvary.name)
     ax.set_zlabel(mcvarz.name)
+    applyCategoryLabels(ax, mcvarx, mcvary, mcvarz)
 
 
 
@@ -216,12 +223,34 @@ def MCPlotCorr(corrcoeff, corrvarnames):
 
 
 
+def applyCategoryLabels(ax, mcvarx, mcvary=None, mcvarz=None):
+    # Wrapped in try statements in case some categories aren't printable
+    if mcvarx.nummap != None:
+        try:
+            plt.xticks(list(mcvarx.nummap.keys()), list(mcvarx.nummap.values()))
+        except:
+            pass
+    if mcvary != None and mcvary.nummap != None:
+        try:
+            plt.yticks(list(mcvary.nummap.keys()), list(mcvary.nummap.values()))
+        except:
+            pass
+    if mcvarz != None and mcvarz.nummap != None:
+        try:
+            ax.set_zticks(list(mcvarz.nummap.keys()))
+            ax.set_zticklabels(list(mcvarz.nummap.values()))
+        except:
+            pass
+
+
+
 '''
 ### Test ###
 np.random.seed(74494861)
 from scipy.stats import randint, norm
 mcinvars = dict()
-mcinvars['randint'] = MCInVar('randint', randint, (1, 5), 1000)
+nummap={1:'a',2:'b',3:'c',4:'d',5:'e'}
+mcinvars['randint'] = MCInVar('randint', randint, (1, 5), 1000, nummap=nummap)
 mcinvars['norm'] = MCInVar('norm', norm, (10, 4), 1000)
 mcinvars['norm2'] = MCInVar('norm2', norm, (10, 4), 1000)
 mcoutvars = dict()

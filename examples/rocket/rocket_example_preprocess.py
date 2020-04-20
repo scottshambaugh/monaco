@@ -1,7 +1,8 @@
 def rocket_example_preprocess(mccase):
     sequence = {
-        'ignition' : 1, # time that engines are lit [s]
-        'parachute_delay' : 3, # time after apogee to open parachute [s]
+        'ignition' : 1,                               # time that engines are lit [s]
+        'parachute_delay' : 3,                        # time after apogee to open parachute [s]
+        'parachute_failure' : mccase.mcinvals['parachute_failure'].val, # does the parachute fail to deploy? [bool]
         }
     
     massprops = {

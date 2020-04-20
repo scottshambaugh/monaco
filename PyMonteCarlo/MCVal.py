@@ -64,29 +64,36 @@ class MCOutVal(MCVal):
         self.val = val          # val can be anything
         self.valmap = valmap    # valmap is a dict
         
+        self.genSize()
         if valmap == None:
-            self.extractValMap()
-            
+            self.extractValMap()            
         self.mapVal()
         self.genNumMap()
-
-
-    def extractValMap(self):
+        
+        
+    def genSize(self):
         if isinstance(self.val,(list, tuple, np.ndarray)):
             self.isscalar = False
             if isinstance(self.val[0],(list, tuple, np.ndarray)):
                 self.size = (len(self.val), len(self.val[0]))
-                if all(isinstance(x, str) for x in chain(*self.val)):
-                    self.valmap = {key:idx for idx, key in enumerate(set(chain(*self.val)))}
             else:
                 self.size = (1, len(self.val))
-                if all(isinstance(x, str) for x in self.val):
-                    self.valmap = {key:idx for idx, key in enumerate(set(self.val))}
         else:
             self.isscalar = True
             self.size = (1, 1)
-            if isinstance(self.val, str):
-                self.valmap = {self.val:0}
+
+
+    def extractValMap(self):
+        if self.isscalar:
+            if not is_num(self.val):
+                self.valmap = {str(self.val):0}
+        else:
+            if self.size[0] > 1:
+                if not all(is_num(x) for x in chain(*self.val)):
+                    self.valmap = {str(key):idx for idx, key in enumerate(set(chain(*self.val)))}
+            else:
+                if not all(is_num(x) for x in self.val):
+                    self.valmap = {str(key):idx for idx, key in enumerate(set(self.val))}
                 
                 
     def mapVal(self):
@@ -98,7 +105,7 @@ class MCOutVal(MCVal):
             num = copy(self.val)
             if self.size[0] == 1:
                 for i in range(self.size[1]):
-                        num[i] = self.valmap[self.val[i]]
+                    num[i] = self.valmap[self.val[i]]
             else:
                 for i in range(self.size[0]):
                     for j in range(self.size[1]):
@@ -120,6 +127,20 @@ class MCOutVal(MCVal):
                 name = self.name + f' [{i}]'
                 mcvals[name] = MCOutVal(name=name, ncase=self.ncase, val=self.val[i], valmap=self.valmap, isnom=self.isnom)
         return mcvals
+
+
+### Helper Functions ###
+def is_num(val):
+    if isinstance(val, bool):
+        return False
+    else:
+        try:
+            float(val)
+        except ValueError:
+            return False
+        else:
+            return True
+
 
 
 '''

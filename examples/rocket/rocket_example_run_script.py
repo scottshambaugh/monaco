@@ -1,4 +1,4 @@
-from scipy.stats import uniform
+from scipy.stats import uniform, rv_discrete
 from PyMonteCarlo.MCSim import MCSim
 from PyMonteCarlo.MCPlot import MCPlot
 
@@ -18,6 +18,11 @@ def rocket_example_run_script():
     sim.addInVar(name='windazi', dist=uniform, distargs=(0, 360))
     sim.addInVar(name='windspd', dist=uniform, distargs=(0, 2))
     
+    para_fail_dist = rv_discrete(name='para_fail_dist', values=([1, 2], [0.8, 0.2]))
+    para_fail_nummap = {1:False, 2:True}
+    sim.addInVar(name='parachute_failure', dist=para_fail_dist, distargs=(), nummap=para_fail_nummap)
+
+
     sim.runSim()
     
     print(sim.runtime)

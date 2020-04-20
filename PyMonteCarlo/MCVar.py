@@ -134,19 +134,33 @@ class MCOutVar(MCVar):
         super().__init__(name=name, ndraws=ndraws, firstcaseisnom=firstcaseisnom)
         self.vals = vals      # vals is a list
         self.valmap = valmap
-        
+        if valmap == None:
+            self.extractValMap()
+        self.genSize()
         self.genNumMap()
         self.mapVals()
-        
-        if isinstance(vals[0],(list, tuple, np.ndarray)):
+
+
+    def genSize(self):
+        if isinstance(self.vals[0],(list, tuple, np.ndarray)):
             self.isscalar = False
-            if isinstance(vals[0][0],(list, tuple, np.ndarray)):
-                self.size = (len(vals[0]), len(vals[0][0]))
+            if isinstance(self.vals[0][0],(list, tuple, np.ndarray)):
+                self.size = (len(self.vals[0]), len(self.vals[0][0]))
             else:
-                self.size = (1, len(vals[0]))
+                self.size = (1, len(self.vals[0]))
         else:
             self.isscalar = True
             self.size = (1, 1)
+            
+    
+    def extractValMap(self):
+        if self.getVal(0).valmap != None:
+            uniquevals = set()
+            for i in range(self.ncases):
+                uniquevals.update(self.getVal(i).valmap.keys())
+            self.valmap = dict()
+            for i, val in enumerate(uniquevals):
+                self.valmap[val] = i
 
 
     def genNumMap(self):
