@@ -20,6 +20,7 @@
 * Save/load results to file
 * Continue partial results
 * Progress bar
+* ~~Make template files~~
 * ~~Set up directory structure~~
 * Get custom distributions working
 * ~~Map custom discrete distributions to keys that pass to functions~~

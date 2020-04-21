@@ -30,8 +30,8 @@ class MCSim:
         self.mccases = []
         self.ninvars = 0
         
-        self.corrcoeff = None
-        self.covcoeff = None
+        self.corrcoeffs = None
+        self.covs = None
         self.covvarlist = None
 
         self.ncases = ndraws + 1
@@ -123,18 +123,18 @@ class MCSim:
                 allnums.append(self.mcoutvars[var].nums)
                 self.covvarlist.append(self.mcoutvars[var].name)
                 j = j+1
-        self.covcoeff = np.cov(np.array(allnums))
-        self.corrcoeff = np.corrcoef(np.array(allnums))
+        self.covs = np.cov(np.array(allnums))
+        self.corrcoeffs = np.corrcoef(np.array(allnums))
 
 
     def corr(self):
         self.genCovarianceMatrix()
-        return self.corrcoeff, self.covvarlist
+        return self.corrcoeffs, self.covvarlist
 
 
     def cov(self):
         self.genCovarianceMatrix()
-        return self.covcoeff, self.covvarlist
+        return self.covs, self.covvarlist
 
 
     def clearResults(self):
