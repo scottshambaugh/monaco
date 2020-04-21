@@ -27,6 +27,7 @@
 * Put in license
 * 3sig / X% / Mean / Min / Max lines/shaded areas on plot 
 * ~~Highlight specific case on plot~~
+* ~~Specify axis to plot on~~
 * Seed invars with name hash
 
 ### Directory Structure:
