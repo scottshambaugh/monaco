@@ -1,6 +1,7 @@
 import numpy as np
 from itertools import chain
 from copy import copy, deepcopy
+from helper_functions import is_num
 
 ### MCVal Base Class ###
 class MCVal():
@@ -131,18 +132,6 @@ class MCOutVal(MCVal):
                 mcvals[name] = MCOutVal(name=name, ncase=self.ncase, val=self.val[i], valmap=self.valmap, isnom=self.isnom)
         return mcvals
 
-
-### Helper Functions ###
-def is_num(val):
-    if isinstance(val, bool):
-        return False
-    else:
-        try:
-            float(val)
-        except ValueError:
-            return False
-        else:
-            return True
 
 
 

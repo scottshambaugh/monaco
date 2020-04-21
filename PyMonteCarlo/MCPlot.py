@@ -4,9 +4,10 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from PyMonteCarlo.MCVar import MCInVar, MCOutVar
 from copy import copy
+from helper_functions import get_iterable, slice_by_index
 
 
-def MCPlot(mcvarx, mcvary = None, mcvarz = None):
+def MCPlot(mcvarx, mcvary = None, mcvarz = None, cases=0):
     # Split larger vars
     if mcvary == None and mcvarz == None:
         if mcvarx.size[0] not in (1, 2, 3):
@@ -40,7 +41,7 @@ def MCPlot(mcvarx, mcvary = None, mcvarz = None):
     # Single Variable Plots
     if mcvary == None and mcvarz == None:
         if mcvarx.size[1] == 1:
-            MCPlotHist(mcvarx)
+            MCPlotHist(mcvar=mcvarx, cases=cases)
         else:
             mcvary = copy(mcvarx)
             mcvarx = copy(mcvarx) # don't overwrite the underlying object
@@ -49,27 +50,27 @@ def MCPlot(mcvarx, mcvary = None, mcvarz = None):
             nums.extend([[*range(mcvary.size[1])] for i in range(mcvarx.ncases)])
             mcvarx.nums = nums
             mcvarx.nummap = None
-            MCPlot2DLine(mcvarx, mcvary)
+            MCPlot2DLine(mcvarx=mcvarx, mcvary=mcvary, cases=cases)
 
     # Two Variable Plots
     elif mcvarz == None:
         if mcvarx.size[1] == 1 and mcvary.size[1] == 1:
-            MCPlot2DScatter(mcvarx, mcvary)
+            MCPlot2DScatter(mcvarx=mcvarx, mcvary=mcvary, cases=cases)
             
         elif mcvarx.size[1] > 1 and mcvary.size[1] > 1:
-            MCPlot2DLine(mcvarx, mcvary)
+            MCPlot2DLine(mcvarx=mcvarx, mcvary=mcvary, cases=cases)
             
     # Three Variable Plots
     else:
         if mcvarx.size[1] == 1 and mcvary.size[1] == 1 and mcvarz.size[1] == 1:
-            MCPlot3DScatter(mcvarx, mcvary, mcvarz)
+            MCPlot3DScatter(mcvarx=mcvarx, mcvary=mcvary, mcvarz=mcvarz, cases=cases)
             
         elif mcvarx.size[1] > 1 and mcvary.size[1] > 1 and mcvarz.size[1] > 1:
-            MCPlot3DLine(mcvarx, mcvary, mcvarz)
+            MCPlot3DLine(mcvarx=mcvarx, mcvary=mcvary, mcvarz=mcvarz, cases=cases)
     
     
 
-def MCPlotHist(mcvar, cumulative=False):
+def MCPlotHist(mcvar, cases=0, cumulative=False):
     fig, ax = plt.subplots(1, 1)
 
     # Histogram generation
@@ -105,8 +106,9 @@ def MCPlotHist(mcvar, cumulative=False):
     elif isinstance(mcvar, MCOutVar): 
         plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False, cumulative=cumulative, histtype='bar', facecolor='k', alpha=0.5)
     
-    if mcvar.firstcaseisnom:
-        plt.plot([mcvar.getNom(), mcvar.getNom()], ax.get_ylim(), 'r-')
+    highlighted_cases = get_iterable(cases)
+    for i in highlighted_cases:
+        plt.plot([mcvar.nums[i], mcvar.nums[i]], ax.get_ylim(), 'r-')
 
     plt.xlabel(mcvar.name)
     if cumulative:
@@ -117,21 +119,22 @@ def MCPlotHist(mcvar, cumulative=False):
         
 
 
-def MCPlotCDF(mcvar):
-    MCPlotHist(mcvar, cumulative=True)
+def MCPlotCDF(mcvar, cases=0):
+    MCPlotHist(mcvar=mcvar, cases=cases, cumulative=True)
 
 
 
-def MCPlot2DScatter(mcvarx, mcvary):
+def MCPlot2DScatter(mcvarx, mcvary, cases=0):
     fig, ax = plt.subplots(1, 1)
     colorblack = [[0,0,0],]
     colorred = [[1,0,0],]
-    idx = int(mcvarx.firstcaseisnom)
 
-    if not mcvarx.firstcaseisnom or mcvarx.ndraws > 0:
-        plt.scatter(mcvarx.nums[idx:-1], mcvary.nums[idx:-1], edgecolors=None, c=colorblack, alpha=0.4)
-    if mcvarx.firstcaseisnom:
-        plt.scatter(mcvarx.nums[0], mcvary.nums[0], edgecolors=None, c=colorred, alpha=1)        
+    reg_cases = set(range(mcvarx.ncases)) - set(get_iterable(cases))
+    highlighted_cases = get_iterable(cases)
+    if reg_cases:
+        plt.scatter(slice_by_index(mcvarx.nums, reg_cases), slice_by_index(mcvary.nums, reg_cases), edgecolors=None, c=colorblack, alpha=0.4)
+    if highlighted_cases:
+        plt.scatter(slice_by_index(mcvarx.nums, highlighted_cases), slice_by_index(mcvary.nums, highlighted_cases), edgecolors=None, c=colorred, alpha=1)        
 
     plt.xlabel(mcvarx.name)
     plt.ylabel(mcvary.name)
@@ -139,14 +142,15 @@ def MCPlot2DScatter(mcvarx, mcvary):
 
 
 
-def MCPlot2DLine(mcvarx, mcvary):
+def MCPlot2DLine(mcvarx, mcvary, cases=0):
     fig, ax = plt.subplots(1, 1)
     
-    if mcvarx.ndraws > 0:
-        for i in range(int(mcvarx.firstcaseisnom), mcvarx.ncases):
-            plt.plot(mcvarx.nums[i], mcvary.nums[i], 'k-', alpha=0.3)
-    if mcvarx.firstcaseisnom:
-        plt.plot(mcvarx.nums[0], mcvary.nums[0], 'r-', alpha=1)     
+    reg_cases = set(range(mcvarx.ncases)) - set(get_iterable(cases))
+    highlighted_cases = get_iterable(cases)
+    for i in reg_cases:
+        plt.plot(mcvarx.nums[i], mcvary.nums[i], 'k-', alpha=0.3)
+    for i in highlighted_cases:
+        plt.plot(mcvarx.nums[i], mcvary.nums[i], 'r-', alpha=1)     
 
     plt.xlabel(mcvarx.name)
     plt.ylabel(mcvary.name)
@@ -154,17 +158,20 @@ def MCPlot2DLine(mcvarx, mcvary):
 
 
 
-def MCPlot3DScatter(mcvarx, mcvary, mcvarz):
+def MCPlot3DScatter(mcvarx, mcvary, mcvarz, cases=0):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     colorblack = [[0,0,0],]
     colorred = [[1,0,0],]
-    idx = int(mcvarx.firstcaseisnom)
     
-    if mcvarx.ndraws > 0:
-        ax.scatter(mcvarx.nums[idx:-1], mcvary.nums[idx:-1],  mcvarz.nums[idx:-1], edgecolors=None, c=colorblack, alpha=0.4)
-    if mcvarx.firstcaseisnom:
-        ax.scatter(mcvarx.nums[0], mcvary.nums[0], mcvarz.nums[0], edgecolors=None, c=colorred, alpha=1)        
+    reg_cases = set(range(mcvarx.ncases)) - set(get_iterable(cases))
+    highlighted_cases = get_iterable(cases)
+    if reg_cases:
+        ax.scatter(slice_by_index(mcvarx.nums, reg_cases), slice_by_index(mcvary.nums, reg_cases), \
+                   slice_by_index(mcvarz.nums, reg_cases), edgecolors=None, c=colorblack, alpha=0.4)
+    if highlighted_cases:
+        ax.scatter(slice_by_index(mcvarx.nums, highlighted_cases), slice_by_index(mcvary.nums, highlighted_cases), \
+                   slice_by_index(mcvarz.nums, highlighted_cases), edgecolors=None, c=colorred, alpha=1)        
 
     ax.set_xlabel(mcvarx.name)
     ax.set_ylabel(mcvary.name)
@@ -173,15 +180,16 @@ def MCPlot3DScatter(mcvarx, mcvary, mcvarz):
 
 
 
-def MCPlot3DLine(mcvarx, mcvary, mcvarz):
+def MCPlot3DLine(mcvarx, mcvary, mcvarz, cases=0):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     
-    if mcvarx.ndraws > 0:
-        for i in range(int(mcvarx.firstcaseisnom), mcvarx.ncases):
-            ax.plot(mcvarx.nums[i], mcvary.nums[i], mcvarz.nums[i], 'k-', alpha=0.3)
-    if mcvarx.firstcaseisnom:
-        ax.plot(mcvarx.nums[0], mcvary.nums[0], mcvarz.nums[0], 'r-', alpha=1)
+    reg_cases = set(range(mcvarx.ncases)) - set(get_iterable(cases))
+    highlighted_cases = get_iterable(cases)
+    for i in reg_cases:
+        ax.plot(mcvarx.nums[i], mcvary.nums[i], mcvarz.nums[i], 'k-', alpha=0.3)
+    for i in highlighted_cases:
+        ax.plot(mcvarx.nums[i], mcvary.nums[i], mcvarz.nums[i], 'r-', alpha=1)
         
     ax.set_xlabel(mcvarx.name)
     ax.set_ylabel(mcvary.name)
@@ -244,7 +252,7 @@ def applyCategoryLabels(ax, mcvarx, mcvary=None, mcvarz=None):
 
 
 
-'''
+#'''
 ### Test ###
 np.random.seed(74494861)
 from scipy.stats import randint, norm
@@ -256,14 +264,14 @@ mcinvars['norm2'] = MCInVar('norm2', norm, (10, 4), 1000)
 mcoutvars = dict()
 mcoutvars['test'] = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
 
-MCPlot(mcinvars['randint'])  # MCPlotHist
+MCPlot(mcinvars['randint'])  # MCPlotHist5
 MCPlot(mcinvars['norm'])  # MCPlotHist
 MCPlot(mcoutvars['test'])  # MCPlotHist
 MCPlotCDF(mcinvars['randint'])  # MCPlotCDF
 MCPlotCDF(mcinvars['norm'])  # MCPlotCDF
 MCPlotCDF(mcoutvars['test'])  # MCPlotCDF
 
-MCPlot(mcinvars['randint'], mcinvars['norm'])  # MCPlot2DScatter
+MCPlot(mcinvars['randint'], mcinvars['norm'], cases=range(10,30))  # MCPlot2DScatter
 MCPlot(mcinvars['randint'], mcinvars['norm'],  mcinvars['norm2'])  # MCPlot3DScatter
 
 v = np.array([-2, -1, 2, 3, 4, 5])
@@ -271,8 +279,8 @@ var1 = MCOutVar('testx', [v, v, v, v, v], firstcaseisnom=True)
 var2 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, -1*v], firstcaseisnom=True)
 var3 = MCOutVar('testz', [1*v, 2*v, 0*v, -1*v, -1*v], firstcaseisnom=True)
 
-MCPlot(var2)  # MCPlot2DLine
-MCPlot(var1, var2)  # MCPlot2DLine
+MCPlot(var2, cases=None)  # MCPlot2DLine
+MCPlot(var1, var2, cases=[0,1])  # MCPlot2DLine
 MCPlot(var1, var2, var3)  # MCPlot3DLine
 
 MCPlotCorr(np.array([[1, 0.1111],[-0.1111, -1]]), ['Test1', 'Test2'])

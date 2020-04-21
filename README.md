@@ -9,7 +9,13 @@
 * ~~Correlation matrix output for scalars~~
 * Correlation matrix input?
 * Dataframe support
-* More examples
+* Examples:
+    * Evidence-Based Scheduling
+    * Market Predictions
+    * Integration
+    * Election Modeling
+    * Pandemic Modeling
+    * ~~Rocket Flight~~
 * Order statistics
 * Save/load results to file
 * Continue partial results
@@ -20,7 +26,7 @@
 * Break out tests
 * Put in license
 * 3sig / X% / Mean / Min / Max lines/shaded areas on plot 
-* Highlight specific case on plot
+* ~~Highlight specific case on plot~~
 * Seed invars with name hash
 
 ### Directory Structure:

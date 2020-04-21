@@ -2,6 +2,7 @@ import numpy as np
 from scipy.stats import rv_continuous, rv_discrete, describe
 from PyMonteCarlo.MCVal import MCInVal, MCOutVal
 from copy import copy
+from helper_functions import get_iterable
 
 ### MCVar Base Class ###
 class MCVar:
@@ -46,16 +47,13 @@ class MCVar:
 class MCInVar(MCVar):
     def __init__(self, name, dist, distargs, ndraws, nummap=None, seed=np.random.get_state()[1][0], firstcaseisnom=True):
         super().__init__(name=name, ndraws=ndraws, firstcaseisnom=firstcaseisnom)
-        self.dist = dist          # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous 
-        self.distargs = distargs  # distargs is a tuple of the arguments to the above distribution
-        self.seed = seed          # seed is a number between 0 and 2^32-1
-        self.nummap = nummap      # nummap is a dict
+        self.dist = dist                        # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous 
+        self.distargs = get_iterable(distargs)  # distargs is a tuple of the arguments to the above distribution
+        self.seed = seed                        # seed is a number between 0 and 2^32-1
+        self.nummap = nummap                    # nummap is a dict
         
         self.isscalar = True
         self.size = (1, 1)
-
-        if not isinstance(self.distargs, tuple):
-            self.distargs = (self.distargs,)
         
         self.genValMap()
         self.draw()
