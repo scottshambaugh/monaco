@@ -35,6 +35,11 @@
 
 * [build](build/README.md)
 * [examples](examples/README.md)
+    - [election](examples/election/README.md)
+    - [evidence_based_scheduling](examples/evidence_based_scheduling/README.md)
+    - [integration](examples/integration/README.md)
+    - [pandemic](examples/pandemic/README.md)
+    - [retirement](examples/retirement/README.md)
     - [rocket](examples/rocket/README.md)
 * [PyMonteCarlo](PyMonteCarlo/README.md)
 * [templates](templates/README.md)
