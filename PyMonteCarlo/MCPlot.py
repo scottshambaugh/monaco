@@ -208,15 +208,16 @@ def MCPlot3DLine(mcvarx, mcvary, mcvarz, cases=0, ax=None):
 
 
 
-def MCPlotCorr(corrcoeff, corrvarnames, ax=None):
+def MCPlotCovCorr(matrix, varnames, ax=None):
     fig, ax = setAxis(ax, is3d=False)
-    im = ax.imshow(corrcoeff, cmap="RdBu", vmin=-1, vmax=1)
-    n = corrcoeff.shape[1]
+    scale = np.max(np.abs(matrix)) # for a correlation matrix this will always be 1 from diagonal
+    im = ax.imshow(matrix, cmap="RdBu", vmin=-scale, vmax=scale)
+    n = matrix.shape[1]
     
     ax.set_xticks(np.arange(n))
     ax.set_yticks(np.arange(n))
-    ax.set_xticklabels(corrvarnames)
-    ax.set_yticklabels(corrvarnames)
+    ax.set_xticklabels(varnames)
+    ax.set_yticklabels(varnames)
     ax.tick_params(top=True, bottom=False, labeltop=True, labelbottom=False)
     plt.setp(ax.get_xticklabels(), rotation=-30, ha='right', rotation_mode='anchor')
     
@@ -235,8 +236,8 @@ def MCPlotCorr(corrcoeff, corrvarnames, ax=None):
     texts = []
     for i in range(n):
         for j in range(n):
-            kw.update(color=textcolors[int(abs(corrcoeff[i, j]) > threshold)])
-            text = im.axes.text(j, i, f'{corrcoeff[i, j]:.2f}', **kw)
+            kw.update(color=textcolors[int(abs(matrix[i, j]/scale) > threshold)])
+            text = im.axes.text(j, i, f'{matrix[i, j]:.2f}', **kw)
             texts.append(text)
 
     return fig, ax
@@ -312,5 +313,5 @@ MCPlot(var2, cases=None)  # MCPlot2DLine
 MCPlot(var1, var2, cases=[0,1])  # MCPlot2DLine
 MCPlot(var1, var2, var3)  # MCPlot3DLine
 
-MCPlotCorr(np.array([[1, 0.1111],[-0.1111, -1]]), ['Test1', 'Test2'])
+MCPlotCovCorr(np.array([[2, 0.1111],[-0.19, -1]]), ['Test1', 'Test2'])
 #'''

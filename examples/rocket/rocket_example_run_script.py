@@ -22,7 +22,6 @@ def rocket_example_run_script():
     para_fail_nummap = {1:False, 2:True}
     sim.addInVar(name='parachute_failure', dist=para_fail_dist, distargs=(), nummap=para_fail_nummap)
 
-
     sim.runSim()
     
     print(sim.runtime)

@@ -31,7 +31,8 @@ class MCSim:
         self.ninvars = 0
         
         self.corrcoeff = None
-        self.corrvarlist = None
+        self.covcoeff = None
+        self.covvarlist = None
 
         self.ncases = ndraws + 1
         self.setFirstCaseNom(firstcaseisnom)
@@ -79,7 +80,7 @@ class MCSim:
                 isnom = True
             self.mccases.append(MCCase(ncase=i, mcinvars=self.mcinvars, isnom=isnom))
             self.mccases[i].siminput = self.fcns['preprocess'](self.mccases[i])
-        #self.genCorrelationMatrix()
+        #self.genCovarianceMatrix()
 
 
     def genOutVars(self):
@@ -108,33 +109,40 @@ class MCSim:
                 self.mccases[i].mcoutvars[varname] = self.mcoutvars[varname]
 
 
-    def genCorrelationMatrix(self):
-        self.corrvarlist = []
+    def genCovarianceMatrix(self):
+        self.covvarlist = []
         allnums = []
         j = 0
         for var in self.mcinvars.keys():
             if self.mcinvars[var].isscalar:
                 allnums.append(self.mcinvars[var].nums)
-                self.corrvarlist.append(self.mcinvars[var].name)
+                self.covvarlist.append(self.mcinvars[var].name)
                 j = j+1
         for var in self.mcoutvars.keys():
             if self.mcoutvars[var].isscalar:
                 allnums.append(self.mcoutvars[var].nums)
-                self.corrvarlist.append(self.mcoutvars[var].name)
+                self.covvarlist.append(self.mcoutvars[var].name)
                 j = j+1
+        self.covcoeff = np.cov(np.array(allnums))
         self.corrcoeff = np.corrcoef(np.array(allnums))
 
 
     def corr(self):
-        self.genCorrelationMatrix()
-        return self.corrcoeff, self.corrvarlist
+        self.genCovarianceMatrix()
+        return self.corrcoeff, self.covvarlist
+
+
+    def cov(self):
+        self.genCovarianceMatrix()
+        return self.covcoeff, self.covvarlist
 
 
     def clearResults(self):
         self.mccases = []
         self.mcoutvars = dict()
         self.corrcoeff = None
-        self.corrvarlist = None
+        self.covcoeff = None
+        self.covvarlist = None
 
 
     def reset(self):
@@ -195,4 +203,5 @@ print(sim.mccases[0].mcinvals['Var1'].val)
 print(sim.mcinvars['Var2'].name)
 print(sim.mccases[0].mcinvals['Var2'].val)
 print(sim.corr())
+print(sim.cov())
 #'''
