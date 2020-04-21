@@ -18,7 +18,7 @@ class MCSim:
         self.seed = seed                      # seed is a number between 0 and 2^32-1
         self.cores = cores                    # cores is an integer
 
-        self.invarseeds = None
+        self.invarseeds = list()
         
         self.inittime = datetime.now()
         self.starttime = None
@@ -54,11 +54,12 @@ class MCSim:
         # name is a string
         # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous 
         # distargs is a tuple of the arguments to the above distribution
+        # nummap is a dict mapping integers to values
         self.ninvars += 1
-        generator = np.random.RandomState(self.seed)
-        self.invarseeds = generator.randint(0, 2**31-1, size=self.ninvars)
+        invarseed = (self.seed + hash(name)) % 2**32  # make seed dependent on var name and not order added
+        self.invarseeds.append(invarseed)
         self.mcinvars[name] = MCInVar(name=name, dist=dist, distargs=distargs, ndraws=self.ndraws, nummap=nummap, \
-                                      seed=self.invarseeds[self.ninvars-1], firstcaseisnom=self.firstcaseisnom)
+                                      seed=invarseed, firstcaseisnom=self.firstcaseisnom)
 
 
     def setNDraws(self, ndraws):  # ncases is an integer
