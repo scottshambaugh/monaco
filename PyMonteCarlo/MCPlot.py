@@ -72,7 +72,7 @@ def MCPlot(mcvarx, mcvary = None, mcvarz = None, cases=0, ax=None):
 
 
 
-def MCPlotHist(mcvar, cases=0, cumulative=False, ax=None):
+def MCPlotHist(mcvar, cases=0, cumulative=False, orientation='vertical', ax=None):
     fig, ax = setAxis(ax, is3d=False)
 
     # Histogram generation
@@ -81,50 +81,69 @@ def MCPlotHist(mcvar, cases=0, cumulative=False, ax=None):
     bins = np.concatenate((bins - binwidth/2, bins[-1] + binwidth/2))
     counts, bins = np.histogram(mcvar.nums, bins=bins)
     
-    if isinstance(mcvar, MCInVar): 
+    if isinstance(mcvar, MCInVar):          
         # Continuous distribution
         if isinstance(mcvar.dist, rv_continuous):
-            plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=True, cumulative=cumulative, histtype='bar', facecolor='k', alpha=0.5)
-            xlim = ax.get_xlim()
-            x = np.arange(xlim[0], xlim[1], (xlim[1] - xlim[0])/100)
+            plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=True, cumulative=cumulative, orientation=orientation, histtype='bar', facecolor='k', alpha=0.5)
+            lim = get_hist_lim(orientation, ax)
+            x = np.arange(lim[0], lim[1], (lim[1] - lim[0])/100)
             dist = mcvar.dist(*mcvar.distargs)
             if cumulative:
-                plt.plot(x, dist.cdf(x), color='k', alpha=0.9)
+                ydata = dist.cdf(x)
             else:
-                plt.plot(x, dist.pdf(x), color='k', alpha=0.9)
+                ydata = dist.pdf(x)
+            if orientation == 'vertical':
+                plt.plot(x, ydata, color='k', alpha=0.9)
+            elif orientation == 'horizontal':
+                plt.plot(ydata, x, color='k', alpha=0.9)            
         
         # Discrete distribution
         elif isinstance(mcvar.dist, rv_discrete):
-            plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False, cumulative=cumulative, histtype='bar', facecolor='k', alpha=0.5)
-            xlim = ax.get_xlim()
-            x = np.concatenate(([xlim[0]], bins, [xlim[1]]))
+            plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False, orientation=orientation, cumulative=cumulative, histtype='bar', facecolor='k', alpha=0.5)
+            lim = get_hist_lim(orientation, ax)
+            x = np.concatenate(([lim[0]], bins, [lim[1]]))
             dist = mcvar.dist(*mcvar.distargs)
             if cumulative:
-                plt.step(x, dist.cdf(x), color='k', alpha=0.9)
+                xdata = x
+                ydata = dist.cdf(x)
             else:
-                pdf = np.diff(dist.cdf(x))
-                plt.step(x[1:], pdf, color='k', alpha=0.9)
+                xdata = x[1:]
+                ydata = np.diff(dist.cdf(x)) # manual pdf
+            if orientation == 'vertical':
+                plt.step(xdata, ydata, color='k', alpha=0.9, where='post')
+            elif orientation == 'horizontal':
+                plt.step(ydata, xdata, color='k', alpha=0.9, where='post') 
         
     elif isinstance(mcvar, MCOutVar): 
-        plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False, cumulative=cumulative, histtype='bar', facecolor='k', alpha=0.5)
+        plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False, orientation=orientation, cumulative=cumulative, histtype='bar', facecolor='k', alpha=0.5)
     
     highlighted_cases = get_iterable(cases)
-    for i in highlighted_cases:
-        plt.plot([mcvar.nums[i], mcvar.nums[i]], ax.get_ylim(), 'r-')
-
-    plt.xlabel(mcvar.name)
     if cumulative:
-        plt.ylabel('Cumulative Probability')
+        ylabeltext = 'Cumulative Probability'
     else:
-        plt.ylabel('Probability Density')
-    applyCategoryLabels(ax, mcvar)
+        ylabeltext = 'Probability Density'
+
+    if orientation == 'vertical':
+        ylim = ax.get_ylim()
+        for i in highlighted_cases:
+            plt.plot([mcvar.nums[i], mcvar.nums[i]], ylim, 'r-')
+        plt.xlabel(mcvar.name)
+        plt.ylabel(ylabeltext)
+        apply_category_labels(ax, mcvarx=mcvar)
+    elif orientation == 'horizontal':
+        xlim = ax.get_xlim()
+        for i in highlighted_cases:
+            plt.plot(xlim, [mcvar.nums[i], mcvar.nums[i]], 'r-')
+        plt.ylabel(mcvar.name)
+        plt.xlabel(ylabeltext)
+        apply_category_labels(ax, mcvary=mcvar)
     
     return fig, ax
         
 
 
-def MCPlotCDF(mcvar, cases=0, ax=None):
-    return MCPlotHist(mcvar=mcvar, cases=cases, cumulative=True, ax=ax)
+def MCPlotCDF(mcvar, cases=0, orientation='vertical', ax=None):
+    return MCPlotHist(mcvar=mcvar, cases=cases, orientation=orientation, cumulative=True, ax=ax)
 
 
 
@@ -142,7 +161,7 @@ def MCPlot2DScatter(mcvarx, mcvary, cases=0, ax=None):
 
     plt.xlabel(mcvarx.name)
     plt.ylabel(mcvary.name)
-    applyCategoryLabels(ax, mcvarx, mcvary)
+    apply_category_labels(ax, mcvarx, mcvary)
 
     return fig, ax
 
@@ -160,7 +179,7 @@ def MCPlot2DLine(mcvarx, mcvary, cases=0, ax=None):
 
     plt.xlabel(mcvarx.name)
     plt.ylabel(mcvary.name)
-    applyCategoryLabels(ax, mcvarx, mcvary)
+    apply_category_labels(ax, mcvarx, mcvary)
 
     return fig, ax
 
@@ -183,7 +202,7 @@ def MCPlot3DScatter(mcvarx, mcvary, mcvarz, cases=0, ax=None):
     ax.set_xlabel(mcvarx.name)
     ax.set_ylabel(mcvary.name)
     ax.set_zlabel(mcvarz.name)
-    applyCategoryLabels(ax, mcvarx, mcvary, mcvarz)
+    apply_category_labels(ax, mcvarx, mcvary, mcvarz)
 
     return fig, ax
 
@@ -202,7 +221,7 @@ def MCPlot3DLine(mcvarx, mcvary, mcvarz, cases=0, ax=None):
     ax.set_xlabel(mcvarx.name)
     ax.set_ylabel(mcvary.name)
     ax.set_zlabel(mcvarz.name)
-    applyCategoryLabels(ax, mcvarx, mcvary, mcvarz)
+    apply_category_labels(ax, mcvarx, mcvary, mcvarz)
 
     return fig, ax
 
@@ -210,7 +229,7 @@ def MCPlot3DLine(mcvarx, mcvary, mcvarz, cases=0, ax=None):
 
 def MCPlotCovCorr(matrix, varnames, ax=None):
     fig, ax = setAxis(ax, is3d=False)
-    scale = np.max(np.abs(matrix)) # for a correlation matrix this will always be 1 from diagonal
+    scale = np.nanmax(np.abs(matrix)) # for a correlation matrix this will always be 1 from diagonal
     im = ax.imshow(matrix, cmap="RdBu", vmin=-scale, vmax=scale)
     n = matrix.shape[1]
     
@@ -258,16 +277,18 @@ def setAxis(ax, is3d=False):
 
 
 
-def applyCategoryLabels(ax, mcvarx, mcvary=None, mcvarz=None):
+def apply_category_labels(ax, mcvarx=None, mcvary=None, mcvarz=None):
     # Wrapped in try statements in case some categories aren't printable
-    if mcvarx.nummap != None:
+    if mcvarx != None and mcvarx.nummap != None:
         try:
-            plt.xticks(list(mcvarx.nummap.keys()), list(mcvarx.nummap.values()))
+            ax.set_xticks(list(mcvarx.nummap.keys()))
+            ax.set_xticklabels(list(mcvarx.nummap.values()))
         except:
             pass
     if mcvary != None and mcvary.nummap != None:
         try:
-            plt.yticks(list(mcvary.nummap.keys()), list(mcvary.nummap.values()))
+            ax.set_yticks(list(mcvary.nummap.keys()))
+            ax.set_yticklabels(list(mcvary.nummap.values()))
         except:
             pass
     if mcvarz != None and mcvarz.nummap != None:
@@ -277,6 +298,13 @@ def applyCategoryLabels(ax, mcvarx, mcvary=None, mcvarz=None):
         except:
             pass
 
+
+def get_hist_lim(orientation, ax):
+    if orientation == 'vertical':
+        lim = ax.get_xlim()
+    elif orientation == 'horizontal':
+        lim = ax.get_ylim()
+    return lim
 
 
 '''
@@ -294,11 +322,11 @@ mcoutvars = dict()
 mcoutvars['test'] = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
 
 f, (ax1, ax2) = plt.subplots(2, 1)
-MCPlot(mcinvars['randint'], ax=ax1)  # MCPlotHist
+MCPlotHist(mcinvars['randint'], ax=ax1, orientation='horizontal')  # MCPlotHist
 MCPlot(mcinvars['norm'])  # MCPlotHist
-MCPlot(mcoutvars['test'])  # MCPlotHist
+MCPlotHist(mcoutvars['test'], orientation='horizontal')  # MCPlotHist
 MCPlotCDF(mcinvars['randint'], ax=ax2)  # MCPlotCDF
-MCPlotCDF(mcinvars['norm'])  # MCPlotCDF
+MCPlotCDF(mcinvars['norm'], orientation='horizontal')  # MCPlotCDF
 MCPlotCDF(mcoutvars['test'])  # MCPlotCDF
 
 MCPlot(mcinvars['randint'], mcinvars['norm'], cases=range(10,30))  # MCPlot2DScatter
