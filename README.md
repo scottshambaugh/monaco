@@ -8,6 +8,8 @@
 * ~~Make parallelism repeatable~~
 * ~~Correlation matrix output for scalars~~
 * Correlation matrix input?
+* ~~Scatter-histogram multiplots~~
+* Ability to plot derived data in addition to mcvars?
 * Dataframe support
 * Examples:
     * Evidence-Based Scheduling
@@ -26,7 +28,8 @@
 * ~~Map custom discrete distributions to keys that pass to functions~~
 * Break out tests
 * Put in license
-* 3sig / X% / Mean / Min / Max lines/shaded areas on plot 
+* 3sig / X% / Mean / Min / Max lines/shaded areas on plot
+* Trend lines on plots?
 * ~~Highlight specific case on plot~~
 * ~~Specify axis to plot on~~
 * ~~Seed invars with name hash~~

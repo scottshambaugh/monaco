@@ -73,7 +73,7 @@ def MCPlot(mcvarx, mcvary = None, mcvarz = None, cases=0, ax=None):
 
 
 def MCPlotHist(mcvar, cases=0, cumulative=False, orientation='vertical', ax=None):
-    fig, ax = setAxis(ax, is3d=False)
+    fig, ax = manage_axis(ax, is3d=False)
 
     # Histogram generation
     counts, bins = np.histogram(mcvar.nums, bins='auto')
@@ -148,7 +148,7 @@ def MCPlotCDF(mcvar, cases=0, orientation='vertical', ax=None):
 
 
 def MCPlot2DScatter(mcvarx, mcvary, cases=0, ax=None):
-    fig, ax = setAxis(ax, is3d=False)
+    fig, ax = manage_axis(ax, is3d=False)
     colorblack = [[0,0,0],]
     colorred = [[1,0,0],]
 
@@ -168,7 +168,7 @@ def MCPlot2DScatter(mcvarx, mcvary, cases=0, ax=None):
 
 
 def MCPlot2DLine(mcvarx, mcvary, cases=0, ax=None):
-    fig, ax = setAxis(ax, is3d=False)
+    fig, ax = manage_axis(ax, is3d=False)
     
     reg_cases = set(range(mcvarx.ncases)) - set(get_iterable(cases))
     highlighted_cases = get_iterable(cases)
@@ -186,7 +186,7 @@ def MCPlot2DLine(mcvarx, mcvary, cases=0, ax=None):
 
 
 def MCPlot3DScatter(mcvarx, mcvary, mcvarz, cases=0, ax=None):
-    fig, ax = setAxis(ax, is3d=True)
+    fig, ax = manage_axis(ax, is3d=True)
     colorblack = [[0,0,0],]
     colorred = [[1,0,0],]
     
@@ -209,7 +209,7 @@ def MCPlot3DScatter(mcvarx, mcvary, mcvarz, cases=0, ax=None):
 
 
 def MCPlot3DLine(mcvarx, mcvary, mcvarz, cases=0, ax=None):
-    fig, ax = setAxis(ax, is3d=True)
+    fig, ax = manage_axis(ax, is3d=True)
     
     reg_cases = set(range(mcvarx.ncases)) - set(get_iterable(cases))
     highlighted_cases = get_iterable(cases)
@@ -228,7 +228,7 @@ def MCPlot3DLine(mcvarx, mcvary, mcvarz, cases=0, ax=None):
 
 
 def MCPlotCovCorr(matrix, varnames, ax=None):
-    fig, ax = setAxis(ax, is3d=False)
+    fig, ax = manage_axis(ax, is3d=False)
     scale = np.nanmax(np.abs(matrix)) # for a correlation matrix this will always be 1 from diagonal
     im = ax.imshow(matrix, cmap="RdBu", vmin=-scale, vmax=scale)
     n = matrix.shape[1]
@@ -263,7 +263,7 @@ def MCPlotCovCorr(matrix, varnames, ax=None):
 
 
 
-def setAxis(ax, is3d=False):
+def manage_axis(ax, is3d=False):
     if not ax:
         if is3d:
             fig = plt.figure()
@@ -299,6 +299,7 @@ def apply_category_labels(ax, mcvarx=None, mcvary=None, mcvarz=None):
             pass
 
 
+
 def get_hist_lim(orientation, ax):
     if orientation == 'vertical':
         lim = ax.get_xlim()
@@ -322,24 +323,24 @@ mcoutvars = dict()
 mcoutvars['test'] = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
 
 f, (ax1, ax2) = plt.subplots(2, 1)
-MCPlotHist(mcinvars['randint'], ax=ax1, orientation='horizontal')  # MCPlotHist
-MCPlot(mcinvars['norm'])  # MCPlotHist
-MCPlotHist(mcoutvars['test'], orientation='horizontal')  # MCPlotHist
-MCPlotCDF(mcinvars['randint'], ax=ax2)  # MCPlotCDF
-MCPlotCDF(mcinvars['norm'], orientation='horizontal')  # MCPlotCDF
-MCPlotCDF(mcoutvars['test'])  # MCPlotCDF
+MCPlotHist(mcinvars['randint'], ax=ax1, orientation='horizontal') # MCPlotHist
+MCPlot(mcinvars['norm'])                                          # MCPlotHist
+MCPlotHist(mcoutvars['test'], orientation='horizontal')           # MCPlotHist
+MCPlotCDF(mcinvars['randint'], ax=ax2)                            # MCPlotCDF
+MCPlotCDF(mcinvars['norm'], orientation='horizontal')             # MCPlotCDF
+MCPlotCDF(mcoutvars['test'])                                      # MCPlotCDF
 
 MCPlot(mcinvars['randint'], mcinvars['norm'], cases=range(10,30))  # MCPlot2DScatter
 MCPlot(mcinvars['randint'], mcinvars['norm'],  mcinvars['norm2'])  # MCPlot3DScatter
 
 v = np.array([-2, -1, 2, 3, 4, 5])
 var1 = MCOutVar('testx', [v, v, v, v, v], firstcaseisnom=True)
-var2 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, -1*v], firstcaseisnom=True)
-var3 = MCOutVar('testz', [1*v, 2*v, 0*v, -1*v, -1*v], firstcaseisnom=True)
+var2 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
+var3 = MCOutVar('testz', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
 
-MCPlot(var2, cases=None)  # MCPlot2DLine
+MCPlot(var2, cases=None)         # MCPlot2DLine
 MCPlot(var1, var2, cases=[0,1])  # MCPlot2DLine
-MCPlot(var1, var2, var3)  # MCPlot3DLine
+MCPlot(var1, var2, var3)         # MCPlot3DLine
 
 MCPlotCovCorr(np.array([[2, 0.1111],[-0.19, -1]]), ['Test1', 'Test2'])
 #'''
