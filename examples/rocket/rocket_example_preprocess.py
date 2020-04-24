@@ -2,7 +2,7 @@ def rocket_example_preprocess(mccase):
     sequence = {
         'ignition' : 1,                               # time that engines are lit [s]
         'parachute_delay' : 3,                        # time after apogee to open parachute [s]
-        'parachute_failure' : mccase.mcinvals['parachute_failure'].val, # does the parachute fail to deploy? [bool]
+        'parachute_failure' : mccase.mcinvals['Parachute Failure'].val, # does the parachute fail to deploy? [bool]
         }
     
     massprops = {
@@ -17,8 +17,8 @@ def rocket_example_preprocess(mccase):
         }
     
     aero = {
-        'windspd' : mccase.mcinvals['windspd'].val,  # wind speed [m/s]
-        'windazi' : mccase.mcinvals['windazi'].val,  # azimuth from north wind is blowing from [deg]
+        'windspd' : mccase.mcinvals['Wind Speed [m/s]'].val,  # wind speed [m/s]
+        'windazi' : mccase.mcinvals['Wind Azi [deg]'].val,    # azimuth from north wind is blowing from [deg]
         'area_ax_flight' :     0.01,                 # axial area during flight [m^2]
         'area_lat_flight' :    0.10,                 # lateral area during flight [m^2]
         'area_ax_parachute' :  0.40,                 # axial area during parachute [m^2]

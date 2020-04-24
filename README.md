@@ -21,7 +21,10 @@ the simulation outputs to obtain meaningful, statistically significant
 conclusions. Plotting and statistical functions specific to use cases that 
 might be encountered are provided.
 
-<p align="center"><img width="600" height="400" src="examples/rocket/rocket_trajectory.png"></p>
+<p float="left" align="center">
+<img width="440" height="300" src="examples/rocket/rocket_trajectory.png">  
+<img width="360" height="270" src="examples/rocket/wind_vs_landing.png">
+</p>
 
 ### Directory Structure:
 
