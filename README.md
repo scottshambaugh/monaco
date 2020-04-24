@@ -60,6 +60,8 @@ might be encountered are provided.
 * Progress bar
 * Get custom distributions working
 * Break out tests
+* Move MCPlot to a class framework
+* Plot specific cases, highlighted cases, and custom formmating for both
 * Make pip installable?
 * Linear trend lines on scatter plots?
 * Correlation matrix input?

@@ -18,7 +18,8 @@ class MCSim:
         self.seed = seed                      # seed is a number between 0 and 2^32-1
         self.cores = cores                    # cores is an integer
 
-        self.invarseeds = list()
+        self.invarseeds = []
+        self.caseseeds = []
         
         self.inittime = datetime.now()
         self.starttime = None
@@ -74,11 +75,14 @@ class MCSim:
 
     def genCases(self):
         self.clearResults()
+        generator = np.random.RandomState(self.seed)
+        self.caseseeds = generator.randint(0, 2**31-1, size=self.ncases)
+        print(self.caseseeds)
         for i in range(self.ncases):
             isnom = False
             if self.firstcaseisnom and i == 0:
                 isnom = True
-            self.mccases.append(MCCase(ncase=i, mcinvars=self.mcinvars, isnom=isnom))
+            self.mccases.append(MCCase(ncase=i, mcinvars=self.mcinvars, isnom=isnom, seed=self.caseseeds[i]))
             self.mccases[i].siminput = self.fcns['preprocess'](self.mccases[i])
         #self.genCovarianceMatrix()
 
@@ -150,7 +154,8 @@ class MCSim:
         self.mcinvars = dict()
         self.ninvars = 0
         self.setNDraws(self.ndraws)
-        self.invarseeds = None
+        self.invarseeds = []
+        self.caseseeds = []
         self.starttime = None
         self.endtime = None
         self.runtime = None

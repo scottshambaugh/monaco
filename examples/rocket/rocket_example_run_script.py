@@ -10,7 +10,7 @@ fcns ={'preprocess' :rocket_example_preprocess,   \
        'run'        :rocket_example_sim,          \
        'postprocess':rocket_example_postprocess}
 
-ndraws = 100
+ndraws = 8
 seed=12362398
 
 def rocket_example_run_script():
