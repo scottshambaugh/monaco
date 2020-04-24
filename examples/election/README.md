@@ -1,3 +1,3 @@
-## [PyMonteCarlo](../../README.md) - [Examples](../README.md)
+## [PyMonteCarlo](../../) - [Examples](../)
 
 ### Rocket

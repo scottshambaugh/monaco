@@ -1,1 +1,1 @@
-## [PyMonteCarlo](../README.md) - Templates
+## [PyMonteCarlo](../) - Templates

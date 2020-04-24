@@ -1,15 +1,47 @@
 # PyMonteCarlo
+This library is a work-in-progress under heavy development. Not recommended for outside use at this time.     
+Originally created in 2020 by Scott Shambaugh during Coronavirus quarantine.
 
-**TODO:**
+### Overview
 
-* Flesh out README
-* ~~Automatically split outvars~~
+At the heart of all serious forecasting, whether that be of elections, the 
+spread of pandemics, weather, or the path of a rocket on its way to Mars, is a 
+statistical tool known as the 
+[Monte-Carlo method](https://en.wikipedia.org/wiki/Monte_Carlo_method).
+The Monte-Carlo method, named for the rolling of the dice at the famous Monte 
+Carlo casino, allows you to quantify uncertainty by introducing randomness to 
+otherwise deterministic processes, and seeing what the range of results is.
+
+PyMonteCarlo is a library for setting up, running, and analyzing Monte-Carlo 
+simulations. Users can define random input variables drawn from any of SciPy's 
+continuous or discrete distributions (including custom distributions), 
+preprocess and structure that data as needed to feed to their main simulation, 
+run that simulation anywhere from 1 to millions of times, and postprocess 
+the simulation outputs to obtain meaningful, statistically significant 
+conclusions. Plotting and statistical functions specific to use cases that 
+might be encountered are provided.
+
+<p align="center"><img width="600" height="400" src="examples/rocket/rocket_trajectory.png"></p>
+
+### Directory Structure:
+
+* [build](build/)
+* [examples](examples/)
+    - [election](examples/election/) (TODO)
+    - [evidence_based_scheduling](examples/evidence_based_scheduling/) (TODO)
+    - [integration](examples/integration/) (TODO)
+    - [pandemic](examples/pandemic/) (TODO)
+    - [retirement](examples/retirement/) (TODO)
+    - [rocket](examples/rocket/)
+* [PyMonteCarlo](PyMonteCarlo/)
+* [templates](templates/)
+* [test](test/)
+
+
+### TODO:
+
+* Flesh out READMEs and documentation
 * Get parallelism working fast
-* ~~Make parallelism repeatable~~
-* ~~Correlation matrix output for scalars~~
-* Correlation matrix input?
-* ~~Scatter-histogram multiplots~~
-* Ability to plot derived data in addition to mcvars?
 * Dataframe support
 * Examples:
     * Evidence-Based Scheduling
@@ -19,31 +51,31 @@
     * Pandemic Modeling
     * ~~Rocket Flight~~
 * Order statistics
+* 3sig / X% / Mean / Min / Max lines/shaded areas on plot
 * Save/load results to file
 * Continue partial results
 * Progress bar
+* Get custom distributions working
+* Break out tests
+* Make pip installable?
+* Linear trend lines on scatter plots?
+* Correlation matrix input?
+* Ability to plot derived data in addition to mcvars?
 * ~~Make template files~~
 * ~~Set up directory structure~~
-* Get custom distributions working
+* ~~Make parallelism repeatable~~
+* ~~Correlation matrix output for scalars~~
+* ~~Put in license~~
 * ~~Map custom discrete distributions to keys that pass to functions~~
-* Break out tests
-* Put in license
-* 3sig / X% / Mean / Min / Max lines/shaded areas on plot
-* Trend lines on plots?
+* ~~Scatter-histogram multiplots~~
+* ~~Automatically split outvars~~
 * ~~Highlight specific case on plot~~
 * ~~Specify axis to plot on~~
 * ~~Seed invars with name hash~~
 
-### Directory Structure:
 
-* [build](build/README.md)
-* [examples](examples/README.md)
-    - [election](examples/election/README.md)
-    - [evidence_based_scheduling](examples/evidence_based_scheduling/README.md)
-    - [integration](examples/integration/README.md)
-    - [pandemic](examples/pandemic/README.md)
-    - [retirement](examples/retirement/README.md)
-    - [rocket](examples/rocket/README.md)
-* [PyMonteCarlo](PyMonteCarlo/README.md)
-* [templates](templates/README.md)
-* [test](test/README.md)
+### License:
+
+This software is distributed under [the GPLv3.0 license](LICENSE.md).    
+Please contact Scott Shambaugh for use of this software in proprietary applications.
+

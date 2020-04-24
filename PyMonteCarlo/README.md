@@ -1,1 +1,1 @@
-## [PyMonteCarlo](../README.md) - PyMonteCarlo
+## [PyMonteCarlo](../) - PyMonteCarlo

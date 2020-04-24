@@ -1,2 +1,2 @@
-## [PyMonteCarlo](../README.md) - Build
+## [PyMonteCarlo](../) - Build
 

@@ -1,8 +1,8 @@
-## [PyMonteCarlo](../README.md) - Examples
+## [PyMonteCarlo](../) - Examples
 
-### [Election](rocket/README.md)
-### [Evidence-Based Scheduling](evidence_based_scheduling/README.md)
-### [Integration](integration/README.md)
-### [Pandemic](pandemic/README.md)
-### [Retirement](retirement/README.md)
-### [Rocket](rocket/README.md)
+### [Election](election/)
+### [Evidence-Based Scheduling](evidence_based_scheduling/)
+### [Integration](integration/)
+### [Pandemic](pandemic/)
+### [Retirement](retirement/)
+### [Rocket](rocket/)
