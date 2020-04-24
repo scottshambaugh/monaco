@@ -28,10 +28,15 @@ def rocket_example_run_script():
     
     #print(sim.mcoutvars['Landing Dist'].stats())
     #MCPlot(sim.mcoutvars['Time'], sim.mcoutvars['Distance'])
+    #MCPlot(sim.mcoutvars['Time'], sim.mcoutvars['|Velocity| [m/s]'])
     #MCPlot(sim.mcoutvars['Landing Dist'])
     #MCPlot(sim.mcoutvars['Landing E'], sim.mcoutvars['Landing N'])
     #MCPlot(sim.mcoutvars['Time'], sim.mcoutvars['Flight Stage'])    
-    MCPlot(sim.mcoutvars['Position'])
+    #MCPlot(sim.mcoutvars['Position'])
+    MCPlot(sim.mcoutvars['Easting [m]'], sim.mcoutvars['Northing [m]'], sim.mcoutvars['Altitude [m]'], title='Model Rocket Trajectory')
+    #import matplotlib.pyplot as plt
+    #plt.savefig('rocket_trajectory.png')
+    
     return sim
 
 if __name__ == '__main__':

@@ -7,11 +7,11 @@ from copy import copy
 from helper_functions import get_iterable, slice_by_index
 
 
-def MCPlot(mcvarx, mcvary = None, mcvarz = None, cases=0, ax=None):
+def MCPlot(mcvarx, mcvary = None, mcvarz = None, cases=0, ax=None, title=''):
     # Split larger vars
     if mcvary == None and mcvarz == None:
         if mcvarx.size[0] not in (1, 2, 3):
-            raise ValueError(f'Invalid variable size at index 0: ({mcvarx.size[0]},{mcvarx.size[1]})')
+            raise ValueError(f'Invalid variable size at index 0: {mcvarx.name} ({mcvarx.size[0]},{mcvarx.size[1]})')
         elif mcvarx.size[0] in (2, 3):
             mcvarx_split = mcvarx.split()
             origname = mcvarx.name
@@ -23,9 +23,9 @@ def MCPlot(mcvarx, mcvary = None, mcvarz = None, cases=0, ax=None):
             
     elif mcvarz == None:
         if    (mcvarx.size[0] not in (1, 2)) \
-          and (mcvary.size[0] not in (1, 2)) \
-          and (mcvarx.size[0] + mcvary.size[0] not in (2, 3)):
-            raise ValueError(f'Invalid variable sizes at index 0: ({mcvarx.size[0]},{mcvarx.size[1]}), ({mcvary.size[0]},{mcvary.size[1]})')
+          or (mcvary.size[0] not in (1, 2)) \
+          or (mcvarx.size[0] + mcvary.size[0] not in (2, 3)):
+            raise ValueError(f'Invalid variable sizes at indices 0: {mcvarx.name} ({mcvarx.size[0]},{mcvarx.size[1]}), {mcvary.name} ({mcvary.size[0]},{mcvary.size[1]})')
         elif mcvarx.size[0] == 2:
             mcvarx_split = mcvarx.split()
             origname = mcvarx.name
@@ -41,7 +41,7 @@ def MCPlot(mcvarx, mcvary = None, mcvarz = None, cases=0, ax=None):
     # Single Variable Plots
     if mcvary == None and mcvarz == None:
         if mcvarx.size[1] == 1:
-            fig, ax = MCPlotHist(mcvar=mcvarx, cases=cases, ax=ax)
+            fig, ax = MCPlotHist(mcvar=mcvarx, cases=cases, ax=ax, title=title)
         else:
             mcvary = copy(mcvarx)
             mcvarx = copy(mcvarx) # don't overwrite the underlying object
@@ -50,29 +50,29 @@ def MCPlot(mcvarx, mcvary = None, mcvarz = None, cases=0, ax=None):
             nums.extend([[*range(mcvary.size[1])] for i in range(mcvarx.ncases)])
             mcvarx.nums = nums
             mcvarx.nummap = None
-            fig, ax = MCPlot2DLine(mcvarx=mcvarx, mcvary=mcvary, cases=cases, ax=ax)
+            fig, ax = MCPlot2DLine(mcvarx=mcvarx, mcvary=mcvary, cases=cases, ax=ax, title=title)
 
     # Two Variable Plots
     elif mcvarz == None:
         if mcvarx.size[1] == 1 and mcvary.size[1] == 1:
-            fig, ax = MCPlot2DScatter(mcvarx=mcvarx, mcvary=mcvary, cases=cases, ax=ax)
+            fig, ax = MCPlot2DScatter(mcvarx=mcvarx, mcvary=mcvary, cases=cases, ax=ax, title=title)
             
         elif mcvarx.size[1] > 1 and mcvary.size[1] > 1:
-            fig, ax = MCPlot2DLine(mcvarx=mcvarx, mcvary=mcvary, cases=cases, ax=ax)
+            fig, ax = MCPlot2DLine(mcvarx=mcvarx, mcvary=mcvary, cases=cases, ax=ax, title=title)
             
     # Three Variable Plots
     else:
         if mcvarx.size[1] == 1 and mcvary.size[1] == 1 and mcvarz.size[1] == 1:
-            fig, ax = MCPlot3DScatter(mcvarx=mcvarx, mcvary=mcvary, mcvarz=mcvarz, cases=cases, ax=ax)
+            fig, ax = MCPlot3DScatter(mcvarx=mcvarx, mcvary=mcvary, mcvarz=mcvarz, cases=cases, ax=ax, title=title)
             
         elif mcvarx.size[1] > 1 and mcvary.size[1] > 1 and mcvarz.size[1] > 1:
-            fig, ax = MCPlot3DLine(mcvarx=mcvarx, mcvary=mcvary, mcvarz=mcvarz, cases=cases, ax=ax)
+            fig, ax = MCPlot3DLine(mcvarx=mcvarx, mcvary=mcvary, mcvarz=mcvarz, cases=cases, ax=ax, title=title)
     
     return fig, ax
 
 
 
-def MCPlotHist(mcvar, cases=0, cumulative=False, orientation='vertical', ax=None):
+def MCPlotHist(mcvar, cases=0, cumulative=False, orientation='vertical', ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=False)
 
     # Histogram generation
@@ -137,17 +137,18 @@ def MCPlotHist(mcvar, cases=0, cumulative=False, orientation='vertical', ax=None
         plt.ylabel(mcvar.name)
         plt.xlabel(ylabeltext)
         apply_category_labels(ax, mcvary=mcvar)
+    plt.title(title)
     
     return fig, ax
         
 
 
-def MCPlotCDF(mcvar, cases=0, orientation='vertical', ax=None):
-    return MCPlotHist(mcvar=mcvar, cases=cases, orientation=orientation, cumulative=True, ax=ax)
+def MCPlotCDF(mcvar, cases=0, orientation='vertical', ax=None, title=''):
+    return MCPlotHist(mcvar=mcvar, cases=cases, orientation=orientation, cumulative=True, ax=ax, title=title)
 
 
 
-def MCPlot2DScatter(mcvarx, mcvary, cases=0, ax=None):
+def MCPlot2DScatter(mcvarx, mcvary, cases=0, ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=False)
     colorblack = [[0,0,0],]
     colorred = [[1,0,0],]
@@ -162,12 +163,13 @@ def MCPlot2DScatter(mcvarx, mcvary, cases=0, ax=None):
     plt.xlabel(mcvarx.name)
     plt.ylabel(mcvary.name)
     apply_category_labels(ax, mcvarx, mcvary)
+    plt.title(title)
 
     return fig, ax
 
 
 
-def MCPlot2DLine(mcvarx, mcvary, cases=0, ax=None):
+def MCPlot2DLine(mcvarx, mcvary, cases=0, ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=False)
     
     reg_cases = set(range(mcvarx.ncases)) - set(get_iterable(cases))
@@ -180,12 +182,13 @@ def MCPlot2DLine(mcvarx, mcvary, cases=0, ax=None):
     plt.xlabel(mcvarx.name)
     plt.ylabel(mcvary.name)
     apply_category_labels(ax, mcvarx, mcvary)
+    plt.title(title)
 
     return fig, ax
 
 
 
-def MCPlot3DScatter(mcvarx, mcvary, mcvarz, cases=0, ax=None):
+def MCPlot3DScatter(mcvarx, mcvary, mcvarz, cases=0, ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=True)
     colorblack = [[0,0,0],]
     colorred = [[1,0,0],]
@@ -203,12 +206,13 @@ def MCPlot3DScatter(mcvarx, mcvary, mcvarz, cases=0, ax=None):
     ax.set_ylabel(mcvary.name)
     ax.set_zlabel(mcvarz.name)
     apply_category_labels(ax, mcvarx, mcvary, mcvarz)
+    plt.title(title)
 
     return fig, ax
 
 
 
-def MCPlot3DLine(mcvarx, mcvary, mcvarz, cases=0, ax=None):
+def MCPlot3DLine(mcvarx, mcvary, mcvarz, cases=0, ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=True)
     
     reg_cases = set(range(mcvarx.ncases)) - set(get_iterable(cases))
@@ -222,12 +226,13 @@ def MCPlot3DLine(mcvarx, mcvary, mcvarz, cases=0, ax=None):
     ax.set_ylabel(mcvary.name)
     ax.set_zlabel(mcvarz.name)
     apply_category_labels(ax, mcvarx, mcvary, mcvarz)
+    plt.title(title)
 
     return fig, ax
 
 
 
-def MCPlotCovCorr(matrix, varnames, ax=None):
+def MCPlotCovCorr(matrix, varnames, ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=False)
     scale = np.nanmax(np.abs(matrix)) # for a correlation matrix this will always be 1 from diagonal
     im = ax.imshow(matrix, cmap="RdBu", vmin=-scale, vmax=scale)
@@ -258,6 +263,7 @@ def MCPlotCovCorr(matrix, varnames, ax=None):
             kw.update(color=textcolors[int(abs(matrix[i, j]/scale) > threshold)])
             text = im.axes.text(j, i, f'{matrix[i, j]:.2f}', **kw)
             texts.append(text)
+    plt.title(title)
 
     return fig, ax
 
@@ -324,7 +330,7 @@ mcoutvars['test'] = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
 
 f, (ax1, ax2) = plt.subplots(2, 1)
 MCPlotHist(mcinvars['randint'], ax=ax1, orientation='horizontal') # MCPlotHist
-MCPlot(mcinvars['norm'])                                          # MCPlotHist
+MCPlot(mcinvars['norm'], title='norm')                            # MCPlotHist
 MCPlotHist(mcoutvars['test'], orientation='horizontal')           # MCPlotHist
 MCPlotCDF(mcinvars['randint'], ax=ax2)                            # MCPlotCDF
 MCPlotCDF(mcinvars['norm'], orientation='horizontal')             # MCPlotCDF

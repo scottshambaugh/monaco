@@ -9,6 +9,11 @@ def rocket_example_postprocess(mccase, t, m, flightstage, T, pos, vel, acc):
     mccase.addOutVal('Mass', m)
     mccase.addOutVal('Thrust', T)
     mccase.addOutVal('Position', pos)
+    mccase.addOutVal('Northing [m]', pos[0,:])
+    mccase.addOutVal('Easting [m]', pos[1,:])
+    mccase.addOutVal('Altitude [m]', pos[2,:])
+
+    mccase.addOutVal('|Velocity| [m/s]', np.sqrt(vel[0,:]**2 + vel[1,:]**2 + vel[2,:]**2))
     mccase.addOutVal('Velocity', vel)
     mccase.addOutVal('Acceleration', acc)
 
