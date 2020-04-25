@@ -53,7 +53,6 @@ might be encountered are provided.
     * Election Modeling
     * Pandemic Modeling
     * ~~Rocket Flight~~
-* Order statistics
 * 3sig / X% / Mean / Min / Max lines/shaded areas on plot
 * Save/load results to file
 * Continue partial results
@@ -66,6 +65,7 @@ might be encountered are provided.
 * Linear trend lines on scatter plots?
 * Correlation matrix input?
 * Ability to plot derived data in addition to mcvars?
+* ~~Order statistics~~
 * ~~Make template files~~
 * ~~Set up directory structure~~
 * ~~Make parallelism repeatable~~

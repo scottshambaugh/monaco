@@ -30,6 +30,16 @@ class MCVar:
            self.ncases = self.ndraws
 
 
+    def orderStat(self, v):
+        if v < 0 or v >= self.ncases/2:
+            raise ValueError(f'{v=} must be 0 < v < ncases/2')
+        if self.isscalar:
+            sortedvals = sorted(self.vals)
+            return (sortedvals[v-1], sortedvals[-v])
+        else:
+            return None
+
+
     def stats(self):
         stats = describe(self.nums)
         return stats
@@ -219,6 +229,9 @@ mcinvars['randint'] = MCInVar('randint', randint, (1, 5), 1000, seed=invarseeds[
 print(mcinvars['randint'].stats())
 mcinvars['norm'] = MCInVar('norm', norm, (10, 4), 1000, seed=invarseeds[1])
 print(mcinvars['norm'].stats())
+from MCStats import order_stat_TI_p
+c = order_stat_TI_p(1000, 2, 0.95)
+print(mcinvars['norm'].orderStat(2), c)
 xk = np.array([1, 5, 6])
 pk = np.ones(len(xk))/len(xk)
 custom = rv_discrete(name='custom', values=(xk, pk))
