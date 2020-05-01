@@ -7,7 +7,7 @@ from copy import copy
 from helper_functions import get_iterable, slice_by_index
 
 
-def MCPlot(mcvarx, mcvary = None, mcvarz = None, cases=0, ax=None, title=''):
+def mc_plot(mcvarx, mcvary = None, mcvarz = None, cases=0, ax=None, title=''):
     # Split larger vars
     if mcvary == None and mcvarz == None:
         if mcvarx.size[0] not in (1, 2, 3):
@@ -41,7 +41,7 @@ def MCPlot(mcvarx, mcvary = None, mcvarz = None, cases=0, ax=None, title=''):
     # Single Variable Plots
     if mcvary == None and mcvarz == None:
         if mcvarx.size[1] == 1:
-            fig, ax = MCPlotHist(mcvar=mcvarx, cases=cases, ax=ax, title=title)
+            fig, ax = mc_plot_hist(mcvar=mcvarx, cases=cases, ax=ax, title=title)
         else:
             mcvary = copy(mcvarx)
             mcvarx = copy(mcvarx) # don't overwrite the underlying object
@@ -50,29 +50,29 @@ def MCPlot(mcvarx, mcvary = None, mcvarz = None, cases=0, ax=None, title=''):
             nums.extend([[*range(mcvary.size[1])] for i in range(mcvarx.ncases)])
             mcvarx.nums = nums
             mcvarx.nummap = None
-            fig, ax = MCPlot2DLine(mcvarx=mcvarx, mcvary=mcvary, cases=cases, ax=ax, title=title)
+            fig, ax = mc_plot_2d_line(mcvarx=mcvarx, mcvary=mcvary, cases=cases, ax=ax, title=title)
 
     # Two Variable Plots
     elif mcvarz == None:
         if mcvarx.size[1] == 1 and mcvary.size[1] == 1:
-            fig, ax = MCPlot2DScatter(mcvarx=mcvarx, mcvary=mcvary, cases=cases, ax=ax, title=title)
+            fig, ax = mc_plot_2d_scatter(mcvarx=mcvarx, mcvary=mcvary, cases=cases, ax=ax, title=title)
             
         elif mcvarx.size[1] > 1 and mcvary.size[1] > 1:
-            fig, ax = MCPlot2DLine(mcvarx=mcvarx, mcvary=mcvary, cases=cases, ax=ax, title=title)
+            fig, ax = mc_plot_2d_line(mcvarx=mcvarx, mcvary=mcvary, cases=cases, ax=ax, title=title)
             
     # Three Variable Plots
     else:
         if mcvarx.size[1] == 1 and mcvary.size[1] == 1 and mcvarz.size[1] == 1:
-            fig, ax = MCPlot3DScatter(mcvarx=mcvarx, mcvary=mcvary, mcvarz=mcvarz, cases=cases, ax=ax, title=title)
+            fig, ax = mc_plot_3d_scatter(mcvarx=mcvarx, mcvary=mcvary, mcvarz=mcvarz, cases=cases, ax=ax, title=title)
             
         elif mcvarx.size[1] > 1 and mcvary.size[1] > 1 and mcvarz.size[1] > 1:
-            fig, ax = MCPlot3DLine(mcvarx=mcvarx, mcvary=mcvary, mcvarz=mcvarz, cases=cases, ax=ax, title=title)
+            fig, ax = mc_plot_3d_line(mcvarx=mcvarx, mcvary=mcvary, mcvarz=mcvarz, cases=cases, ax=ax, title=title)
     
     return fig, ax
 
 
 
-def MCPlotHist(mcvar, cases=0, cumulative=False, orientation='vertical', ax=None, title=''):
+def mc_plot_hist(mcvar, cases=0, cumulative=False, orientation='vertical', ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=False)
 
     # Histogram generation
@@ -143,12 +143,12 @@ def MCPlotHist(mcvar, cases=0, cumulative=False, orientation='vertical', ax=None
         
 
 
-def MCPlotCDF(mcvar, cases=0, orientation='vertical', ax=None, title=''):
-    return MCPlotHist(mcvar=mcvar, cases=cases, orientation=orientation, cumulative=True, ax=ax, title=title)
+def mc_plot_cdf(mcvar, cases=0, orientation='vertical', ax=None, title=''):
+    return mc_plot_hist(mcvar=mcvar, cases=cases, orientation=orientation, cumulative=True, ax=ax, title=title)
 
 
 
-def MCPlot2DScatter(mcvarx, mcvary, cases=0, ax=None, title=''):
+def mc_plot_2d_scatter(mcvarx, mcvary, cases=0, ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=False)
     colorblack = [[0,0,0],]
     colorred = [[1,0,0],]
@@ -169,7 +169,7 @@ def MCPlot2DScatter(mcvarx, mcvary, cases=0, ax=None, title=''):
 
 
 
-def MCPlot2DLine(mcvarx, mcvary, cases=0, ax=None, title=''):
+def mc_plot_2d_line(mcvarx, mcvary, cases=0, ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=False)
     
     reg_cases = set(range(mcvarx.ncases)) - set(get_iterable(cases))
@@ -188,7 +188,7 @@ def MCPlot2DLine(mcvarx, mcvary, cases=0, ax=None, title=''):
 
 
 
-def MCPlot3DScatter(mcvarx, mcvary, mcvarz, cases=0, ax=None, title=''):
+def mc_plot_3d_scatter(mcvarx, mcvary, mcvarz, cases=0, ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=True)
     colorblack = [[0,0,0],]
     colorred = [[1,0,0],]
@@ -212,7 +212,7 @@ def MCPlot3DScatter(mcvarx, mcvary, mcvarz, cases=0, ax=None, title=''):
 
 
 
-def MCPlot3DLine(mcvarx, mcvary, mcvarz, cases=0, ax=None, title=''):
+def mc_plot_3d_line(mcvarx, mcvary, mcvarz, cases=0, ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=True)
     
     reg_cases = set(range(mcvarx.ncases)) - set(get_iterable(cases))
@@ -232,7 +232,7 @@ def MCPlot3DLine(mcvarx, mcvary, mcvarz, cases=0, ax=None, title=''):
 
 
 
-def MCPlotCovCorr(matrix, varnames, ax=None, title=''):
+def mc_plot_cov_corr(matrix, varnames, ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=False)
     scale = np.nanmax(np.abs(matrix)) # for a correlation matrix this will always be 1 from diagonal
     im = ax.imshow(matrix, cmap="RdBu", vmin=-scale, vmax=scale)
@@ -329,24 +329,24 @@ mcoutvars = dict()
 mcoutvars['test'] = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
 
 f, (ax1, ax2) = plt.subplots(2, 1)
-MCPlotHist(mcinvars['randint'], ax=ax1, orientation='horizontal') # MCPlotHist
-MCPlot(mcinvars['norm'], title='norm')                            # MCPlotHist
-MCPlotHist(mcoutvars['test'], orientation='horizontal')           # MCPlotHist
-MCPlotCDF(mcinvars['randint'], ax=ax2)                            # MCPlotCDF
-MCPlotCDF(mcinvars['norm'], orientation='horizontal')             # MCPlotCDF
-MCPlotCDF(mcoutvars['test'])                                      # MCPlotCDF
+mc_plot_hist(mcinvars['randint'], ax=ax1, orientation='horizontal') # mc_plot_hist
+mc_plot(mcinvars['norm'], title='norm')                            # mc_plot_hist
+mc_plot_hist(mcoutvars['test'], orientation='horizontal')           # mc_plot_hist
+mc_plot_cdf(mcinvars['randint'], ax=ax2)                            # mc_plot_cdf
+mc_plot_cdf(mcinvars['norm'], orientation='horizontal')             # mc_plot_cdf
+mc_plot_cdf(mcoutvars['test'])                                      # mc_plot_cdf
 
-MCPlot(mcinvars['randint'], mcinvars['norm'], cases=range(10,30))  # MCPlot2DScatter
-MCPlot(mcinvars['randint'], mcinvars['norm'],  mcinvars['norm2'])  # MCPlot3DScatter
+mc_plot(mcinvars['randint'], mcinvars['norm'], cases=range(10,30))  # mc_plot_2d_scatter
+mc_plot(mcinvars['randint'], mcinvars['norm'],  mcinvars['norm2'])  # mc_plot_3d_scatter
 
 v = np.array([-2, -1, 2, 3, 4, 5])
 var1 = MCOutVar('testx', [v, v, v, v, v], firstcaseisnom=True)
 var2 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
 var3 = MCOutVar('testz', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
 
-MCPlot(var2, cases=None)         # MCPlot2DLine
-MCPlot(var1, var2, cases=[0,1])  # MCPlot2DLine
-MCPlot(var1, var2, var3)         # MCPlot3DLine
+mc_plot(var2, cases=None)         # mc_plot_2d_line
+mc_plot(var1, var2, cases=[0,1])  # mc_plot_2d_line
+mc_plot(var1, var2, var3)         # mc_plot_3d_line
 
-MCPlotCovCorr(np.array([[2, 0.1111],[-0.19, -1]]), ['Test1', 'Test2'])
+mc_plot_cov_corr(np.array([[2, 0.1111],[-0.19, -1]]), ['Test1', 'Test2'])
 #'''

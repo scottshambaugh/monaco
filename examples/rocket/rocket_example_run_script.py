@@ -1,7 +1,7 @@
 from scipy.stats import uniform, rv_discrete
 from PyMonteCarlo.MCSim import MCSim
-from PyMonteCarlo.MCPlot import MCPlot
-from PyMonteCarlo.MCMultiPlot import MCMultiPlot
+from PyMonteCarlo.mc_plot import mc_plot
+from PyMonteCarlo.mc_multi_plot import mc_multi_plot
 
 from rocket_example_sim import rocket_example_sim
 from rocket_example_preprocess import rocket_example_preprocess
@@ -28,16 +28,16 @@ def rocket_example_run_script():
     print(sim.runtime)
     
     #print(sim.mcoutvars['Landing Dist [m]'].stats())
-    #MCPlot(sim.mcoutvars['Time [s]'], sim.mcoutvars['Distance [m]'])
-    #MCPlot(sim.mcoutvars['Time [s]'], sim.mcoutvars['|Velocity| [m/s]'])
-    #MCPlot(sim.mcoutvars['Landing Dist [m]'])
-    #MCPlot(sim.mcoutvars['Landing E [m]'], sim.mcoutvars['Landing N [m]'])
-    #MCPlot(sim.mcoutvars['Time [s]'], sim.mcoutvars['Flight Stage'])    
-    #MCPlot(sim.mcoutvars['Position [m]'])
-    MCPlot(sim.mcoutvars['Easting [m]'], sim.mcoutvars['Northing [m]'], sim.mcoutvars['Altitude [m]'], title='Model Rocket Trajectory')
+    #mc_plot(sim.mcoutvars['Time [s]'], sim.mcoutvars['Distance [m]'])
+    #mc_plot(sim.mcoutvars['Time [s]'], sim.mcoutvars['|Velocity| [m/s]'])
+    #mc_plot(sim.mcoutvars['Landing Dist [m]'])
+    #mc_plot(sim.mcoutvars['Landing E [m]'], sim.mcoutvars['Landing N [m]'])
+    #mc_plot(sim.mcoutvars['Time [s]'], sim.mcoutvars['Flight Stage'])    
+    #mc_plot(sim.mcoutvars['Position [m]'])
+    mc_plot(sim.mcoutvars['Easting [m]'], sim.mcoutvars['Northing [m]'], sim.mcoutvars['Altitude [m]'], title='Model Rocket Trajectory')
     #import matplotlib.pyplot as plt
     #plt.savefig('rocket_trajectory.png')
-    MCMultiPlot(sim.mcoutvars['Landing Dist [m]'], sim.mcinvars['Wind Speed [m/s]'], title='Wind Speed vs Landing Distance')
+    mc_multi_plot(sim.mcoutvars['Landing Dist [m]'], sim.mcinvars['Wind Speed [m/s]'], title='Wind Speed vs Landing Distance')
     #plt.savefig('wind_vs_landing.png')
     
     return sim
