@@ -59,7 +59,6 @@ might be encountered are provided.
 * Progress bar
 * Get custom distributions working
 * Break out tests
-* Move MCPlot to a class framework
 * Plot specific cases, highlighted cases, and custom formmating for both
 * Make pip installable?
 * Linear trend lines on scatter plots?
@@ -82,5 +81,5 @@ might be encountered are provided.
 ### License:
 
 This software is distributed under [the GPLv3.0 license](LICENSE.md).    
-Please contact Scott Shambaugh for use of this software in proprietary applications.
+Please contact Scott Shambaugh for licensing this software for distribution in proprietary applications.
 
