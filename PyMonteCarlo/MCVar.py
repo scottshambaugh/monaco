@@ -229,7 +229,7 @@ mcinvars['randint'] = MCInVar('randint', randint, (1, 5), 1000, seed=invarseeds[
 print(mcinvars['randint'].stats())
 mcinvars['norm'] = MCInVar('norm', norm, (10, 4), 1000, seed=invarseeds[1])
 print(mcinvars['norm'].stats())
-from MCOrderStats import order_stat_TI_p
+from order_statistics import order_stat_TI_p
 c = order_stat_TI_p(1000, 2, 0.95)
 print(mcinvars['norm'].orderStat(2), c)
 xk = np.array([1, 5, 6])

@@ -7,33 +7,33 @@ Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A Guide for
 '''
 
 
-def pct2sig(p, bound='2sided'):
-    # Converts a to a percentile to a gaussian sigma value (1sided), or to the 
+def pct2sig(p, bound='2-sided'):
+    # Converts a to a percentile to a gaussian sigma value (1-sided), or to the 
     # sigma value for which the range (-sigma, +sigma) bounds that percent of 
-    # the normal distribution (2sided)
+    # the normal distribution (2-sided)
     if p <= 0 or p >= 1:
         raise ValueError(f'{p=} must be 0 < p < 1')            
         return None
-    if bound == '2sided':
+    if bound == '2-sided':
         return scipy.stats.norm.ppf(1-(1-p)/2)
-    if bound == '1sided':
+    if bound == '1-sided':
         return scipy.stats.norm.ppf(p)
 
 
 
-def sig2pct(sig, bound='2sided'):
-    # Converts a gaussian sigma value to a percentile (1sided), or to the percent
-    # of the normal distribution bounded by (-sigma, +sigma) (2sided)
-    if bound == '2sided':
+def sig2pct(sig, bound='2-sided'):
+    # Converts a gaussian sigma value to a percentile (1-sided), or to the percent
+    # of the normal distribution bounded by (-sigma, +sigma) (2-sided)
+    if bound == '2-sided':
         if sig < 0:
             raise ValueError(f'{sig=} must be >= 0 for a 2-sided bound')            
         return 1-(1-scipy.stats.norm.cdf(sig))*2
-    elif bound == '1sided':
+    elif bound == '1-sided':
         return scipy.stats.norm.cdf(sig)
 
 
 
-def order_stat_TI_n(k, p, c, nmax=int(1e7), bound='2sided'):
+def order_stat_TI_n(k, p, c, nmax=int(1e7), bound='2-sided'):
     '''
     Order Statistic Tolerance Interval, find n
     This function returns the number of cases n necessary to say that the true 
@@ -43,13 +43,13 @@ def order_stat_TI_n(k, p, c, nmax=int(1e7), bound='2sided'):
     
     For example, if I want to use my 2nd highest measurement as a bound on 99% 
     of all samples with 90% confidence:
-        n = order_stat(2, 0.99, 0.90, bound='1sided') = 389
+        n = order_stat(2, 0.99, 0.90, bound='1-sided') = 389
     The 388th value of x when sorted from low to high, or sorted(x)[-2], will 
     bound the upper end of the measurement with P99/90. 
     
-    '2sided' gives the result for the measurement lying between the k'th lowest 
+    '2-sided' gives the result for the measurement lying between the k'th lowest 
     and k'th highest measurements. If we run the above function with 
-    bound='2sided', then n = 668, and we can say that the true measurement lies 
+    bound='2-sided', then n = 668, and we can say that the true measurement lies 
     between sorted(x)[1] and sorted(x)[-2] with P99/90.
     
     See chapter 5 of Reference at the top of this file for statistical 
@@ -57,9 +57,9 @@ def order_stat_TI_n(k, p, c, nmax=int(1e7), bound='2sided'):
     '''
     order_stat_var_check(p=p, k=k, c=c, nmax=nmax)
     
-    if bound == '2sided':
+    if bound == '2-sided':
         l = k  # we won't be using assymmetrical order stats
-    elif bound == '1sided':
+    elif bound == '1-sided':
         l = 0
 
     # use bisection to get n (secant method is unstable due to flat portions of curve)
@@ -83,13 +83,13 @@ def order_stat_TI_n(k, p, c, nmax=int(1e7), bound='2sided'):
 
 
 
-def order_stat_TI_p(n, k, c, ptol=1e-9, bound='2sided'):
+def order_stat_TI_p(n, k, c, ptol=1e-9, bound='2-sided'):
     # Order Statistic Tolerance Interval, find p
     order_stat_var_check(n=n, k=k, c=c)
     
-    if bound == '2sided':
+    if bound == '2-sided':
         l = k  # we won't be using assymmetrical order stats
-    elif bound == '1sided':
+    elif bound == '1-sided':
         l = 0
     u = n+1-k
 
@@ -108,12 +108,15 @@ def order_stat_TI_p(n, k, c, ptol=1e-9, bound='2sided'):
 
 
 
-def order_stat_TI_k(n, p, c, bound='2sided'):
+def order_stat_TI_k(n, p, c, bound='2-sided'):
     # Order Statistic Tolerance Interval, find maximum k
     order_stat_var_check(n=n, p=p, c=c)
     
-    nmin = order_stat_TI_n(1, p, c, nmax=int(1e7), bound=bound)
-    if nmin > n:
+    if bound == '2-sided':
+        l = 1  # we won't be using assymmetrical order stats
+    elif bound == '1-sided':
+        l = 0
+    if EPTI(n, l, n, p) < c:
         print(f'Warning: {n=} is too small to meet {p=} at {c=} for {bound} tolerance interval at any order statistic')
         return None
 
@@ -125,9 +128,9 @@ def order_stat_TI_k(n, p, c, bound='2sided'):
         if (k[1]-k[0]) <= 1:
             return int(k[1])-1
         else:
-            if bound == '2sided':
+            if bound == '2-sided':
                 l = k[0]+step  # we won't be using assymmetrical order stats
-            elif bound == '1sided':
+            elif bound == '1-sided':
                 l = 0
             u = n+1-(k[0]+step)
             
@@ -138,18 +141,35 @@ def order_stat_TI_k(n, p, c, bound='2sided'):
 
 
 
-def order_stat_TI_c(n, k, p, bound='2sided'):
+def order_stat_TI_c(n, k, p, bound='2-sided'):
     # Order Statistic Tolerance Interval, find c
     order_stat_var_check(n=n, p=p, k=k)
     
-    if bound == '2sided':
+    if bound == '2-sided':
         l = k  # we won't be using assymmetrical order stats
-    elif bound == '1sided':
+    elif bound == '1-sided':
         l = 0
     u = n+1-k
     
     c = EPTI(n, l, u, p)
     return c
+
+
+
+def order_stat_P_c(n, k, P, bound='2-sided'):
+    # Order Statistic Tolerance Interval, find c
+    order_stat_var_check(n=n, p=P, k=k)
+    
+    Pi = round((n+1)*P) # Percentile index (1-based indexing)
+    if bound == '2-sided':
+        l = Pi-k  # we won't be using assymmetrical order stats
+    elif bound == '1-sided upper':
+        l = Pi
+    u = Pi+k
+    
+    c = EPYP(n, l, u, P)
+    return c
+
 
 
 
@@ -175,7 +195,7 @@ def order_stat_var_check(n=None, l=None, u=None, p=None, k=None, c=None, nmax=No
     if l != None and l < 0:
         raise ValueError(f'{l=} must be >= 0')
     if u != None and n != None and u > n+1:
-        raise ValueError(f'{u=} must be less than n+1')
+        raise ValueError(f'{u=} must be >= n+1')
     if u != None and l != None and u <= l:
         raise ValueError(f'{u=} must be greater than {l=}')
     if p != None and (p <= 0 or p >=1):
@@ -191,11 +211,11 @@ def order_stat_var_check(n=None, l=None, u=None, p=None, k=None, c=None, nmax=No
 
 '''
 ### Test ###
-print(sig2pct(3, bound='2sided'), sig2pct(3, bound='1sided')) # 0.99730, 0.99865
-print(pct2sig(0.9973002, bound='2sided'), pct2sig(0.0013499, bound='1sided')) # 3, -3
-print(order_stat_TI_n(k=2, p=0.99, c=0.90, bound='2sided')) # 668
-print(order_stat_TI_p(n=668, k=2, c=0.90, bound='2sided')) # 0.99003
-print(order_stat_TI_c(n=668, k=2, p=0.99, bound='2sided')) # 0.90110
-print(order_stat_TI_k(n=668, p=0.99, c=0.90, bound='2sided')) # 2
-print(order_stat_TI_k(n=20, p=0.99, c=0.90, bound='2sided')) # Warning message
+print(sig2pct(3, bound='2-sided'), sig2pct(3, bound='1-sided')) # 0.99730, 0.99865
+print(pct2sig(0.9973002, bound='2-sided'), pct2sig(0.0013499, bound='1-sided')) # 3, -3
+print(order_stat_TI_n(k=2, p=0.99, c=0.90, bound='2-sided')) # 668
+print(order_stat_TI_p(n=668, k=2, c=0.90, bound='2-sided')) # 0.99003
+print(order_stat_TI_c(n=668, k=2, p=0.99, bound='2-sided')) # 0.90110
+print(order_stat_TI_k(n=668, p=0.99, c=0.90, bound='2-sided')) # 2
+print(order_stat_TI_k(n=20, p=0.99, c=0.90, bound='2-sided')) # Warning message
 #'''
