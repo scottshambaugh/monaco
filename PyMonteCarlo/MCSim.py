@@ -77,7 +77,6 @@ class MCSim:
         self.clearResults()
         generator = np.random.RandomState(self.seed)
         self.caseseeds = generator.randint(0, 2**31-1, size=self.ncases)
-        print(self.caseseeds)
         for i in range(self.ncases):
             isnom = False
             if self.firstcaseisnom and i == 0:

@@ -31,20 +31,20 @@ def mc_multi_plot_2d_scatter_hist(mcvarx, mcvary, cases, cumulative=False, fig=N
     plt.clf()
     
     gs = fig.add_gridspec(4, 4)
-    ax1 = fig.add_subplot(gs[0:3, 1:4])
+    ax1 = fig.add_subplot(gs[3, 1:4])
     ax2 = fig.add_subplot(gs[0:3, 0])
-    ax3 = fig.add_subplot(gs[3, 1:4])
+    ax3 = fig.add_subplot(gs[0:3, 1:4], sharex=ax1, sharey=ax2)
 
-    mc_plot_2d_scatter(mcvarx, mcvary, cases=cases, ax=ax1, title='')
+    mc_plot_hist(mcvarx, cases=cases, ax=ax1, title='', cumulative=cumulative)
     mc_plot_hist(mcvary, cases=cases, ax=ax2, title='', cumulative=cumulative, orientation='horizontal')
-    mc_plot_hist(mcvarx, cases=cases, ax=ax3, title='', cumulative=cumulative)
+    mc_plot_2d_scatter(mcvarx, mcvary, cases=cases, ax=ax3, title='')
     
-    ax1.set_xlabel('')
     ax1.set_ylabel('')
-    ax1.xaxis.set_ticklabels([])
-    ax1.yaxis.set_ticklabels([])
     ax2.set_xlabel('')
+    ax3.set_xlabel('')
     ax3.set_ylabel('')
+    ax3.xaxis.set_tick_params(labelbottom=False)
+    ax3.yaxis.set_tick_params(labelbottom=False)
     
     plt.suptitle(title, y=.93)
 

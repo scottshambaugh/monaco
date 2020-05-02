@@ -104,7 +104,7 @@ def mc_plot_hist(mcvar, cases=0, cumulative=False, orientation='vertical', ax=No
             x = np.concatenate(([lim[0]], bins, [lim[1]]))
             dist = mcvar.dist(*mcvar.distargs)
             if cumulative:
-                xdata = x
+                xdata = x - binwidth
                 ydata = dist.cdf(x)
             else:
                 xdata = x[1:]
@@ -123,17 +123,25 @@ def mc_plot_hist(mcvar, cases=0, cumulative=False, orientation='vertical', ax=No
     else:
         ylabeltext = 'Probability Density'
 
+    # Highligthed cases and MCVarStats
     if orientation == 'vertical':
         ylim = ax.get_ylim()
         for i in highlighted_cases:
             plt.plot([mcvar.nums[i], mcvar.nums[i]], ylim, 'r-')
+        for mcvarstat in mcvar.mcvarstats:
+            plt.plot([mcvarstat.nums[0],mcvarstat.nums[0]], ylim, 'b-')
+            plt.plot([mcvarstat.nums[1],mcvarstat.nums[1]], ylim, 'b-')
         plt.xlabel(mcvar.name)
         plt.ylabel(ylabeltext)
         apply_category_labels(ax, mcvarx=mcvar)
+        
     elif orientation == 'horizontal':
         xlim = ax.get_xlim()
         for i in highlighted_cases:
             plt.plot(xlim, [mcvar.nums[i], mcvar.nums[i]], 'r-')
+        for mcvarstat in mcvar.mcvarstats:
+            plt.plot(xlim, [mcvarstat.nums[0],mcvarstat.nums[0]], 'b-')
+            plt.plot(xlim, [mcvarstat.nums[1],mcvarstat.nums[1]], 'b-')
         plt.ylabel(mcvar.name)
         plt.xlabel(ylabeltext)
         apply_category_labels(ax, mcvary=mcvar)
@@ -178,6 +186,10 @@ def mc_plot_2d_line(mcvarx, mcvary, cases=0, ax=None, title=''):
         plt.plot(mcvarx.nums[i], mcvary.nums[i], 'k-', alpha=0.3)
     for i in highlighted_cases:
         plt.plot(mcvarx.nums[i], mcvary.nums[i], 'r-', alpha=1)     
+
+    for mcvarstat in mcvary.mcvarstats:
+        plt.plot(mcvarx.nums[0], mcvarstat.nums[:,0], 'b-')
+        plt.plot(mcvarx.nums[0], mcvarstat.nums[:,1], 'b-')
 
     plt.xlabel(mcvarx.name)
     plt.ylabel(mcvary.name)
@@ -324,13 +336,14 @@ mcinvars = dict()
 nummap={1:'a',2:'b',3:'c',4:'d',5:'e'}
 mcinvars['randint'] = MCInVar('randint', randint, (1, 5), 1000, nummap=nummap)
 mcinvars['norm'] = MCInVar('norm', norm, (10, 4), 1000)
+mcinvars['norm'].addVarStat(p=0.75, c=0.50)
 mcinvars['norm2'] = MCInVar('norm2', norm, (10, 4), 1000)
 mcoutvars = dict()
 mcoutvars['test'] = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
 
 f, (ax1, ax2) = plt.subplots(2, 1)
 mc_plot_hist(mcinvars['randint'], ax=ax1, orientation='horizontal') # mc_plot_hist
-mc_plot(mcinvars['norm'], title='norm')                            # mc_plot_hist
+mc_plot(mcinvars['norm'], title='norm')                             # mc_plot_hist
 mc_plot_hist(mcoutvars['test'], orientation='horizontal')           # mc_plot_hist
 mc_plot_cdf(mcinvars['randint'], ax=ax2)                            # mc_plot_cdf
 mc_plot_cdf(mcinvars['norm'], orientation='horizontal')             # mc_plot_cdf
@@ -343,6 +356,7 @@ v = np.array([-2, -1, 2, 3, 4, 5])
 var1 = MCOutVar('testx', [v, v, v, v, v], firstcaseisnom=True)
 var2 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
 var3 = MCOutVar('testz', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
+var2.addVarStat(p=0.6, c=0.50)
 
 mc_plot(var2, cases=None)         # mc_plot_2d_line
 mc_plot(var1, var2, cases=[0,1])  # mc_plot_2d_line

@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.stats import rv_continuous, rv_discrete, describe
 from PyMonteCarlo.MCVal import MCInVal, MCOutVal
+from PyMonteCarlo.MCVarStat import MCVarStat
 from copy import copy
 from helper_functions import get_iterable
 
@@ -19,6 +20,7 @@ class MCVar:
         self.nummap = None
         self.size = None
         self.isscalar = None
+        self.mcvarstats = []
         
 
     def setFirstCaseNom(self, firstcaseisnom):  # firstdrawisnom is a boolean
@@ -30,19 +32,17 @@ class MCVar:
            self.ncases = self.ndraws
 
 
-    def orderStat(self, v):
-        if v < 0 or v >= self.ncases/2:
-            raise ValueError(f'{v=} must be 0 < v < ncases/2')
-        if self.isscalar:
-            sortedvals = sorted(self.vals)
-            return (sortedvals[v-1], sortedvals[-v])
-        else:
-            return None
-
-
     def stats(self):
         stats = describe(self.nums)
         return stats
+    
+    
+    def addVarStat(self, p, c=0.95, bound='2-sided', name=None):
+        self.mcvarstats.append(MCVarStat(mcvar=self, p=p, c=c, bound=bound, name=name))
+
+
+    def clearVarStats(self):
+        self.mcvarstats = []
 
 
     def getVal(self, ncase):  # ncase is an integer
@@ -71,10 +71,16 @@ class MCInVar(MCVar):
 
     def mapNums(self):
         self.vals = copy(self.nums)
-        for i in range(self.ncases):
-            self.vals[i] = self.getVal(i).val
+        if self.nummap != None:
+            for i in range(self.ncases):
+                self.vals[i] = self.nummap[self.nums[i]]
             
             
+    def genNumMap(self):
+        if self.nummap == None:
+            self.nummap = {val:num for num, val in self.nummap.items()}
+
+
     def genValMap(self):
         if self.nummap == None:
             self.valmap = None
@@ -229,14 +235,14 @@ mcinvars['randint'] = MCInVar('randint', randint, (1, 5), 1000, seed=invarseeds[
 print(mcinvars['randint'].stats())
 mcinvars['norm'] = MCInVar('norm', norm, (10, 4), 1000, seed=invarseeds[1])
 print(mcinvars['norm'].stats())
-from order_statistics import order_stat_TI_p
-c = order_stat_TI_p(1000, 2, 0.95)
-print(mcinvars['norm'].orderStat(2), c)
+mcinvars['norm'].addVarStat(p=0.75, c=0.95, bound='2-sided')
+print(mcinvars['norm'].mcvarstats[0].vals)
 xk = np.array([1, 5, 6])
 pk = np.ones(len(xk))/len(xk)
 custom = rv_discrete(name='custom', values=(xk, pk))
 mcinvars['custom'] = MCInVar('custom', custom, (), 1000, seed=invarseeds[2])
 print(mcinvars['custom'].stats())
+print(mcinvars['custom'].vals[1:10])
 print(mcinvars['custom'].getVal(0).val)
 mcinvars['map'] = MCInVar('map', custom, (), 10, nummap={1:'a',5:'e',6:'f'}, seed=invarseeds[3])
 print(mcinvars['map'].vals)

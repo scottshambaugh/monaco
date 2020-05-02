@@ -1,7 +1,7 @@
 import numpy as np
 from itertools import chain
 from copy import copy, deepcopy
-from helper_functions import is_num
+from PyMonteCarlo.helper_functions import is_num
 
 ### MCVal Base Class ###
 class MCVal():
@@ -131,7 +131,6 @@ class MCOutVal(MCVal):
                 name = self.name + f' [{i}]'
                 mcvals[name] = MCOutVal(name=name, ncase=self.ncase, val=self.val[i], valmap=self.valmap, isnom=self.isnom)
         return mcvals
-
 
 
 

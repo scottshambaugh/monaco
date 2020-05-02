@@ -1,5 +1,5 @@
 from PyMonteCarlo.MCSim import MCSim
-from PyMonteCarlo.MCPlot import MCPlot, MCPlotCovCorr
+from PyMonteCarlo.mc_plot import mc_plot, mc_plot_cov_corr
 
 # Import the statistical distributions from scipy.stats that you will be using
 # These must be rv_discrete or rv_continuous functions
@@ -76,15 +76,15 @@ def template_run_script():
     # appropriate based on the number and dimension of the variables
     # The cases argument here is a list of cases to highlight on the plots
     # This will make a histogram of the results:
-    MCPlot(sim.mcoutvars['Flip Result'], cases=[])
+    mc_plot(sim.mcoutvars['Flip Result'], cases=[])
     # And this scatter plot will show that the flips were random over time
-    MCPlot(sim.mcoutvars['Flip Number'], sim.mcoutvars['Flip Result'], cases=[])
+    mc_plot(sim.mcoutvars['Flip Number'], sim.mcoutvars['Flip Result'], cases=[])
     
     # We can also look at the correlation between all scalar input and output
     # vars to see which are most affecting the others. This shows that the input 
     # and output flip information is identical, and that the flipper and flip 
     # number had no effect on the coin landing heads or tails
-    MCPlotCovCorr(*sim.corr())
+    mc_plot_cov_corr(*sim.corr())
     
     # Alternatively, you can return the sim object and work with it elsewhere
     return sim
