@@ -220,6 +220,8 @@ class MCOutVar(MCVar):
                     vals.append(self.vals[j][i])
                 mcvars[name] = MCOutVar(name=name, vals=vals, ndraws=self.ndraws, \
                                         valmap=self.valmap, firstcaseisnom=self.firstcaseisnom)
+                for mcvarstat in self.mcvarstats:
+                    mcvars[name].addVarStat(p=mcvarstat.p, c=mcvarstat.c, bound=mcvarstat.bound, name=mcvarstat.name)
         return mcvars
 
 
@@ -255,6 +257,8 @@ print(mcoutvars['test'].stats())
 
 v = np.array([[1,1],[2,2],[3,3]])
 mcoutvars['test2'] = MCOutVar('test2', [v, v, v, v, v])
+mcoutvars['test2'].addVarStat(p=0.25, c=0.50, bound='1-sided')
 mcoutvars.update(mcoutvars['test2'].split())
 print(mcoutvars['test2 [0]'].nums)
+print(mcoutvars['test2 [0]'].mcvarstats[0].vals)
 #'''

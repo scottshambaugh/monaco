@@ -37,7 +37,9 @@ class MCVarStat:
                 self.vals = np.array([[self.mcvar.nummap[x] for x in y] for y in self.nums])
                 
         else:
-            print('Warning: MCVarStat only available for scalar or 1-D data')
+            # Suppress warning since this will become valid when MCVar is split
+            #print('Warning: MCVarStat only available for scalar or 1-D data')
+            pass
     
 
 
