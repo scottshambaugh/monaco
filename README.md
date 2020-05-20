@@ -1,5 +1,6 @@
 # PyMonteCarlo
-This library is a work-in-progress under heavy development. Not recommended for outside use at this time.     
+This library is a work-in-progress under heavy development. Not recommended for 
+outside use at this time.     
 Originally created in 2020 by Scott Shambaugh during Coronavirus quarantine.
 
 ### Overview
@@ -42,7 +43,7 @@ might be encountered are provided.
 
 
 ### TODO:
-
+**Before Release:**
 * Flesh out READMEs and documentation
 * Get parallelism working fast
 * Dataframe support
@@ -53,18 +54,25 @@ might be encountered are provided.
     * Election Modeling
     * Pandemic Modeling
     * ~~Rocket Flight~~
-* 3sig / X% / Mean / Min / Max lines/shaded areas on plot
 * Save/load results to file
 * Continue partial results
 * Progress bar
 * Get custom distributions working
 * Break out tests
-* Plot specific cases, highlighted cases, and custom formmating for both
+* Plot specific cases, highlighted cases, and custom formatting for both
+* Plot tolerance intervals as shaded regions
+* Order statistics ~~tolerance interval~~ and percentiles
+* 2D Scatter Statistics
+
+**Future Work:**
+* 2D/3D Line statistics?
 * Make pip installable?
 * Linear trend lines on scatter plots?
 * Correlation matrix input?
 * Ability to plot derived data in addition to mcvars?
-* ~~Order statistics~~
+
+**Done:**
+* ~~3sig / X% / Mean / Min / Max statistics~~
 * ~~Make template files~~
 * ~~Set up directory structure~~
 * ~~Make parallelism repeatable~~
@@ -81,5 +89,6 @@ might be encountered are provided.
 ### License:
 
 This software is distributed under [the GPLv3.0 license](LICENSE.md).    
-Please contact Scott Shambaugh for licensing this software for distribution in proprietary applications.
+Please contact Scott Shambaugh for licensing this software for distribution in 
+proprietary applications.
 
