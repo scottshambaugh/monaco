@@ -1,5 +1,6 @@
 from collections import Iterable
 from operator import itemgetter
+import numpy as np
 
 def is_num(val):
     if isinstance(val, bool):
@@ -11,6 +12,15 @@ def is_num(val):
             return False
         else:
             return True
+        
+        
+def length(x):
+    if isinstance(x, Iterable):
+        return len(x)
+    elif isinstance(x, (np.float, float, bool, int)):
+        return 1
+    else:
+        return None
 
 
 def get_iterable(x):

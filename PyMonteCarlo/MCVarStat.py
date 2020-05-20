@@ -1,5 +1,7 @@
 import numpy as np
 from copy import copy
+from scipy.stats import mode
+from scipy.stats.mstats import gmean
 from PyMonteCarlo.order_statistics import order_stat_TI_k
 
 class MCVarStat:
@@ -16,14 +18,69 @@ class MCVarStat:
             self.genStatsMax()
         elif stattype == 'min':
             self.genStatsMin()
-        elif stattype == 'mean':
-            self.genStatsMean()
         elif stattype == 'median':
             self.genStatsMedian()
+        elif stattype == 'mean':
+            self.genStatsMean()
         elif stattype == 'geomean':
             self.genStatsGeoMean()
+        elif stattype == 'mode':
+            self.genStatsMode()
         elif stattype == 'orderstatTI':
             self.genStatsOrderStatTI()
+
+
+    def genStatsMax(self):
+        self.name = 'Max'
+        self.genStatsFunction(fcn=np.max)
+
+
+    def genStatsMin(self):
+        self.name = 'Min'
+        self.genStatsFunction(fcn=np.min)
+
+
+    def genStatsMedian(self):
+        self.name = 'Median'
+        self.genStatsFunction(fcn=np.median)
+
+
+    def genStatsMean(self):
+        self.name = 'Mean'
+        self.genStatsFunction(fcn=np.mean)
+
+
+    def genStatsGeoMean(self):
+        self.name = 'Geometric Mean'
+        self.genStatsFunction(fcn=gmean)
+
+
+    def genStatsMode(self):
+        self.name = 'Mode'
+        self.genStatsFunction(fcn=mode)
+
+
+
+    def genStatsFunction(self, fcn):
+        if self.mcvar.isscalar:
+            self.nums = fcn(self.mcvar.nums, **self.statkwargs)
+            self.vals = copy(self.nums)
+            if self.mcvar.nummap != None:
+                self.vals = self.mcvar.nummap[self.nums]
+                
+        elif self.mcvar.size[0] == 1:
+            self.nums = np.empty(self.mcvar.size[1])
+            for i in range(self.mcvar.size[1]):
+                self.nums[i] = fcn([x[i] for x in self.mcvar.nums])
+            self.vals = copy(self.nums)
+            if self.mcvar.nummap != None:
+                self.vals = np.array([[self.mcvar.nummap[x] for x in y] for y in self.nums])
+                
+        else:
+            # Suppress warning since this will become valid when MCVar is split
+            #print('Warning: MCVarStat only available for scalar or 1-D data')
+            pass
+
         
         
     def genStatsOrderStatTI(self):
@@ -41,7 +98,7 @@ class MCVarStat:
             self.bound = self.statkwargs['bound']
         
         if self.name == None:
-            self.name = f'{bound} P{self.p*100}/{self.c*100}% Confidence Interval'
+            self.name = f'{self.bound} P{self.p*100}/{self.c*100}% Confidence Interval'
 
         self.k = order_stat_TI_k(n=self.mcvar.ncases, p=self.p, c=self.c, bound=self.bound)
 
@@ -78,14 +135,18 @@ if __name__ == '__main__':
     
     mcinvar = MCInVar('norm', norm, (0, 1), 100000, seed=seed)
     bound='1-sided'
-    mcinvarstat = MCVarStat(mcinvar, stattype='orderstatTI', statkwargs={'p':sig2pct(3, bound=bound), 'c':0.50, 'bound':bound})
-    print(mcinvarstat.k)
-    print(mcinvarstat.vals)
+    mcinvarstat1 = MCVarStat(mcinvar, stattype='orderstatTI', statkwargs={'p':sig2pct(3, bound=bound), 'c':0.50, 'bound':bound})
+    mcinvarstat2 = MCVarStat(mcinvar, stattype='mean')
+    print(mcinvarstat1.k)
+    print(mcinvarstat1.vals)
+    print(mcinvarstat2.vals)
     
     v = np.array([-2, -1, 2, 3, 4, 5])
     var2 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
-    mcoutvarstat = MCVarStat(var2, stattype='orderstatTI', statkwargs={'p':0.6, 'c':0.50, 'bound':bound})
-    print(mcoutvarstat.name)
-    print(mcoutvarstat.vals)
+    mcoutvarstat1 = MCVarStat(var2, stattype='orderstatTI', statkwargs={'p':0.6, 'c':0.50, 'bound':bound})
+    mcoutvarstat2 = MCVarStat(var2, stattype='max')
+    print(mcoutvarstat1.name)
+    print(mcoutvarstat1.vals)
+    print(mcoutvarstat2.vals)
 
 #'''

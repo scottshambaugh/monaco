@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from PyMonteCarlo.MCVar import MCInVar, MCOutVar
 from copy import copy
-from helper_functions import get_iterable, slice_by_index
+from helper_functions import get_iterable, slice_by_index, length
 
 
 def mc_plot(mcvarx, mcvary = None, mcvarz = None, cases=0, ax=None, title=''):
@@ -188,8 +188,11 @@ def mc_plot_2d_line(mcvarx, mcvary, cases=0, ax=None, title=''):
         plt.plot(mcvarx.nums[i], mcvary.nums[i], 'r-', alpha=1)     
 
     for mcvarstat in mcvary.mcvarstats:
-        plt.plot(mcvarx.nums[0], mcvarstat.nums[:,0], 'b-')
-        plt.plot(mcvarx.nums[0], mcvarstat.nums[:,1], 'b-')
+        if length(mcvarstat.nums[0]) > 1:
+            for i in range(length(mcvarstat.nums[0])):
+                plt.plot(mcvarx.nums[0], mcvarstat.nums[:,i], 'b-')
+        else:
+            plt.plot(mcvarx.nums[0], mcvarstat.nums[:], 'b-')            
 
     plt.xlabel(mcvarx.name)
     plt.ylabel(mcvary.name)
@@ -336,7 +339,7 @@ mcinvars = dict()
 nummap={1:'a',2:'b',3:'c',4:'d',5:'e'}
 mcinvars['randint'] = MCInVar('randint', randint, (1, 5), 1000, nummap=nummap)
 mcinvars['norm'] = MCInVar('norm', norm, (10, 4), 1000)
-mcinvars['norm'].addVarStat(p=0.75, c=0.50)
+mcinvars['norm'].addVarStat('orderstatTI', {'p':0.75, 'c':0.50})
 mcinvars['norm2'] = MCInVar('norm2', norm, (10, 4), 1000)
 mcoutvars = dict()
 mcoutvars['test'] = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
@@ -356,7 +359,8 @@ v = np.array([-2, -1, 2, 3, 4, 5])
 var1 = MCOutVar('testx', [v, v, v, v, v], firstcaseisnom=True)
 var2 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
 var3 = MCOutVar('testz', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
-var2.addVarStat(p=0.6, c=0.50)
+var2.addVarStat('orderstatTI', {'p':0.6, 'c':0.50})
+var2.addVarStat('mean')
 
 mc_plot(var2, cases=None)         # mc_plot_2d_line
 mc_plot(var1, var2, cases=[0,1])  # mc_plot_2d_line

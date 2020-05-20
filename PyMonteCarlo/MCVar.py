@@ -37,8 +37,8 @@ class MCVar:
         return stats
     
     
-    def addVarStat(self, p, c=0.95, bound='2-sided', name=None):
-        self.mcvarstats.append(MCVarStat(mcvar=self, p=p, c=c, bound=bound, name=name))
+    def addVarStat(self, stattype, statkwargs={}, name=None):
+        self.mcvarstats.append(MCVarStat(mcvar=self, stattype=stattype, statkwargs=statkwargs, name=name))
 
 
     def clearVarStats(self):
