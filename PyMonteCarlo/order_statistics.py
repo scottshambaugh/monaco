@@ -25,11 +25,10 @@ def sig2pct(sig, bound='2-sided'):
     # Converts a gaussian sigma value to a percentile (1-sided), or to the percent
     # of the normal distribution bounded by (-sigma, +sigma) (2-sided)
     if bound == '2-sided':
-        if sig < 0:
-            raise ValueError(f'{sig=} must be >= 0 for a 2-sided bound')            
-        return 1-(1-scipy.stats.norm.cdf(sig))*2
+        p = 1-(1-scipy.stats.norm.cdf(sig))*2
     elif bound == '1-sided':
-        return scipy.stats.norm.cdf(sig)
+        p = scipy.stats.norm.cdf(sig)
+    return p
 
 
 
@@ -211,7 +210,7 @@ def order_stat_var_check(n=None, l=None, u=None, p=None, k=None, c=None, nmax=No
 
 '''
 ### Test ###
-print(sig2pct(3, bound='2-sided'), sig2pct(3, bound='1-sided')) # 0.99730, 0.99865
+print(sig2pct(-3, bound='2-sided'), sig2pct(3, bound='1-sided')) # -0.99730, 0.99865
 print(pct2sig(0.9973002, bound='2-sided'), pct2sig(0.0013499, bound='1-sided')) # 3, -3
 print(order_stat_TI_n(k=2, p=0.99, c=0.90, bound='2-sided')) # 668
 print(order_stat_TI_p(n=668, k=2, c=0.90, bound='2-sided')) # 0.99003

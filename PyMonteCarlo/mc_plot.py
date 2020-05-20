@@ -359,6 +359,8 @@ v = np.array([-2, -1, 2, 3, 4, 5])
 var1 = MCOutVar('testx', [v, v, v, v, v], firstcaseisnom=True)
 var2 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
 var3 = MCOutVar('testz', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
+var2.addVarStat('sigmaP', {'sig':3})
+var2.addVarStat('sigmaP', {'sig':-3})
 var2.addVarStat('orderstatTI', {'p':0.6, 'c':0.50})
 var2.addVarStat('mean')
 
