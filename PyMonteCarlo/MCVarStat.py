@@ -3,23 +3,48 @@ from copy import copy
 from PyMonteCarlo.order_statistics import order_stat_TI_k
 
 class MCVarStat:
-    def __init__(self, mcvar, p, c=0.95, bound='2-sided', name=None):
+    def __init__(self, mcvar, stattype, statkwargs = {}, name=None):
         self.mcvar = mcvar
-        self.p = p
-        self.c = c
-        self.bound = bound
+        self.stattype = stattype
+        self.statkwargs = statkwargs
         self.name = name
-        if self.name == None:
-            self.name = f'{bound} P{p*100}/{c*100}% Confidence Interval'
-        
-        self.k = order_stat_TI_k(n=self.mcvar.ncases, p=self.p, c=self.c, bound=self.bound)
+
         self.nums = None
         self.vals = None
-                
-        self.genStats()
+        
+        if stattype == 'max':
+            self.genStatsMax()
+        elif stattype == 'min':
+            self.genStatsMin()
+        elif stattype == 'mean':
+            self.genStatsMean()
+        elif stattype == 'median':
+            self.genStatsMedian()
+        elif stattype == 'geomean':
+            self.genStatsGeoMean()
+        elif stattype == 'orderstatTI':
+            self.genStatsOrderStatTI()
         
         
-    def genStats(self):
+    def genStatsOrderStatTI(self):
+        if 'p' not in self.statkwargs:
+            raise ValueError(f'{self.stattype} requires the kwarg ''p''')
+        else:
+            self.p = self.statkwargs['p']
+        if 'c' not in self.statkwargs:
+            self.c = 0.95
+        else:
+            self.c = self.statkwargs['c']
+        if 'bound' not in self.statkwargs:
+            self.bound = '2-sided'
+        else:
+            self.bound = self.statkwargs['bound']
+        
+        if self.name == None:
+            self.name = f'{bound} P{self.p*100}/{self.c*100}% Confidence Interval'
+
+        self.k = order_stat_TI_k(n=self.mcvar.ncases, p=self.p, c=self.c, bound=self.bound)
+
         if self.mcvar.isscalar:
             sortednums = sorted(self.mcvar.nums)
             self.nums = np.array([sortednums[self.k-1], sortednums[-self.k]])
@@ -52,14 +77,14 @@ if __name__ == '__main__':
     seed = 74494861
     
     mcinvar = MCInVar('norm', norm, (0, 1), 100000, seed=seed)
-    bound='2-sided'
-    mcinvarstat = MCVarStat(mcinvar, sig2pct(3, bound=bound), c=0.50, bound=bound)
+    bound='1-sided'
+    mcinvarstat = MCVarStat(mcinvar, stattype='orderstatTI', statkwargs={'p':sig2pct(3, bound=bound), 'c':0.50, 'bound':bound})
     print(mcinvarstat.k)
     print(mcinvarstat.vals)
     
     v = np.array([-2, -1, 2, 3, 4, 5])
     var2 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
-    mcoutvarstat = MCVarStat(var2, p=.6, c=0.50, bound=bound)
+    mcoutvarstat = MCVarStat(var2, stattype='orderstatTI', statkwargs={'p':0.6, 'c':0.50, 'bound':bound})
     print(mcoutvarstat.name)
     print(mcoutvarstat.vals)
 
