@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from PyMonteCarlo.mc_plot import mc_plot_hist, mc_plot_2d_scatter
 
 
-def mc_multi_plot(mcvarx, mcvary=None, cases=0, fig=None, title=''):
+def mc_multi_plot(mcvarx, mcvary=None, cases=None, highlight_cases=0, fig=None, title=''):
     # Split larger vars
     if mcvary == None:
         if mcvarx.size[0] == 2:
@@ -17,13 +17,13 @@ def mc_multi_plot(mcvarx, mcvary=None, cases=0, fig=None, title=''):
 
     # Two Variable Plots
     if mcvarx.size[1] == 1 and mcvary.size[1] == 1:
-        fig, axs = mc_multi_plot_2d_scatter_hist(mcvarx=mcvarx, mcvary=mcvary, cases=cases, cumulative=False, fig=fig, title=title)
+        fig, axs = mc_multi_plot_2d_scatter_hist(mcvarx=mcvarx, mcvary=mcvary, cases=cases, highlight_cases=highlight_cases, cumulative=False, fig=fig, title=title)
             
     return fig, axs
 
 
 
-def mc_multi_plot_2d_scatter_hist(mcvarx, mcvary, cases, cumulative=False, fig=None, title=''):
+def mc_multi_plot_2d_scatter_hist(mcvarx, mcvary, cases=None, highlight_cases=0, cumulative=False, fig=None, title=''):
     if not fig:
         fig = plt.figure()
     else:
@@ -35,9 +35,9 @@ def mc_multi_plot_2d_scatter_hist(mcvarx, mcvary, cases, cumulative=False, fig=N
     ax2 = fig.add_subplot(gs[0:3, 0])
     ax3 = fig.add_subplot(gs[0:3, 1:4], sharex=ax1, sharey=ax2)
 
-    mc_plot_hist(mcvarx, cases=cases, ax=ax1, title='', cumulative=cumulative)
-    mc_plot_hist(mcvary, cases=cases, ax=ax2, title='', cumulative=cumulative, orientation='horizontal')
-    mc_plot_2d_scatter(mcvarx, mcvary, cases=cases, ax=ax3, title='')
+    mc_plot_hist(mcvarx, highlight_cases=highlight_cases, ax=ax1, title='', cumulative=cumulative)
+    mc_plot_hist(mcvary, highlight_cases=highlight_cases, ax=ax2, title='', cumulative=cumulative, orientation='horizontal')
+    mc_plot_2d_scatter(mcvarx, mcvary, cases=cases, highlight_cases=highlight_cases, ax=ax3, title='')
     
     ax1.set_ylabel('')
     ax2.set_xlabel('')
@@ -61,5 +61,5 @@ mcinvars = dict()
 mcinvars['norm1'] = MCInVar('norm1', norm, (1, 5), 1000, seed=1)
 mcinvars['norm2'] = MCInVar('norm2', norm, (10, 4), 1000, seed=2)
 
-mc_multi_plot(mcinvars['norm1'], mcinvars['norm2'], cases=range(10,30), title='test')  # MCPlot2DScatter
+mc_multi_plot(mcinvars['norm1'], mcinvars['norm2'], highlight_cases=range(10,30), title='test')  # MCPlot2DScatter
 #'''

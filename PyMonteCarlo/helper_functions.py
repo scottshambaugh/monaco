@@ -12,8 +12,8 @@ def is_num(val):
             return False
         else:
             return True
-        
-        
+
+
 def length(x):
     if isinstance(x, Iterable):
         return len(x)

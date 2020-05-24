@@ -59,7 +59,7 @@ might be encountered are provided.
 * Progress bar
 * Get custom distributions working
 * Break out tests
-* Plot specific cases, highlighted cases, and custom formatting for both
+* Plot ~~specific cases, highlighted cases, and~~ custom formatting for both
 * Plot tolerance intervals as shaded regions
 * Order statistics ~~tolerance interval~~ and percentiles
 * 2D Scatter Statistics

@@ -7,7 +7,8 @@ from copy import copy
 from helper_functions import get_iterable, slice_by_index, length
 
 
-def mc_plot(mcvarx, mcvary = None, mcvarz = None, cases=0, ax=None, title=''):
+# If cases or highlight_cases are None, will plot all. Set to [] to plot none.
+def mc_plot(mcvarx, mcvary = None, mcvarz = None, cases=None, highlight_cases=0, ax=None, title=''):
     # Split larger vars
     if mcvary == None and mcvarz == None:
         if mcvarx.size[0] not in (1, 2, 3):
@@ -41,7 +42,7 @@ def mc_plot(mcvarx, mcvary = None, mcvarz = None, cases=0, ax=None, title=''):
     # Single Variable Plots
     if mcvary == None and mcvarz == None:
         if mcvarx.size[1] == 1:
-            fig, ax = mc_plot_hist(mcvar=mcvarx, cases=cases, ax=ax, title=title)
+            fig, ax = mc_plot_hist(mcvar=mcvarx, highlight_cases=highlight_cases, ax=ax, title=title)
         else:
             mcvary = copy(mcvarx)
             mcvarx = copy(mcvarx) # don't overwrite the underlying object
@@ -50,32 +51,33 @@ def mc_plot(mcvarx, mcvary = None, mcvarz = None, cases=0, ax=None, title=''):
             nums.extend([[*range(mcvary.size[1])] for i in range(mcvarx.ncases)])
             mcvarx.nums = nums
             mcvarx.nummap = None
-            fig, ax = mc_plot_2d_line(mcvarx=mcvarx, mcvary=mcvary, cases=cases, ax=ax, title=title)
+            fig, ax = mc_plot_2d_line(mcvarx=mcvarx, mcvary=mcvary, highlight_cases=highlight_cases, ax=ax, title=title)
 
     # Two Variable Plots
     elif mcvarz == None:
         if mcvarx.size[1] == 1 and mcvary.size[1] == 1:
-            fig, ax = mc_plot_2d_scatter(mcvarx=mcvarx, mcvary=mcvary, cases=cases, ax=ax, title=title)
+            fig, ax = mc_plot_2d_scatter(mcvarx=mcvarx, mcvary=mcvary, cases=cases, highlight_cases=highlight_cases, ax=ax, title=title)
             
         elif mcvarx.size[1] > 1 and mcvary.size[1] > 1:
-            fig, ax = mc_plot_2d_line(mcvarx=mcvarx, mcvary=mcvary, cases=cases, ax=ax, title=title)
+            fig, ax = mc_plot_2d_line(mcvarx=mcvarx, mcvary=mcvary, cases=cases, highlight_cases=highlight_cases, ax=ax, title=title)
             
     # Three Variable Plots
     else:
         if mcvarx.size[1] == 1 and mcvary.size[1] == 1 and mcvarz.size[1] == 1:
-            fig, ax = mc_plot_3d_scatter(mcvarx=mcvarx, mcvary=mcvary, mcvarz=mcvarz, cases=cases, ax=ax, title=title)
+            fig, ax = mc_plot_3d_scatter(mcvarx=mcvarx, mcvary=mcvary, mcvarz=mcvarz, cases=cases, highlight_cases=highlight_cases, ax=ax, title=title)
             
         elif mcvarx.size[1] > 1 and mcvary.size[1] > 1 and mcvarz.size[1] > 1:
-            fig, ax = mc_plot_3d_line(mcvarx=mcvarx, mcvary=mcvary, mcvarz=mcvarz, cases=cases, ax=ax, title=title)
+            fig, ax = mc_plot_3d_line(mcvarx=mcvarx, mcvary=mcvary, mcvarz=mcvarz, cases=cases, highlight_cases=highlight_cases, ax=ax, title=title)
     
     return fig, ax
 
 
 
-def mc_plot_hist(mcvar, cases=0, cumulative=False, orientation='vertical', ax=None, title=''):
+def mc_plot_hist(mcvar, highlight_cases=0, cumulative=False, orientation='vertical', ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=False)
 
     # Histogram generation
+    highlight_cases = get_cases(mcvar.ncases, highlight_cases)
     counts, bins = np.histogram(mcvar.nums, bins='auto')
     binwidth = mode(np.diff(bins))[0]
     bins = np.concatenate((bins - binwidth/2, bins[-1] + binwidth/2))
@@ -117,13 +119,13 @@ def mc_plot_hist(mcvar, cases=0, cumulative=False, orientation='vertical', ax=No
     elif isinstance(mcvar, MCOutVar): 
         plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False, orientation=orientation, cumulative=cumulative, histtype='bar', facecolor='k', alpha=0.5)
     
-    highlighted_cases = get_iterable(cases)
+    highlighted_cases = get_iterable(highlight_cases)
     if cumulative:
         ylabeltext = 'Cumulative Probability'
     else:
         ylabeltext = 'Probability Density'
 
-    # Highligthed cases and MCVarStats
+    # Highligthed highlight_cases and MCVarStats
     if orientation == 'vertical':
         ylim = ax.get_ylim()
         for i in highlighted_cases:
@@ -151,18 +153,20 @@ def mc_plot_hist(mcvar, cases=0, cumulative=False, orientation='vertical', ax=No
         
 
 
-def mc_plot_cdf(mcvar, cases=0, orientation='vertical', ax=None, title=''):
-    return mc_plot_hist(mcvar=mcvar, cases=cases, orientation=orientation, cumulative=True, ax=ax, title=title)
+def mc_plot_cdf(mcvar, highlight_cases=0, orientation='vertical', ax=None, title=''):
+    return mc_plot_hist(mcvar=mcvar, highlight_cases=highlight_cases, orientation=orientation, cumulative=True, ax=ax, title=title)
 
 
 
-def mc_plot_2d_scatter(mcvarx, mcvary, cases=0, ax=None, title=''):
+def mc_plot_2d_scatter(mcvarx, mcvary, cases=None, highlight_cases=0, ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=False)
     colorblack = [[0,0,0],]
     colorred = [[1,0,0],]
 
-    reg_cases = set(range(mcvarx.ncases)) - set(get_iterable(cases))
-    highlighted_cases = get_iterable(cases)
+    cases = get_cases(mcvarx.ncases, cases)
+    highlight_cases = get_cases(mcvarx.ncases, highlight_cases)
+    reg_cases = set(get_iterable(cases)) - set(get_iterable(highlight_cases))
+    highlighted_cases = get_iterable(highlight_cases)
     if reg_cases:
         plt.scatter(slice_by_index(mcvarx.nums, reg_cases), slice_by_index(mcvary.nums, reg_cases), edgecolors=None, c=colorblack, alpha=0.4)
     if highlighted_cases:
@@ -177,11 +181,13 @@ def mc_plot_2d_scatter(mcvarx, mcvary, cases=0, ax=None, title=''):
 
 
 
-def mc_plot_2d_line(mcvarx, mcvary, cases=0, ax=None, title=''):
+def mc_plot_2d_line(mcvarx, mcvary, cases=None, highlight_cases=0, ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=False)
     
-    reg_cases = set(range(mcvarx.ncases)) - set(get_iterable(cases))
-    highlighted_cases = get_iterable(cases)
+    cases = get_cases(mcvarx.ncases, cases)
+    highlight_cases = get_cases(mcvarx.ncases, highlight_cases)
+    reg_cases = set(get_iterable(cases)) - set(get_iterable(highlight_cases))
+    highlighted_cases = get_iterable(highlight_cases)
     for i in reg_cases:
         plt.plot(mcvarx.nums[i], mcvary.nums[i], 'k-', alpha=0.3)
     for i in highlighted_cases:
@@ -203,13 +209,15 @@ def mc_plot_2d_line(mcvarx, mcvary, cases=0, ax=None, title=''):
 
 
 
-def mc_plot_3d_scatter(mcvarx, mcvary, mcvarz, cases=0, ax=None, title=''):
+def mc_plot_3d_scatter(mcvarx, mcvary, mcvarz, cases=None, highlight_cases=0, ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=True)
     colorblack = [[0,0,0],]
     colorred = [[1,0,0],]
     
-    reg_cases = set(range(mcvarx.ncases)) - set(get_iterable(cases))
-    highlighted_cases = get_iterable(cases)
+    cases = get_cases(mcvarx.ncases, cases)
+    highlight_cases = get_cases(mcvarx.ncases, highlight_cases)
+    reg_cases = set(get_iterable(cases)) - set(get_iterable(highlight_cases))
+    highlighted_cases = get_iterable(highlight_cases)
     if reg_cases:
         ax.scatter(slice_by_index(mcvarx.nums, reg_cases), slice_by_index(mcvary.nums, reg_cases), \
                    slice_by_index(mcvarz.nums, reg_cases), edgecolors=None, c=colorblack, alpha=0.4)
@@ -227,11 +235,13 @@ def mc_plot_3d_scatter(mcvarx, mcvary, mcvarz, cases=0, ax=None, title=''):
 
 
 
-def mc_plot_3d_line(mcvarx, mcvary, mcvarz, cases=0, ax=None, title=''):
+def mc_plot_3d_line(mcvarx, mcvary, mcvarz, cases=None, highlight_cases=0, ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=True)
     
-    reg_cases = set(range(mcvarx.ncases)) - set(get_iterable(cases))
-    highlighted_cases = get_iterable(cases)
+    cases = get_cases(mcvarx.ncases, cases)
+    highlight_cases = get_cases(mcvarx.ncases, highlight_cases)
+    reg_cases = set(get_iterable(cases)) - set(get_iterable(highlight_cases))
+    highlighted_cases = get_iterable(highlight_cases)
     for i in reg_cases:
         ax.plot(mcvarx.nums[i], mcvary.nums[i], mcvarz.nums[i], 'k-', alpha=0.3)
     for i in highlighted_cases:
@@ -329,6 +339,14 @@ def get_hist_lim(orientation, ax):
     return lim
 
 
+
+def get_cases(ncases, cases):
+    if cases == None:
+        cases = list(range(ncases))
+    return cases
+        
+
+
 '''
 ### Test ###
 np.random.seed(74494861)
@@ -352,8 +370,8 @@ mc_plot_cdf(mcinvars['randint'], ax=ax2)                            # mc_plot_cd
 mc_plot_cdf(mcinvars['norm'], orientation='horizontal')             # mc_plot_cdf
 mc_plot_cdf(mcoutvars['test'])                                      # mc_plot_cdf
 
-mc_plot(mcinvars['randint'], mcinvars['norm'], cases=range(10,30))  # mc_plot_2d_scatter
-mc_plot(mcinvars['randint'], mcinvars['norm'],  mcinvars['norm2'])  # mc_plot_3d_scatter
+mc_plot(mcinvars['randint'], mcinvars['norm'], cases=range(40,50), highlight_cases=range(10,30))  # mc_plot_2d_scatter
+mc_plot(mcinvars['randint'], mcinvars['norm'], mcinvars['norm2'], cases=[], highlight_cases=range(10,30))  # mc_plot_3d_scatter
 
 v = np.array([-2, -1, 2, 3, 4, 5])
 var1 = MCOutVar('testx', [v, v, v, v, v], firstcaseisnom=True)
@@ -364,8 +382,8 @@ var2.addVarStat('sigmaP', {'sig':-3})
 var2.addVarStat('orderstatTI', {'p':0.6, 'c':0.50})
 var2.addVarStat('mean')
 
-mc_plot(var2, cases=None)         # mc_plot_2d_line
-mc_plot(var1, var2, cases=[0,1])  # mc_plot_2d_line
+mc_plot(var2, highlight_cases=None)         # mc_plot_2d_line
+mc_plot(var1, var2, highlight_cases=[0,1])  # mc_plot_2d_line
 mc_plot(var1, var2, var3)         # mc_plot_3d_line
 
 mc_plot_cov_corr(np.array([[2, 0.1111],[-0.19, -1]]), ['Test1', 'Test2'])

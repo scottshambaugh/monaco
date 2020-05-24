@@ -41,7 +41,7 @@ def order_stat_TI_n(k, p, c, nmax=int(1e7), bound='2-sided'):
     and upper indices of the order statistic.
     
     For example, if I want to use my 2nd highest measurement as a bound on 99% 
-    of all samples with 90% confidence:
+    of all future samples with 90% confidence:
         n = order_stat(2, 0.99, 0.90, bound='1-sided') = 389
     The 388th value of x when sorted from low to high, or sorted(x)[-2], will 
     bound the upper end of the measurement with P99/90. 
