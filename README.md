@@ -59,7 +59,6 @@ might be encountered are provided.
 * Progress bar
 * Get custom distributions working
 * Break out tests
-* Plot ~~specific cases, highlighted cases, and~~ custom formatting for both
 * Plot tolerance intervals as shaded regions
 * Order statistics ~~tolerance interval~~ and percentiles
 * 2D Scatter Statistics
@@ -84,6 +83,7 @@ might be encountered are provided.
 * ~~Highlight specific case on plot~~
 * ~~Specify axis to plot on~~
 * ~~Seed invars with name hash~~
+* ~~Plot specific cases and highlighted cases~~
 
 
 ### License:

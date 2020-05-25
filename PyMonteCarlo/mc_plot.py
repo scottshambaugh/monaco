@@ -129,10 +129,10 @@ def mc_plot_hist(mcvar, highlight_cases=0, cumulative=False, orientation='vertic
     if orientation == 'vertical':
         ylim = ax.get_ylim()
         for i in highlighted_cases:
-            plt.plot([mcvar.nums[i], mcvar.nums[i]], ylim, 'r-')
+            plt.plot([mcvar.nums[i], mcvar.nums[i]], ylim, linestyle='-', color='red')
         for mcvarstat in mcvar.mcvarstats:
-            plt.plot([mcvarstat.nums[0],mcvarstat.nums[0]], ylim, 'b-')
-            plt.plot([mcvarstat.nums[1],mcvarstat.nums[1]], ylim, 'b-')
+            plt.plot([mcvarstat.nums[0],mcvarstat.nums[0]], ylim, linestyle='--', color='k')
+            plt.plot([mcvarstat.nums[1],mcvarstat.nums[1]], ylim, linestyle='--', color='k')
         plt.xlabel(mcvar.name)
         plt.ylabel(ylabeltext)
         apply_category_labels(ax, mcvarx=mcvar)
@@ -140,10 +140,10 @@ def mc_plot_hist(mcvar, highlight_cases=0, cumulative=False, orientation='vertic
     elif orientation == 'horizontal':
         xlim = ax.get_xlim()
         for i in highlighted_cases:
-            plt.plot(xlim, [mcvar.nums[i], mcvar.nums[i]], 'r-')
+            plt.plot(xlim, [mcvar.nums[i], mcvar.nums[i]], linestyle='-', color='red')
         for mcvarstat in mcvar.mcvarstats:
-            plt.plot(xlim, [mcvarstat.nums[0],mcvarstat.nums[0]], 'b-')
-            plt.plot(xlim, [mcvarstat.nums[1],mcvarstat.nums[1]], 'b-')
+            plt.plot(xlim, [mcvarstat.nums[0],mcvarstat.nums[0]], linestyle='--', color='k')
+            plt.plot(xlim, [mcvarstat.nums[1],mcvarstat.nums[1]], linestyle='--', color='k')
         plt.ylabel(mcvar.name)
         plt.xlabel(ylabeltext)
         apply_category_labels(ax, mcvary=mcvar)
@@ -189,16 +189,16 @@ def mc_plot_2d_line(mcvarx, mcvary, cases=None, highlight_cases=0, ax=None, titl
     reg_cases = set(get_iterable(cases)) - set(get_iterable(highlight_cases))
     highlighted_cases = get_iterable(highlight_cases)
     for i in reg_cases:
-        plt.plot(mcvarx.nums[i], mcvary.nums[i], 'k-', alpha=0.3)
+        plt.plot(mcvarx.nums[i], mcvary.nums[i], linestyle='-', color='black', alpha=0.3)
     for i in highlighted_cases:
-        plt.plot(mcvarx.nums[i], mcvary.nums[i], 'r-', alpha=1)     
+        plt.plot(mcvarx.nums[i], mcvary.nums[i], linestyle='-', color='red', alpha=1)     
 
     for mcvarstat in mcvary.mcvarstats:
         if length(mcvarstat.nums[0]) > 1:
             for i in range(length(mcvarstat.nums[0])):
-                plt.plot(mcvarx.nums[0], mcvarstat.nums[:,i], 'b-')
+                plt.plot(mcvarx.nums[0], mcvarstat.nums[:,i], linestyle='--', color='k')
         else:
-            plt.plot(mcvarx.nums[0], mcvarstat.nums[:], 'b-')            
+            plt.plot(mcvarx.nums[0], mcvarstat.nums[:], linestyle='--', color='k')            
 
     plt.xlabel(mcvarx.name)
     plt.ylabel(mcvary.name)
@@ -243,9 +243,9 @@ def mc_plot_3d_line(mcvarx, mcvary, mcvarz, cases=None, highlight_cases=0, ax=No
     reg_cases = set(get_iterable(cases)) - set(get_iterable(highlight_cases))
     highlighted_cases = get_iterable(highlight_cases)
     for i in reg_cases:
-        ax.plot(mcvarx.nums[i], mcvary.nums[i], mcvarz.nums[i], 'k-', alpha=0.3)
+        ax.plot(mcvarx.nums[i], mcvary.nums[i], mcvarz.nums[i], linestyle='-', color='black', alpha=0.3)
     for i in highlighted_cases:
-        ax.plot(mcvarx.nums[i], mcvary.nums[i], mcvarz.nums[i], 'r-', alpha=1)
+        ax.plot(mcvarx.nums[i], mcvary.nums[i], mcvarz.nums[i], linestyle='-', color='red', alpha=1)
         
     ax.set_xlabel(mcvarx.name)
     ax.set_ylabel(mcvary.name)
