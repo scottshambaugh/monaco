@@ -120,7 +120,7 @@ class MCInVar(MCVar):
             p = dist.cdf(ev)
             ev_candidates = dist.ppf([p - eps, p, p + eps])
             ev_candidates_dist = abs(ev_candidates - ev)
-            ev_closest = ev_candidates[np.argmin(ev_candidates_dist)]
+            ev_closest = ev_candidates[np.nanargmin(ev_candidates_dist)]
             return ev_closest
         
         else:

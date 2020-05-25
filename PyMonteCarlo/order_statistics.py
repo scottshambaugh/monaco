@@ -15,7 +15,10 @@ def pct2sig(p, bound='2-sided'):
         raise ValueError(f'{p=} must be 0 < p < 1')            
         return None
     if bound == '2-sided':
-        return scipy.stats.norm.ppf(1-(1-p)/2)
+        if p >= 0.5:
+            return scipy.stats.norm.ppf(1-(1-p)/2)
+        else:
+            return scipy.stats.norm.ppf(p/2)
     if bound == '1-sided':
         return scipy.stats.norm.ppf(p)
 
