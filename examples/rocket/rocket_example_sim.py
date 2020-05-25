@@ -9,6 +9,7 @@ def rocket_example_sim(sequence, massprops, propulsion, aero, launchsite):
     flightstage = ['prelaunch']  # prelaunch, ignition, poweredflight, coastflight, parachute, or landed
     tapogee = None  # time at apogee [s]
     timeout = 1000 # simulation timeout [s]
+    tmax = 45
     
     # Time histories
     t = np.array([0])  # simulation time [t]
@@ -24,7 +25,7 @@ def rocket_example_sim(sequence, massprops, propulsion, aero, launchsite):
     
     # Main calculation loop
     i = 0 
-    while flightstage[i] != 'landed':
+    while t[i] <= tmax:
         
         i = i+1
         t = np.append(t, t[i-1] + dt)   

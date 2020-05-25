@@ -125,9 +125,10 @@ class MCVarStat:
                 self.vals = self.mcvar.nummap[self.nums]
                 
         elif self.mcvar.size[0] == 1:
-            self.nums = np.empty(self.mcvar.size[1])
-            for i in range(self.mcvar.size[1]):
-                numsatidx = [x[i] for x in self.mcvar.nums]
+            npoints = max(len(x) for x in self.mcvar.nums)
+            self.nums = np.empty(npoints)
+            for i in range(npoints):
+                numsatidx = [x[i] for x in self.mcvar.nums if len(x)>i]
                 self.nums[i] = fcn(numsatidx)
             self.vals = copy(self.nums)
             if self.mcvar.nummap != None:
@@ -184,11 +185,12 @@ class MCVarStat:
                     self.vals = np.array([self.mcvar.nummap[self.nums[0]], self.mcvar.nummap[self.nums[1]]])
                 
         elif self.mcvar.size[0] == 1:
-            self.nums = np.empty(self.mcvar.size[1])
+            npoints = max(len(x) for x in self.mcvar.nums)
+            self.nums = np.empty(npoints)
             if self.side == 'both':
-                self.nums = np.empty((self.mcvar.size[1], 2))
-            for i in range(self.mcvar.size[1]):
-                numsatidx = [x[i] for x in self.mcvar.nums]
+                self.nums = np.empty((npoints, 2))
+            for i in range(npoints):
+                numsatidx = [x[i] for x in self.mcvar.nums if len(x)>i]
                 sortednums = sorted(numsatidx)
                 if self.side == 'low':
                     sortednums.reverse()
@@ -230,8 +232,11 @@ if __name__ == '__main__':
     var2 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
     mcoutvarstat1 = MCVarStat(var2, stattype='orderstatTI', statkwargs={'p':0.6, 'c':0.50, 'bound':'2-sided'})
     mcoutvarstat2 = MCVarStat(var2, stattype='min')
+    var3 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, [0,0]], firstcaseisnom=True)
+    mcoutvarstat3 = MCVarStat(var3, stattype='min')
     print(mcoutvarstat1.name)
     print(mcoutvarstat1.vals)
     print(mcoutvarstat2.vals)
+    print(mcoutvarstat3.vals)
 
 #'''
