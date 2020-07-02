@@ -2,6 +2,7 @@ from scipy.stats import uniform, rv_discrete
 from PyMonteCarlo.MCSim import MCSim
 from PyMonteCarlo.mc_plot import mc_plot
 from PyMonteCarlo.mc_multi_plot import mc_multi_plot
+from PyMonteCarlo.order_statistics import sig2pct
 
 from rocket_example_sim import rocket_example_sim
 from rocket_example_preprocess import rocket_example_preprocess
@@ -27,8 +28,10 @@ def rocket_example_run_script():
     
     print(sim.runtime)
     
+    sim.mcoutvars['Distance [m]'].addVarStat(stattype='gaussianP', statkwargs={'p':0.90, 'c':0.50})
+    sim.mcoutvars['Distance [m]'].addVarStat(stattype='gaussianP', statkwargs={'p':0.10, 'c':0.50})
     #print(sim.mcoutvars['Landing Dist [m]'].stats())
-    #mc_plot(sim.mcoutvars['Time [s]'], sim.mcoutvars['Distance [m]'])
+    mc_plot(sim.mcoutvars['Time [s]'], sim.mcoutvars['Distance [m]'])
     #mc_plot(sim.mcoutvars['Time [s]'], sim.mcoutvars['|Velocity| [m/s]'])
     #mc_plot(sim.mcoutvars['Landing Dist [m]'])
     #mc_plot(sim.mcoutvars['Landing E [m]'], sim.mcoutvars['Landing N [m]'])
