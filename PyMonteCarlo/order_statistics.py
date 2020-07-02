@@ -45,7 +45,7 @@ def order_stat_TI_n(k, p, c, nmax=int(1e7), bound='2-sided'):
     
     For example, if I want to use my 2nd highest measurement as a bound on 99% 
     of all future samples with 90% confidence:
-        n = order_stat(2, 0.99, 0.90, bound='1-sided') = 389
+        n = order_stat_TI_n(k=2, p=0.99, c=0.90, bound='1-sided') = 389
     The 388th value of x when sorted from low to high, or sorted(x)[-2], will 
     bound the upper end of the measurement with P99/90. 
     
@@ -64,7 +64,7 @@ def order_stat_TI_n(k, p, c, nmax=int(1e7), bound='2-sided'):
     elif bound == '1-sided':
         l = 0
 
-    # use bisection to get n (secant method is unstable due to flat portions of curve)
+    # use bisection to get minimum n (secant method is unstable due to flat portions of curve)
     n = [1,nmax]
     maxsteps = 1000 # nmax hard limit of 2^1000
     u = n[1] + 1 - k
@@ -171,25 +171,25 @@ def order_stat_P_n(k, P, c, nmax=int(1e7), bound='2-sided'):
     Pth percentile located at or between indices iPl and iPu of a measurement x
     will be bounded by the k'th order statistic with confidence c. 
     
-    For example, if I want to use my 2nd nearest measurement as a bound on the 
+    For example, if I want to use my 5th nearest measurement as a bound on the 
     50th Percentile with 90% confidence:
-        n = order_stat_P_n(2, 0.50, 0.90, bound='2-sided') = TODO
-        iPl = np.floor(P*(n + 1)) = 
-        iPu = np.ceil(P*(n + 1)) = 
-    The 388th value of x when sorted from low to high, or sorted(x)[-2], will 
-    bound the upper end of the measurement with P99/90. 
+        n = order_stat_P_n(k=5, P=0.50, c=0.90, bound='2-sided') = 38
+        iPl = np.floor(P*(n + 1)) = 19
+        iPu = np.ceil(P*(n + 1)) = 20
+    The 19-5 = 14th and 20+5= 25th values of x when sorted from low to high, 
+    or [sorted(x)[13], sorted(x)[24]] will bound the 50th percentile with 90%
+    confidence. 
     
-    '2-sided' gives the result for the measurement lying between the k'th lowest 
-    and k'th highest measurements. If we run the above function with 
-    bound='2-sided', then n = 668, and we can say that the true measurement lies 
-    between sorted(x)[1] and sorted(x)[-2] with P99/90.
+    '2-sided' gives the upper and lower bounds. '1-sided lower' and 
+    '1-sided upper' give the respective lower or upper bound of the Pth 
+    percentile over the entire rest of the distribution. 
     
     See chapter 5 of Reference at the top of this file for statistical 
     background.
     '''
     order_stat_var_check(p=P, k=k, c=c, nmax=nmax)
     
-    # use bisection to get n (secant method is unstable due to flat portions of curve)
+    # use bisection to get minimum n (secant method is unstable due to flat portions of curve)
     nmin = np.ceil(max(k/P - 1, k/(1-P) - 1))
     ntemp = nmin
     n = [nmin,nmax]
@@ -200,19 +200,19 @@ def order_stat_P_n(k, P, c, nmax=int(1e7), bound='2-sided'):
         l = iPl - k + 1 # we won't be using assymmetrical order stats
         u = iPu + k - 1
         if l <= 0 or u >= n[1] + 1 or EPYP(n[0], l, u, P) < c:
-            print(f'n exceeded {nmax=} for {P=} with {k=} at {c=}. Increase nmax or loosen constraints.')
+            print(f'n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} at {c=}. Increase nmax, raise k, or loosen constraints.')
             return None
     elif bound == '1-sided upper':
         l = 0
         u = iPu + k -1
         if u >= n[1] + 1 or EPYP(n[0], l, u, P) < c:
-            print(f'n exceeded {nmax=} for {P=} with {k=} at {c=}. Increase nmax or loosen constraints.')
+            print(f'n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} at {c=}. Increase nmax, raise k, or loosen constraints.')
             return None
     elif bound == '1-sided lower':
         l = iPl - k + 1
         u = n[0] + 1
         if l <= 0 or EPYP(n[0], l, u, P) < c:
-            print(f'n exceeded {nmax=} for {P=} with {k=} at {c=}. Increase nmax or loosen constraints.')
+            print(f'n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} at {c=}. Increase nmax, raise k, or loosen constraints.')
             return None
 
     for i in range(maxsteps):
@@ -276,7 +276,7 @@ def order_stat_P_k(n, P, c, bound='2-sided'):
         ktemp = k[0] + np.ceil(step)
 
         if step < 1:
-            return k[1]
+            return int(k[1])
         
         else:
             if bound == '2-sided':
@@ -314,7 +314,7 @@ def order_stat_P_c(n, k, P, bound='2-sided'):
         u = n + 1
         
     if l < 0 or u > n+1:
-        raise ValueError(f'{l=} or {u=} are outside the valid bounds of (0, {n+1}) (check: {iP=}, {k=})')        
+        raise ValueError(f'{l=} or {u=} are outside the valid bounds of (0, {n+1}) (check: {iP=}, {k=})') 
     
     c = EPYP(n, l, u, P)
     return c
@@ -339,9 +339,9 @@ def EPTI(n, l, u, p):
 def get_iP(n, P):
     # Index of Percentile (1-based indexing)
     iP = P*(n + 1) 
-    iPl = np.floor(iP)
-    iPu = np.ceil(iP)
-    iP = np.round(iP)
+    iPl = int(np.floor(iP))
+    iPu = int(np.ceil(iP))
+    iP = int(np.round(iP))
     return (iPl, iP, iPu)
 
 

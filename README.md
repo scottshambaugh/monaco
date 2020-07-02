@@ -60,7 +60,6 @@ might be encountered are provided.
 * Get custom distributions working
 * Break out tests
 * Plot tolerance intervals as shaded regions
-* Order statistics ~~tolerance interval~~ and percentiles
 * 2D Scatter Statistics
 
 **Future Work:**
@@ -84,6 +83,7 @@ might be encountered are provided.
 * ~~Specify axis to plot on~~
 * ~~Seed invars with name hash~~
 * ~~Plot specific cases and highlighted cases~~
+* ~~Order statistics tolerance interval and percentiles~~
 
 
 ### License:

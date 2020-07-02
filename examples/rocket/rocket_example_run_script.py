@@ -2,7 +2,6 @@ from scipy.stats import uniform, rv_discrete
 from PyMonteCarlo.MCSim import MCSim
 from PyMonteCarlo.mc_plot import mc_plot
 from PyMonteCarlo.mc_multi_plot import mc_multi_plot
-from PyMonteCarlo.order_statistics import sig2pct
 
 from rocket_example_sim import rocket_example_sim
 from rocket_example_preprocess import rocket_example_preprocess
@@ -11,7 +10,7 @@ fcns ={'preprocess' :rocket_example_preprocess,   \
        'run'        :rocket_example_sim,          \
        'postprocess':rocket_example_postprocess}
 
-ndraws = 8
+ndraws = 50
 seed=12362398
 
 def rocket_example_run_script():
