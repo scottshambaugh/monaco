@@ -45,7 +45,6 @@ might be encountered are provided.
 ### TODO:
 **Before Release:**
 * Flesh out READMEs and documentation
-* Get parallelism working fast
 * Dataframe support
 * Examples:
     * Evidence-Based Scheduling
@@ -56,8 +55,6 @@ might be encountered are provided.
     * ~~Rocket Flight~~
 * Save/load results to file
 * Continue partial results
-* Progress bar
-* Get custom distributions working
 * Break out tests
 * Plot tolerance intervals as shaded regions
 * 2D Scatter Statistics
@@ -65,6 +62,7 @@ might be encountered are provided.
 **Future Work:**
 * 2D/3D Line statistics?
 * Make pip installable?
+* Get custom distributions working
 * Linear trend lines on scatter plots?
 * Correlation matrix input?
 * Ability to plot derived data in addition to mcvars?
@@ -84,6 +82,9 @@ might be encountered are provided.
 * ~~Seed invars with name hash~~
 * ~~Plot specific cases and highlighted cases~~
 * ~~Order statistics tolerance interval and percentiles~~
+* ~~Get parallelism working fast~~
+* ~~Progress bar~~
+
 
 
 ### License:

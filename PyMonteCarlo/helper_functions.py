@@ -39,3 +39,8 @@ def slice_by_index(sequence, indices):
     if len(indices) == 1:
         return [items]
     return list(items)
+
+
+def vprint(verbose, *args, **kwargs):
+    if verbose:
+        print(*args, **kwargs)

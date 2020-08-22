@@ -14,7 +14,7 @@ ndraws = 50
 seed=12362398
 
 def rocket_example_run_script():
-    sim = MCSim(name='Rocket', ndraws=ndraws, fcns=fcns, firstcaseisnom=True, seed=seed, cores=1)
+    sim = MCSim(name='Rocket', ndraws=ndraws, fcns=fcns, firstcaseisnom=True, seed=seed, cores=4, verbose=True)
     
     sim.addInVar(name='Wind Azi [deg]', dist=uniform, distargs=(0, 360))
     sim.addInVar(name='Wind Speed [m/s]', dist=uniform, distargs=(0, 2))
@@ -24,8 +24,6 @@ def rocket_example_run_script():
     sim.addInVar(name='Parachute Failure', dist=para_fail_dist, distargs=(), nummap=para_fail_nummap)
 
     sim.runSim()
-    
-    print(sim.runtime)
     
     sim.mcoutvars['Distance [m]'].addVarStat(stattype='gaussianP', statkwargs={'p':0.90, 'c':0.50})
     sim.mcoutvars['Distance [m]'].addVarStat(stattype='gaussianP', statkwargs={'p':0.10, 'c':0.50})

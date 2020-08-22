@@ -3,15 +3,17 @@ from datetime import datetime
 from PyMonteCarlo.MCCase import MCCase
 from PyMonteCarlo.MCVar import MCInVar, MCOutVar
 from psutil import cpu_count
-#from multiprocessing import Pool
-#from pathos.pools import ProcessPool as Pool
 from pathos.pools import ThreadPool as Pool
-#from pathos.helpers import shutdown
+from itertools import repeat
+from tqdm import tqdm
+from helper_functions import vprint
+
 
 
 class MCSim:
-    def __init__(self, name, ndraws, fcns, firstcaseisnom=True, seed=np.random.get_state()[1][0], cores=cpu_count(logical=False)):
+    def __init__(self, name, ndraws, fcns, firstcaseisnom=True, seed=np.random.get_state()[1][0], cores=cpu_count(logical=False), verbose=True):
         self.name = name                      # name is a string
+        self.verbose = verbose                # verbose is a boolean
         self.ndraws = ndraws                  # ndraws is an integer
         self.fcns = fcns                      # fcns is a dict with keys 'preprocess', 'run', 'postprocess' for those functions
         self.firstcaseisnom = firstcaseisnom  # firstcaseisnom is a boolean
@@ -24,7 +26,8 @@ class MCSim:
         self.inittime = datetime.now()
         self.starttime = None
         self.endtime = None
-        self.runtime = None        
+        self.runtime = None      
+        self.casesrun = None
         
         self.mcinvars = dict()     
         self.mcoutvars = dict()     
@@ -38,6 +41,8 @@ class MCSim:
         self.ncases = ndraws + 1
         self.setFirstCaseNom(firstcaseisnom)
         self.setNDraws(self.ndraws)
+        
+        self.pbar = None
 
 
     def setFirstCaseNom(self, firstcaseisnom):  # firstdrawisnom is a boolean
@@ -143,6 +148,7 @@ class MCSim:
     def clearResults(self):
         self.mccases = []
         self.mcoutvars = dict()
+        self.casesrun = None
         self.corrcoeff = None
         self.covcoeff = None
         self.covvarlist = None
@@ -158,38 +164,50 @@ class MCSim:
         self.starttime = None
         self.endtime = None
         self.runtime = None
+        self.pbar = None
         
                     
     def runSim(self):
+        vprint(self.verbose, f'Running "{self.name}" Monte Carlo simulation with {self.ncases} cases: ', flush=True)
         self.starttime = datetime.now()
         
         self.genCases()
 
+        if self.verbose:
+            self.pbar = tqdm(total=self.ncases, unit=' cases', position=0, leave=True)
+
         if self.cores == 1:
             for i in range(self.ncases):
-                self.runCaseWorker(self.mccases[i])
+                self.runCase(mccase=self.mccases[i])
         else:
             p = Pool(self.cores)
-            p.map(self.runCaseWorker, self.mccases)
-#            p.close()
-#            p.join()
+            casesrun = p.imap(self.runCase, self.mccases)
+            self.casesrun = list(casesrun)
             p.terminate()
             p.restart()
-
+        
+        if self.verbose:
+            self.pbar.refresh()
+        self.pbar = None
+            
         self.genOutVars()
 
         self.endtime = datetime.now()
         self.runtime = self.endtime - self.starttime
+        vprint(self.verbose, f'\nRuntime: {self.runtime}', flush=True)
 
 
-    def runCaseWorker(self, mccase):  # mccase is an MCCase object
+    def runCase(self, mccase):
         mccase.starttime = datetime.now()
         sim_raw_output = self.fcns['run'](*mccase.siminput)
         self.fcns['postprocess'](mccase, *sim_raw_output)
         mccase.endtime = datetime.now()
         mccase.runtime = mccase.endtime - mccase.starttime
-        return
-
+    
+        if not (self.pbar is None):
+            self.pbar.update(1)
+            
+        return(mccase.ncase)
 
 
 '''
