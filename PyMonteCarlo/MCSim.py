@@ -4,9 +4,8 @@ from PyMonteCarlo.MCCase import MCCase
 from PyMonteCarlo.MCVar import MCInVar, MCOutVar
 from psutil import cpu_count
 from pathos.pools import ThreadPool as Pool
-from itertools import repeat
 from tqdm import tqdm
-from helper_functions import vprint
+from helper_functions import get_iterable, vprint
 
 
 
@@ -199,8 +198,8 @@ class MCSim:
 
     def runCase(self, mccase):
         mccase.starttime = datetime.now()
-        sim_raw_output = self.fcns['run'](*mccase.siminput)
-        self.fcns['postprocess'](mccase, *sim_raw_output)
+        sim_raw_output = self.fcns['run'](*get_iterable(mccase.siminput))
+        self.fcns['postprocess'](mccase, *get_iterable(sim_raw_output))
         mccase.endtime = datetime.now()
         mccase.runtime = mccase.endtime - mccase.starttime
     
