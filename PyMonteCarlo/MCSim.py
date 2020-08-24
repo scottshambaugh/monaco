@@ -1,4 +1,6 @@
+import os
 import numpy as np
+import dill
 from datetime import datetime
 from PyMonteCarlo.MCCase import MCCase
 from PyMonteCarlo.MCVar import MCInVar, MCOutVar
@@ -6,8 +8,6 @@ from psutil import cpu_count
 from pathos.pools import ThreadPool as Pool
 from tqdm import tqdm
 from helper_functions import get_iterable, vprint
-import dill
-import os
 
 
 class MCSim:
@@ -26,11 +26,11 @@ class MCSim:
         self.inittime = datetime.now()
         self.starttime = None
         self.endtime = None
-        self.runtime = None      
+        self.runtime = None
         self.casesrun = None
         
-        self.mcinvars = dict()     
-        self.mcoutvars = dict()     
+        self.mcinvars = dict()
+        self.mcoutvars = dict()
         self.mccases = []
         self.ninvars = 0
         
@@ -47,6 +47,11 @@ class MCSim:
         self.savetofile = True
         self.resultsdir = f'{self.name}_results'
 
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state['mccases'] = []  # don't save mccase data when pickling self
+        return state
 
 
     def setFirstCaseNom(self, firstcaseisnom):  # firstdrawisnom is a boolean
@@ -170,18 +175,14 @@ class MCSim:
         
                     
     def runSim(self):
-        vprint(self.verbose, f'Running "{self.name}" Monte Carlo simulation with {self.ncases} cases: ', flush=True)
+        vprint(self.verbose, f"Running '{self.name}' Monte Carlo simulation with {self.ncases} cases: ", flush=True)
         self.starttime = datetime.now()
         self.clearResults()
 
         if self.savetofile:
             if not os.path.exists(self.resultsdir):
                 os.makedirs(self.resultsdir)
-            filename = os.path.join(self.resultsdir, f'{self.name}.mcsim')
-            if os.path.exists(filename):
-              os.remove(filename)
-            with open(filename,'wb') as file:
-                dill.dump(self, file, protocol=dill.HIGHEST_PROTOCOL)
+            self.pickleSelf()
             
         self.genCases()
 
@@ -206,7 +207,12 @@ class MCSim:
 
         self.endtime = datetime.now()
         self.runtime = self.endtime - self.starttime
+        
         vprint(self.verbose, f'\nRuntime: {self.runtime}', flush=True)
+        
+        if self.savetofile:
+            self.pickleSelf()
+            vprint(self.verbose, f"Results saved in directory '{self.resultsdir}'")
 
 
     def runCase(self, mccase):
@@ -227,6 +233,16 @@ class MCSim:
             self.pbar.update(1)
             
         return(mccase.ncase)
+
+
+    def pickleSelf(self):
+        if self.savetofile:
+            filename = os.path.join(self.resultsdir, f'{self.name}.mcsim')
+            if os.path.exists(filename):
+              os.remove(filename)
+            with open(filename,'wb') as file:
+                dill.dump(self, file, protocol=dill.HIGHEST_PROTOCOL)
+            vprint(self.verbose, f"Results saved in directory '{self.resultsdir}'")
 
 
 '''
