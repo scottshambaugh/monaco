@@ -6,7 +6,8 @@ from psutil import cpu_count
 from pathos.pools import ThreadPool as Pool
 from tqdm import tqdm
 from helper_functions import get_iterable, vprint
-
+import dill
+import os
 
 
 class MCSim:
@@ -42,6 +43,10 @@ class MCSim:
         self.setNDraws(self.ndraws)
         
         self.pbar = None
+        
+        self.savetofile = True
+        self.resultsdir = f'{self.name}_results'
+
 
 
     def setFirstCaseNom(self, firstcaseisnom):  # firstdrawisnom is a boolean
@@ -78,7 +83,6 @@ class MCSim:
 
 
     def genCases(self):
-        self.clearResults()
         generator = np.random.RandomState(self.seed)
         self.caseseeds = generator.randint(0, 2**31-1, size=self.ncases)
         for i in range(self.ncases):
@@ -151,6 +155,8 @@ class MCSim:
         self.corrcoeff = None
         self.covcoeff = None
         self.covvarlist = None
+        self.endtime = None
+        self.runtime = None
 
 
     def reset(self):
@@ -161,15 +167,22 @@ class MCSim:
         self.invarseeds = []
         self.caseseeds = []
         self.starttime = None
-        self.endtime = None
-        self.runtime = None
-        self.pbar = None
         
                     
     def runSim(self):
         vprint(self.verbose, f'Running "{self.name}" Monte Carlo simulation with {self.ncases} cases: ', flush=True)
         self.starttime = datetime.now()
-        
+        self.clearResults()
+
+        if self.savetofile:
+            if not os.path.exists(self.resultsdir):
+                os.makedirs(self.resultsdir)
+            filename = os.path.join(self.resultsdir, f'{self.name}.mcsim')
+            if os.path.exists(filename):
+              os.remove(filename)
+            with open(filename,'wb') as file:
+                dill.dump(self, file, protocol=dill.HIGHEST_PROTOCOL)
+            
         self.genCases()
 
         if self.verbose:
@@ -202,7 +215,14 @@ class MCSim:
         self.fcns['postprocess'](mccase, *get_iterable(sim_raw_output))
         mccase.endtime = datetime.now()
         mccase.runtime = mccase.endtime - mccase.starttime
-    
+
+        if self.savetofile:
+            filename = os.path.join(self.resultsdir, f'{self.name}_{mccase.ncase}.mccase')
+            if os.path.exists(filename):
+                os.remove(filename)
+            with open(filename,'wb') as file:
+                dill.dump(mccase, file, protocol=dill.HIGHEST_PROTOCOL)
+
         if not (self.pbar is None):
             self.pbar.update(1)
             
