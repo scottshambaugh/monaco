@@ -62,8 +62,6 @@ class MCSim:
         self.setFirstCaseNom(firstcaseisnom)
         self.setNDraws(self.ndraws)
         
-        self.pbar = None
-
 
     def __getstate__(self):
         state = self.__dict__.copy()
@@ -291,7 +289,9 @@ class MCSim:
                     try:
                         mccase = dill.load(file)
                         if mccase.runtime is None:  # only load mccase if it completed running
-                            vwrite(self.verbose, f'Warning: {filepath.name} did not finish running, not loaded')
+                            vwrite(self.verbose, f'\nWarning: {filepath.name} did not finish running, not loaded', end='')
+                        elif (mccase.starttime < self.starttime) or (mccase.endtime > self.endtime):
+                            vwrite(self.verbose, f'\nWarning: {filepath.name} ran at a different time than the results in {self.filepath.name}', end='')
                         else:
                             self.mccases.append(mccase)
                             casesloaded.append(i)
