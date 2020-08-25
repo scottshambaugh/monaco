@@ -7,7 +7,7 @@ from PyMonteCarlo.MCVar import MCInVar, MCOutVar
 from psutil import cpu_count
 from pathos.pools import ThreadPool as Pool
 from tqdm import tqdm
-from helper_functions import get_iterable, vprint
+from helper_functions import get_iterable, vprint, vwrite
 
 
 class MCSim:
@@ -27,7 +27,7 @@ class MCSim:
         self.starttime = None
         self.endtime = None
         self.runtime = None
-        self.casesrun = None
+        self.casesrun = []
         
         self.mcinvars = dict()
         self.mcoutvars = dict()
@@ -44,8 +44,10 @@ class MCSim:
         
         self.pbar = None
         
-        self.savetofile = True
+        self.savesimdata = True
+        self.savecasedata = True
         self.resultsdir = f'{self.name}_results'
+        self.filename = f'{self.name}.mcsim'
 
 
     def __getstate__(self):
@@ -53,6 +55,12 @@ class MCSim:
         state['mccases'] = []  # don't save mccase data when pickling self
         return state
 
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        if self.savecasedata:
+            self.loadCases()
+                
 
     def setFirstCaseNom(self, firstcaseisnom):  # firstdrawisnom is a boolean
         if firstcaseisnom:
@@ -90,12 +98,14 @@ class MCSim:
     def genCases(self):
         generator = np.random.RandomState(self.seed)
         self.caseseeds = generator.randint(0, 2**31-1, size=self.ncases)
+        mccases = []
         for i in range(self.ncases):
             isnom = False
             if self.firstcaseisnom and i == 0:
                 isnom = True
-            self.mccases.append(MCCase(ncase=i, mcinvars=self.mcinvars, isnom=isnom, seed=self.caseseeds[i]))
-            self.mccases[i].siminput = self.fcns['preprocess'](self.mccases[i])
+            mccases.append(MCCase(ncase=i, mcinvars=self.mcinvars, isnom=isnom, seed=self.caseseeds[i]))
+            mccases[i].siminput = self.fcns['preprocess'](mccases[i])
+        self.mccases = mccases
         #self.genCovarianceMatrix()
 
 
@@ -156,7 +166,7 @@ class MCSim:
     def clearResults(self):
         self.mccases = []
         self.mcoutvars = dict()
-        self.casesrun = None
+        self.casesrun = []
         self.corrcoeff = None
         self.covcoeff = None
         self.covvarlist = None
@@ -179,28 +189,32 @@ class MCSim:
         self.starttime = datetime.now()
         self.clearResults()
 
-        if self.savetofile:
+        if self.savesimdata or self.savecasedata:
             if not os.path.exists(self.resultsdir):
                 os.makedirs(self.resultsdir)
-            self.pickleSelf()
+            if self.savesimdata:
+                self.pickleSelf()
             
         self.genCases()
 
         if self.verbose:
-            self.pbar = tqdm(total=self.ncases, unit=' cases', position=0, leave=True)
+            self.pbar = tqdm(total=self.ncases, unit=' cases', position=0)
 
         if self.cores == 1:
+            self.casesrun = []
             for i in range(self.ncases):
                 self.runCase(mccase=self.mccases[i])
+                self.casesrun.append(i)
         else:
             p = Pool(self.cores)
             casesrun = p.imap(self.runCase, self.mccases)
-            self.casesrun = list(casesrun)
+            casesrun = list(casesrun) # dummy function to ensure we wait for imap to finish
             p.terminate()
             p.restart()
-        
+                    
         if self.verbose:
             self.pbar.refresh()
+        self.pbar.close()
         self.pbar = None
             
         self.genOutVars()
@@ -210,39 +224,71 @@ class MCSim:
         
         vprint(self.verbose, f'\nRuntime: {self.runtime}', flush=True)
         
-        if self.savetofile:
+        if self.savesimdata:
             self.pickleSelf()
             vprint(self.verbose, f"Results saved in directory '{self.resultsdir}'")
 
 
     def runCase(self, mccase):
-        mccase.starttime = datetime.now()
-        sim_raw_output = self.fcns['run'](*get_iterable(mccase.siminput))
-        self.fcns['postprocess'](mccase, *get_iterable(sim_raw_output))
-        mccase.endtime = datetime.now()
-        mccase.runtime = mccase.endtime - mccase.starttime
+        try:
+            mccase.starttime = datetime.now()
+            sim_raw_output = self.fcns['run'](*get_iterable(mccase.siminput))
+            self.fcns['postprocess'](mccase, *get_iterable(sim_raw_output))
+            mccase.endtime = datetime.now()
+            mccase.runtime = mccase.endtime - mccase.starttime
+            
+            if self.savecasedata:
+                filename = os.path.join(self.resultsdir, f'{self.name}_{mccase.ncase}.mccase')
+                if os.path.exists(filename):
+                    os.remove(filename)
+                with open(filename,'wb') as file:
+                    dill.dump(mccase, file, protocol=dill.HIGHEST_PROTOCOL)
 
-        if self.savetofile:
-            filename = os.path.join(self.resultsdir, f'{self.name}_{mccase.ncase}.mccase')
-            if os.path.exists(filename):
-                os.remove(filename)
-            with open(filename,'wb') as file:
-                dill.dump(mccase, file, protocol=dill.HIGHEST_PROTOCOL)
-
+            self.casesrun.append(mccase.ncase)
+            
+        except:
+            vwrite(self.verbose, f'\nCase {mccase.ncase} failed')
+        
         if not (self.pbar is None):
             self.pbar.update(1)
-            
-        return(mccase.ncase)
+
 
 
     def pickleSelf(self):
-        if self.savetofile:
-            filename = os.path.join(self.resultsdir, f'{self.name}.mcsim')
+        if self.savesimdata:
+            filename = os.path.join(self.resultsdir, self.filename)
             if os.path.exists(filename):
               os.remove(filename)
             with open(filename,'wb') as file:
                 dill.dump(self, file, protocol=dill.HIGHEST_PROTOCOL)
-            vprint(self.verbose, f"Results saved in directory '{self.resultsdir}'")
+
+
+    def loadCases(self):
+        vprint(self.verbose, f"{self.filename} indicates {len(self.casesrun)}/{self.ncases} cases were run, attempting to load raw case data from disk...", flush=True)
+        self.mccases = []
+        casesloaded = []
+        pbar = tqdm(total=len(self.casesrun), unit=' cases', position=0)
+        
+        for i in self.casesrun.sort():
+            filename = os.path.join(self.resultsdir, f'{self.name}_{i}.mccase')
+            try:
+                with open(filename, 'rb') as file:
+                    try:
+                        mccase = dill.load(file)
+                        if not mccase.runtime is None:  # only load mccase if it completed running
+                            self.mccases.append(mccase)
+                            casesloaded.append(i)
+                        else:
+                            vwrite(self.verbose, f'Warning: {filename} did not finish running, not loaded')
+                    except: 
+                        vwrite(f'\nWarning: Unknown error loading {filename}', end='')
+            except FileNotFoundError:
+                vwrite(self.verbose, f'\nWarning: {filename} expected but not found', end='')
+            pbar.update(1)
+        
+        self.casesrun = casesloaded
+        pbar.refresh()
+        vwrite(self.verbose, f"\nData for {len(casesloaded)}/{self.ncases} cases loaded from disk", end='')
 
 
 '''

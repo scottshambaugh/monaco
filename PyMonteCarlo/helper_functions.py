@@ -1,5 +1,6 @@
 from collections import Iterable
 from operator import itemgetter
+from tqdm import tqdm
 import numpy as np
 
 def is_num(val):
@@ -44,3 +45,9 @@ def slice_by_index(sequence, indices):
 def vprint(verbose, *args, **kwargs):
     if verbose:
         print(*args, **kwargs)
+
+
+def vwrite(verbose, *args, **kwargs):
+    if verbose:
+        tqdm.write(*args, **kwargs)
+
