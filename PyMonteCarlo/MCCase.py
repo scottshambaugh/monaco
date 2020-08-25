@@ -12,8 +12,10 @@ class MCCase():
         self.starttime = None
         self.endtime = None
         self.runtime = None
-        self.hasrun = False
+        
         self.filepath = None
+        self.runsimid = None
+        self.hasrun = False
         
         self.mcinvals = self.getMCInVals()
         self.mcoutvals = dict()

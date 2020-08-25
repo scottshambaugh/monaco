@@ -58,10 +58,13 @@ class MCSim:
         self.covs = None
         self.covvarlist = None
 
+        self.runsimid = 0
+        self.genRunSimID()
+
         self.ncases = ndraws + 1
         self.setFirstCaseNom(firstcaseisnom)
         self.setNDraws(self.ndraws)
-        
+                
 
     def __getstate__(self):
         state = self.__dict__.copy()
@@ -185,6 +188,7 @@ class MCSim:
         self.covvarlist = None
         self.endtime = None
         self.runtime = None
+        self.genRunSimID()
 
 
     def reset(self):
@@ -195,6 +199,10 @@ class MCSim:
         self.invarseeds = []
         self.caseseeds = []
         self.starttime = None
+        
+
+    def genRunSimID(self):
+        self.runsimid = (self.seed + hash(self.name) + hash(datetime.now())) % 2**32
         
                     
     def runSim(self):
@@ -249,6 +257,7 @@ class MCSim:
             self.fcns['postprocess'](mccase, *get_iterable(sim_raw_output))
             mccase.endtime = datetime.now()
             mccase.runtime = mccase.endtime - mccase.starttime
+            mccase.runsimid = self.runsimid
             mccase.hasrun = True
             
             if self.savecasedata:
@@ -290,9 +299,9 @@ class MCSim:
                         mccase = dill.load(file)
                         if mccase.runtime is None:  # only load mccase if it completed running
                             vwrite(self.verbose, f'\nWarning: {filepath.name} did not finish running, not loaded', end='')
-                        elif (mccase.starttime < self.starttime) or (mccase.endtime > self.endtime):
-                            vwrite(self.verbose, f'\nWarning: {filepath.name} ran at a different time than the results in {self.filepath.name}', end='')
                         else:
+                            if mccase.runsimid != self.runsimid:
+                                vwrite(self.verbose, f'\nWarning: {filepath.name} from a different run than the results in {self.filepath.name}', end='')
                             self.mccases.append(mccase)
                             casesloaded.append(i)
                     except: 
