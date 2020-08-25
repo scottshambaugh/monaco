@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import dill
+import pathlib
 from datetime import datetime
 from PyMonteCarlo.MCCase import MCCase
 from PyMonteCarlo.MCVar import MCInVar, MCOutVar
@@ -11,7 +12,15 @@ from helper_functions import get_iterable, vprint, vwrite
 
 
 class MCSim:
-    def __init__(self, name, ndraws, fcns, firstcaseisnom=True, seed=np.random.get_state()[1][0], cores=cpu_count(logical=False), verbose=True):
+    def __init__(self, name, ndraws, fcns, 
+                 firstcaseisnom = True, 
+                 seed           = np.random.get_state()[1][0], 
+                 cores          = cpu_count(logical=False), 
+                 verbose        = True,
+                 savesimdata    = True,
+                 savecasedata   = True,
+                 resultsdir     = None):
+        
         self.name = name                      # name is a string
         self.verbose = verbose                # verbose is a boolean
         self.ndraws = ndraws                  # ndraws is an integer
@@ -19,6 +28,17 @@ class MCSim:
         self.firstcaseisnom = firstcaseisnom  # firstcaseisnom is a boolean
         self.seed = seed                      # seed is a number between 0 and 2^32-1
         self.cores = cores                    # cores is an integer
+        self.savesimdata = savesimdata        # savesimdata is a boolean
+        self.savecasedata = savecasedata      # savecasedata is a boolean
+
+        self.rootdir = pathlib.Path.cwd()
+        if resultsdir is pathlib.Path:        # resultsdir is a pathlib, string, or None
+            self.resultsdir = resultsdir
+        elif resultsdir is str:                 
+            self.resultsdir = self.rootdir / resultsdir
+        else:
+            self.resultsdir = self.rootdir / f'{self.name}_results'
+        self.filepath = self.resultsdir / f'{self.name}.mcsim'
 
         self.invarseeds = []
         self.caseseeds = []
@@ -43,11 +63,6 @@ class MCSim:
         self.setNDraws(self.ndraws)
         
         self.pbar = None
-        
-        self.savesimdata = True
-        self.savecasedata = True
-        self.resultsdir = f'{self.name}_results'
-        self.filename = f'{self.name}.mcsim'
 
 
     def __getstate__(self):
@@ -211,7 +226,7 @@ class MCSim:
             casesrun = list(casesrun) # dummy function to ensure we wait for imap to finish
             p.terminate()
             p.restart()
-                    
+
         if self.verbose:
             self.pbar.refresh()
         self.pbar.close()
@@ -226,7 +241,7 @@ class MCSim:
         
         if self.savesimdata:
             self.pickleSelf()
-            vprint(self.verbose, f"Results saved in directory '{self.resultsdir}'")
+            vprint(self.verbose, f"Results saved in '{self.resultsdir}'")
 
 
     def runCase(self, mccase):
@@ -236,14 +251,15 @@ class MCSim:
             self.fcns['postprocess'](mccase, *get_iterable(sim_raw_output))
             mccase.endtime = datetime.now()
             mccase.runtime = mccase.endtime - mccase.starttime
+            mccase.hasrun = True
             
             if self.savecasedata:
-                filename = os.path.join(self.resultsdir, f'{self.name}_{mccase.ncase}.mccase')
-                if os.path.exists(filename):
-                    os.remove(filename)
-                with open(filename,'wb') as file:
+                filepath = self.resultsdir / f'{self.name}_{mccase.ncase}.mccase'
+                mccase.filepath = filepath
+                filepath.unlink(missing_ok = True)
+                with open(filepath,'wb') as file:
                     dill.dump(mccase, file, protocol=dill.HIGHEST_PROTOCOL)
-
+    
             self.casesrun.append(mccase.ncase)
             
         except:
@@ -256,34 +272,33 @@ class MCSim:
 
     def pickleSelf(self):
         if self.savesimdata:
-            filename = os.path.join(self.resultsdir, self.filename)
-            if os.path.exists(filename):
-              os.remove(filename)
-            with open(filename,'wb') as file:
+            self.filepath.unlink(missing_ok = True)
+            self.filepath.touch()
+            with open(self.filepath,'wb') as file:
                 dill.dump(self, file, protocol=dill.HIGHEST_PROTOCOL)
 
 
     def loadCases(self):
-        vprint(self.verbose, f"{self.filename} indicates {len(self.casesrun)}/{self.ncases} cases were run, attempting to load raw case data from disk...", flush=True)
+        vprint(self.verbose, f"{self.filepath.name} indicates {len(self.casesrun)}/{self.ncases} cases were run, attempting to load raw case data from disk...", flush=True)
         self.mccases = []
         casesloaded = []
         pbar = tqdm(total=len(self.casesrun), unit=' cases', position=0)
         
-        for i in self.casesrun.sort():
-            filename = os.path.join(self.resultsdir, f'{self.name}_{i}.mccase')
+        for i in self.casesrun:
+            filepath = self.resultsdir / f'{self.name}_{i}.mccase'
             try:
-                with open(filename, 'rb') as file:
+                with open(filepath,'rb') as file:
                     try:
                         mccase = dill.load(file)
-                        if not mccase.runtime is None:  # only load mccase if it completed running
+                        if mccase.runtime is None:  # only load mccase if it completed running
+                            vwrite(self.verbose, f'Warning: {filepath.name} did not finish running, not loaded')
+                        else:
                             self.mccases.append(mccase)
                             casesloaded.append(i)
-                        else:
-                            vwrite(self.verbose, f'Warning: {filename} did not finish running, not loaded')
                     except: 
-                        vwrite(f'\nWarning: Unknown error loading {filename}', end='')
+                        vwrite(f'\nWarning: Unknown error loading {filepath.name}', end='')
             except FileNotFoundError:
-                vwrite(self.verbose, f'\nWarning: {filename} expected but not found', end='')
+                vwrite(self.verbose, f'\nWarning: {filepath.name} expected but not found', end='')
             pbar.update(1)
         
         self.casesrun = casesloaded
