@@ -31,11 +31,11 @@ might be encountered are provided.
 
 * [build](build/)
 * [examples](examples/)
+    - [early_retirement_investment_portfolio](examples/early_retirement_investment_portfolio/) (TODO)
     - [election](examples/election/) (TODO)
     - [evidence_based_scheduling](examples/evidence_based_scheduling/) (TODO)
     - [integration](examples/integration/) (TODO)
     - [pandemic](examples/pandemic/) (TODO)
-    - [retirement](examples/retirement/) (TODO)
     - [rocket](examples/rocket/)
 * [PyMonteCarlo](PyMonteCarlo/)
 * [templates](templates/)
@@ -48,26 +48,29 @@ might be encountered are provided.
 * Dataframe support
 * Examples:
     * Evidence-Based Scheduling
-    * Market Predictions
+    * Early Retirement Investment Portfolio
     * Integration
     * Election Modeling
     * Pandemic Modeling
     * ~~Rocket Flight~~
-* Save/load results to file
 * Continue partial results
 * Break out tests
+* Separate postprocessing from running functions
 * Plot tolerance intervals as shaded regions
 * 2D Scatter Statistics
 
 **Future Work:**
 * 2D/3D Line statistics?
 * Make pip installable?
+* Run on remote server (target AWS)
 * Get custom distributions working
 * Linear trend lines on scatter plots?
 * Correlation matrix input?
 * Ability to plot derived data in addition to mcvars?
+* 2D sensitivity contour plots?
 
 **Done:**
+* ~~Save/load results to file~~
 * ~~3sig / X% / Mean / Min / Max statistics~~
 * ~~Make template files~~
 * ~~Set up directory structure~~

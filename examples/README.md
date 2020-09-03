@@ -4,5 +4,5 @@
 ### [Evidence-Based Scheduling](evidence_based_scheduling/)
 ### [Integration](integration/)
 ### [Pandemic](pandemic/)
-### [Retirement](retirement/)
+### [Early Retirement Investment Portfolio](early_retirement_investment_portfolio/)
 ### [Rocket](rocket/)
