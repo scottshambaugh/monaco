@@ -48,6 +48,7 @@ class MCSim:
         self.endtime = None
         self.runtime = None
         self.casesrun = []
+        self.casespostprocessed = []
         
         self.mcinvars = dict()
         self.mcoutvars = dict()
@@ -183,6 +184,7 @@ class MCSim:
         self.mccases = []
         self.mcoutvars = dict()
         self.casesrun = []
+        self.casespostprocessed = []
         self.corrcoeff = None
         self.covcoeff = None
         self.covvarlist = None
@@ -217,27 +219,8 @@ class MCSim:
                 self.pickleSelf()
             
         self.genCases()
-
-        if self.verbose:
-            self.pbar = tqdm(total=self.ncases, unit=' cases', position=0)
-
-        if self.cores == 1:
-            self.casesrun = []
-            for i in range(self.ncases):
-                self.runCase(mccase=self.mccases[i])
-                self.casesrun.append(i)
-        else:
-            p = Pool(self.cores)
-            casesrun = p.imap(self.runCase, self.mccases)
-            casesrun = list(casesrun) # dummy function to ensure we wait for imap to finish
-            p.terminate()
-            p.restart()
-
-        if self.verbose:
-            self.pbar.refresh()
-        self.pbar.close()
-        self.pbar = None
-            
+        self.runCases()
+        self.postProcessCases()
         self.genOutVars()
 
         self.endtime = datetime.now()
@@ -250,11 +233,55 @@ class MCSim:
             vprint(self.verbose, f"Results saved in '{self.resultsdir}'")
 
 
+    def runCases(self):
+        if self.verbose:
+            self.pbar1 = tqdm(total=self.ncases, desc='        Running', unit=' cases', position=0)
+
+        if self.cores == 1:
+            self.casesrun = []
+            for i in range(self.ncases):
+                self.runCase(mccase=self.mccases[i])
+
+        else:
+            p = Pool(self.cores)
+            casesrun = p.imap(self.runCase, self.mccases)
+            casesrun = list(casesrun) # dummy function to ensure we wait for imap to finish
+            p.terminate()
+            p.restart()
+
+        if self.verbose:
+            self.pbar1.refresh()
+            self.pbar1.close()
+            self.pbar1 = None
+
+
+    def postProcessCases(self):
+        if self.verbose:
+            self.pbar2 = tqdm(total=self.ncases, desc='Post processing', unit=' cases', position=0)
+
+        if self.cores == 1:
+            self.casespostprocessed = []
+            for i in range(self.ncases):
+                self.postProcessCase(mccase=self.mccases[i])
+                self.casespostprocessed.append(i)
+
+        else:
+            p = Pool(self.cores)
+            casespostprocessed = p.imap(self.postProcessCase, self.mccases)
+            casespostprocessed = list(casespostprocessed) # dummy function to ensure we wait for imap to finish
+            p.terminate()
+            p.restart()
+
+        if self.verbose:
+            self.pbar2.refresh()
+            self.pbar2.close()
+            self.pbar2 = None
+
+
     def runCase(self, mccase):
         try:
             mccase.starttime = datetime.now()
-            sim_raw_output = self.fcns['run'](*get_iterable(mccase.siminput))
-            self.fcns['postprocess'](mccase, *get_iterable(sim_raw_output))
+            mccase.simrawoutput = self.fcns['run'](*get_iterable(mccase.siminput))
             mccase.endtime = datetime.now()
             mccase.runtime = mccase.endtime - mccase.starttime
             mccase.runsimid = self.runsimid
@@ -270,11 +297,21 @@ class MCSim:
             self.casesrun.append(mccase.ncase)
             
         except:
-            vwrite(self.verbose, f'\nCase {mccase.ncase} failed')
+            vwrite(self.verbose, f'\nRunning case {mccase.ncase} failed')
         
-        if not (self.pbar is None):
-            self.pbar.update(1)
+        if not (self.pbar1 is None):
+            self.pbar1.update(1)
 
+
+    def postProcessCase(self, mccase):
+        try:
+            self.fcns['postprocess'](mccase, *get_iterable(mccase.simrawoutput))
+            self.casespostprocessed.append(mccase.ncase)
+        except:
+            vwrite(self.verbose, f'\nPostprocessing case {mccase.ncase} failed')
+            
+        if not (self.pbar2 is None):
+            self.pbar2.update(1)
 
 
     def pickleSelf(self):
@@ -286,10 +323,10 @@ class MCSim:
 
 
     def loadCases(self):
-        vprint(self.verbose, f"{self.filepath.name} indicates {len(self.casesrun)}/{self.ncases} cases were run, attempting to load raw case data from disk...", flush=True)
+        vprint(self.verbose, f"{self.filepath.name} indicates {len(self.casesrun)}/{self.ncases} cases were run, attempting to load raw case data from disk...", end='', flush=True)
         self.mccases = []
         casesloaded = []
-        pbar = tqdm(total=len(self.casesrun), unit=' cases', position=0)
+        pbar = tqdm(total=len(self.casesrun), unit=' cases', desc='Loading', position=0)
         
         for i in self.casesrun:
             filepath = self.resultsdir / f'{self.name}_{i}.mccase'
@@ -312,7 +349,8 @@ class MCSim:
         
         self.casesrun = casesloaded
         pbar.refresh()
-        vwrite(self.verbose, f"\nData for {len(casesloaded)}/{self.ncases} cases loaded from disk", end='')
+        pbar.close()
+        vprint(self.verbose, f"\nData for {len(casesloaded)}/{self.ncases} cases loaded from disk", end='', flush=True)
 
 
 '''

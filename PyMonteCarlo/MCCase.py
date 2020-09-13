@@ -21,6 +21,7 @@ class MCCase():
         self.mcoutvals = dict()
         
         self.siminput = None
+        self.simrawoutput = None
         
 
     def getMCInVals(self):

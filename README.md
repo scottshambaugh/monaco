@@ -55,7 +55,6 @@ might be encountered are provided.
     * ~~Rocket Flight~~
 * Continue partial results
 * Break out tests
-* Separate postprocessing from running functions
 * Plot tolerance intervals as shaded regions
 * 2D Scatter Statistics
 
@@ -64,10 +63,11 @@ might be encountered are provided.
 * Make pip installable?
 * Run on remote server (target AWS)
 * Get custom distributions working
-* Linear trend lines on scatter plots?
+* Linear trend lines on scatter plots
 * Correlation matrix input?
 * Ability to plot derived data in addition to mcvars?
 * 2D sensitivity contour plots?
+* Rug plots
 
 **Done:**
 * ~~Save/load results to file~~
@@ -86,6 +86,7 @@ might be encountered are provided.
 * ~~Plot specific cases and highlighted cases~~
 * ~~Order statistics tolerance interval and percentiles~~
 * ~~Get parallelism working fast~~
+* ~~Separate postprocessing from running functions~~
 * ~~Progress bar~~
 
 
