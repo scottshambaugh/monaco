@@ -211,13 +211,27 @@ class MCSim:
         return uniqueid
 
 
+    def runIncompleteSim(self):
+        casestorun = set(range(self.ncases)) - self.casesrun
+        casestopostprocess = set(range(self.ncases)) - self.casesrun
+
+        vprint(self.verbose, f"Resuming incomplete '{self.name}' Monte Carlo simulation with {len(casestorun)}/{self.ncases} cases remaining to run, " + \
+                             f"and {len(casestopostprocess)}/{self.ncases} cases remaining to post process...", end='', flush=True)
+        self.runSimWorker(casestorun=casestorun, casestopostprocess=casestopostprocess)
+
+
     def runSim(self, cases=None):
-        cases = self.downselectCases(cases=cases)
-            
-        vprint(self.verbose, f"Running '{self.name}' Monte Carlo simulation with {len(cases)}/{self.ncases} cases...", end='', flush=True)
+        casestorun = self.downselectCases(cases=cases)
+        casestopostprocess = self.downselectCases(cases=cases)
+
+        vprint(self.verbose, f"Running '{self.name}' Monte Carlo simulation with {len(casestorun)}/{self.ncases} cases...", end='', flush=True)
+        self.runSimWorker(casestorun=casestorun, casestopostprocess=casestopostprocess)
+
+
+    def runSimWorker(self, casestorun, casestopostprocess):            
         self.starttime = datetime.now()
 
-        if cases == set(range(self.ncases)):
+        if casestorun == set(range(self.ncases)):
             self.clearResults() # only clear results if we are rerunning all cases
         else:
             self.runsimid = self.genID()
@@ -229,8 +243,8 @@ class MCSim:
                 self.saveSimToFile()
         
         self.genCases()
-        self.runCases(cases=cases, calledfromrunsim=True)
-        self.postProcessCases(cases=cases)
+        self.runCases(cases=casestorun, calledfromrunsim=True)
+        self.postProcessCases(cases=casestopostprocess)
         self.genOutVars()
 
         self.endtime = datetime.now()
@@ -251,9 +265,7 @@ class MCSim:
         return cases
 
 
-    def runCases(self, cases=None, calledfromrunsim=False):
-        cases = self.downselectCases(cases=cases)
-            
+    def runCases(self, cases, calledfromrunsim=False):
         if not calledfromrunsim:
             self.runsimid = self.genID()
             
@@ -280,9 +292,7 @@ class MCSim:
             vprint(self.verbose, f"\nCase results saved in '{self.resultsdir}'", end='', flush=True)
 
 
-    def postProcessCases(self, cases=None):
-        cases = self.downselectCases(cases=cases)
-
+    def postProcessCases(self, cases):
         if self.verbose:
             self.pbar2 = tqdm(total=len(cases), desc='Post processing cases', unit=' cases', position=0)
 
