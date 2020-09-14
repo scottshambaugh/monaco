@@ -119,7 +119,7 @@ class MCSim:
             isnom = False
             if self.firstcaseisnom and i == 0:
                 isnom = True
-            mccases.append(MCCase(ncase=i, mcinvars=self.mcinvars, isnom=isnom, seed=self.caseseeds[i]))
+            mccases.append(MCCase(ncase=i, mcinvars=self.mcinvars, isnom=isnom, seed=int(self.caseseeds[i])))
             mccases[i].siminput = self.fcns['preprocess'](mccases[i])
         self.mccases = mccases
         #self.genCovarianceMatrix()
@@ -266,6 +266,8 @@ class MCSim:
 
 
     def runCases(self, cases, calledfromrunsim=False):
+        cases = self.downselectCases(cases=cases)
+        
         if not calledfromrunsim:
             self.runsimid = self.genID()
             
@@ -293,6 +295,8 @@ class MCSim:
 
 
     def postProcessCases(self, cases):
+        cases = self.downselectCases(cases=cases)
+        
         if self.verbose:
             self.pbar2 = tqdm(total=len(cases), desc='Post processing cases', unit=' cases', position=0)
 
