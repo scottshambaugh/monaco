@@ -8,7 +8,7 @@ from PyMonteCarlo.MCVar import MCInVar, MCOutVar
 from psutil import cpu_count
 from pathos.pools import ThreadPool as Pool
 from tqdm import tqdm
-from helper_functions import get_iterable, vprint, vwrite
+from helper_functions import get_iterable, vprint, vwrite, slice_by_index
 
 
 class MCSim:
@@ -47,8 +47,8 @@ class MCSim:
         self.starttime = None
         self.endtime = None
         self.runtime = None
-        self.casesrun = []
-        self.casespostprocessed = []
+        self.casesrun = set()
+        self.casespostprocessed = set()
         
         self.mcinvars = dict()
         self.mcoutvars = dict()
@@ -59,8 +59,7 @@ class MCSim:
         self.covs = None
         self.covvarlist = None
 
-        self.runsimid = 0
-        self.genRunSimID()
+        self.runsimid = self.genID()
 
         self.ncases = ndraws + 1
         self.setFirstCaseNom(firstcaseisnom)
@@ -183,14 +182,14 @@ class MCSim:
     def clearResults(self):
         self.mccases = []
         self.mcoutvars = dict()
-        self.casesrun = []
-        self.casespostprocessed = []
+        self.casesrun = set()
+        self.casespostprocessed = set()
         self.corrcoeff = None
         self.covcoeff = None
         self.covvarlist = None
         self.endtime = None
         self.runtime = None
-        self.genRunSimID()
+        self.runsimid = self.genID()
 
 
     def reset(self):
@@ -204,23 +203,34 @@ class MCSim:
         
 
     def genRunSimID(self):
-        self.runsimid = (self.seed + hash(self.name) + hash(datetime.now())) % 2**32
-        
-                    
-    def runSim(self):
-        vprint(self.verbose, f"Running '{self.name}' Monte Carlo simulation with {self.ncases} cases: ", flush=True)
+        self.runsimid = self.genID()
+
+
+    def genID(self):
+        uniqueid = (self.seed + hash(self.name) + hash(datetime.now())) % 2**32
+        return uniqueid
+
+
+    def runSim(self, cases=None):
+        cases = self.downselectCases(cases=cases)
+            
+        vprint(self.verbose, f"Running '{self.name}' Monte Carlo simulation with {len(cases)}/{self.ncases} cases...", end='', flush=True)
         self.starttime = datetime.now()
-        self.clearResults()
+
+        if cases == set(range(self.ncases)):
+            self.clearResults() # only clear results if we are rerunning all cases
+        else:
+            self.runsimid = self.genID()
 
         if self.savesimdata or self.savecasedata:
             if not os.path.exists(self.resultsdir):
                 os.makedirs(self.resultsdir)
             if self.savesimdata:
-                self.pickleSelf()
-            
+                self.saveSimToFile()
+        
         self.genCases()
-        self.runCases()
-        self.postProcessCases()
+        self.runCases(cases=cases, calledfromrunsim=True)
+        self.postProcessCases(cases=cases)
         self.genOutVars()
 
         self.endtime = datetime.now()
@@ -229,22 +239,34 @@ class MCSim:
         vprint(self.verbose, f'\nRuntime: {self.runtime}', flush=True)
         
         if self.savesimdata:
-            self.pickleSelf()
-            vprint(self.verbose, f"Results saved in '{self.resultsdir}'")
+            self.saveSimToFile()
+            vprint(self.verbose, f"Sim results saved in '{self.filepath}'", flush=True)
 
 
-    def runCases(self):
+    def downselectCases(self, cases=None):
+        if cases == None:
+            cases = set(range(self.ncases))
+        else:
+            cases = set(get_iterable(cases))
+        return cases
+
+
+    def runCases(self, cases=None, calledfromrunsim=False):
+        cases = self.downselectCases(cases=cases)
+            
+        if not calledfromrunsim:
+            self.runsimid = self.genID()
+            
         if self.verbose:
-            self.pbar1 = tqdm(total=self.ncases, desc='        Running', unit=' cases', position=0)
+            self.pbar1 = tqdm(total=len(cases), desc='Running cases', unit=' cases', position=0)
 
         if self.cores == 1:
-            self.casesrun = []
-            for i in range(self.ncases):
-                self.runCase(mccase=self.mccases[i])
+            for case in cases:
+                self.runCase(mccase=self.mccases[case])
 
         else:
             p = Pool(self.cores)
-            casesrun = p.imap(self.runCase, self.mccases)
+            casesrun = p.imap(self.runCase, slice_by_index(self.mccases, cases))
             casesrun = list(casesrun) # dummy function to ensure we wait for imap to finish
             p.terminate()
             p.restart()
@@ -254,20 +276,23 @@ class MCSim:
             self.pbar1.close()
             self.pbar1 = None
 
+        if self.savecasedata:
+            vprint(self.verbose, f"\nCase results saved in '{self.resultsdir}'", end='', flush=True)
 
-    def postProcessCases(self):
+
+    def postProcessCases(self, cases=None):
+        cases = self.downselectCases(cases=cases)
+
         if self.verbose:
-            self.pbar2 = tqdm(total=self.ncases, desc='Post processing', unit=' cases', position=0)
+            self.pbar2 = tqdm(total=len(cases), desc='Post processing cases', unit=' cases', position=0)
 
         if self.cores == 1:
-            self.casespostprocessed = []
-            for i in range(self.ncases):
-                self.postProcessCase(mccase=self.mccases[i])
-                self.casespostprocessed.append(i)
+            for case in cases:
+                self.postProcessCase(mccase=self.mccases[case])
 
         else:
             p = Pool(self.cores)
-            casespostprocessed = p.imap(self.postProcessCase, self.mccases)
+            casespostprocessed = p.imap(self.postProcessCase, slice_by_index(self.mccases, cases))
             casespostprocessed = list(casespostprocessed) # dummy function to ensure we wait for imap to finish
             p.terminate()
             p.restart()
@@ -294,7 +319,7 @@ class MCSim:
                 with open(filepath,'wb') as file:
                     dill.dump(mccase, file, protocol=dill.HIGHEST_PROTOCOL)
     
-            self.casesrun.append(mccase.ncase)
+            self.casesrun.add(mccase.ncase)
             
         except:
             vwrite(self.verbose, f'\nRunning case {mccase.ncase} failed')
@@ -306,7 +331,9 @@ class MCSim:
     def postProcessCase(self, mccase):
         try:
             self.fcns['postprocess'](mccase, *get_iterable(mccase.simrawoutput))
-            self.casespostprocessed.append(mccase.ncase)
+            self.casespostprocessed.add(mccase.ncase)
+            mccase.haspostprocessed = True
+            
         except:
             vwrite(self.verbose, f'\nPostprocessing case {mccase.ncase} failed')
             
@@ -314,7 +341,7 @@ class MCSim:
             self.pbar2.update(1)
 
 
-    def pickleSelf(self):
+    def saveSimToFile(self):
         if self.savesimdata:
             self.filepath.unlink(missing_ok = True)
             self.filepath.touch()
@@ -323,13 +350,17 @@ class MCSim:
 
 
     def loadCases(self):
-        vprint(self.verbose, f"{self.filepath.name} indicates {len(self.casesrun)}/{self.ncases} cases were run, attempting to load raw case data from disk...", end='', flush=True)
+        vprint(self.verbose, f"{self.filepath} indicates {len(self.casesrun)}/{self.ncases} cases were run, attempting to load raw case data from disk...", end='', flush=True)
         self.mccases = []
-        casesloaded = []
+        casesloaded = set()
+        casesstale = set()
+        casesnotloaded = set(range(self.ncases))
+        casesnotpostprocessed = set(range(self.ncases))
+        
         pbar = tqdm(total=len(self.casesrun), unit=' cases', desc='Loading', position=0)
         
-        for i in self.casesrun:
-            filepath = self.resultsdir / f'{self.name}_{i}.mccase'
+        for case in self.casesrun:
+            filepath = self.resultsdir / f'{self.name}_{case}.mccase'
             try:
                 with open(filepath,'rb') as file:
                     try:
@@ -337,20 +368,32 @@ class MCSim:
                         if mccase.runtime is None:  # only load mccase if it completed running
                             vwrite(self.verbose, f'\nWarning: {filepath.name} did not finish running, not loaded', end='')
                         else:
-                            if mccase.runsimid != self.runsimid:
-                                vwrite(self.verbose, f'\nWarning: {filepath.name} from a different run than the results in {self.filepath.name}', end='')
                             self.mccases.append(mccase)
-                            casesloaded.append(i)
+                            
+                            if mccase.runsimid != self.runsimid:
+                                vwrite(self.verbose, f'\nWarning: {filepath.name} is not from the most recent run and may be stale', end='')
+                                casesstale.add(case)
+                            casesloaded.add(case)
+                            casesnotloaded.remove(case)
+                            if case in self.casespostprocessed:
+                                casesnotpostprocessed.remove(case)
                     except: 
                         vwrite(f'\nWarning: Unknown error loading {filepath.name}', end='')
             except FileNotFoundError:
                 vwrite(self.verbose, f'\nWarning: {filepath.name} expected but not found', end='')
             pbar.update(1)
         
-        self.casesrun = casesloaded
+        self.casesrun = set(casesloaded)
         pbar.refresh()
         pbar.close()
-        vprint(self.verbose, f"\nData for {len(casesloaded)}/{self.ncases} cases loaded from disk", end='', flush=True)
+        vprint(self.verbose, f'\nData for {len(casesloaded)}/{self.ncases} cases loaded from disk', flush=True)
+        
+        if casesnotloaded != set():
+            vprint(self.verbose, 'Warning: The following cases were not loaded: [' + ', '.join([str(i) for i in casesnotloaded]) + ']')
+        if casesnotpostprocessed != set():
+            vprint(self.verbose, 'Warning: The following cases have not been postprocessed: [' + ', '.join([str(i) for i in casesnotpostprocessed]) + ']')
+        if casesstale != set():
+            vprint(self.verbose, 'Warning: The following cases were loaded but may be stale: [' + ', '.join([str(i) for i in casesstale]) + ']')
 
 
 '''

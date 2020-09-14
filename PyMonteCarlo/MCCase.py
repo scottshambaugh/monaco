@@ -16,6 +16,7 @@ class MCCase():
         self.filepath = None
         self.runsimid = None
         self.hasrun = False
+        self.haspostprocessed = False
         
         self.mcinvals = self.getMCInVals()
         self.mcoutvals = dict()

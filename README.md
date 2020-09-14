@@ -53,7 +53,6 @@ might be encountered are provided.
     * Election Modeling
     * Pandemic Modeling
     * ~~Rocket Flight~~
-* Continue partial results
 * Break out tests
 * Plot tolerance intervals as shaded regions
 * 2D Scatter Statistics
@@ -88,6 +87,7 @@ might be encountered are provided.
 * ~~Get parallelism working fast~~
 * ~~Separate postprocessing from running functions~~
 * ~~Progress bar~~
+* ~~Continue partial results~~
 
 
 
