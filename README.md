@@ -51,7 +51,7 @@ might be encountered are provided.
     * Early Retirement Investment Portfolio
     * Integration
     * Election Modeling
-    * Pandemic Modeling
+    * ~~Pandemic Modeling~~
     * ~~Rocket Flight~~
 * Break out tests
 * Plot tolerance intervals as shaded regions

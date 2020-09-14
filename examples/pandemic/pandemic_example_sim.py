@@ -2,6 +2,12 @@ import numpy as np
 import networkx as nx
 
 def pandemic_example_sim(nnodes, m0, p, nsteps, n_infected_init, open_scenario=True, seed=12059257):
+    # nnodes: total number of nodes
+    # m0: max number of connections made by each new node
+    # p: the probability a node becomes infected if it shares an edge with an infected node
+    # n_infected_init: number of nodes infected at the first timestep
+    # open_scenario: if True, a random node will be attempt to be infected every timestep with probability p
+    
     nodes_status = np.zeros((nsteps+1,nnodes)) # S = 0, I = 1, R = 2
     social_graph = nx.barabasi_albert_graph(nnodes, m0, seed=seed)
     infection_dict = dict()
@@ -45,7 +51,7 @@ def infect_node(nodes_status, t, node):
 ### Test ###
 import matplotlib.pyplot as plt
 
-nnodes = 50000
+nnodes = 10000
 m0 = 2
 p = 0.30
 nsteps = 30

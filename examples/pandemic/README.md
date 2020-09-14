@@ -9,3 +9,5 @@ in an attempt to replicate the "B+" scenario in the following paper:
 The inputs to the simulation are not randomized, but the graph itself, the 
 starting infected nodes, and the odds of infection ocurring along an edge at 
 every timestep are. 
+
+See more on the Barabási–Albert network model [on Wikipedia](https://en.wikipedia.org/wiki/Barabási–Albert_model).

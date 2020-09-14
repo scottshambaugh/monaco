@@ -14,17 +14,17 @@ class MCVarStat:
             mean
             geomean
             mode
-            sigmaP
+            sigmaP(sig, bound)
                 sig     -inf < sig < inf        Sigma Value
                 bound   '1-sided', '2-sided'    Bound (default 2-sided)
-            gaussianP
+            gaussianP(p, bound)
                 p       0 < p < 1               Percentile
                 bound   '1-sided', '2-sided'    Bound (default 2-sided)
-            orderstatTI
+            orderstatTI(p, c, bound)
                 p       0 <= p <= 1             Percentage
                 c       0 < c < 1               Confidence (default 0.95)
                 bound   '1-sided', '2-sided'    Bound (default 2-sided)
-            orderstatP
+            orderstatP(p, c, bound)
                 p       0 <= p <= 1             Percentile
                 c       0 < c < 1               Confidence (default 0.95)
                 bound   '1-sided low', 'all',   Bound (default 2-sided)
