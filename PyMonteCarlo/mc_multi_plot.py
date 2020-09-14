@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from PyMonteCarlo.mc_plot import mc_plot_hist, mc_plot_2d_scatter
 
 
-def mc_multi_plot(mcvarx, mcvary=None, cases=None, highlight_cases=0, fig=None, title=''):
+def mc_multi_plot(mcvarx, mcvary=None, cases=None, highlight_cases=[], fig=None, title=''):
     # Split larger vars
     if mcvary == None:
         if mcvarx.size[0] == 2:
@@ -23,7 +23,7 @@ def mc_multi_plot(mcvarx, mcvary=None, cases=None, highlight_cases=0, fig=None, 
 
 
 
-def mc_multi_plot_2d_scatter_hist(mcvarx, mcvary, cases=None, highlight_cases=0, cumulative=False, fig=None, title=''):
+def mc_multi_plot_2d_scatter_hist(mcvarx, mcvary, cases=None, highlight_cases=[], cumulative=False, fig=None, title=''):
     if not fig:
         fig = plt.figure()
     else:

@@ -8,7 +8,7 @@ from helper_functions import get_iterable, slice_by_index, length
 
 
 # If cases or highlight_cases are None, will plot all. Set to [] to plot none.
-def mc_plot(mcvarx, mcvary = None, mcvarz = None, cases=None, highlight_cases=0, ax=None, title=''):
+def mc_plot(mcvarx, mcvary = None, mcvarz = None, cases=None, highlight_cases=[], ax=None, title=''):
     # Split larger vars
     if mcvary == None and mcvarz == None:
         if mcvarx.size[0] not in (1, 2, 3):
@@ -73,7 +73,7 @@ def mc_plot(mcvarx, mcvary = None, mcvarz = None, cases=None, highlight_cases=0,
 
 
 
-def mc_plot_hist(mcvar, highlight_cases=0, cumulative=False, orientation='vertical', ax=None, title=''):
+def mc_plot_hist(mcvar, highlight_cases=[], cumulative=False, orientation='vertical', ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=False)
 
     # Histogram generation
@@ -125,7 +125,7 @@ def mc_plot_hist(mcvar, highlight_cases=0, cumulative=False, orientation='vertic
     else:
         ylabeltext = 'Probability Density'
 
-    # Highligthed highlight_cases and MCVarStats
+    # Highligted highlight_cases and MCVarStats
     if orientation == 'vertical':
         ylim = ax.get_ylim()
         for i in highlighted_cases:
@@ -153,12 +153,12 @@ def mc_plot_hist(mcvar, highlight_cases=0, cumulative=False, orientation='vertic
         
 
 
-def mc_plot_cdf(mcvar, highlight_cases=0, orientation='vertical', ax=None, title=''):
+def mc_plot_cdf(mcvar, highlight_cases=[], orientation='vertical', ax=None, title=''):
     return mc_plot_hist(mcvar=mcvar, highlight_cases=highlight_cases, orientation=orientation, cumulative=True, ax=ax, title=title)
 
 
 
-def mc_plot_2d_scatter(mcvarx, mcvary, cases=None, highlight_cases=0, ax=None, title=''):
+def mc_plot_2d_scatter(mcvarx, mcvary, cases=None, highlight_cases=[], ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=False)
     colorblack = [[0,0,0],]
     colorred = [[1,0,0],]
@@ -181,7 +181,7 @@ def mc_plot_2d_scatter(mcvarx, mcvary, cases=None, highlight_cases=0, ax=None, t
 
 
 
-def mc_plot_2d_line(mcvarx, mcvary, cases=None, highlight_cases=0, ax=None, title=''):
+def mc_plot_2d_line(mcvarx, mcvary, cases=None, highlight_cases=[], ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=False)
     
     cases = get_cases(mcvarx.ncases, cases)
@@ -209,7 +209,7 @@ def mc_plot_2d_line(mcvarx, mcvary, cases=None, highlight_cases=0, ax=None, titl
 
 
 
-def mc_plot_3d_scatter(mcvarx, mcvary, mcvarz, cases=None, highlight_cases=0, ax=None, title=''):
+def mc_plot_3d_scatter(mcvarx, mcvary, mcvarz, cases=None, highlight_cases=[], ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=True)
     colorblack = [[0,0,0],]
     colorred = [[1,0,0],]
@@ -235,7 +235,7 @@ def mc_plot_3d_scatter(mcvarx, mcvary, mcvarz, cases=None, highlight_cases=0, ax
 
 
 
-def mc_plot_3d_line(mcvarx, mcvary, mcvarz, cases=None, highlight_cases=0, ax=None, title=''):
+def mc_plot_3d_line(mcvarx, mcvary, mcvarz, cases=None, highlight_cases=[], ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=True)
     
     cases = get_cases(mcvarx.ncases, cases)
@@ -384,7 +384,7 @@ var2.addVarStat('mean')
 
 mc_plot(var2, highlight_cases=None)         # mc_plot_2d_line
 mc_plot(var1, var2, highlight_cases=[0,1])  # mc_plot_2d_line
-mc_plot(var1, var2, var3)         # mc_plot_3d_line
+mc_plot(var1, var2, var3)                   # mc_plot_3d_line
 
 mc_plot_cov_corr(np.array([[2, 0.1111],[-0.19, -1]]), ['Test1', 'Test2'])
 #'''
