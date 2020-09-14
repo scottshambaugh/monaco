@@ -8,7 +8,7 @@ from PyMonteCarlo.MCVar import MCInVar, MCOutVar
 from psutil import cpu_count
 from pathos.pools import ThreadPool as Pool
 from tqdm import tqdm
-from helper_functions import get_iterable, vprint, vwrite, slice_by_index
+from helper_functions import get_iterable, slice_by_index, vprint, vwrite
 
 
 class MCSim:
@@ -404,6 +404,33 @@ class MCSim:
             vprint(self.verbose, 'Warning: The following cases have not been postprocessed: [' + ', '.join([str(i) for i in casesnotpostprocessed]) + ']')
         if casesstale != set():
             vprint(self.verbose, 'Warning: The following cases were loaded but may be stale: [' + ', '.join([str(i) for i in casesstale]) + ']')
+        
+        extrafiles = self.findExtraResultsFiles()
+        if extrafiles != set():
+            vprint(self.verbose, "Warning: The following extra .mcsim and .mccase files were found in the results directory, run removeExtraResultsFiles() to clean them up: ['" + \
+                                 "', '".join([file for file in extrafiles]) + "']")
+        
+
+    def findExtraResultsFiles(self):
+        files = set(self.resultsdir.glob('**/*.mcsim')) | set(self.resultsdir.glob('**/*.mccase'))
+        filenames = set(file.name for file in files)
+        try:
+            filenames.remove(f'{self.name}.mcsim')
+        except:
+            pass
+        for case in range(self.ncases):
+            try:
+                filenames.remove(f'{self.name}_{case}.mccase')
+            except:
+                pass
+        return filenames
+
+
+    def removeExtraResultsFiles(self):
+        extrafiles = self.findExtraResultsFiles()
+        for file in extrafiles:
+            filepath = self.resultsdir / file
+            filepath.unlink()
 
 
 '''
