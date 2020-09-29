@@ -51,7 +51,7 @@ def infect_node(nodes_status, t, node):
 ### Test ###
 import matplotlib.pyplot as plt
 
-nnodes = 10000
+nnodes = 50000
 m0 = 2
 p = 0.30
 nsteps = 30
@@ -62,15 +62,16 @@ seed = 129251
 (social_graph, nodes_status, infection_graph) = pandemic_example_sim(nnodes=nnodes, m0=m0, p=p, nsteps=nsteps, \
                                                                     n_infected_init=n_infected_init, open_scenario=open_scenario, seed=seed)
 
-# Plot social graph (diabled by default since it freezes for large nnodes)
-#from matplotlib import colors
-#cmap = colors.ListedColormap(['silver', 'red', 'black'])
-#pos = nx.spring_layout(social_graph)
-#fig = plt.figure()
-#nodes_status_final = np.array(nodes_status[-1,:])
-#nx.draw(social_graph, node_color=nodes_status_final, cmap=cmap, pos=pos, vmin=0, vmax=2)
-#nx.draw(infection_graph, node_color=nodes_status_final[list(infection_graph.nodes)], cmap=cmap, pos=pos, vmin=0, vmax=2)
-#plt.show()
+# # Plot social graph (diabled by default since it freezes for large nnodes)
+# from matplotlib import colors
+# cmap = colors.ListedColormap(['silver', 'red', 'black'])
+# pos = nx.spring_layout(social_graph)
+# fig = plt.figure()
+# nodes_status_final = np.array(nodes_status[-1,:])
+# nx.draw(social_graph, node_color=nodes_status_final, cmap=cmap, pos=pos, vmin=0, vmax=2)
+# nx.draw(infection_graph, node_color=nodes_status_final[list(infection_graph.nodes)], cmap=cmap, pos=pos, vmin=0, vmax=2)
+# plt.savefig('network_graph.png')
+# plt.show()
 
 # Show distribution of infections vs degree (should be linear in log-log)
 superspreader_degree = []
@@ -95,6 +96,7 @@ plt.gca().set_xscale('log')
 plt.gca().set_yscale('log')
 plt.ylabel('Number of Nodes')
 plt.xlabel('Degree of Node')
+plt.savefig('scale_free_connectivity.png')
 
 # Show distribution of node degree (should be linear in log-log)
 from collections import Counter
@@ -116,4 +118,5 @@ plt.plot(range(nsteps+1), nR, color='black')
 plt.legend(['S','I','R'])
 plt.xlabel('Timestep')
 plt.ylabel('n')
+plt.savefig('sir_curve.png')
 #'''

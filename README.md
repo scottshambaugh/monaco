@@ -35,7 +35,7 @@ might be encountered are provided.
     - [election](examples/election/) (TODO)
     - [evidence_based_scheduling](examples/evidence_based_scheduling/) (TODO)
     - [integration](examples/integration/) (TODO)
-    - [pandemic](examples/pandemic/) (TODO)
+    - [pandemic](examples/pandemic/)
     - [rocket](examples/rocket/)
 * [PyMonteCarlo](PyMonteCarlo/)
 * [templates](templates/)

@@ -15,8 +15,9 @@ def pandemic_example_postprocess(mccase, social_graph, nodes_status, infection_g
     mccase.addOutVal('Number Recovered', nR)
     
     mccase.addOutVal('Cumulative Infections', nR + nI)
+    mccase.addOutVal('Proportion Infected', (nR + nI)/nnodes)
     
-    herd_immunity_threshold = nR[-1]/nnodes
+    herd_immunity_threshold = (nR[-1] + nI[-1])/nnodes
     mccase.addOutVal('Herd Immunity Threshold', herd_immunity_threshold)
     
     superspreader_degree = []

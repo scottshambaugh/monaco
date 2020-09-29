@@ -16,8 +16,8 @@ k = 2
 p = 0.95
 c = 0.90
 bound='1-sided'
-ndraws = order_stat_TI_n(k=k, p=p, c=c, bound=bound) # 82
-ndraws = ceil(ndraws/10)*10
+ndraws = order_stat_TI_n(k=k, p=p, c=c, bound=bound)  # 77
+ndraws = ceil(ndraws/10)*10  # 80
 seed=12362398
 
 def pandemic_example_run_script():
@@ -28,15 +28,14 @@ def pandemic_example_run_script():
     
     sim.runSim()
     
-    sim.mcoutvars['Cumulative Infections'].addVarStat(stattype='sigmaP', statkwargs={'sig':pct2sig(p), 'bound':bound})
-    sim.mcoutvars['Cumulative Infections'].addVarStat(stattype='orderstatTI', statkwargs={'p':p, 'c':c, 'bound':bound})
+    sim.mcoutvars['Proportion Infected'].addVarStat(stattype='orderstatTI', statkwargs={'p':p, 'c':c, 'bound':bound})
 
     mc_plot(sim.mcoutvars['Timestep'], sim.mcoutvars['Superspreader Degree'], highlight_cases=0)
     mc_plot(sim.mcoutvars['Max Superspreader Degree'], highlight_cases=0)
     mc_plot(sim.mcoutvars['Herd Immunity Threshold'], highlight_cases=0)
     
     # import matplotlib.pyplot as plt
-    mc_plot(sim.mcoutvars['Timestep'], sim.mcoutvars['Cumulative Infections'], highlight_cases=0)
+    mc_plot(sim.mcoutvars['Timestep'], sim.mcoutvars['Proportion Infected'], highlight_cases=0)
     # plt.savefig('cum_infections_vs_time.png')
     mc_multi_plot(sim.mcinvars['Probability of Infection'], sim.mcoutvars['Herd Immunity Threshold'], highlight_cases=0)
     # plt.savefig('p_infection_vs_herd_immunity.png')
