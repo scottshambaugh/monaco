@@ -52,6 +52,7 @@ class MCSim:
         
         self.mcinvars = dict()
         self.mcoutvars = dict()
+        self.constvals = dict()
         self.mccases = []
         self.ninvars = 0
         
@@ -102,6 +103,12 @@ class MCSim:
                                       seed=invarseed, firstcaseisnom=self.firstcaseisnom)
 
 
+    def addConstVal(self, name, val):  
+        # name is a string
+        # val is any value which will be common to all cases 
+        self.constvals[name] = val
+
+
     def setNDraws(self, ndraws):  # ncases is an integer
         self.ndraws = ndraws
         self.setFirstCaseNom(self.firstcaseisnom)
@@ -119,7 +126,7 @@ class MCSim:
             isnom = False
             if self.firstcaseisnom and i == 0:
                 isnom = True
-            mccases.append(MCCase(ncase=i, mcinvars=self.mcinvars, isnom=isnom, seed=int(self.caseseeds[i])))
+            mccases.append(MCCase(ncase=i, mcinvars=self.mcinvars, constvals=self.constvals, isnom=isnom, seed=int(self.caseseeds[i])))
             mccases[i].siminput = self.fcns['preprocess'](mccases[i])
         self.mccases = mccases
         #self.genCovarianceMatrix()
@@ -195,6 +202,7 @@ class MCSim:
     def reset(self):
         self.clearResults()
         self.mcinvars = dict()
+        self.constvals = dict()
         self.ninvars = 0
         self.setNDraws(self.ndraws)
         self.invarseeds = []

@@ -2,10 +2,11 @@ from PyMonteCarlo.MCVal import MCOutVal
 import numpy as np
 
 class MCCase():
-    def __init__(self, ncase, mcinvars, isnom, seed=np.random.get_state()[1][0]):
+    def __init__(self, ncase, mcinvars, constvals, isnom, seed=np.random.get_state()[1][0]):
         self.ncase = ncase        # ncase is an integer
         self.isnom = isnom        # isnom is a boolean
         self.mcinvars = mcinvars  # mcvars is a dict of MCVar objects
+        self.constvals = constvals
         self.mcoutvars = dict()
         self.seed = seed
         
