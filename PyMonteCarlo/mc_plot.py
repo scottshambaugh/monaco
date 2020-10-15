@@ -392,5 +392,5 @@ mc_plot(var2, highlight_cases=None)         # mc_plot_2d_line
 mc_plot(var1, var2, highlight_cases=[0,1])  # mc_plot_2d_line
 mc_plot(var1, var2, var3)                   # mc_plot_3d_line
 
-mc_plot_cov_corr(np.array([[2, 0.1111],[-0.19, -1]]), ['Test1', 'Test2'])
+mc_plot_cov_corr(np.array([[2, 0.1111, np.nan],[-0.19, -1, np.nan], [np.nan, np.nan, np.nan]]), ['Test1', 'Test2', 'Test3'])
 #'''

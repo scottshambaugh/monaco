@@ -176,6 +176,11 @@ class MCSim:
                 j = j+1
         self.covs = np.cov(np.array(allnums))
         self.corrcoeffs = np.corrcoef(np.array(allnums))
+        
+        for i, coeff in enumerate(self.corrcoeffs[0]):
+            if np.isnan(coeff):
+                vprint(self.verbose, f"Warning: Unable to generate correlation coefficient for '{self.covvarlist[i]}'. " + \
+                                      "This may happen if this variable does not vary.")
 
 
     def corr(self):
