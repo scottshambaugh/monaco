@@ -104,6 +104,10 @@ class MCInVar(MCVar):
   
         np.random.seed(self.seed)
         self.nums.extend(dist.rvs(size=self.ndraws).tolist())
+        
+        if any(np.isnan(num) for num in self.nums):
+            raise ValueError(f'Invalid draw. Check distribution and parameters: {self.dist}, {self.distargs}')
+
         self.mapNums()
 
 
