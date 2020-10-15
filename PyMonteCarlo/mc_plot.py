@@ -54,19 +54,25 @@ def mc_plot(mcvarx, mcvary = None, mcvarz = None, cases=None, highlight_cases=[]
             fig, ax = mc_plot_2d_line(mcvarx=mcvarx, mcvary=mcvary, highlight_cases=highlight_cases, ax=ax, title=title)
 
     # Two Variable Plots
-    elif mcvarz == None:
-        if mcvarx.size[1] == 1 and mcvary.size[1] == 1:
+    elif mcvarz is None:
+        if mcvarx.size[1] != mcvary.size[1]:
+            raise ValueError(f'Variables have inconsistent lengths: {mcvarx.name}:{mcvarx.size[1]}, {mcvary.name}:{mcvary.size[1]}')            
+       
+        if mcvarx.size[1] == 1:
             fig, ax = mc_plot_2d_scatter(mcvarx=mcvarx, mcvary=mcvary, cases=cases, highlight_cases=highlight_cases, ax=ax, title=title)
             
-        elif mcvarx.size[1] > 1 and mcvary.size[1] > 1:
+        elif mcvarx.size[1] > 1:
             fig, ax = mc_plot_2d_line(mcvarx=mcvarx, mcvary=mcvary, cases=cases, highlight_cases=highlight_cases, ax=ax, title=title)
             
     # Three Variable Plots
     else:
-        if mcvarx.size[1] == 1 and mcvary.size[1] == 1 and mcvarz.size[1] == 1:
+        if (mcvarx.size[1] != mcvary.size[1]) or (mcvarx.size[1] != mcvarz.size[1]) or (mcvary.size[1] != mcvarz.size[1]):
+            raise ValueError(f'Variables have inconsistent lengths: {mcvarx.name}:{mcvarx.size[1]}, {mcvary.name}:{mcvary.size[1]}, {mcvarz.name}:{mcvarz.size[1]}')            
+
+        if mcvarx.size[1] == 1:
             fig, ax = mc_plot_3d_scatter(mcvarx=mcvarx, mcvary=mcvary, mcvarz=mcvarz, cases=cases, highlight_cases=highlight_cases, ax=ax, title=title)
             
-        elif mcvarx.size[1] > 1 and mcvary.size[1] > 1 and mcvarz.size[1] > 1:
+        elif mcvarx.size[1] > 1:
             fig, ax = mc_plot_3d_line(mcvarx=mcvarx, mcvary=mcvary, mcvarz=mcvarz, cases=cases, highlight_cases=highlight_cases, ax=ax, title=title)
     
     return fig, ax
