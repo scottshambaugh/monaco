@@ -161,7 +161,7 @@ class MCVarStat:
         else:
             raise ValueError(f'{self.bound} is not a valid bound for genStatsOrderStatP')
 
-        if self.name == None:
+        if self.name is None:
             self.name = f'{self.bound} P{self.p*100}/{self.c*100}% Confidence Interval'
 
         self.k = order_stat_TI_k(n=self.mcvar.ncases, p=self.p, c=self.c, bound=self.bound)
@@ -215,7 +215,7 @@ class MCVarStat:
         elif self.bound in ('nearest', 'all'):
             bound = '2-sided'
         
-        if self.name == None:
+        if self.name is None:
             self.name = f'{self.bound} {self.c*100}% Confidence Bound around {self.p*100}th Percentile'
 
         self.k = order_stat_P_k(n=self.mcvar.ncases, P=self.p, c=self.c, bound=bound)

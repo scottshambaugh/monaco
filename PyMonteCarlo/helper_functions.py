@@ -2,6 +2,7 @@ from collections import Iterable
 from operator import itemgetter
 from tqdm import tqdm
 import numpy as np
+import pandas as pd
 
 def is_num(val):
     if isinstance(val, bool):
@@ -25,8 +26,10 @@ def length(x):
 
 
 def get_iterable(x):
-    if x == None:
+    if x is None:
         return tuple()
+    elif isinstance(x, pd.DataFrame):
+        return (x,)
     elif isinstance(x, Iterable):
         return x
     else:

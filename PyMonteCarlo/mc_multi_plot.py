@@ -4,7 +4,7 @@ from PyMonteCarlo.mc_plot import mc_plot_hist, mc_plot_2d_scatter
 
 def mc_multi_plot(mcvarx, mcvary=None, cases=None, highlight_cases=[], fig=None, title=''):
     # Split larger vars
-    if mcvary == None:
+    if mcvary is None:
         if mcvarx.size[0] == 2:
             mcvarx_split = mcvarx.split()
             origname = mcvarx.name

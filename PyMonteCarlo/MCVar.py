@@ -77,12 +77,12 @@ class MCInVar(MCVar):
             
             
     def genNumMap(self):
-        if self.nummap == None:
+        if self.nummap is None:
             self.nummap = {val:num for num, val in self.nummap.items()}
 
 
     def genValMap(self):
-        if self.nummap == None:
+        if self.nummap is None:
             self.valmap = None
         else:
             self.valmap = {val:num for num, val in self.nummap.items()}
@@ -140,7 +140,7 @@ class MCInVar(MCVar):
 ### MCOutVar Class ###
 class MCOutVar(MCVar):
     def __init__(self, name, vals, valmap=None, ndraws=None, firstcaseisnom=True):
-        if ndraws == None:
+        if ndraws is None:
             ndraws = len(vals)
             if firstcaseisnom:
                 ndraws = ndraws - 1
@@ -148,7 +148,7 @@ class MCOutVar(MCVar):
         super().__init__(name=name, ndraws=ndraws, firstcaseisnom=firstcaseisnom)
         self.vals = vals      # vals is a list
         self.valmap = valmap
-        if valmap == None:
+        if valmap is None:
             self.extractValMap()
         self.genSize()
         self.genNumMap()
@@ -182,7 +182,7 @@ class MCOutVar(MCVar):
 
 
     def genNumMap(self):
-        if self.valmap == None:
+        if self.valmap is None:
             self.nummap = None
         else:
             self.nummap = {num:val for val, num in self.valmap.items()}

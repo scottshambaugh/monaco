@@ -10,7 +10,7 @@ from helper_functions import get_iterable, slice_by_index, length
 # If cases or highlight_cases are None, will plot all. Set to [] to plot none.
 def mc_plot(mcvarx, mcvary = None, mcvarz = None, cases=None, highlight_cases=[], ax=None, title=''):
     # Split larger vars
-    if mcvary == None and mcvarz == None:
+    if mcvary is None and mcvarz is None:
         if mcvarx.size[0] not in (1, 2, 3):
             raise ValueError(f'Invalid variable size at index 0: {mcvarx.name} ({mcvarx.size[0]},{mcvarx.size[1]})')
         elif mcvarx.size[0] in (2, 3):
@@ -22,7 +22,7 @@ def mc_plot(mcvarx, mcvary = None, mcvarz = None, cases=None, highlight_cases=[]
             if origsize[0] == 3:
                 mcvarz = mcvarx_split[origname + ' [2]']
             
-    elif mcvarz == None:
+    elif mcvarz is None:
         if    (mcvarx.size[0] not in (1, 2)) \
           or (mcvary.size[0] not in (1, 2)) \
           or (mcvarx.size[0] + mcvary.size[0] not in (2, 3)):
@@ -40,7 +40,7 @@ def mc_plot(mcvarx, mcvary = None, mcvarz = None, cases=None, highlight_cases=[]
             mcvarz = mcvary_split[origname + ' [1]']
 
     # Single Variable Plots
-    if mcvary == None and mcvarz == None:
+    if mcvary is None and mcvarz is None:
         if mcvarx.size[1] == 1:
             fig, ax = mc_plot_hist(mcvar=mcvarx, highlight_cases=highlight_cases, ax=ax, title=title)
         else:
@@ -341,7 +341,7 @@ def get_hist_lim(orientation, ax):
 
 
 def get_cases(ncases, cases):
-    if cases == None:
+    if cases is None:
         cases = list(range(ncases))
     return cases
         

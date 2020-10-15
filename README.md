@@ -45,7 +45,6 @@ might be encountered are provided.
 ### TODO:
 **Before Release:**
 * Flesh out READMEs and documentation
-* Dataframe support
 * Examples:
     * Evidence-Based Scheduling
     * Early Retirement Investment Portfolio
@@ -88,6 +87,7 @@ might be encountered are provided.
 * ~~Separate postprocessing from running functions~~
 * ~~Progress bar~~
 * ~~Continue partial results~~
+* ~~Dataframe support~~
 
 
 

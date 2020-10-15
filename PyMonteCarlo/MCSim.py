@@ -142,7 +142,7 @@ class MCSim:
                 uniquevals = set()
                 valmap = None
                 for i in range(self.ncases):
-                    if self.mccases[i].mcoutvals[varname].valmap == None:
+                    if self.mccases[i].mcoutvals[varname].valmap is None:
                         uniquevals = None
                     else:
                         uniquevals.update(self.mccases[i].mcoutvals[varname].valmap.keys())
@@ -266,7 +266,7 @@ class MCSim:
 
 
     def downselectCases(self, cases=None):
-        if cases == None:
+        if cases is None:
             cases = set(range(self.ncases))
         else:
             cases = set(get_iterable(cases))

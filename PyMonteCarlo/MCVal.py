@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from itertools import chain
 from copy import copy, deepcopy
 from PyMonteCarlo.helper_functions import is_num
@@ -34,7 +35,7 @@ class MCInVal(MCVal):
 
 
     def mapNum(self):
-        if self.nummap == None:
+        if self.nummap is None:
             self.val = self.num
         elif self.isscalar:
             self.val = self.nummap[self.num]
@@ -51,7 +52,7 @@ class MCInVal(MCVal):
 
 
     def genValMap(self):
-        if self.nummap == None:
+        if self.nummap is None:
             self.valmap = None
         else:
             self.valmap = {val:num for num, val in self.nummap.items()}
@@ -64,17 +65,23 @@ class MCOutVal(MCVal):
         super().__init__(name, ncase, isnom)
         self.val = val          # val can be anything
         self.valmap = valmap    # valmap is a dict
+        self.convertPandas()
         
         self.genSize()
-        if valmap == None:
+        if valmap is None:
             self.valmapsource = 'auto'
             self.extractValMap()    
         else:
             self.valmapsource = 'assigned'
         self.mapVal()
         self.genNumMap()
-        
-        
+
+
+    def convertPandas(self):
+        if isinstance(self.val, pd.Series) or isinstance(self.val, pd.Index):
+            self.val = self.val.values
+
+
     def genSize(self):
         if isinstance(self.val,(list, tuple, np.ndarray)):
             self.isscalar = False
@@ -101,7 +108,7 @@ class MCOutVal(MCVal):
                 
                 
     def mapVal(self):
-        if self.valmap == None:
+        if self.valmap is None:
             self.num = self.val
         elif self.isscalar:
             self.num = self.valmap[self.val]
@@ -118,7 +125,7 @@ class MCOutVal(MCVal):
 
 
     def genNumMap(self):
-        if self.valmap == None:
+        if self.valmap is None:
             self.nummap = None
         else:
             self.nummap = {num:val for val, num in self.valmap.items()}
@@ -147,4 +154,11 @@ print(bsplit['Test [0]'].val)
 c = MCOutVal(name='Test', ncase=1, val=[['a','a'],['b','b'],['a','b']], isnom=True)
 print(c.valmap)
 print(c.num)
+nvals = 3
+dates = pd.date_range(start='2020-01-01', periods=nvals, freq='YS')
+df = pd.DataFrame({'vals': range(nvals)}, index = dates)
+d = MCOutVal(name='Test', ncase=1, val=df['vals'], isnom=True)
+print(d.num)
+e = MCOutVal(name='Test', ncase=1, val=df.index, isnom=True)
+print(e.val)
 #'''
