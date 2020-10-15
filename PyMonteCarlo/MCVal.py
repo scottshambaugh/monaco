@@ -96,16 +96,22 @@ class MCOutVal(MCVal):
 
     def extractValMap(self):
         if self.isscalar:
-            if not is_num(self.val):
+            if isinstance(self.val, bool):
+                self.valmap = {True:1, False:0}
+            elif not is_num(self.val):
                 self.valmap = {str(self.val):0}
         else:
             if self.size[0] > 1:
-                if not all(is_num(x) for x in chain(*self.val)):
+                if all(isinstance(x, bool) for x in chain(*self.val)):
+                    self.valmap = {True:1, False:0}                  
+                elif not all(is_num(x) for x in chain(*self.val)):
                     self.valmap = {str(key):idx for idx, key in enumerate(set(chain(*self.val)))}
             else:
                 if not all(is_num(x) for x in self.val):
+                    self.valmap = {True:1, False:0}
+                elif not all(is_num(x) for x in self.val):
                     self.valmap = {str(key):idx for idx, key in enumerate(set(self.val))}
-                
+
                 
     def mapVal(self):
         if self.valmap is None:
@@ -144,21 +150,28 @@ class MCOutVal(MCVal):
 '''
 ### Test ###
 from scipy.stats import norm
-a = MCInVal(name='Test', ncase=1, num=0, dist=norm, isnom=True)
+a = MCInVal(name='TestA', ncase=1, num=0, dist=norm, isnom=True)
 print(a.val)
-b = MCOutVal(name='Test', ncase=1, val=[[0,0],[0,0],[0,0]], isnom=True)
+b = MCOutVal(name='TestB', ncase=1, val=[[0,0],[0,0],[0,0]], isnom=True)
 print(b.size)
 print(b.val)
 bsplit = b.split()
-print(bsplit['Test [0]'].val)
-c = MCOutVal(name='Test', ncase=1, val=[['a','a'],['b','b'],['a','b']], isnom=True)
+print(bsplit['TestB [0]'].val)
+c = MCOutVal(name='TestC', ncase=1, val=[['a','a'],['b','b'],['a','b']], isnom=True)
 print(c.valmap)
 print(c.num)
+d = MCOutVal(name='TestD', ncase=1, val=[True, False], valmap={True:2, False:1})
+print(d.val)
+print(d.num)
+e = MCOutVal(name='TestE', ncase=1, val=[True, False])
+print(e.val)
+print(e.num)
+
 nvals = 3
 dates = pd.date_range(start='2020-01-01', periods=nvals, freq='YS')
 df = pd.DataFrame({'vals': range(nvals)}, index = dates)
-d = MCOutVal(name='Test', ncase=1, val=df['vals'], isnom=True)
-print(d.num)
-e = MCOutVal(name='Test', ncase=1, val=df.index, isnom=True)
-print(e.val)
+f = MCOutVal(name='TestF', ncase=1, val=df['vals'], isnom=True)
+print(f.num)
+g = MCOutVal(name='TestG', ncase=1, val=df.index, isnom=True)
+print(g.val)
 #'''
