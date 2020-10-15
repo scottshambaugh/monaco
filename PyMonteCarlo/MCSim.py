@@ -17,12 +17,14 @@ class MCSim:
                  seed           = np.random.get_state()[1][0], 
                  cores          = cpu_count(logical=False), 
                  verbose        = True,
+                 debug          = False,
                  savesimdata    = True,
                  savecasedata   = True,
                  resultsdir     = None):
         
         self.name = name                      # name is a string
         self.verbose = verbose                # verbose is a boolean
+        self.debug = debug                    # debug is a boolean
         self.ndraws = ndraws                  # ndraws is an integer
         self.fcns = fcns                      # fcns is a dict with keys 'preprocess', 'run', 'postprocess' for those functions
         self.firstcaseisnom = firstcaseisnom  # firstcaseisnom is a boolean
@@ -343,7 +345,9 @@ class MCSim:
     
             self.casesrun.add(mccase.ncase)
             
-        except:
+        except Exception:
+            if self.debug:
+                raise
             vwrite(self.verbose, f'\nRunning case {mccase.ncase} failed')
         
         if not (self.pbar1 is None):
@@ -356,8 +360,11 @@ class MCSim:
             self.casespostprocessed.add(mccase.ncase)
             mccase.haspostprocessed = True
             
-        except:
-            vwrite(self.verbose, f'\nPostprocessing case {mccase.ncase} failed')
+        except Exception:
+            if self.debug:
+                raise
+            else:
+                vwrite(self.verbose, f'\nPostprocessing case {mccase.ncase} failed')
             
         if not (self.pbar2 is None):
             self.pbar2.update(1)
@@ -399,7 +406,7 @@ class MCSim:
                             casesnotloaded.remove(case)
                             if case in self.casespostprocessed:
                                 casesnotpostprocessed.remove(case)
-                    except: 
+                    except Exception: 
                         vwrite(f'\nWarning: Unknown error loading {filepath.name}', end='')
             except FileNotFoundError:
                 vwrite(self.verbose, f'\nWarning: {filepath.name} expected but not found', end='')
@@ -428,12 +435,12 @@ class MCSim:
         filenames = set(file.name for file in files)
         try:
             filenames.remove(f'{self.name}.mcsim')
-        except:
+        except Exception:
             pass
         for case in range(self.ncases):
             try:
                 filenames.remove(f'{self.name}_{case}.mccase')
-            except:
+            except Exception:
                 pass
         return filenames
 

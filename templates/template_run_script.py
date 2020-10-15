@@ -34,7 +34,7 @@ cores = 1
 
 def template_run_script():
     # We first initialize the sim with a name of our choosing
-    sim = MCSim(name='Coin Flip', ndraws=ndraws, fcns=fcns, firstcaseisnom=firstcaseisnom, seed=seed, cores=cores)
+    sim = MCSim(name='Coin Flip', ndraws=ndraws, fcns=fcns, firstcaseisnom=firstcaseisnom, seed=seed, cores=cores, verbose=True, debug=False)
     
     # We now add input variables, with their associated distributions
     # Out first variable will be the person flipping a coin - Sam and Alex will 

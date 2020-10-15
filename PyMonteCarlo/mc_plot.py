@@ -320,19 +320,19 @@ def apply_category_labels(ax, mcvarx=None, mcvary=None, mcvarz=None):
         try:
             ax.set_xticks(list(mcvarx.nummap.keys()))
             ax.set_xticklabels(list(mcvarx.nummap.values()))
-        except:
+        except Exception:
             pass
     if mcvary != None and mcvary.nummap != None:
         try:
             ax.set_yticks(list(mcvary.nummap.keys()))
             ax.set_yticklabels(list(mcvary.nummap.values()))
-        except:
+        except Exception:
             pass
     if mcvarz != None and mcvarz.nummap != None:
         try:
             ax.set_zticks(list(mcvarz.nummap.keys()))
             ax.set_zticklabels(list(mcvarz.nummap.values()))
-        except:
+        except Exception:
             pass
 
 

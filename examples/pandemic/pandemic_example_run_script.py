@@ -22,7 +22,7 @@ seed=12362398
 
 def pandemic_example_run_script():
 
-    sim = MCSim(name='pandemic', ndraws=ndraws, fcns=fcns, firstcaseisnom=True, seed=seed, cores=4, verbose=True)
+    sim = MCSim(name='pandemic', ndraws=ndraws, fcns=fcns, firstcaseisnom=True, seed=seed, cores=4, verbose=True, debug=False)
     
     sim.addInVar(name='Probability of Infection', dist=uniform, distargs=(0.28, 0.04))
     
