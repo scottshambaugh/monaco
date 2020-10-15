@@ -46,8 +46,7 @@ might be encountered are provided.
 **Before Release:**
 * Flesh out READMEs and documentation
 * Examples:
-    * Evidence-Based Scheduling
-    * Early Retirement Investment Portfolio
+    * ~~Early Retirement Investment Portfolio~~
     * Integration
     * Election Modeling
     * ~~Pandemic Modeling~~
@@ -57,15 +56,17 @@ might be encountered are provided.
 * 2D Scatter Statistics
 
 **Future Work:**
-* 2D/3D Line statistics?
-* Make pip installable?
 * Run on remote server (target AWS)
 * Get custom distributions working
 * Linear trend lines on scatter plots
+* Rug plots
+* Examples:
+    * Evidence-Based Scheduling?
+* 2D/3D Line statistics?
+* Make pip installable?
 * Correlation matrix input?
 * Ability to plot derived data in addition to mcvars?
 * 2D sensitivity contour plots?
-* Rug plots
 
 **Done:**
 * ~~Save/load results to file~~
@@ -88,7 +89,6 @@ might be encountered are provided.
 * ~~Progress bar~~
 * ~~Continue partial results~~
 * ~~Dataframe support~~
-
 
 
 ### License:
