@@ -1,0 +1,79 @@
+from scipy.stats import norm, uniform
+from PyMonteCarlo.order_statistics import pct2sig
+from PyMonteCarlo.MCSim import MCSim
+from PyMonteCarlo.mc_plot import mc_plot
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+from election_example_sim import election_example_sim
+from election_example_preprocess import election_example_preprocess
+from election_example_postprocess import election_example_postprocess
+fcns = {'preprocess' :election_example_preprocess,   \
+        'run'        :election_example_sim,          \
+        'postprocess':election_example_postprocess}
+
+ndraws = 1000
+seed=12362397
+
+def election_example_run_script():
+    sim = MCSim(name='election', ndraws=ndraws, fcns=fcns, firstcaseisnom=True, seed=seed, cores=4, savecasedata=False, verbose=True, debug=False)
+    
+    df = pd.read_csv('state_presidential_odds.csv')
+    states = df['State'].tolist()
+    df['Dem_Sig'] = df['Dem_80_tol']/pct2sig(0.8, bound='2-sided')
+    df['Rep_Sig'] = df['Rep_80_tol']/pct2sig(0.8, bound='2-sided')
+    df['Other_Sig'] = df['Other_80_tol']/pct2sig(0.8, bound='2-sided')
+
+    sim.addInVar(name='National Dem Swing', dist=uniform, distargs=(-0.03, 0.06))
+
+    for state in states:
+        i = df.loc[df['State'] == state].index[0]
+        sim.addInVar(name=f'{state} Dem Unscaled Pct', dist=norm, distargs=(df['Dem_Mean'][i], df['Dem_Sig'][i]))
+        sim.addInVar(name=f'{state} Rep Unscaled Pct', dist=norm, distargs=(df['Rep_Mean'][i], df['Rep_Sig'][i]))
+        sim.addInVar(name=f'{state} Other Unscaled Pct', dist=norm, distargs=(df['Other_Mean'][i], df['Other_Sig'][i]))
+    
+    sim.addConstVal(name='states', val=states)    
+    sim.addConstVal(name='df', val=df)    
+    
+    sim.runSim()
+    
+    fig, ax = mc_plot(sim.mcoutvars['Dem EVs'])
+    ax.set_autoscale_on(False)
+    ax.plot([270,270], [0,1], 'k')
+    
+    pct_dem_win = sum(x == 'Dem' for x in sim.mcoutvars['Winner'].vals)/sim.ncases
+    pct_rep_win = sum(x == 'Rep' for x in sim.mcoutvars['Winner'].vals)/sim.ncases
+    pct_contested = sum(x == 'Contested' for x in sim.mcoutvars['Winner'].vals)/sim.ncases
+    print(f'Win probabilities: {100*pct_dem_win}% Dem, {100*pct_rep_win}% Rep, {100*pct_contested}% Contested')
+    mc_plot(sim.mcoutvars['Winner'])
+    
+    pct_recount = sum(x != 0 for x in sim.mcoutvars['Num Recounts'].vals)/sim.ncases
+    print(f'In {100*pct_recount}% of runs there was a state close enough to trigger a recount (<0.5%)')
+    
+    dem_win_state_pct = dict()
+    for state in states:
+        dem_win_state_pct[state] = sum(x == 'Dem' for x in sim.mcoutvars[f'{state} Winner'].vals)/sim.ncases
+
+    # Only generate state map if plotly installed. Want to avoid this as a dependency
+    import importlib
+    if importlib.util.find_spec('plotly'):
+        import plotly.graph_objects as go
+        from plotly.offline import plot
+        plt.figure()
+        fig = go.Figure(data=go.Choropleth(
+                        locations=df['State_Code'], # Spatial coordinates
+                        z = np.fromiter(dem_win_state_pct.values(), dtype=float)*100,
+                        locationmode = 'USA-states',
+                        colorscale = 'RdBu',
+                        colorbar_title = "Dem % Win" ))
+        
+        fig.update_layout( geo_scope='usa')
+        plot(fig)
+
+    return sim
+
+
+if __name__ == '__main__':
+    sim = election_example_run_script()
+    

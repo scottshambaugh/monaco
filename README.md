@@ -31,8 +31,8 @@ might be encountered are provided.
 
 * [build](build/)
 * [examples](examples/)
-    - [early_retirement_investment_portfolio](examples/early_retirement_investment_portfolio/) (TODO)
-    - [election](examples/election/) (TODO)
+    - [early_retirement_investment_portfolio](examples/early_retirement_investment_portfolio/)
+    - [election](examples/election/)
     - [evidence_based_scheduling](examples/evidence_based_scheduling/) (TODO)
     - [integration](examples/integration/) (TODO)
     - [pandemic](examples/pandemic/)
@@ -48,12 +48,13 @@ might be encountered are provided.
 * Examples:
     * ~~Early Retirement Investment Portfolio~~
     * Integration
-    * Election Modeling
+    * ~~Election Modeling~~
     * ~~Pandemic Modeling~~
     * ~~Rocket Flight~~
 * Break out tests
 * Plot tolerance intervals as shaded regions
 * 2D Scatter Statistics
+* Get keyboard interrupt working
 
 **Future Work:**
 * Run on remote server (target AWS)
