@@ -307,10 +307,15 @@ class MCSim:
 
         else:
             p = Pool(self.cores)
-            casesrun = p.imap(self.runCase, slice_by_index(self.mccases, cases))
-            casesrun = list(casesrun) # dummy function to ensure we wait for imap to finish
-            p.terminate()
-            p.restart()
+            try:
+                casesrun = p.imap(self.runCase, slice_by_index(self.mccases, cases))
+                casesrun = list(casesrun) # dummy function to ensure we wait for imap to finish
+                p.terminate()
+                p.restart()
+            except KeyboardInterrupt:
+                p.terminate()
+                p.restart()
+                raise
 
         if self.verbose:
             self.pbar1.refresh()
@@ -333,11 +338,16 @@ class MCSim:
 
         else:
             p = Pool(self.cores)
-            casespostprocessed = p.imap(self.postProcessCase, slice_by_index(self.mccases, cases))
-            casespostprocessed = list(casespostprocessed) # dummy function to ensure we wait for imap to finish
-            p.terminate()
-            p.restart()
-
+            try:
+                casespostprocessed = p.imap(self.postProcessCase, slice_by_index(self.mccases, cases))
+                casespostprocessed = list(casespostprocessed) # dummy function to ensure we wait for imap to finish
+                p.terminate()
+                p.restart()
+            except KeyboardInterrupt:
+                p.terminate()
+                p.restart()
+                raise
+            
         if self.verbose:
             self.pbar2.refresh()
             self.pbar2.close()

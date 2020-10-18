@@ -46,20 +46,18 @@ might be encountered are provided.
 **Before Release:**
 * Flesh out READMEs and documentation
 * Examples:
-    * ~~Early Retirement Investment Portfolio~~
     * Integration
-    * ~~Election Modeling~~
-    * ~~Pandemic Modeling~~
-    * ~~Rocket Flight~~
 * Break out tests
 * 2D Scatter Statistics
-* Get keyboard interrupt working
+* Run on remote server (AWS)
+* Parallelize preprocessing
 
 **Future Work:**
-* Run on remote server (target AWS)
+* Run on remote server (Azure, Google Cloud)
 * Get custom distributions working
 * Linear trend lines on scatter plots
 * Rug plots
+* Convergence plots
 * Examples:
     * Evidence-Based Scheduling?
 * 2D/3D Line statistics?
@@ -69,6 +67,11 @@ might be encountered are provided.
 * 2D sensitivity contour plots?
 
 **Done:**
+* ~~Examples:~~
+    * ~~Early Retirement Investment Portfolio~~
+    * ~~Election Modeling~~
+    * ~~Pandemic Modeling~~
+    * ~~Rocket Flight~~
 * ~~Save/load results to file~~
 * ~~3sig / X% / Mean / Min / Max statistics~~
 * ~~Make template files~~
@@ -90,6 +93,7 @@ might be encountered are provided.
 * ~~Continue partial results~~
 * ~~Dataframe support~~
 * ~~Plot tolerance intervals as shaded regions~~
+* ~~Get keyboard interrupt working~~
 
 
 ### License:
