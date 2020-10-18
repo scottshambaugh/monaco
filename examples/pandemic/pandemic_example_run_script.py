@@ -29,8 +29,9 @@ def pandemic_example_run_script():
     sim.runSim()
     
     sim.mcoutvars['Proportion Infected'].addVarStat(stattype='orderstatTI', statkwargs={'p':p, 'c':c, 'bound':bound})
-
-    mc_plot(sim.mcoutvars['Timestep'], sim.mcoutvars['Superspreader Degree'], highlight_cases=0)
+    sim.mcoutvars['Superspreader Degree'].addVarStat(stattype='orderstatTI', statkwargs={'p':0.5, 'c':0.5, 'bound':'all'})
+    
+    mc_plot(sim.mcoutvars['Timestep'], sim.mcoutvars['Superspreader Degree'])
     mc_plot(sim.mcoutvars['Max Superspreader Degree'], highlight_cases=0)
     mc_plot(sim.mcoutvars['Herd Immunity Threshold'], highlight_cases=0)
     

@@ -23,7 +23,8 @@ class MCVarStat:
             orderstatTI(p, c, bound)
                 p       0 <= p <= 1             Percentage
                 c       0 < c < 1               Confidence (default 0.95)
-                bound   '1-sided', '2-sided'    Bound (default 2-sided)
+                bound   '1-sided', '2-sided',   Bound (default 2-sided)
+                        'all'
             orderstatP(p, c, bound)
                 p       0 <= p <= 1             Percentile
                 c       0 < c < 1               Confidence (default 0.95)
@@ -158,8 +159,11 @@ class MCVarStat:
             self.side = 'low'
         elif self.bound == '2-sided':
             self.side = 'both'
+        elif self.bound == 'all':
+            self.bound = '2-sided'
+            self.side = 'all'
         else:
-            raise ValueError(f'{self.bound} is not a valid bound for genStatsOrderStatP')
+            raise ValueError(f'{self.bound} is not a valid bound for genStatsOrderStatTI')
 
         self.setName(f'{self.bound} P{self.p*100}/{self.c*100}% Confidence Interval')
 
@@ -171,20 +175,26 @@ class MCVarStat:
                 sortednums.reverse()
             if self.side in ('high', 'low'):
                 self.nums = sortednums[-self.k]
-                self.vals = copy(self.nums)
                 if self.mcvar.nummap is not None:
                     self.vals = self.mcvar.nummap[self.nums]
             elif self.side == 'both':
                 self.nums = np.array([sortednums[self.k-1], sortednums[-self.k]])
-                self.vals = copy(self.nums)
                 if self.mcvar.nummap is not None:
                     self.vals = np.array([self.mcvar.nummap[self.nums[0]], self.mcvar.nummap[self.nums[1]]])
+            elif self.side == 'all':
+                self.nums = np.array([sortednums[self.k-1], np.median(sortednums), sortednums[-self.k]])
+                if self.mcvar.nummap is not None:
+                    self.vals = np.array([self.mcvar.nummap[self.nums[0]], self.mcvar.nummap[self.nums[1]], self.mcvar.nummap[self.nums[2]]])
+            if self.mcvar.nummap is None:
+                self.vals = copy(self.nums)
                 
         elif self.mcvar.size[0] == 1:
             npoints = max(len(x) for x in self.mcvar.nums)
             self.nums = np.empty(npoints)
             if self.side == 'both':
                 self.nums = np.empty((npoints, 2))
+            elif self.side == 'all':
+                self.nums = np.empty((npoints, 3))
             for i in range(npoints):
                 numsatidx = [x[i] for x in self.mcvar.nums if len(x)>i]
                 sortednums = sorted(numsatidx)
@@ -194,9 +204,12 @@ class MCVarStat:
                     self.nums[i] = sortednums[-self.k]
                 elif self.side == 'both':
                     self.nums[i,:] = [sortednums[self.k-1], sortednums[-self.k]]
-            self.vals = copy(self.nums)
+                elif self.side == 'all':
+                    self.nums[i,:] = [sortednums[self.k-1], sortednums[int(np.round(len(sortednums)/2)-1)], sortednums[-self.k]]
             if self.mcvar.nummap is not None:
                 self.vals = np.array([[self.mcvar.nummap[x] for x in y] for y in self.nums])
+            else:
+                self.vals = copy(self.nums)
                 
         else:
             # Suppress warning since this will become valid when MCVar is split
@@ -228,19 +241,18 @@ class MCVarStat:
             elif self.bound == 'nearest':
                 self.nums = sortednums[iP]
             if self.bound in ('1-sided low', '1-sided high', 'nearest'):
-                self.vals = copy(self.nums)
                 if self.mcvar.nummap is not None:
                     self.vals = self.mcvar.nummap[self.nums]
             elif self.bound == '2-sided':
                 self.nums = np.array([sortednums[iPl - self.k], sortednums[iPu + self.k]])
-                self.vals = copy(self.nums)
                 if self.mcvar.nummap is not None:
                     self.vals = np.array([self.mcvar.nummap[self.nums[0]], self.mcvar.nummap[self.nums[1]]])
             elif self.bound == 'all':
                 self.nums = np.array([sortednums[iPl - self.k], sortednums[iP], sortednums[iPu + self.k]])
-                self.vals = copy(self.nums)
                 if self.mcvar.nummap is not None:
                     self.vals = np.array([self.mcvar.nummap[self.nums[0]], self.mcvar.nummap[self.nums[1]], self.mcvar.nummap[self.nums[2]]])
+            if self.mcvar.nummap is None:
+                self.vals = copy(self.nums)
 
         elif self.mcvar.size[0] == 1:
             npoints = max(len(x) for x in self.mcvar.nums)
@@ -262,9 +274,10 @@ class MCVarStat:
                     self.nums[i,:] = [sortednums[iPl - self.k], sortednums[iPu + self.k]]
                 elif self.bound == 'all':
                     self.nums[i,:] = [sortednums[iPl - self.k], sortednums[iP], sortednums[iPu + self.k]]
-            self.vals = copy(self.nums)
             if self.mcvar.nummap is not None:
                 self.vals = np.array([[self.mcvar.nummap[x] for x in y] for y in self.nums])
+            else:
+                self.vals = copy(self.nums)
                 
         else:
             # Suppress warning since this will become valid when MCVar is split
@@ -318,7 +331,7 @@ if __name__ == '__main__':
     
     v = np.array([-2, -1, 2, 3, 4, 5])
     var2 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
-    mcoutvarstat1 = MCVarStat(var2, stattype='orderstatTI', statkwargs={'p':0.6, 'c':0.50, 'bound':'2-sided'})
+    mcoutvarstat1 = MCVarStat(var2, stattype='orderstatTI', statkwargs={'p':0.6, 'c':0.50, 'bound':'all'})
     mcoutvarstat2 = MCVarStat(var2, stattype='min')
     var3 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, [0,0]], firstcaseisnom=True)
     mcoutvarstat3 = MCVarStat(var3, stattype='min')
