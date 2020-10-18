@@ -5,7 +5,7 @@ from scipy.stats.mstats import gmean
 from PyMonteCarlo.order_statistics import order_stat_P_k, order_stat_TI_k, get_iP, pct2sig, sig2pct
 
 class MCVarStat:
-    def __init__(self, mcvar, stattype, statkwargs = {}, name=None):
+    def __init__(self, mcvar, stattype, statkwargs={}, name=None):
         '''
         valid stattypes with corresponding statkwargs:
             max
@@ -38,6 +38,7 @@ class MCVarStat:
 
         self.nums = None
         self.vals = None
+        self.name = name
         
         if stattype == 'max':
             self.genStatsMax()
@@ -60,37 +61,34 @@ class MCVarStat:
         elif stattype == 'orderstatP':
             self.genStatsOrderStatP()
 
-        if name is not None:
-            self.name = name
-
 
     def genStatsMax(self):
-        self.name = 'Max'
+        self.setName('Max')
         self.genStatsFunction(fcn=np.max)
 
 
     def genStatsMin(self):
-        self.name = 'Min'
+        self.setName('Min')
         self.genStatsFunction(fcn=np.min)
 
 
     def genStatsMedian(self):
-        self.name = 'Median'
+        self.setName('Median')
         self.genStatsFunction(fcn=np.median)
 
 
     def genStatsMean(self):
-        self.name = 'Mean'
+        self.setName('Mean')
         self.genStatsFunction(fcn=np.mean)
 
 
     def genStatsGeoMean(self):
-        self.name = 'Geometric Mean'
+        self.setName('Geometric Mean')
         self.genStatsFunction(fcn=gmean)
 
 
     def genStatsMode(self):
-        self.name = 'Mode'
+        self.setName('Mode')
         self.genStatsFunction(fcn=mode)
 
 
@@ -104,7 +102,7 @@ class MCVarStat:
 
         self.sig = self.statkwargs['sig']
         self.p = sig2pct(self.sig, bound=self.bound)
-        self.name = f'{self.sig} Sigma'
+        self.setName(f'{self.sig} Sigma')
         self.genStatsFunction(self.sigmaP)
 
 
@@ -118,7 +116,7 @@ class MCVarStat:
 
         self.p = self.statkwargs['p']
         self.sig = pct2sig(self.p, bound=self.bound)
-        self.name = f'Guassian {self.p*100}%'
+        self.setName(f'Guassian {self.p*100}%')
         self.genStatsFunction(self.sigmaP)
 
 
@@ -163,8 +161,7 @@ class MCVarStat:
         else:
             raise ValueError(f'{self.bound} is not a valid bound for genStatsOrderStatP')
 
-        if self.name is None:
-            self.name = f'{self.bound} P{self.p*100}/{self.c*100}% Confidence Interval'
+        self.setName(f'{self.bound} P{self.p*100}/{self.c*100}% Confidence Interval')
 
         self.k = order_stat_TI_k(n=self.mcvar.ncases, p=self.p, c=self.c, bound=self.bound)
 
@@ -217,8 +214,7 @@ class MCVarStat:
         elif self.bound in ('nearest', 'all'):
             bound = '2-sided'
         
-        if self.name is None:
-            self.name = f'{self.bound} {self.c*100}% Confidence Bound around {self.p*100}th Percentile'
+        self.setName(f'{self.bound} {self.c*100}% Confidence Bound around {self.p*100}th Percentile')
 
         self.k = order_stat_P_k(n=self.mcvar.ncases, P=self.p, c=self.c, bound=bound)
 
@@ -290,6 +286,11 @@ class MCVarStat:
             self.bound = '2-sided'
         else:
             self.bound = self.statkwargs['bound']
+
+
+    def setName(self, name):
+        if self.name is None:
+            self.name = name
 
 
 

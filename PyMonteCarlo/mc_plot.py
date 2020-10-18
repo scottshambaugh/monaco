@@ -137,8 +137,9 @@ def mc_plot_hist(mcvar, highlight_cases=[], cumulative=False, orientation='verti
         for i in highlighted_cases:
             plt.plot([mcvar.nums[i], mcvar.nums[i]], ylim, linestyle='-', color='red')
         for mcvarstat in mcvar.mcvarstats:
-            plt.plot([mcvarstat.nums[0],mcvarstat.nums[0]], ylim, linestyle='--', color='k')
-            plt.plot([mcvarstat.nums[1],mcvarstat.nums[1]], ylim, linestyle='--', color='k')
+            nums = get_iterable(mcvarstat.nums)
+            for num in nums:                
+                plt.plot([num,num], ylim, linestyle='--', color='k')
         plt.xlabel(mcvar.name)
         plt.ylabel(ylabeltext)
         apply_category_labels(ax, mcvarx=mcvar)
@@ -148,8 +149,9 @@ def mc_plot_hist(mcvar, highlight_cases=[], cumulative=False, orientation='verti
         for i in highlighted_cases:
             plt.plot(xlim, [mcvar.nums[i], mcvar.nums[i]], linestyle='-', color='red')
         for mcvarstat in mcvar.mcvarstats:
-            plt.plot(xlim, [mcvarstat.nums[0],mcvarstat.nums[0]], linestyle='--', color='k')
-            plt.plot(xlim, [mcvarstat.nums[1],mcvarstat.nums[1]], linestyle='--', color='k')
+            nums = get_iterable(mcvarstat.nums)
+            for num in nums:                
+                plt.plot(xlim, [num,num], linestyle='--', color='k')
         plt.ylabel(mcvar.name)
         plt.xlabel(ylabeltext)
         apply_category_labels(ax, mcvary=mcvar)
