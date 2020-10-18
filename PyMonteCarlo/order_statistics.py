@@ -347,21 +347,21 @@ def get_iP(n, P):
 
 
 def order_stat_var_check(n=None, l=None, u=None, p=None, k=None, c=None, nmax=None):
-    if n!= None and n < 1:
+    if n is not None and n < 1:
         raise ValueError(f'{n=} must be >= 1')
-    if l != None and l < 0:
+    if l is not None and l < 0:
         raise ValueError(f'{l=} must be >= 0')
-    if u != None and n != None and u > n+1:
+    if u is not None and n is not None and u > n+1:
         raise ValueError(f'{u=} must be >= {n+1}')
-    if u != None and l != None and u < l:
+    if u is not None and l is not None and u < l:
         raise ValueError(f'{u=} must be >= {l=}')
-    if p != None and (p <= 0 or p >=1):
+    if p is not None and (p <= 0 or p >=1):
         raise ValueError(f'{p=} must be in the range 0 < p < 1')
-    if k!= None and k < 1:
+    if k is not None and k < 1:
         raise ValueError(f'{k=} must be >= 1')
-    if c != None and (c <= 0 or c >=1):
+    if c is not None and (c <= 0 or c >=1):
         raise ValueError(f'{c=} must be in the range 0 < c < 1')
-    if nmax != None and nmax < 1:
+    if nmax is not None and nmax < 1:
         raise ValueError(f'{nmax=} must be >= 1')    
 
 

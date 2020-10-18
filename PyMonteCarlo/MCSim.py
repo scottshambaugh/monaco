@@ -148,7 +148,7 @@ class MCSim:
                         uniquevals = None
                     else:
                         uniquevals.update(self.mccases[i].mcoutvals[varname].valmap.keys())
-                if uniquevals != None:
+                if uniquevals is not None:
                     valmap = dict()
                     for i, val in enumerate(uniquevals):
                         valmap[val] = i

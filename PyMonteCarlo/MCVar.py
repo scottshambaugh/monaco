@@ -71,7 +71,7 @@ class MCInVar(MCVar):
 
     def mapNums(self):
         self.vals = copy(self.nums)
-        if self.nummap != None:
+        if self.nummap is not None:
             for i in range(self.ncases):
                 self.vals[i] = self.nummap[self.nums[i]]
             
@@ -173,7 +173,7 @@ class MCOutVar(MCVar):
     
     def extractValMap(self):
         Val0 = self.getVal(0)
-        if Val0.valmap != None:
+        if Val0.valmap is not None:
             if Val0.valmapsource == 'auto':
                 uniquevals = set()
                 for i in range(self.ncases):

@@ -316,19 +316,19 @@ def manage_axis(ax, is3d=False):
 
 def apply_category_labels(ax, mcvarx=None, mcvary=None, mcvarz=None):
     # Wrapped in try statements in case some categories aren't printable
-    if mcvarx != None and mcvarx.nummap != None:
+    if mcvarx is not None and mcvarx.nummap is not None:
         try:
             ax.set_xticks(list(mcvarx.nummap.keys()))
             ax.set_xticklabels(list(mcvarx.nummap.values()))
         except Exception:
             pass
-    if mcvary != None and mcvary.nummap != None:
+    if mcvary is not None and mcvary.nummap is not None:
         try:
             ax.set_yticks(list(mcvary.nummap.keys()))
             ax.set_yticklabels(list(mcvary.nummap.values()))
         except Exception:
             pass
-    if mcvarz != None and mcvarz.nummap != None:
+    if mcvarz is not None and mcvarz.nummap is not None:
         try:
             ax.set_zticks(list(mcvarz.nummap.keys()))
             ax.set_zticklabels(list(mcvarz.nummap.values()))

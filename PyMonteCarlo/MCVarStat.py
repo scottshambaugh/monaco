@@ -35,7 +35,6 @@ class MCVarStat:
         self.mcvar = mcvar
         self.stattype = stattype
         self.statkwargs = statkwargs
-        self.name = name
 
         self.nums = None
         self.vals = None
@@ -60,6 +59,9 @@ class MCVarStat:
             self.genStatsOrderStatTI()
         elif stattype == 'orderstatP':
             self.genStatsOrderStatP()
+
+        if name is not None:
+            self.name = name
 
 
     def genStatsMax(self):
@@ -129,7 +131,7 @@ class MCVarStat:
         if self.mcvar.isscalar:
             self.nums = fcn(self.mcvar.nums)
             self.vals = copy(self.nums)
-            if self.mcvar.nummap != None:
+            if self.mcvar.nummap is not None:
                 self.vals = self.mcvar.nummap[self.nums]
                 
         elif self.mcvar.size[0] == 1:
@@ -139,7 +141,7 @@ class MCVarStat:
                 numsatidx = [x[i] for x in self.mcvar.nums if len(x)>i]
                 self.nums[i] = fcn(numsatidx)
             self.vals = copy(self.nums)
-            if self.mcvar.nummap != None:
+            if self.mcvar.nummap is not None:
                 self.vals = np.array([[self.mcvar.nummap[x] for x in y] for y in self.nums])
                 
         else:
@@ -173,12 +175,12 @@ class MCVarStat:
             if self.side in ('high', 'low'):
                 self.nums = sortednums[-self.k]
                 self.vals = copy(self.nums)
-                if self.mcvar.nummap != None:
+                if self.mcvar.nummap is not None:
                     self.vals = self.mcvar.nummap[self.nums]
             elif self.side == 'both':
                 self.nums = np.array([sortednums[self.k-1], sortednums[-self.k]])
                 self.vals = copy(self.nums)
-                if self.mcvar.nummap != None:
+                if self.mcvar.nummap is not None:
                     self.vals = np.array([self.mcvar.nummap[self.nums[0]], self.mcvar.nummap[self.nums[1]]])
                 
         elif self.mcvar.size[0] == 1:
@@ -196,7 +198,7 @@ class MCVarStat:
                 elif self.side == 'both':
                     self.nums[i,:] = [sortednums[self.k-1], sortednums[-self.k]]
             self.vals = copy(self.nums)
-            if self.mcvar.nummap != None:
+            if self.mcvar.nummap is not None:
                 self.vals = np.array([[self.mcvar.nummap[x] for x in y] for y in self.nums])
                 
         else:
@@ -231,17 +233,17 @@ class MCVarStat:
                 self.nums = sortednums[iP]
             if self.bound in ('1-sided low', '1-sided high', 'nearest'):
                 self.vals = copy(self.nums)
-                if self.mcvar.nummap != None:
+                if self.mcvar.nummap is not None:
                     self.vals = self.mcvar.nummap[self.nums]
             elif self.bound == '2-sided':
                 self.nums = np.array([sortednums[iPl - self.k], sortednums[iPu + self.k]])
                 self.vals = copy(self.nums)
-                if self.mcvar.nummap != None:
+                if self.mcvar.nummap is not None:
                     self.vals = np.array([self.mcvar.nummap[self.nums[0]], self.mcvar.nummap[self.nums[1]]])
             elif self.bound == 'all':
                 self.nums = np.array([sortednums[iPl - self.k], sortednums[iP], sortednums[iPu + self.k]])
                 self.vals = copy(self.nums)
-                if self.mcvar.nummap != None:
+                if self.mcvar.nummap is not None:
                     self.vals = np.array([self.mcvar.nummap[self.nums[0]], self.mcvar.nummap[self.nums[1]], self.mcvar.nummap[self.nums[2]]])
 
         elif self.mcvar.size[0] == 1:
@@ -265,7 +267,7 @@ class MCVarStat:
                 elif self.bound == 'all':
                     self.nums[i,:] = [sortednums[iPl - self.k], sortednums[iP], sortednums[iPu + self.k]]
             self.vals = copy(self.nums)
-            if self.mcvar.nummap != None:
+            if self.mcvar.nummap is not None:
                 self.vals = np.array([[self.mcvar.nummap[x] for x in y] for y in self.nums])
                 
         else:
