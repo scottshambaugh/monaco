@@ -38,9 +38,11 @@ def election_example_run_script():
     
     sim.runSim()
     
+    sim.mcoutvars['Dem EVs'].addVarStat(stattype='orderstatP',statkwargs={'p':0.5,'bound':'nearest'})
+    sim.mcoutvars['Dem EVs'].addVarStat(stattype='orderstatTI',statkwargs={'p':0.75,'c':0.90,'bound':'2-sided'})
     fig, ax = mc_plot(sim.mcoutvars['Dem EVs'])
     ax.set_autoscale_on(False)
-    ax.plot([270,270], [0,1], 'k')
+    ax.plot([270,270], [0,1], '--k')
     
     pct_dem_win = sum(x == 'Dem' for x in sim.mcoutvars['Winner'].vals)/sim.ncases
     pct_rep_win = sum(x == 'Rep' for x in sim.mcoutvars['Winner'].vals)/sim.ncases
@@ -56,8 +58,9 @@ def election_example_run_script():
         dem_win_state_pct[state] = sum(x == 'Dem' for x in sim.mcoutvars[f'{state} Winner'].vals)/sim.ncases
 
     # Only generate state map if plotly installed. Want to avoid this as a dependency
+    gen_map = False
     import importlib
-    if importlib.util.find_spec('plotly'):
+    if importlib.util.find_spec('plotly') and gen_map:
         import plotly.graph_objects as go
         from plotly.offline import plot
         plt.figure()

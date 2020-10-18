@@ -52,7 +52,6 @@ might be encountered are provided.
     * ~~Pandemic Modeling~~
     * ~~Rocket Flight~~
 * Break out tests
-* Plot tolerance intervals as shaded regions
 * 2D Scatter Statistics
 * Get keyboard interrupt working
 
@@ -90,6 +89,7 @@ might be encountered are provided.
 * ~~Progress bar~~
 * ~~Continue partial results~~
 * ~~Dataframe support~~
+* ~~Plot tolerance intervals as shaded regions~~
 
 
 ### License:

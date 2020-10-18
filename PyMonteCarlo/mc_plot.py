@@ -138,8 +138,12 @@ def mc_plot_hist(mcvar, highlight_cases=[], cumulative=False, orientation='verti
             plt.plot([mcvar.nums[i], mcvar.nums[i]], ylim, linestyle='-', color='red')
         for mcvarstat in mcvar.mcvarstats:
             nums = get_iterable(mcvarstat.nums)
-            for num in nums:                
-                plt.plot([num,num], ylim, linestyle='--', color='k')
+            if length(nums) == 1:
+                plt.plot([nums[0],nums[0]], ylim, linestyle='-', color='b')
+            elif length(nums) == 3:
+                plt.plot([nums[1],nums[1]], ylim, linestyle='-', color='b')
+            if length(nums) in (2, 3):
+                ax.fill_between([nums[0],nums[-1]], [ylim[0], ylim[0]], [ylim[1], ylim[1]], color='b', alpha=0.2)
         plt.xlabel(mcvar.name)
         plt.ylabel(ylabeltext)
         apply_category_labels(ax, mcvarx=mcvar)
@@ -150,8 +154,12 @@ def mc_plot_hist(mcvar, highlight_cases=[], cumulative=False, orientation='verti
             plt.plot(xlim, [mcvar.nums[i], mcvar.nums[i]], linestyle='-', color='red')
         for mcvarstat in mcvar.mcvarstats:
             nums = get_iterable(mcvarstat.nums)
-            for num in nums:                
-                plt.plot(xlim, [num,num], linestyle='--', color='k')
+            if length(nums) == 1:
+                plt.plot(xlim, [nums[0],nums[0]], linestyle='-', color='b')
+            elif length(nums) == 3:
+                plt.plot(xlim, [nums[1],nums[1]], linestyle='-', color='b')
+            if length(nums) in (2,3):
+                ax.fill_between(xlim, nums[0], nums[-1], color='b', alpha=0.2)
         plt.ylabel(mcvar.name)
         plt.xlabel(ylabeltext)
         apply_category_labels(ax, mcvary=mcvar)
@@ -197,16 +205,18 @@ def mc_plot_2d_line(mcvarx, mcvary, cases=None, highlight_cases=[], ax=None, tit
     reg_cases = set(get_iterable(cases)) - set(get_iterable(highlight_cases))
     highlighted_cases = get_iterable(highlight_cases)
     for i in reg_cases:
-        plt.plot(mcvarx.nums[i], mcvary.nums[i], linestyle='-', color='black', alpha=0.3)
+        plt.plot(mcvarx.nums[i], mcvary.nums[i], linestyle='-', color='black', alpha=0.2)
     for i in highlighted_cases:
         plt.plot(mcvarx.nums[i], mcvary.nums[i], linestyle='-', color='red', alpha=1)     
 
     for mcvarstat in mcvary.mcvarstats:
-        if length(mcvarstat.nums[0]) > 1:
-            for i in range(length(mcvarstat.nums[0])):
-                plt.plot(mcvarx.nums[0], mcvarstat.nums[:,i], linestyle='--', color='k')
-        else:
-            plt.plot(mcvarx.nums[0], mcvarstat.nums[:], linestyle='--', color='k')            
+        if length(mcvarstat.nums[0]) == 1:
+            plt.plot(mcvarx.nums[0], mcvarstat.nums[:], linestyle='-', color='b')
+        elif length(mcvarstat.nums[0]) == 3:
+            plt.plot(mcvarx.nums[0], mcvarstat.nums[:,1], linestyle='-', color='b')
+        if length(mcvarstat.nums[0]) in (2,3):
+            ax.fill_between(mcvarx.nums[0], mcvarstat.nums[:,0], mcvarstat.nums[:,-1], color='b', alpha=0.3)
+                     
 
     plt.xlabel(mcvarx.name)
     plt.ylabel(mcvary.name)
@@ -366,7 +376,8 @@ if __name__ == '__main__':
     nummap={1:'a',2:'b',3:'c',4:'d',5:'e'}
     mcinvars['randint'] = MCInVar('randint', randint, (1, 5), 1000, nummap=nummap)
     mcinvars['norm'] = MCInVar('norm', norm, (10, 4), 1000)
-    mcinvars['norm'].addVarStat('orderstatTI', {'p':0.75, 'c':0.50})
+    mcinvars['norm'].addVarStat('orderstatTI', {'p':0.75, 'c':0.50, 'bound':'2-sided'})
+    mcinvars['norm'].addVarStat('orderstatP', {'p':0.5, 'c':0.9999, 'bound':'all'})
     mcinvars['norm2'] = MCInVar('norm2', norm, (10, 4), 1000)
     mcoutvars = dict()
     mcoutvars['test'] = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
@@ -388,7 +399,7 @@ if __name__ == '__main__':
     var3 = MCOutVar('testz', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
     var2.addVarStat('sigmaP', {'sig':3})
     var2.addVarStat('sigmaP', {'sig':-3})
-    var2.addVarStat('orderstatTI', {'p':0.6, 'c':0.50})
+    var2.addVarStat('orderstatTI', {'p':0.6, 'c':0.50, 'bound':'2-sided'})
     var2.addVarStat('mean')
     
     mc_plot(var2, highlight_cases=None)         # mc_plot_2d_line
