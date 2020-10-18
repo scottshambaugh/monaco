@@ -368,23 +368,24 @@ def order_stat_var_check(n=None, l=None, u=None, p=None, k=None, c=None, nmax=No
 
 '''
 ### Test ###
-print(sig2pct(-3, bound='2-sided'), sig2pct(3, bound='1-sided')) # -0.99730, 0.99865
-print(pct2sig(0.9973002, bound='2-sided'), pct2sig(0.0013499, bound='1-sided')) # 3, -3
-print('TI')
-print(order_stat_TI_n(k=2, p=0.99, c=0.90, bound='2-sided')) # 667
-print(order_stat_TI_p(n=667, k=2, c=0.90, bound='2-sided')) # 0.99001
-print(order_stat_TI_c(n=667, k=2, p=0.99, bound='2-sided')) # 0.90047
-print(order_stat_TI_k(n=667, p=0.99, c=0.90, bound='2-sided')) # 2
-print(order_stat_TI_k(n=20, p=0.99, c=0.90, bound='2-sided')) # Warning message, None
-print('P')
-print(order_stat_P_c(n=1000, k=3, P=0.01, bound='2-sided')) # 0.7367, Table A.15a
-print(order_stat_P_c(n=1000, k=11, P=0.95, bound='1-sided upper')) # 0.9566, Table A.16, 39+11=50
-print(order_stat_P_c(n=1000, k=11, P=0.05, bound='1-sided lower')) # 0.9566, Table A.16, 39+11=50
-print(order_stat_P_k(n=100, c=0.95, P=0.50, bound='2-sided')) # 10, Table A.15g
-print(order_stat_P_k(n=100, c=0.95, P=0.90, bound='1-sided upper')) # 5, Table A.16
-print(order_stat_P_k(n=100, c=0.95, P=0.10, bound='1-sided lower')) # 5, Table A.16
-print(order_stat_P_k(n=10, c=0.999, P=0.05, bound='1-sided lower')) # Warning message, None
-print(order_stat_P_n(k=10, c=0.950, P=0.50, bound='2-sided')) # 108, Table A.15g (conservative)
-print(order_stat_P_n(k=11, c=0.9566, P=0.95, bound='1-sided upper')) # 1018, Table A.16 (conservative)
-print(order_stat_P_n(k=11, c=0.9566, P=0.05, bound='1-sided lower')) # 1018, Table A.16 (conservative)
+if __name__ == '__main__':
+    print(sig2pct(-3, bound='2-sided'), sig2pct(3, bound='1-sided')) # -0.99730, 0.99865
+    print(pct2sig(0.9973002, bound='2-sided'), pct2sig(0.0013499, bound='1-sided')) # 3, -3
+    print('TI')
+    print(order_stat_TI_n(k=2, p=0.99, c=0.90, bound='2-sided')) # 667
+    print(order_stat_TI_p(n=667, k=2, c=0.90, bound='2-sided')) # 0.99001
+    print(order_stat_TI_c(n=667, k=2, p=0.99, bound='2-sided')) # 0.90047
+    print(order_stat_TI_k(n=667, p=0.99, c=0.90, bound='2-sided')) # 2
+    print(order_stat_TI_k(n=20, p=0.99, c=0.90, bound='2-sided')) # Warning message, None
+    print('P')
+    print(order_stat_P_c(n=1000, k=3, P=0.01, bound='2-sided')) # 0.7367, Table A.15a
+    print(order_stat_P_c(n=1000, k=11, P=0.95, bound='1-sided upper')) # 0.9566, Table A.16, 39+11=50
+    print(order_stat_P_c(n=1000, k=11, P=0.05, bound='1-sided lower')) # 0.9566, Table A.16, 39+11=50
+    print(order_stat_P_k(n=100, c=0.95, P=0.50, bound='2-sided')) # 10, Table A.15g
+    print(order_stat_P_k(n=100, c=0.95, P=0.90, bound='1-sided upper')) # 5, Table A.16
+    print(order_stat_P_k(n=100, c=0.95, P=0.10, bound='1-sided lower')) # 5, Table A.16
+    print(order_stat_P_k(n=10, c=0.999, P=0.05, bound='1-sided lower')) # Warning message, None
+    print(order_stat_P_n(k=10, c=0.950, P=0.50, bound='2-sided')) # 108, Table A.15g (conservative)
+    print(order_stat_P_n(k=11, c=0.9566, P=0.95, bound='1-sided upper')) # 1018, Table A.16 (conservative)
+    print(order_stat_P_n(k=11, c=0.9566, P=0.05, bound='1-sided lower')) # 1018, Table A.16 (conservative)
 #'''

@@ -459,18 +459,19 @@ class MCSim:
 
 '''
 ### Test ###
-def dummyfcn(*args):
-    return 1
-from scipy.stats import norm, randint
-np.random.seed(74494861)
-sim = MCSim('Sim', 10, {'preprocess':dummyfcn, 'run':dummyfcn, 'postprocess':dummyfcn})
-sim.addInVar('Var1', randint, (1, 5))
-sim.addInVar('Var2', norm, (10, 4))
-sim.genCases()
-print(sim.mcinvars['Var1'].name)
-print(sim.mccases[0].mcinvals['Var1'].val)
-print(sim.mcinvars['Var2'].name)
-print(sim.mccases[0].mcinvals['Var2'].val)
-print(sim.corr())
-print(sim.cov())
+if __name__ == '__main__':
+    def dummyfcn(*args):
+        return 1
+    from scipy.stats import norm, randint
+    np.random.seed(74494861)
+    sim = MCSim('Sim', 10, {'preprocess':dummyfcn, 'run':dummyfcn, 'postprocess':dummyfcn})
+    sim.addInVar('Var1', randint, (1, 5))
+    sim.addInVar('Var2', norm, (10, 4))
+    sim.genCases()
+    print(sim.mcinvars['Var1'].name)
+    print(sim.mccases[0].mcinvals['Var1'].val)
+    print(sim.mcinvars['Var2'].name)
+    print(sim.mccases[0].mcinvals['Var2'].val)
+    print(sim.corr())
+    print(sim.cov())
 #'''

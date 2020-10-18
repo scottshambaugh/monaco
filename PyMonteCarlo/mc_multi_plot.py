@@ -53,13 +53,14 @@ def mc_multi_plot_2d_scatter_hist(mcvarx, mcvary, cases=None, highlight_cases=[]
 
 '''
 ### Test ###
-from PyMonteCarlo.MCVar import MCInVar
-from scipy.stats import norm
-plt.close('all')
-
-mcinvars = dict()
-mcinvars['norm1'] = MCInVar('norm1', norm, (1, 5), 1000, seed=1)
-mcinvars['norm2'] = MCInVar('norm2', norm, (10, 4), 1000, seed=2)
-
-mc_multi_plot(mcinvars['norm1'], mcinvars['norm2'], highlight_cases=range(10,30), title='test')  # MCPlot2DScatter
+if __name__ == '__main__':
+    from PyMonteCarlo.MCVar import MCInVar
+    from scipy.stats import norm
+    plt.close('all')
+    
+    mcinvars = dict()
+    mcinvars['norm1'] = MCInVar('norm1', norm, (1, 5), 1000, seed=1)
+    mcinvars['norm2'] = MCInVar('norm2', norm, (10, 4), 1000, seed=2)
+    
+    mc_multi_plot(mcinvars['norm1'], mcinvars['norm2'], highlight_cases=range(10,30), title='test')  # MCPlot2DScatter
 #'''

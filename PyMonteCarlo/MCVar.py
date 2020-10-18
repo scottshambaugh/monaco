@@ -232,37 +232,38 @@ class MCOutVar(MCVar):
 
 '''
 ### Test ###
-from scipy.stats import norm, randint
-generator = np.random.RandomState(74494861)
-invarseeds = generator.randint(0, 2**31-1, size=10)
-
-mcinvars = dict()
-mcinvars['randint'] = MCInVar('randint', randint, (1, 5), 1000, seed=invarseeds[0])
-print(mcinvars['randint'].stats())
-mcinvars['norm'] = MCInVar('norm', norm, (10, 4), 1000, seed=invarseeds[1])
-print(mcinvars['norm'].stats())
-mcinvars['norm'].addVarStat(stattype='orderstatTI', statkwargs={'p':0.75, 'c':0.95, 'bound':'2-sided'})
-print(mcinvars['norm'].mcvarstats[0].vals)
-xk = np.array([1, 5, 6])
-pk = np.ones(len(xk))/len(xk)
-custom = rv_discrete(name='custom', values=(xk, pk))
-mcinvars['custom'] = MCInVar('custom', custom, (), 1000, seed=invarseeds[2])
-print(mcinvars['custom'].stats())
-print(mcinvars['custom'].vals[1:10])
-print(mcinvars['custom'].getVal(0).val)
-mcinvars['map'] = MCInVar('map', custom, (), 10, nummap={1:'a',5:'e',6:'f'}, seed=invarseeds[3])
-print(mcinvars['map'].vals)
-print(mcinvars['map'].stats())
-
-mcoutvars = dict()
-mcoutvars['test'] = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
-print(mcoutvars['test'].getVal(1).val)
-print(mcoutvars['test'].stats())
-
-v = np.array([[1,1],[2,2],[3,3]])
-mcoutvars['test2'] = MCOutVar('test2', [v, v, v, v, v])
-mcoutvars['test2'].addVarStat(stattype='orderstatTI', statkwargs={'p':0.33, 'c':0.50, 'bound':'1-sided'})
-mcoutvars.update(mcoutvars['test2'].split())
-print(mcoutvars['test2 [0]'].nums)
-print(mcoutvars['test2 [0]'].mcvarstats[0].vals)
+if __name__ == '__main__':
+    from scipy.stats import norm, randint
+    generator = np.random.RandomState(74494861)
+    invarseeds = generator.randint(0, 2**31-1, size=10)
+    
+    mcinvars = dict()
+    mcinvars['randint'] = MCInVar('randint', randint, (1, 5), 1000, seed=invarseeds[0])
+    print(mcinvars['randint'].stats())
+    mcinvars['norm'] = MCInVar('norm', norm, (10, 4), 1000, seed=invarseeds[1])
+    print(mcinvars['norm'].stats())
+    mcinvars['norm'].addVarStat(stattype='orderstatTI', statkwargs={'p':0.75, 'c':0.95, 'bound':'2-sided'})
+    print(mcinvars['norm'].mcvarstats[0].vals)
+    xk = np.array([1, 5, 6])
+    pk = np.ones(len(xk))/len(xk)
+    custom = rv_discrete(name='custom', values=(xk, pk))
+    mcinvars['custom'] = MCInVar('custom', custom, (), 1000, seed=invarseeds[2])
+    print(mcinvars['custom'].stats())
+    print(mcinvars['custom'].vals[1:10])
+    print(mcinvars['custom'].getVal(0).val)
+    mcinvars['map'] = MCInVar('map', custom, (), 10, nummap={1:'a',5:'e',6:'f'}, seed=invarseeds[3])
+    print(mcinvars['map'].vals)
+    print(mcinvars['map'].stats())
+    
+    mcoutvars = dict()
+    mcoutvars['test'] = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
+    print(mcoutvars['test'].getVal(1).val)
+    print(mcoutvars['test'].stats())
+    
+    v = np.array([[1,1],[2,2],[3,3]])
+    mcoutvars['test2'] = MCOutVar('test2', [v, v, v, v, v])
+    mcoutvars['test2'].addVarStat(stattype='orderstatTI', statkwargs={'p':0.33, 'c':0.50, 'bound':'1-sided'})
+    mcoutvars.update(mcoutvars['test2'].split())
+    print(mcoutvars['test2 [0]'].nums)
+    print(mcoutvars['test2 [0]'].mcvarstats[0].vals)
 #'''

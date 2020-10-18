@@ -50,18 +50,19 @@ class MCCase():
 
 '''
 ### Test ###
-import numpy as np
-from scipy.stats import norm
-from MCVar import MCInVar
-np.random.seed(74494861)
-var = {'Test':MCInVar('Test', norm, (10, 4), 10)}
-case = MCCase(0, var, False)
-print(case.mcinvals['Test'].val)
-
-case.addOutVal('TestOut', [[0,0],[0,0],[0,0]])
-print(case.mcoutvals['TestOut'].val)
-print(case.mcoutvals['TestOut'].size)
-valmap = {'a':0,'b':-1,'c':-2,'d':-3,'e':-4,'f':-5}
-case.addOutVal('TestOut2', [['a','b'],['c','d'],['e','f']], valmap = valmap)
-print(case.mcoutvals['TestOut2'].num)
+if __name__ == '__main__':
+    import numpy as np
+    from scipy.stats import norm
+    from MCVar import MCInVar
+    np.random.seed(74494861)
+    var = {'Test':MCInVar('Test', norm, (10, 4), 10)}
+    case = MCCase(0, var, False)
+    print(case.mcinvals['Test'].val)
+    
+    case.addOutVal('TestOut', [[0,0],[0,0],[0,0]])
+    print(case.mcoutvals['TestOut'].val)
+    print(case.mcoutvals['TestOut'].size)
+    valmap = {'a':0,'b':-1,'c':-2,'d':-3,'e':-4,'f':-5}
+    case.addOutVal('TestOut2', [['a','b'],['c','d'],['e','f']], valmap = valmap)
+    print(case.mcoutvals['TestOut2'].num)
 #'''

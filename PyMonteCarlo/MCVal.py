@@ -149,29 +149,30 @@ class MCOutVal(MCVal):
 
 '''
 ### Test ###
-from scipy.stats import norm
-a = MCInVal(name='TestA', ncase=1, num=0, dist=norm, isnom=True)
-print(a.val)
-b = MCOutVal(name='TestB', ncase=1, val=[[0,0],[0,0],[0,0]], isnom=True)
-print(b.size)
-print(b.val)
-bsplit = b.split()
-print(bsplit['TestB [0]'].val)
-c = MCOutVal(name='TestC', ncase=1, val=[['a','a'],['b','b'],['a','b']], isnom=True)
-print(c.valmap)
-print(c.num)
-d = MCOutVal(name='TestD', ncase=1, val=[True, False], valmap={True:2, False:1})
-print(d.val)
-print(d.num)
-e = MCOutVal(name='TestE', ncase=1, val=[True, False])
-print(e.val)
-print(e.num)
-
-nvals = 3
-dates = pd.date_range(start='2020-01-01', periods=nvals, freq='YS')
-df = pd.DataFrame({'vals': range(nvals)}, index = dates)
-f = MCOutVal(name='TestF', ncase=1, val=df['vals'], isnom=True)
-print(f.num)
-g = MCOutVal(name='TestG', ncase=1, val=df.index, isnom=True)
-print(g.val)
+if __name__ == '__main__':
+    from scipy.stats import norm
+    a = MCInVal(name='TestA', ncase=1, num=0, dist=norm, isnom=True)
+    print(a.val)
+    b = MCOutVal(name='TestB', ncase=1, val=[[0,0],[0,0],[0,0]], isnom=True)
+    print(b.size)
+    print(b.val)
+    bsplit = b.split()
+    print(bsplit['TestB [0]'].val)
+    c = MCOutVal(name='TestC', ncase=1, val=[['a','a'],['b','b'],['a','b']], isnom=True)
+    print(c.valmap)
+    print(c.num)
+    d = MCOutVal(name='TestD', ncase=1, val=[True, False], valmap={True:2, False:1})
+    print(d.val)
+    print(d.num)
+    e = MCOutVal(name='TestE', ncase=1, val=[True, False])
+    print(e.val)
+    print(e.num)
+    
+    nvals = 3
+    dates = pd.date_range(start='2020-01-01', periods=nvals, freq='YS')
+    df = pd.DataFrame({'vals': range(nvals)}, index = dates)
+    f = MCOutVal(name='TestF', ncase=1, val=df['vals'], isnom=True)
+    print(f.num)
+    g = MCOutVal(name='TestG', ncase=1, val=df.index, isnom=True)
+    print(g.val)
 #'''

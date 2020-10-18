@@ -45,11 +45,11 @@ def election_example_run_script():
     pct_dem_win = sum(x == 'Dem' for x in sim.mcoutvars['Winner'].vals)/sim.ncases
     pct_rep_win = sum(x == 'Rep' for x in sim.mcoutvars['Winner'].vals)/sim.ncases
     pct_contested = sum(x == 'Contested' for x in sim.mcoutvars['Winner'].vals)/sim.ncases
-    print(f'Win probabilities: {100*pct_dem_win}% Dem, {100*pct_rep_win}% Rep, {100*pct_contested}% Contested')
+    print(f'Win probabilities: {100*pct_dem_win:0.1f}% Dem, {100*pct_rep_win:0.1f}% Rep, {100*pct_contested:0.1f}% Contested')
     mc_plot(sim.mcoutvars['Winner'])
     
     pct_recount = sum(x != 0 for x in sim.mcoutvars['Num Recounts'].vals)/sim.ncases
-    print(f'In {100*pct_recount}% of runs there was a state close enough to trigger a recount (<0.5%)')
+    print(f'In {100*pct_recount:0.1f}% of runs there was a state close enough to trigger a recount (<0.5%)')
     
     dem_win_state_pct = dict()
     for state in states:

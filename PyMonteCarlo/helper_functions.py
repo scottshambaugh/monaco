@@ -54,3 +54,8 @@ def vwrite(verbose, *args, **kwargs):
     if verbose:
         tqdm.write(*args, **kwargs)
 
+'''
+### Test ###
+if __name__ == '__main__':
+    pass
+#'''

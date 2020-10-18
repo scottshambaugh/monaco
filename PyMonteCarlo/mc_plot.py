@@ -355,42 +355,43 @@ def get_cases(ncases, cases):
 
 '''
 ### Test ###
-np.random.seed(74494861)
-from scipy.stats import randint, norm
-plt.close('all')
-
-mcinvars = dict()
-nummap={1:'a',2:'b',3:'c',4:'d',5:'e'}
-mcinvars['randint'] = MCInVar('randint', randint, (1, 5), 1000, nummap=nummap)
-mcinvars['norm'] = MCInVar('norm', norm, (10, 4), 1000)
-mcinvars['norm'].addVarStat('orderstatTI', {'p':0.75, 'c':0.50})
-mcinvars['norm2'] = MCInVar('norm2', norm, (10, 4), 1000)
-mcoutvars = dict()
-mcoutvars['test'] = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
-
-f, (ax1, ax2) = plt.subplots(2, 1)
-mc_plot_hist(mcinvars['randint'], ax=ax1, orientation='horizontal') # mc_plot_hist
-mc_plot(mcinvars['norm'], title='norm')                             # mc_plot_hist
-mc_plot_hist(mcoutvars['test'], orientation='horizontal')           # mc_plot_hist
-mc_plot_cdf(mcinvars['randint'], ax=ax2)                            # mc_plot_cdf
-mc_plot_cdf(mcinvars['norm'], orientation='horizontal')             # mc_plot_cdf
-mc_plot_cdf(mcoutvars['test'])                                      # mc_plot_cdf
-
-mc_plot(mcinvars['randint'], mcinvars['norm'], cases=range(40,50), highlight_cases=range(10,30))  # mc_plot_2d_scatter
-mc_plot(mcinvars['randint'], mcinvars['norm'], mcinvars['norm2'], cases=[], highlight_cases=range(10,30))  # mc_plot_3d_scatter
-
-v = np.array([-2, -1, 2, 3, 4, 5])
-var1 = MCOutVar('testx', [v, v, v, v, v], firstcaseisnom=True)
-var2 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
-var3 = MCOutVar('testz', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
-var2.addVarStat('sigmaP', {'sig':3})
-var2.addVarStat('sigmaP', {'sig':-3})
-var2.addVarStat('orderstatTI', {'p':0.6, 'c':0.50})
-var2.addVarStat('mean')
-
-mc_plot(var2, highlight_cases=None)         # mc_plot_2d_line
-mc_plot(var1, var2, highlight_cases=[0,1])  # mc_plot_2d_line
-mc_plot(var1, var2, var3)                   # mc_plot_3d_line
-
-mc_plot_cov_corr(np.array([[2, 0.1111, np.nan],[-0.19, -1, np.nan], [np.nan, np.nan, np.nan]]), ['Test1', 'Test2', 'Test3'])
+if __name__ == '__main__':
+    np.random.seed(74494861)
+    from scipy.stats import randint, norm
+    plt.close('all')
+    
+    mcinvars = dict()
+    nummap={1:'a',2:'b',3:'c',4:'d',5:'e'}
+    mcinvars['randint'] = MCInVar('randint', randint, (1, 5), 1000, nummap=nummap)
+    mcinvars['norm'] = MCInVar('norm', norm, (10, 4), 1000)
+    mcinvars['norm'].addVarStat('orderstatTI', {'p':0.75, 'c':0.50})
+    mcinvars['norm2'] = MCInVar('norm2', norm, (10, 4), 1000)
+    mcoutvars = dict()
+    mcoutvars['test'] = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
+    
+    f, (ax1, ax2) = plt.subplots(2, 1)
+    mc_plot_hist(mcinvars['randint'], ax=ax1, orientation='horizontal') # mc_plot_hist
+    mc_plot(mcinvars['norm'], title='norm')                             # mc_plot_hist
+    mc_plot_hist(mcoutvars['test'], orientation='horizontal')           # mc_plot_hist
+    mc_plot_cdf(mcinvars['randint'], ax=ax2)                            # mc_plot_cdf
+    mc_plot_cdf(mcinvars['norm'], orientation='horizontal')             # mc_plot_cdf
+    mc_plot_cdf(mcoutvars['test'])                                      # mc_plot_cdf
+    
+    mc_plot(mcinvars['randint'], mcinvars['norm'], cases=range(40,50), highlight_cases=range(10,30))  # mc_plot_2d_scatter
+    mc_plot(mcinvars['randint'], mcinvars['norm'], mcinvars['norm2'], cases=[], highlight_cases=range(10,30))  # mc_plot_3d_scatter
+    
+    v = np.array([-2, -1, 2, 3, 4, 5])
+    var1 = MCOutVar('testx', [v, v, v, v, v], firstcaseisnom=True)
+    var2 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
+    var3 = MCOutVar('testz', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
+    var2.addVarStat('sigmaP', {'sig':3})
+    var2.addVarStat('sigmaP', {'sig':-3})
+    var2.addVarStat('orderstatTI', {'p':0.6, 'c':0.50})
+    var2.addVarStat('mean')
+    
+    mc_plot(var2, highlight_cases=None)         # mc_plot_2d_line
+    mc_plot(var1, var2, highlight_cases=[0,1])  # mc_plot_2d_line
+    mc_plot(var1, var2, var3)                   # mc_plot_3d_line
+    
+    mc_plot_cov_corr(np.array([[2, 0.1111, np.nan],[-0.19, -1, np.nan], [np.nan, np.nan, np.nan]]), ['Test1', 'Test2', 'Test3'])
 #'''
