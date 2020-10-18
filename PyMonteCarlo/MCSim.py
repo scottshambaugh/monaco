@@ -124,14 +124,26 @@ class MCSim:
         generator = np.random.RandomState(self.seed)
         self.caseseeds = generator.randint(0, 2**31-1, size=self.ncases)
         mccases = []
+        
+        if self.verbose:
+            self.pbar0 = tqdm(total=self.ncases, desc='Generating cases', unit=' cases', position=0)
+        
         for i in range(self.ncases):
             isnom = False
             if self.firstcaseisnom and i == 0:
                 isnom = True
             mccases.append(MCCase(ncase=i, mcinvars=self.mcinvars, constvals=self.constvals, isnom=isnom, seed=int(self.caseseeds[i])))
             mccases[i].siminput = self.fcns['preprocess'](mccases[i])
+            if not (self.pbar0 is None):
+                self.pbar0.update(1)
+        
         self.mccases = mccases
         #self.genCovarianceMatrix()
+        
+        if self.verbose:
+            self.pbar0.refresh()
+            self.pbar0.close()
+            self.pbar0 = None
 
 
     def genOutVars(self):
