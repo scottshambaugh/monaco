@@ -1,4 +1,4 @@
-## [PyMonteCarlo](../../) - [Examples](../)
+## [Monaco](../../) - [Examples](../)
 
 ### Election
 

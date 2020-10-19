@@ -1,4 +1,4 @@
-from PyMonteCarlo.MCSim import MCSim
+from Monaco.MCSim import MCSim
 import dill
 import os
 

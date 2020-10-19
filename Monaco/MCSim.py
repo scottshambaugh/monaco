@@ -3,8 +3,8 @@ import numpy as np
 import dill
 import pathlib
 from datetime import datetime
-from PyMonteCarlo.MCCase import MCCase
-from PyMonteCarlo.MCVar import MCInVar, MCOutVar
+from Monaco.MCCase import MCCase
+from Monaco.MCVar import MCInVar, MCOutVar
 from psutil import cpu_count
 from pathos.pools import ThreadPool as Pool
 from tqdm import tqdm

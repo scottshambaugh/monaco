@@ -30,7 +30,7 @@ def election_example_sim(states, state_evs, state_dem_pct, state_rep_pct, state_
 
 #'''
 ### Test ###
-from PyMonteCarlo.order_statistics import pct2sig
+from Monaco.order_statistics import pct2sig
 data = pd.read_csv('state_presidential_odds.csv')
 states = data['State'].tolist()
 state_evs = dict(zip(data['State'], data['EV']))

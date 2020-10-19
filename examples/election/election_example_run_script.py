@@ -1,7 +1,7 @@
 from scipy.stats import norm, uniform
-from PyMonteCarlo.order_statistics import pct2sig
-from PyMonteCarlo.MCSim import MCSim
-from PyMonteCarlo.mc_plot import mc_plot
+from Monaco.order_statistics import pct2sig
+from Monaco.MCSim import MCSim
+from Monaco.mc_plot import mc_plot
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd

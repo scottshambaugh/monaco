@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from itertools import chain
 from copy import copy, deepcopy
-from PyMonteCarlo.helper_functions import is_num
+from Monaco.helper_functions import is_num
 
 ### MCVal Base Class ###
 class MCVal():

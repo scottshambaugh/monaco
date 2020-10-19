@@ -1,6 +1,6 @@
 from scipy.stats import norm, uniform
-from PyMonteCarlo.MCSim import MCSim
-from PyMonteCarlo.mc_plot import mc_plot, mc_plot_cov_corr
+from Monaco.MCSim import MCSim
+from Monaco.mc_plot import mc_plot, mc_plot_cov_corr
 import matplotlib.pyplot as plt
 import numpy as np
 

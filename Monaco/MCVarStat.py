@@ -2,7 +2,7 @@ import numpy as np
 from copy import copy
 from statistics import mode
 from scipy.stats.mstats import gmean
-from PyMonteCarlo.order_statistics import order_stat_P_k, order_stat_TI_k, get_iP, pct2sig, sig2pct
+from Monaco.order_statistics import order_stat_P_k, order_stat_TI_k, get_iP, pct2sig, sig2pct
 
 class MCVarStat:
     def __init__(self, mcvar, stattype, statkwargs={}, name=None):
@@ -311,7 +311,7 @@ class MCVarStat:
 ### Test ###
 if __name__ == '__main__':
     from scipy.stats import norm
-    from PyMonteCarlo.MCVar import MCInVar, MCOutVar
+    from Monaco.MCVar import MCInVar, MCOutVar
     seed = 74494861
     
     mcinvar = MCInVar('norm', norm, (0, 1), 100000, seed=seed)

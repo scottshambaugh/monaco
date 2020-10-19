@@ -1,8 +1,8 @@
 from scipy.stats import uniform
-from PyMonteCarlo.MCSim import MCSim
-from PyMonteCarlo.mc_plot import mc_plot
-from PyMonteCarlo.mc_multi_plot import mc_multi_plot
-from PyMonteCarlo.order_statistics import order_stat_TI_n, pct2sig
+from Monaco.MCSim import MCSim
+from Monaco.mc_plot import mc_plot
+from Monaco.mc_multi_plot import mc_multi_plot
+from Monaco.order_statistics import order_stat_TI_n, pct2sig
 from math import ceil
 
 from pandemic_example_sim import pandemic_example_sim

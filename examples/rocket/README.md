@@ -1,4 +1,4 @@
-## [PyMonteCarlo](../../) - [Examples](../)
+## [Monaco](../../) - [Examples](../)
 
 ### Rocket
 This example simulates the flight of a model rocket, as an example of 

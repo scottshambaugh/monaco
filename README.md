@@ -1,4 +1,4 @@
-# PyMonteCarlo
+# Monaco
 This library is a work-in-progress under heavy development. Not recommended for 
 outside use at this time.     
 Originally created in 2020 by Scott Shambaugh during Coronavirus quarantine.
@@ -10,10 +10,11 @@ spread of pandemics, weather, or the path of a rocket on its way to Mars, is a
 statistical tool known as the 
 [Monte-Carlo method](https://en.wikipedia.org/wiki/Monte_Carlo_method).
 The Monte-Carlo method, named for the rolling of the dice at the famous Monte 
-Carlo casino, allows you to quantify uncertainty by introducing randomness to 
-otherwise deterministic processes, and seeing what the range of results is.
+Carlo casino located in Monaco, allows you to quantify uncertainty by 
+introducing randomness to otherwise deterministic processes, and seeing what 
+the range of results is.
 
-PyMonteCarlo is a library for setting up, running, and analyzing Monte-Carlo 
+Monaco is a python library for setting up, running, and analyzing Monte-Carlo 
 simulations. Users can define random input variables drawn from any of SciPy's 
 continuous or discrete distributions (including custom distributions), 
 preprocess and structure that data as needed to feed to their main simulation, 
@@ -37,7 +38,7 @@ might be encountered are provided.
     - [integration](examples/integration/) (TODO)
     - [pandemic](examples/pandemic/)
     - [rocket](examples/rocket/)
-* [PyMonteCarlo](PyMonteCarlo/)
+* [Monaco](Monaco/)
 * [templates](templates/)
 * [test](test/)
 

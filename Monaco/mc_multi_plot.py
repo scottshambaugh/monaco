@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from PyMonteCarlo.mc_plot import mc_plot_hist, mc_plot_2d_scatter
+from Monaco.mc_plot import mc_plot_hist, mc_plot_2d_scatter
 
 
 def mc_multi_plot(mcvarx, mcvary=None, cases=None, highlight_cases=[], fig=None, title=''):
@@ -54,7 +54,7 @@ def mc_multi_plot_2d_scatter_hist(mcvarx, mcvary, cases=None, highlight_cases=[]
 '''
 ### Test ###
 if __name__ == '__main__':
-    from PyMonteCarlo.MCVar import MCInVar
+    from Monaco.MCVar import MCInVar
     from scipy.stats import norm
     plt.close('all')
     

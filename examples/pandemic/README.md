@@ -1,4 +1,4 @@
-## [PyMonteCarlo](../../) - [Examples](../)
+## [Monaco](../../) - [Examples](../)
 
 ### Pandemic
 This example simulates the spread of an epidemic through a social network. 

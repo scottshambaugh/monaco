@@ -1,4 +1,4 @@
-from PyMonteCarlo.MCVal import MCOutVal
+from Monaco.MCVal import MCOutVal
 import numpy as np
 
 class MCCase():

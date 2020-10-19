@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.stats import rv_continuous, rv_discrete, describe
-from PyMonteCarlo.MCVal import MCInVal, MCOutVal
-from PyMonteCarlo.MCVarStat import MCVarStat
+from Monaco.MCVal import MCInVal, MCOutVal
+from Monaco.MCVarStat import MCVarStat
 from copy import copy
 from helper_functions import get_iterable
 

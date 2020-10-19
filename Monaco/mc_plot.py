@@ -2,7 +2,7 @@ import numpy as np
 from scipy.stats import rv_continuous, rv_discrete, mode
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from PyMonteCarlo.MCVar import MCInVar, MCOutVar
+from Monaco.MCVar import MCInVar, MCOutVar
 from copy import copy
 from helper_functions import get_iterable, slice_by_index, length
 
