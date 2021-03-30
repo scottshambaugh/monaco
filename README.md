@@ -57,7 +57,6 @@ might be encountered are provided.
 * Run on remote server (Azure, Google Cloud)
 * Get custom distributions working
 * Linear trend lines on scatter plots
-* Rug plots
 * Convergence plots
 * Examples:
     * Evidence-Based Scheduling?
@@ -81,6 +80,7 @@ might be encountered are provided.
 * ~~Correlation matrix output for scalars~~
 * ~~Put in license~~
 * ~~Map custom discrete distributions to keys that pass to functions~~
+* ~~Rug plots~~
 * ~~Scatter-histogram multiplots~~
 * ~~Automatically split outvars~~
 * ~~Highlight specific case on plot~~

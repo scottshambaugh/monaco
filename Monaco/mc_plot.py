@@ -8,7 +8,7 @@ from helper_functions import get_iterable, slice_by_index, length
 
 
 # If cases or highlight_cases are None, will plot all. Set to [] to plot none.
-def mc_plot(mcvarx, mcvary = None, mcvarz = None, cases=None, highlight_cases=[], ax=None, title=''):
+def mc_plot(mcvarx, mcvary = None, mcvarz = None, cases=None, highlight_cases=[], rug_plot=True, ax=None, title=''):
     # Split larger vars
     if mcvary is None and mcvarz is None:
         if mcvarx.size[0] not in (1, 2, 3):
@@ -42,7 +42,7 @@ def mc_plot(mcvarx, mcvary = None, mcvarz = None, cases=None, highlight_cases=[]
     # Single Variable Plots
     if mcvary is None and mcvarz is None:
         if mcvarx.size[1] == 1:
-            fig, ax = mc_plot_hist(mcvar=mcvarx, highlight_cases=highlight_cases, ax=ax, title=title)
+            fig, ax = mc_plot_hist(mcvar=mcvarx, highlight_cases=highlight_cases, rug_plot=rug_plot, ax=ax, title=title)
         else:
             mcvary = copy(mcvarx)
             mcvarx = copy(mcvarx) # don't overwrite the underlying object
@@ -59,7 +59,7 @@ def mc_plot(mcvarx, mcvary = None, mcvarz = None, cases=None, highlight_cases=[]
             raise ValueError(f'Variables have inconsistent lengths: {mcvarx.name}:{mcvarx.size[1]}, {mcvary.name}:{mcvary.size[1]}')            
        
         if mcvarx.size[1] == 1:
-            fig, ax = mc_plot_2d_scatter(mcvarx=mcvarx, mcvary=mcvary, cases=cases, highlight_cases=highlight_cases, ax=ax, title=title)
+            fig, ax = mc_plot_2d_scatter(mcvarx=mcvarx, mcvary=mcvary, cases=cases, highlight_cases=highlight_cases, rug_plot=rug_plot, ax=ax, title=title)
             
         elif mcvarx.size[1] > 1:
             fig, ax = mc_plot_2d_line(mcvarx=mcvarx, mcvary=mcvary, cases=cases, highlight_cases=highlight_cases, ax=ax, title=title)
@@ -79,7 +79,7 @@ def mc_plot(mcvarx, mcvary = None, mcvarz = None, cases=None, highlight_cases=[]
 
 
 
-def mc_plot_hist(mcvar, highlight_cases=[], cumulative=False, orientation='vertical', ax=None, title=''):
+def mc_plot_hist(mcvar, highlight_cases=[], cumulative=False, rug_plot=True, orientation='vertical', ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=False)
 
     # Histogram generation
@@ -130,51 +130,56 @@ def mc_plot_hist(mcvar, highlight_cases=[], cumulative=False, orientation='verti
         ylabeltext = 'Cumulative Probability'
     else:
         ylabeltext = 'Probability Density'
+    
+    if rug_plot:
+        plot_rug_marks(ax, orientation=orientation, nums=mcvar.nums)
+
+    xlim = ax.get_xlim()
+    ylim = ax.get_ylim()
 
     # Highligted highlight_cases and MCVarStats
     if orientation == 'vertical':
-        ylim = ax.get_ylim()
         for i in highlighted_cases:
-            plt.plot([mcvar.nums[i], mcvar.nums[i]], ylim, linestyle='-', color='red')
+            plt.plot([mcvar.nums[i], mcvar.nums[i]], [ylim[0], ylim[0]+(ylim[1]-ylim[0])*0.10], linestyle='-', linewidth=1, color='red')
         for mcvarstat in mcvar.mcvarstats:
             nums = get_iterable(mcvarstat.nums)
             if length(nums) == 1:
-                plt.plot([nums[0],nums[0]], ylim, linestyle='-', color='b')
+                plt.plot([nums[0],nums[0]], ylim, linestyle='-', color='blue')
             elif length(nums) == 3:
-                plt.plot([nums[1],nums[1]], ylim, linestyle='-', color='b')
+                plt.plot([nums[1],nums[1]], ylim, linestyle='-', color='blue')
             if length(nums) in (2, 3):
-                ax.fill_between([nums[0],nums[-1]], [ylim[0], ylim[0]], [ylim[1], ylim[1]], color='b', alpha=0.2)
+                ax.fill_between([nums[0],nums[-1]], [ylim[0], ylim[0]], [ylim[1], ylim[1]], color='blue', alpha=0.2)
         plt.xlabel(mcvar.name)
         plt.ylabel(ylabeltext)
         apply_category_labels(ax, mcvarx=mcvar)
         
     elif orientation == 'horizontal':
-        xlim = ax.get_xlim()
         for i in highlighted_cases:
-            plt.plot(xlim, [mcvar.nums[i], mcvar.nums[i]], linestyle='-', color='red')
+            plt.plot([xlim[0], xlim[0]+(xlim[1]-xlim[0])*0.10], [mcvar.nums[i], mcvar.nums[i]], linestyle='-', linewidth=1, color='red')
         for mcvarstat in mcvar.mcvarstats:
             nums = get_iterable(mcvarstat.nums)
             if length(nums) == 1:
-                plt.plot(xlim, [nums[0],nums[0]], linestyle='-', color='b')
+                plt.plot(xlim, [nums[0],nums[0]], linestyle='-', color='blue')
             elif length(nums) == 3:
-                plt.plot(xlim, [nums[1],nums[1]], linestyle='-', color='b')
+                plt.plot(xlim, [nums[1],nums[1]], linestyle='-', color='blue')
             if length(nums) in (2,3):
-                ax.fill_between(xlim, nums[0], nums[-1], color='b', alpha=0.2)
+                ax.fill_between(xlim, nums[0], nums[-1], color='blue', alpha=0.2)
         plt.ylabel(mcvar.name)
         plt.xlabel(ylabeltext)
         apply_category_labels(ax, mcvary=mcvar)
+                
     plt.title(title)
     
     return fig, ax
         
 
 
-def mc_plot_cdf(mcvar, highlight_cases=[], orientation='vertical', ax=None, title=''):
-    return mc_plot_hist(mcvar=mcvar, highlight_cases=highlight_cases, orientation=orientation, cumulative=True, ax=ax, title=title)
+def mc_plot_cdf(mcvar, highlight_cases=[], orientation='vertical', rug_plot=True, ax=None, title=''):
+    return mc_plot_hist(mcvar=mcvar, highlight_cases=highlight_cases, orientation=orientation, cumulative=True, rug_plot=rug_plot, ax=ax, title=title)
 
 
 
-def mc_plot_2d_scatter(mcvarx, mcvary, cases=None, highlight_cases=[], ax=None, title=''):
+def mc_plot_2d_scatter(mcvarx, mcvary, cases=None, highlight_cases=[], rug_plot=True, ax=None, title=''):
     fig, ax = manage_axis(ax, is3d=False)
     colorblack = [[0,0,0],]
     colorred = [[1,0,0],]
@@ -187,6 +192,11 @@ def mc_plot_2d_scatter(mcvarx, mcvary, cases=None, highlight_cases=[], ax=None, 
         plt.scatter(slice_by_index(mcvarx.nums, reg_cases), slice_by_index(mcvary.nums, reg_cases), edgecolors=None, c=colorblack, alpha=0.4)
     if highlighted_cases:
         plt.scatter(slice_by_index(mcvarx.nums, highlighted_cases), slice_by_index(mcvary.nums, highlighted_cases), edgecolors=None, c=colorred, alpha=1)        
+
+    if rug_plot:
+        all_cases = set(get_iterable(cases)) | set(get_iterable(highlight_cases))
+        plot_rug_marks(ax, orientation='vertical', nums=slice_by_index(mcvarx.nums, all_cases))
+        plot_rug_marks(ax, orientation='horizontal', nums=slice_by_index(mcvary.nums, all_cases))
 
     plt.xlabel(mcvarx.name)
     plt.ylabel(mcvary.name)
@@ -211,11 +221,11 @@ def mc_plot_2d_line(mcvarx, mcvary, cases=None, highlight_cases=[], ax=None, tit
 
     for mcvarstat in mcvary.mcvarstats:
         if length(mcvarstat.nums[0]) == 1:
-            plt.plot(mcvarx.nums[0], mcvarstat.nums[:], linestyle='-', color='b')
+            plt.plot(mcvarx.nums[0], mcvarstat.nums[:], linestyle='-', color='blue')
         elif length(mcvarstat.nums[0]) == 3:
-            plt.plot(mcvarx.nums[0], mcvarstat.nums[:,1], linestyle='-', color='b')
+            plt.plot(mcvarx.nums[0], mcvarstat.nums[:,1], linestyle='-', color='blue')
         if length(mcvarstat.nums[0]) in (2,3):
-            ax.fill_between(mcvarx.nums[0], mcvarstat.nums[:,0], mcvarstat.nums[:,-1], color='b', alpha=0.3)
+            ax.fill_between(mcvarx.nums[0], mcvarstat.nums[:,0], mcvarstat.nums[:,-1], color='blue', alpha=0.3)
                      
 
     plt.xlabel(mcvarx.name)
@@ -358,6 +368,18 @@ def get_hist_lim(orientation, ax):
 
 
 
+def plot_rug_marks(ax, orientation, nums):
+    xlim = ax.get_xlim()
+    ylim = ax.get_ylim()
+    if orientation == 'vertical':
+        for num in nums:
+            plt.plot([num,num], [ylim[0], ylim[0] + 0.02*(ylim[1]-ylim[0])], color='black', linewidth=0.5, alpha=0.5)
+    elif orientation == 'horizontal':
+        for num in nums:
+            plt.plot([xlim[0], xlim[0] + 0.02*(xlim[1]-xlim[0])], [num,num], color='black', linewidth=0.5, alpha=0.5)
+
+
+
 def get_cases(ncases, cases):
     if cases is None:
         cases = list(range(ncases))
@@ -383,14 +405,14 @@ if __name__ == '__main__':
     mcoutvars['test'] = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
     
     f, (ax1, ax2) = plt.subplots(2, 1)
-    mc_plot_hist(mcinvars['randint'], ax=ax1, orientation='horizontal') # mc_plot_hist
-    mc_plot(mcinvars['norm'], title='norm')                             # mc_plot_hist
-    mc_plot_hist(mcoutvars['test'], orientation='horizontal')           # mc_plot_hist
-    mc_plot_cdf(mcinvars['randint'], ax=ax2)                            # mc_plot_cdf
-    mc_plot_cdf(mcinvars['norm'], orientation='horizontal')             # mc_plot_cdf
-    mc_plot_cdf(mcoutvars['test'])                                      # mc_plot_cdf
+    mc_plot_hist(mcinvars['randint'], ax=ax1, orientation='horizontal')       # mc_plot_hist
+    mc_plot(mcinvars['norm'], title='norm')                                   # mc_plot_hist
+    mc_plot_hist(mcoutvars['test'], orientation='horizontal', rug_plot=False) # mc_plot_hist
+    mc_plot_cdf(mcinvars['randint'], ax=ax2)                                  # mc_plot_cdf
+    mc_plot_cdf(mcinvars['norm'], orientation='horizontal')                   # mc_plot_cdf
+    mc_plot_cdf(mcoutvars['test'])                                            # mc_plot_cdf
     
-    mc_plot(mcinvars['randint'], mcinvars['norm'], cases=range(40,50), highlight_cases=range(10,30))  # mc_plot_2d_scatter
+    mc_plot(mcinvars['randint'], mcinvars['norm'], cases=range(40,50), highlight_cases=range(10,30), rug_plot=True)  # mc_plot_2d_scatter
     mc_plot(mcinvars['randint'], mcinvars['norm'], mcinvars['norm2'], cases=[], highlight_cases=range(10,30))  # mc_plot_3d_scatter
     
     v = np.array([-2, -1, 2, 3, 4, 5])

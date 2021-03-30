@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from Monaco.mc_plot import mc_plot_hist, mc_plot_2d_scatter
 
 
-def mc_multi_plot(mcvarx, mcvary=None, cases=None, highlight_cases=[], fig=None, title=''):
+def mc_multi_plot(mcvarx, mcvary=None, cases=None, highlight_cases=[], rug_plot=True, fig=None, title=''):
     # Split larger vars
     if mcvary is None:
         if mcvarx.size[0] == 2:
@@ -17,13 +17,13 @@ def mc_multi_plot(mcvarx, mcvary=None, cases=None, highlight_cases=[], fig=None,
 
     # Two Variable Plots
     if mcvarx.size[1] == 1 and mcvary.size[1] == 1:
-        fig, axs = mc_multi_plot_2d_scatter_hist(mcvarx=mcvarx, mcvary=mcvary, cases=cases, highlight_cases=highlight_cases, cumulative=False, fig=fig, title=title)
+        fig, axs = mc_multi_plot_2d_scatter_hist(mcvarx=mcvarx, mcvary=mcvary, cases=cases, highlight_cases=highlight_cases, rug_plot=rug_plot, cumulative=False, fig=fig, title=title)
             
     return fig, axs
 
 
 
-def mc_multi_plot_2d_scatter_hist(mcvarx, mcvary, cases=None, highlight_cases=[], cumulative=False, fig=None, title=''):
+def mc_multi_plot_2d_scatter_hist(mcvarx, mcvary, cases=None, highlight_cases=[], rug_plot=True, cumulative=False, fig=None, title=''):
     if not fig:
         fig = plt.figure()
     else:
@@ -35,9 +35,9 @@ def mc_multi_plot_2d_scatter_hist(mcvarx, mcvary, cases=None, highlight_cases=[]
     ax2 = fig.add_subplot(gs[0:3, 0])
     ax3 = fig.add_subplot(gs[0:3, 1:4], sharex=ax1, sharey=ax2)
 
-    mc_plot_hist(mcvarx, highlight_cases=highlight_cases, ax=ax1, title='', cumulative=cumulative)
-    mc_plot_hist(mcvary, highlight_cases=highlight_cases, ax=ax2, title='', cumulative=cumulative, orientation='horizontal')
-    mc_plot_2d_scatter(mcvarx, mcvary, cases=cases, highlight_cases=highlight_cases, ax=ax3, title='')
+    mc_plot_hist(mcvarx, highlight_cases=highlight_cases, rug_plot=False, ax=ax1, title='', cumulative=cumulative)
+    mc_plot_hist(mcvary, highlight_cases=highlight_cases, rug_plot=False, ax=ax2, title='', cumulative=cumulative, orientation='horizontal')
+    mc_plot_2d_scatter(mcvarx, mcvary, cases=cases, highlight_cases=highlight_cases, rug_plot=rug_plot, ax=ax3, title='')
     
     ax1.set_ylabel('')
     ax2.set_xlabel('')
