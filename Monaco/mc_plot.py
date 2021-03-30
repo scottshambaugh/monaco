@@ -140,7 +140,7 @@ def mc_plot_hist(mcvar, highlight_cases=[], cumulative=False, rug_plot=True, ori
     # Highligted highlight_cases and MCVarStats
     if orientation == 'vertical':
         for i in highlighted_cases:
-            plt.plot([mcvar.nums[i], mcvar.nums[i]], [ylim[0], ylim[0]+(ylim[1]-ylim[0])*0.10], linestyle='-', linewidth=1, color='red')
+            plt.plot([mcvar.nums[i], mcvar.nums[i]], [ylim[0], ylim[0]+(ylim[1]-ylim[0])*0.20], linestyle='-', linewidth=1, color='red')
         for mcvarstat in mcvar.mcvarstats:
             nums = get_iterable(mcvarstat.nums)
             if length(nums) == 1:
@@ -155,7 +155,7 @@ def mc_plot_hist(mcvar, highlight_cases=[], cumulative=False, rug_plot=True, ori
         
     elif orientation == 'horizontal':
         for i in highlighted_cases:
-            plt.plot([xlim[0], xlim[0]+(xlim[1]-xlim[0])*0.10], [mcvar.nums[i], mcvar.nums[i]], linestyle='-', linewidth=1, color='red')
+            plt.plot([xlim[0], xlim[0]+(xlim[1]-xlim[0])*0.20], [mcvar.nums[i], mcvar.nums[i]], linestyle='-', linewidth=1, color='red')
         for mcvarstat in mcvar.mcvarstats:
             nums = get_iterable(mcvarstat.nums)
             if length(nums) == 1:

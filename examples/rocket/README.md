@@ -9,3 +9,8 @@ integration. But it does model aerodynamic and wind effects, varying thrust and
 mass loss curves, and the deployment of a parachute shortly after apogee, which 
 has a 10% chance of failure. These produce enough nonlinear dynamics to make 
 for interesting results. 
+
+<p float="left" align="center">
+<img width="440" height="300" src="./rocket_trajectory.png">  
+<img width="360" height="270" src="./wind_vs_landing.png">
+</p>
