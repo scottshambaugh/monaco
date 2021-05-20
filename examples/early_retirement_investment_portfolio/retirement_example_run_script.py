@@ -24,9 +24,9 @@ def retirement_example_run_script():
     nyears = 30
     
     for i in range(nyears):
-        sim.addInVar(name=f'Year {i} Returns', dist=norm, distargs=((sp500_mean - inflation), sp500_stdev))
+        sim.addInVar(name=f'Year {i} Returns', dist=norm, distkwargs={'loc':(sp500_mean - inflation), 'scale':sp500_stdev})
     
-    sim.addInVar(name='Beginning Balance', dist=uniform, distargs=(1000000, 100000))
+    sim.addInVar(name='Beginning Balance', dist=uniform, distkwargs={'loc':1000000, 'scale':100000})
     sim.addConstVal(name='nyears', val=nyears)    
     
     sim.runSim()

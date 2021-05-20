@@ -25,13 +25,13 @@ def election_example_run_script():
     df['Rep_Sig'] = df['Rep_80_tol']/pct2sig(0.8, bound='2-sided')
     df['Other_Sig'] = df['Other_80_tol']/pct2sig(0.8, bound='2-sided')
 
-    sim.addInVar(name='National Dem Swing', dist=uniform, distargs=(-0.03, 0.06))
+    sim.addInVar(name='National Dem Swing', dist=uniform, distkwargs={'loc':-0.03, 'scale':0.06})
 
     for state in states:
         i = df.loc[df['State'] == state].index[0]
-        sim.addInVar(name=f'{state} Dem Unscaled Pct', dist=norm, distargs=(df['Dem_Mean'][i], df['Dem_Sig'][i]))
-        sim.addInVar(name=f'{state} Rep Unscaled Pct', dist=norm, distargs=(df['Rep_Mean'][i], df['Rep_Sig'][i]))
-        sim.addInVar(name=f'{state} Other Unscaled Pct', dist=norm, distargs=(df['Other_Mean'][i], df['Other_Sig'][i]))
+        sim.addInVar(name=f'{state} Dem Unscaled Pct',   dist=norm, distkwargs={'loc':df['Dem_Mean'][i],   'scale':df['Dem_Sig'][i]})
+        sim.addInVar(name=f'{state} Rep Unscaled Pct',   dist=norm, distkwargs={'loc':df['Rep_Mean'][i],   'scale':df['Rep_Sig'][i]})
+        sim.addInVar(name=f'{state} Other Unscaled Pct', dist=norm, distkwargs={'loc':df['Other_Mean'][i], 'scale':df['Other_Sig'][i]})
     
     sim.addConstVal(name='states', val=states)    
     sim.addConstVal(name='df', val=df)    

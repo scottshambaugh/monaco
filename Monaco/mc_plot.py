@@ -114,7 +114,7 @@ def mc_plot_hist(mcvar       : MCVar,
             plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=True, cumulative=cumulative, orientation=orientation, histtype='bar', facecolor='k', alpha=0.5)
             lim = get_hist_lim(orientation, ax)
             x = np.arange(lim[0], lim[1], (lim[1] - lim[0])/100)
-            dist = mcvar.dist(*mcvar.distargs)
+            dist = mcvar.dist(**mcvar.distkwargs)
             if cumulative:
                 ydata = dist.cdf(x)
             else:
@@ -129,7 +129,7 @@ def mc_plot_hist(mcvar       : MCVar,
             plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False, orientation=orientation, cumulative=cumulative, histtype='bar', facecolor='k', alpha=0.5)
             lim = get_hist_lim(orientation, ax)
             x = np.concatenate(([lim[0]], bins, [lim[1]]))
-            dist = mcvar.dist(*mcvar.distargs)
+            dist = mcvar.dist(**mcvar.distkwargs)
             if cumulative:
                 xdata = x - binwidth
                 ydata = dist.cdf(x)

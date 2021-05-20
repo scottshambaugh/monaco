@@ -24,7 +24,7 @@ def pandemic_example_run_script():
 
     sim = MCSim(name='pandemic', ndraws=ndraws, fcns=fcns, firstcaseisnom=True, seed=seed, cores=4, verbose=True, debug=False)
     
-    sim.addInVar(name='Probability of Infection', dist=uniform, distargs=(0.28, 0.04))
+    sim.addInVar(name='Probability of Infection', dist=uniform, distkwargs={'loc':0.28, 'scale':0.04})
     
     sim.runSim()
     

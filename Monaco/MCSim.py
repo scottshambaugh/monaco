@@ -103,15 +103,15 @@ class MCSim:
 
 
     def addInVar(self, 
-                 name     : str, 
-                 dist     : Union[rv_discrete, rv_continuous],
-                 distargs : Union[Dict[str, Any], Tuple[Any, ...]], # user should usually be explicit with kewword args, TODO: change this cvariable name
-                 nummap   : Union[None, Dict[int, Any]] = None,
+                 name       : str, 
+                 dist       : Union[rv_discrete, rv_continuous],
+                 distkwargs : Dict[str, Any], 
+                 nummap     : Union[None, Dict[int, Any]] = None,
                  ):  
         self.ninvars += 1
         invarseed = (self.seed + hash(name)) % 2**32  # make seed dependent on var name and not order added
         self.invarseeds.append(invarseed)
-        self.mcinvars[name] = MCInVar(name=name, dist=dist, distargs=distargs, ndraws=self.ndraws, nummap=nummap, \
+        self.mcinvars[name] = MCInVar(name=name, dist=dist, distkwargs=distkwargs, ndraws=self.ndraws, nummap=nummap, \
                                       seed=invarseed, firstcaseisnom=self.firstcaseisnom)
 
 

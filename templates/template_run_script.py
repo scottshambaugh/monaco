@@ -40,12 +40,12 @@ def template_run_script():
     # Out first variable will be the person flipping a coin - Sam and Alex will 
     # do so with even odds
     # For even odds between 0 and 1 we want to call scipy.stats.randint(0,2)
-    # The dist argument is therefor randint, and its arguments are (0,2),
-    # packaged in a tuple
+    # The dist argument is therefor randint, and its arguments are 
+    # {'low':0, 'high':2}, packaged in a keyword dictionary
     # Since our inputs here are strings rather than numbers, we need to map the
     # numbers from our random draws to those imputs with a nummap dictionary
     flipper_nummap = {0:'Sam', 1:'Alex'}
-    sim.addInVar(name='flipper', dist=randint, distargs=(0, 2), nummap=flipper_nummap)
+    sim.addInVar(name='flipper', dist=randint, distkwargs={'low':0, 'high':2}, nummap=flipper_nummap)
     
     # If we want to generate custom odds, we can create our own distribution
     # See https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.rv_discrete.html
@@ -53,8 +53,8 @@ def template_run_script():
     # Here, our run function takes in 0 as heads and 1 as tails
     flip_dist = rv_discrete(name='flip_dist', values=([0, 1], [0.7, 0.3]))
     # If the distribution is custom then it doesn't take arguments, so pass in
-    # an empty tuple
-    sim.addInVar(name='flip', dist=flip_dist, distargs=())
+    # an empty dictionary
+    sim.addInVar(name='flip', dist=flip_dist, distkwargs=dict())
 
     # Once all input variables are initialized, we run the sim
     # The preprocessing function will pull in the random variables and any other
