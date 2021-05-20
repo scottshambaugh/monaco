@@ -1,14 +1,25 @@
 import numpy as np
 from scipy.stats import rv_continuous, rv_discrete, mode
 import matplotlib.pyplot as plt
+from matplotlib.axes import Axes
 from mpl_toolkits.mplot3d import Axes3D
-from Monaco.MCVar import MCInVar, MCOutVar
+from Monaco.MCVar import MCVar, MCInVar, MCOutVar
 from copy import copy
 from helper_functions import get_iterable, slice_by_index, length
+from typing import Union
 
 
 # If cases or highlight_cases are None, will plot all. Set to [] to plot none.
-def mc_plot(mcvarx, mcvary = None, mcvarz = None, cases=None, highlight_cases=[], rug_plot=True, ax=None, title=''):
+def mc_plot(mcvarx   : MCVar, 
+            mcvary   : Union[None, MCVar] = None, 
+            mcvarz   : Union[None, MCVar] = None, 
+            cases                         = None, # TODO: typing 
+            highlight_cases               = [],   # TODO: typing 
+            rug_plot : bool               = True, 
+            ax       : Union[None, Axes]  = None, 
+            title    : str                = '',
+            ):
+    
     # Split larger vars
     if mcvary is None and mcvarz is None:
         if mcvarx.size[0] not in (1, 2, 3):
@@ -23,7 +34,7 @@ def mc_plot(mcvarx, mcvary = None, mcvarz = None, cases=None, highlight_cases=[]
                 mcvarz = mcvarx_split[origname + ' [2]']
             
     elif mcvarz is None:
-        if    (mcvarx.size[0] not in (1, 2)) \
+        if   (mcvarx.size[0] not in (1, 2)) \
           or (mcvary.size[0] not in (1, 2)) \
           or (mcvarx.size[0] + mcvary.size[0] not in (2, 3)):
             raise ValueError(f'Invalid variable sizes at indices 0: {mcvarx.name} ({mcvarx.size[0]},{mcvarx.size[1]}), {mcvary.name} ({mcvary.size[0]},{mcvary.size[1]})')
@@ -79,7 +90,15 @@ def mc_plot(mcvarx, mcvary = None, mcvarz = None, cases=None, highlight_cases=[]
 
 
 
-def mc_plot_hist(mcvar, highlight_cases=[], cumulative=False, rug_plot=True, orientation='vertical', ax=None, title=''):
+def mc_plot_hist(mcvar       : MCVar, 
+                 highlight_cases                 = [], # TODO: typing
+                 cumulative  : bool              = False,
+                 orientation : str               = 'vertical', # 'vertical' or 'horizontal'
+                 rug_plot    : bool              = True,
+                 ax          : Union[None, Axes] = None, 
+                 title       : str               = '',
+                 ):
+
     fig, ax = manage_axis(ax, is3d=False)
 
     # Histogram generation
@@ -174,12 +193,25 @@ def mc_plot_hist(mcvar, highlight_cases=[], cumulative=False, rug_plot=True, ori
         
 
 
-def mc_plot_cdf(mcvar, highlight_cases=[], orientation='vertical', rug_plot=True, ax=None, title=''):
-    return mc_plot_hist(mcvar=mcvar, highlight_cases=highlight_cases, orientation=orientation, cumulative=True, rug_plot=rug_plot, ax=ax, title=title)
+def mc_plot_cdf(mcvar       : MCVar, 
+                highlight_cases                 = [], # TODO: typing
+                orientation : str               = 'vertical', # 'vertical' or 'horizontal'
+                rug_plot    : bool              = True,
+                ax          : Union[None, Axes] = None, 
+                title       : str               = '',
+                ):
+    return mc_plot_hist(mcvar=mcvar, highlight_cases=highlight_cases, cumulative=True, orientation=orientation, rug_plot=rug_plot, ax=ax, title=title)
 
 
 
-def mc_plot_2d_scatter(mcvarx, mcvary, cases=None, highlight_cases=[], rug_plot=True, ax=None, title=''):
+def mc_plot_2d_scatter(mcvarx   : MCVar, 
+                       mcvary   : MCVar, 
+                       cases                        = None, # TODO: typing 
+                       highlight_cases              = [],   # TODO: typing
+                       rug_plot : bool              = True,
+                       ax       : Union[None, Axes] = None, 
+                       title    : str               = '',
+                       ):
     fig, ax = manage_axis(ax, is3d=False)
     colorblack = [[0,0,0],]
     colorred = [[1,0,0],]
@@ -207,7 +239,13 @@ def mc_plot_2d_scatter(mcvarx, mcvary, cases=None, highlight_cases=[], rug_plot=
 
 
 
-def mc_plot_2d_line(mcvarx, mcvary, cases=None, highlight_cases=[], ax=None, title=''):
+def mc_plot_2d_line(mcvarx : MCVar, 
+                    mcvary : MCVar, 
+                    cases                      = None, # TODO: typing 
+                    highlight_cases            = [], # TODO: typing
+                    ax     : Union[None, Axes] = None, 
+                    title  : str               = '',
+                    ):
     fig, ax = manage_axis(ax, is3d=False)
     
     cases = get_cases(mcvarx.ncases, cases)
@@ -237,7 +275,14 @@ def mc_plot_2d_line(mcvarx, mcvary, cases=None, highlight_cases=[], ax=None, tit
 
 
 
-def mc_plot_3d_scatter(mcvarx, mcvary, mcvarz, cases=None, highlight_cases=[], ax=None, title=''):
+def mc_plot_3d_scatter(mcvarx : MCVar, 
+                       mcvary : MCVar, 
+                       mcvarz : MCVar, 
+                       cases                      = None, # TODO: typing 
+                       highlight_cases            = [], # TODO: typing
+                       ax     : Union[None, Axes] = None, 
+                       title  : str               = '',
+                       ):
     fig, ax = manage_axis(ax, is3d=True)
     colorblack = [[0,0,0],]
     colorred = [[1,0,0],]
@@ -263,7 +308,14 @@ def mc_plot_3d_scatter(mcvarx, mcvary, mcvarz, cases=None, highlight_cases=[], a
 
 
 
-def mc_plot_3d_line(mcvarx, mcvary, mcvarz, cases=None, highlight_cases=[], ax=None, title=''):
+def mc_plot_3d_line(mcvarx : MCVar, 
+                    mcvary : MCVar, 
+                    mcvarz : MCVar, 
+                    cases                      = None, # TODO: typing 
+                    highlight_cases            = [],  # TODO: typing
+                    ax     : Union[None, Axes] = None, 
+                    title  : str               = '',
+                    ):
     fig, ax = manage_axis(ax, is3d=True)
     
     cases = get_cases(mcvarx.ncases, cases)
@@ -285,7 +337,11 @@ def mc_plot_3d_line(mcvarx, mcvary, mcvarz, cases=None, highlight_cases=[], ax=N
 
 
 
-def mc_plot_cov_corr(matrix, varnames, ax=None, title=''):
+def mc_plot_cov_corr(matrix    : np.ndarray, 
+                     varnames, # TODO: typing 
+                     ax        : Union[None, Axes] = None, 
+                     title     : str               = '',
+                     ):
     fig, ax = manage_axis(ax, is3d=False)
     scale = np.nanmax(np.abs(matrix)) # for a correlation matrix this will always be 1 from diagonal
     im = ax.imshow(matrix, cmap="RdBu", vmin=-scale, vmax=scale)
@@ -322,21 +378,27 @@ def mc_plot_cov_corr(matrix, varnames, ax=None, title=''):
 
 
 
-def manage_axis(ax, is3d=False):
-    if not ax:
+def manage_axis(ax   : Union[None, Axes], 
+                is3d : bool = False,
+                ):
+    if not ax is None:
+        fig = ax.figure
+    else:
         if is3d:
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
         else:
             fig, ax = plt.subplots(1, 1)
-    else:
-        fig = ax.figure
     plt.sca(ax)
     return fig, ax
 
 
 
-def apply_category_labels(ax, mcvarx=None, mcvary=None, mcvarz=None):
+def apply_category_labels(ax : Axes, 
+                          mcvarx : MCVar = None, 
+                          mcvary : MCVar = None, 
+                          mcvarz : MCVar = None,
+                          ):
     # Wrapped in try statements in case some categories aren't printable
     if mcvarx is not None and mcvarx.nummap is not None:
         try:
@@ -359,7 +421,9 @@ def apply_category_labels(ax, mcvarx=None, mcvary=None, mcvarz=None):
 
 
 
-def get_hist_lim(orientation, ax):
+def get_hist_lim(orientation : str, # 'vertical' or 'horizontal' , 
+                 ax          : Axes, 
+                 ):
     if orientation == 'vertical':
         lim = ax.get_xlim()
     elif orientation == 'horizontal':
@@ -368,7 +432,10 @@ def get_hist_lim(orientation, ax):
 
 
 
-def plot_rug_marks(ax, orientation, nums):
+def plot_rug_marks(ax          : Union[None, Axes], 
+                   orientation : str, # 'vertical' or 'horizontal' 
+                   nums,       # TODO: typing
+                   ):
     xlim = ax.get_xlim()
     ylim = ax.get_ylim()
     if orientation == 'vertical':
@@ -380,7 +447,9 @@ def plot_rug_marks(ax, orientation, nums):
 
 
 
-def get_cases(ncases, cases):
+def get_cases(ncases : int, 
+              cases, # TODO: typing
+              ):
     if cases is None:
         cases = list(range(ncases))
     return cases

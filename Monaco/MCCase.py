@@ -1,11 +1,20 @@
+from Monaco.MCVar import MCVar
 from Monaco.MCVal import MCOutVal
+from typing import Dict, Union, Any
 import numpy as np
 
 class MCCase():
-    def __init__(self, ncase, mcinvars, constvals, isnom, seed=np.random.get_state()[1][0]):
-        self.ncase = ncase        # ncase is an integer
-        self.isnom = isnom        # isnom is a boolean
-        self.mcinvars = mcinvars  # mcvars is a dict of MCVar objects
+    def __init__(self, 
+                 ncase     : int, 
+                 isnom     : bool, 
+                 mcinvars  : Dict[str, MCVar], 
+                 constvals : Dict[str, Any] = dict(),
+                 seed      : int = np.random.get_state()[1][0],
+                 ):
+        
+        self.ncase = ncase
+        self.isnom = isnom
+        self.mcinvars = mcinvars 
         self.constvals = constvals
         self.mcoutvars = dict()
         self.seed = seed
@@ -42,7 +51,12 @@ class MCCase():
         return mcvals
     
     
-    def addOutVal(self, name, val, split=True, valmap=None):
+    def addOutVal(self, 
+                  name   : str, 
+                  val, # unconstrained type
+                  split  : bool = True, 
+                  valmap : Union[None, Dict[Any, int]] = None
+                  ):
         self.mcoutvals[name] = MCOutVal(name=name, ncase=self.ncase, val=val, valmap=valmap, isnom=self.isnom)
         if split:
             self.mcoutvals.update(self.mcoutvals[name].split())

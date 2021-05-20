@@ -1,8 +1,18 @@
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 from Monaco.mc_plot import mc_plot_hist, mc_plot_2d_scatter
+from Monaco.MCVar import MCVar
+from typing import Union
 
 
-def mc_multi_plot(mcvarx, mcvary=None, cases=None, highlight_cases=[], rug_plot=True, fig=None, title=''):
+def mc_multi_plot(mcvarx   : MCVar, 
+                  mcvary   : MCVar,
+                  cases                          = None, # TODO: typing
+                  highlight_cases                = [],   # TODO: typing
+                  rug_plot : bool                = True,
+                  fig      : Union[None, Figure] = None, 
+                  title    : str                 = '',
+                  ):
     # Split larger vars
     if mcvary is None:
         if mcvarx.size[0] == 2:
@@ -23,7 +33,15 @@ def mc_multi_plot(mcvarx, mcvary=None, cases=None, highlight_cases=[], rug_plot=
 
 
 
-def mc_multi_plot_2d_scatter_hist(mcvarx, mcvary, cases=None, highlight_cases=[], rug_plot=True, cumulative=False, fig=None, title=''):
+def mc_multi_plot_2d_scatter_hist(mcvarx     : MCVar, 
+                                  mcvary     : MCVar,
+                                  cases                            = None, # TODO: typing
+                                  highlight_cases                  = [],   # TODO: typing
+                                  rug_plot   : bool                = True,
+                                  cumulative : bool                = False,
+                                  fig        : Union[None, Figure] = None, 
+                                  title      : str                 = '',
+                                  ):
     if not fig:
         fig = plt.figure()
     else:

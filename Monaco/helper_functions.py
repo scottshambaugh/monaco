@@ -3,8 +3,9 @@ from operator import itemgetter
 from tqdm import tqdm
 import numpy as np
 import pandas as pd
+from typing import Union
 
-def is_num(val):
+def is_num(val) -> bool:
     if isinstance(val, bool):
         return False
     else:
@@ -16,7 +17,7 @@ def is_num(val):
             return True
 
 
-def length(x):
+def length(x) -> Union[None, int]:
     if isinstance(x, Iterable):
         return len(x)
     elif isinstance(x, (np.float, float, bool, int)):
@@ -25,7 +26,7 @@ def length(x):
         return None
 
 
-def get_iterable(x):
+def get_iterable(x) -> Union[tuple, Iterable]:
     if x is None:
         return tuple()
     elif isinstance(x, pd.DataFrame):
@@ -36,7 +37,7 @@ def get_iterable(x):
         return (x,)
 
 
-def slice_by_index(sequence, indices):
+def slice_by_index(sequence, indices) -> list:
     if not sequence or not indices:
         return []
     items = itemgetter(*indices)(sequence)

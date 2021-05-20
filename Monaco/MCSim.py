@@ -9,32 +9,39 @@ from psutil import cpu_count
 from pathos.pools import ThreadPool as Pool
 from tqdm import tqdm
 from helper_functions import get_iterable, slice_by_index, vprint, vwrite
+from typing import Dict, Tuple, Set, List, Callable, Union, Any
+from scipy.stats import rv_continuous, rv_discrete
+
 
 
 class MCSim:
-    def __init__(self, name, ndraws, fcns, 
-                 firstcaseisnom = True, 
-                 seed           = np.random.get_state()[1][0], 
-                 cores          = cpu_count(logical=False), 
-                 verbose        = True,
-                 debug          = False,
-                 savesimdata    = True,
-                 savecasedata   = True,
-                 resultsdir     = None):
+    def __init__(self, 
+                 name   : str, 
+                 ndraws : int, 
+                 fcns   : Dict[str, Callable], # fcns is a dict with keys 'preprocess', 'run', 'postprocess'
+                 firstcaseisnom : bool = True, 
+                 seed           : int  = np.random.get_state()[1][0], 
+                 cores          : int  = cpu_count(logical=False), 
+                 verbose        : bool = True,
+                 debug          : bool = False,
+                 savesimdata    : bool = True,
+                 savecasedata   : bool = True,
+                 resultsdir     : Union[None, str, pathlib.Path] = None,
+                 ):
         
-        self.name = name                      # name is a string
-        self.verbose = verbose                # verbose is a boolean
-        self.debug = debug                    # debug is a boolean
-        self.ndraws = ndraws                  # ndraws is an integer
-        self.fcns = fcns                      # fcns is a dict with keys 'preprocess', 'run', 'postprocess' for those functions
-        self.firstcaseisnom = firstcaseisnom  # firstcaseisnom is a boolean
-        self.seed = seed                      # seed is a number between 0 and 2^32-1
-        self.cores = cores                    # cores is an integer
-        self.savesimdata = savesimdata        # savesimdata is a boolean
-        self.savecasedata = savecasedata      # savecasedata is a boolean
+        self.name = name
+        self.verbose = verbose
+        self.debug = debug
+        self.ndraws = ndraws
+        self.fcns = fcns
+        self.firstcaseisnom = firstcaseisnom
+        self.seed = seed
+        self.cores = cores
+        self.savesimdata = savesimdata 
+        self.savecasedata = savecasedata
 
         self.rootdir = pathlib.Path.cwd()
-        if resultsdir is pathlib.Path:        # resultsdir is a pathlib, string, or None
+        if resultsdir is pathlib.Path:
             self.resultsdir = resultsdir
         elif resultsdir is str:                 
             self.resultsdir = self.rootdir / resultsdir
@@ -81,7 +88,9 @@ class MCSim:
             self.loadCases()
                 
 
-    def setFirstCaseNom(self, firstcaseisnom):  # firstdrawisnom is a boolean
+    def setFirstCaseNom(self, 
+                        firstcaseisnom : bool,
+                        ):
         if firstcaseisnom:
            self.firstcaseisnom = True
            self.ncases = self.ndraws + 1
@@ -93,11 +102,12 @@ class MCSim:
                 mcvar.setFirstCaseNom(firstcaseisnom)
 
 
-    def addInVar(self, name, dist, distargs, nummap=None):  
-        # name is a string
-        # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous 
-        # distargs is a tuple of the arguments to the above distribution
-        # nummap is a dict mapping integers to values
+    def addInVar(self, 
+                 name     : str, 
+                 dist     : Union[rv_discrete, rv_continuous],
+                 distargs : Union[Dict[str, Any], Tuple[Any, ...]], # user should usually be explicit with kewword args, TODO: change this cvariable name
+                 nummap   : Union[None, Dict[int, Any]] = None,
+                 ):  
         self.ninvars += 1
         invarseed = (self.seed + hash(name)) % 2**32  # make seed dependent on var name and not order added
         self.invarseeds.append(invarseed)
@@ -105,13 +115,16 @@ class MCSim:
                                       seed=invarseed, firstcaseisnom=self.firstcaseisnom)
 
 
-    def addConstVal(self, name, val):  
-        # name is a string
-        # val is any value which will be common to all cases 
+    def addConstVal(self, 
+                    name : str, 
+                    val  : Any,
+                    ):  
         self.constvals[name] = val
 
 
-    def setNDraws(self, ndraws):  # ncases is an integer
+    def setNDraws(self, 
+                  ndraws: int,
+                  ):
         self.ndraws = ndraws
         self.setFirstCaseNom(self.firstcaseisnom)
         for mcinvar in self.mcinvars.values():
@@ -132,7 +145,7 @@ class MCSim:
             isnom = False
             if self.firstcaseisnom and i == 0:
                 isnom = True
-            mccases.append(MCCase(ncase=i, mcinvars=self.mcinvars, constvals=self.constvals, isnom=isnom, seed=int(self.caseseeds[i])))
+            mccases.append(MCCase(ncase=i, isnom=isnom, mcinvars=self.mcinvars, constvals=self.constvals, seed=int(self.caseseeds[i])))
             mccases[i].siminput = self.fcns['preprocess'](mccases[i])
             if not (self.pbar0 is None):
                 self.pbar0.update(1)
@@ -247,7 +260,9 @@ class MCSim:
         self.runSimWorker(casestorun=casestorun, casestopostprocess=casestopostprocess)
 
 
-    def runSim(self, cases=None):
+    def runSim(self, 
+               cases : Union[None, List[int]] = None,
+               ):
         casestorun = self.downselectCases(cases=cases)
         casestopostprocess = self.downselectCases(cases=cases)
 
@@ -255,7 +270,10 @@ class MCSim:
         self.runSimWorker(casestorun=casestorun, casestopostprocess=casestopostprocess)
 
 
-    def runSimWorker(self, casestorun, casestopostprocess):            
+    def runSimWorker(self, 
+                     casestorun, # TODO: typing 
+                     casestopostprocess, # TODO: typing
+                     ):            
         self.starttime = datetime.now()
 
         if casestorun == set(range(self.ncases)):
@@ -284,7 +302,9 @@ class MCSim:
             vprint(self.verbose, f"Sim results saved in '{self.filepath}'", flush=True)
 
 
-    def downselectCases(self, cases=None):
+    def downselectCases(self, 
+                        cases = None, # TODO: typing
+                        ) -> Set[int]:
         if cases is None:
             cases = set(range(self.ncases))
         else:
@@ -292,7 +312,9 @@ class MCSim:
         return cases
 
 
-    def runCases(self, cases, calledfromrunsim=False):
+    def runCases(self, 
+                 cases, # TODO: typing
+                 calledfromrunsim : bool = False):
         cases = self.downselectCases(cases=cases)
         
         if not calledfromrunsim:
@@ -326,7 +348,9 @@ class MCSim:
             vprint(self.verbose, f"\nCase results saved in '{self.resultsdir}'", end='', flush=True)
 
 
-    def postProcessCases(self, cases):
+    def postProcessCases(self, 
+                         cases, #TODO: typing
+                         ):
         cases = self.downselectCases(cases=cases)
         
         if self.verbose:
@@ -354,7 +378,9 @@ class MCSim:
             self.pbar2 = None
 
 
-    def runCase(self, mccase):
+    def runCase(self, 
+                mccase : MCCase,
+                ):
         try:
             mccase.starttime = datetime.now()
             mccase.simrawoutput = self.fcns['run'](*get_iterable(mccase.siminput))
@@ -381,7 +407,9 @@ class MCSim:
             self.pbar1.update(1)
 
 
-    def postProcessCase(self, mccase):
+    def postProcessCase(self, 
+                        mccase : MCCase,
+                        ):
         try:
             self.fcns['postprocess'](mccase, *get_iterable(mccase.simrawoutput))
             self.casespostprocessed.add(mccase.ncase)

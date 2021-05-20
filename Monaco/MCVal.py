@@ -3,13 +3,19 @@ import pandas as pd
 from itertools import chain
 from copy import copy, deepcopy
 from Monaco.helper_functions import is_num
+from typing import Dict, Union, Any
+from scipy.stats import rv_discrete, rv_continuous
 
 ### MCVal Base Class ###
 class MCVal():
-    def __init__(self, name, ncase, isnom):
-        self.name = name    # name is a string
-        self.ncase = ncase  # ncase is an integer
-        self.isnom = isnom  # isnom is a boolean
+    def __init__(self, 
+                 name  : str, 
+                 ncase : int, 
+                 isnom : bool,
+                 ):
+        self.name = name
+        self.ncase = ncase
+        self.isnom = isnom
 
         self.val = None
         self.valmap = None
@@ -22,11 +28,19 @@ class MCVal():
 
 ### MCInVal Class ###
 class MCInVal(MCVal):
-    def __init__(self, name, ncase, num, dist, nummap=None, isnom=False):
-        super().__init__(name, ncase, isnom)
-        self.dist = dist      # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous
-        self.num = num        # num is a scalar, list, or list of lists, all of which have numeric values
-        self.nummap = nummap  # nummap is a dict
+    def __init__(self, 
+                 name   : str, 
+                 ncase  : int, 
+                 num,     # num is a scalar, list, or list of lists, all of which have numeric values (TODO: type hinting)
+                 dist   : Union[rv_discrete, rv_continuous], 
+                 nummap : Union[None, Dict[int, Any]] = None, 
+                 isnom  : bool = False,
+                 ):
+        
+        super().__init__(name=name, ncase=ncase, isnom=isnom)
+        self.dist = dist
+        self.num = num        
+        self.nummap = nummap
         self.isscalar = True
         self.size = (1, 1)
         
@@ -61,10 +75,16 @@ class MCInVal(MCVal):
 
 ### MCOutVal Class ###
 class MCOutVal(MCVal):
-    def __init__(self, name, ncase, val, valmap=None, isnom=False):
-        super().__init__(name, ncase, isnom)
-        self.val = val          # val can be anything
-        self.valmap = valmap    # valmap is a dict
+    def __init__(self, 
+                 name   : str, 
+                 ncase  : int, 
+                 val    : Any, 
+                 valmap : Union[None, Dict[Any, int]] = None, 
+                 isnom  : bool = False,
+                 ):
+        super().__init__(name=name, ncase=ncase, isnom=isnom)
+        self.val = val
+        self.valmap = valmap
         self.convertPandas()
         
         self.genSize()

@@ -4,13 +4,19 @@ from Monaco.MCVal import MCInVal, MCOutVal
 from Monaco.MCVarStat import MCVarStat
 from copy import copy
 from helper_functions import get_iterable
+from typing import Dict, Tuple, List, Union, Any
+
 
 ### MCVar Base Class ###
 class MCVar:
-    def __init__(self, name, ndraws, firstcaseisnom):
-        self.name = name                      # name is a string
-        self.ndraws = ndraws                  # ndraws is an integer
-        self.firstcaseisnom = firstcaseisnom  # firstcaseisnom is a boolean
+    def __init__(self, 
+                 name           : str, 
+                 ndraws         : int, 
+                 firstcaseisnom : bool,
+                 ):
+        self.name = name 
+        self.ndraws = ndraws 
+        self.firstcaseisnom = firstcaseisnom
         
         self.ncases = ndraws + 1
         self.setFirstCaseNom(firstcaseisnom)
@@ -23,7 +29,9 @@ class MCVar:
         self.mcvarstats = []
         
 
-    def setFirstCaseNom(self, firstcaseisnom):  # firstdrawisnom is a boolean
+    def setFirstCaseNom(self, 
+                        firstcaseisnom : bool,
+                        ):
         if firstcaseisnom:
            self.firstcaseisnom = True
            self.ncases = self.ndraws + 1
@@ -37,7 +45,11 @@ class MCVar:
         return stats
     
     
-    def addVarStat(self, stattype, statkwargs={}, name=None):
+    def addVarStat(self, 
+                   stattype   : str, 
+                   statkwargs : Dict[str, Any]   = dict(), 
+                   name       : Union[None, str] = None,
+                   ):
         self.mcvarstats.append(MCVarStat(mcvar=self, stattype=stattype, statkwargs=statkwargs, name=name))
 
 
@@ -45,7 +57,9 @@ class MCVar:
         self.mcvarstats = []
 
 
-    def getVal(self, ncase):  # ncase is an integer
+    def getVal(self, 
+               ncase : int,
+               ):
         raise NotImplementedError() # abstract method
 
     def getNom(self):
@@ -55,12 +69,20 @@ class MCVar:
 
 ### MCInVar Class ###
 class MCInVar(MCVar):
-    def __init__(self, name, dist, distargs, ndraws, nummap=None, seed=np.random.get_state()[1][0], firstcaseisnom=True):
+    def __init__(self, 
+                 name           : str, 
+                 dist           : Union[rv_discrete, rv_continuous], 
+                 distargs       : Union[Dict[str, Any], Tuple[Any, ...]], # user should usually be explicit with kewword args, TODO: change this cvariable name
+                 ndraws         : int, 
+                 nummap         : Union[None, Dict[int, Any]] = None,
+                 seed           : int                         = np.random.get_state()[1][0], 
+                 firstcaseisnom : bool                        = True,
+                 ):
         super().__init__(name=name, ndraws=ndraws, firstcaseisnom=firstcaseisnom)
-        self.dist = dist                        # dist is a scipy.stats.rv_discrete or scipy.stats.rv_continuous 
-        self.distargs = get_iterable(distargs)  # distargs is a tuple of the arguments to the above distribution
-        self.seed = seed                        # seed is a number between 0 and 2^32-1
-        self.nummap = nummap                    # nummap is a dict
+        self.dist = dist  
+        self.distargs = get_iterable(distargs)
+        self.seed = seed 
+        self.nummap = nummap 
         
         self.isscalar = True
         self.size = (1, 1)
@@ -88,7 +110,9 @@ class MCInVar(MCVar):
             self.valmap = {val:num for num, val in self.nummap.items()}
 
 
-    def setNDraws(self, ndraws):  # ndraws is an integer
+    def setNDraws(self, 
+                  ndraws : int,
+                  ):
         self.ndraws = ndraws
         self.setFirstCaseNom(self.firstcaseisnom)
         self.draw()
@@ -131,7 +155,9 @@ class MCInVar(MCVar):
             return None
 
 
-    def getVal(self, ncase):  # ncase is an integer
+    def getVal(self, 
+               ncase : int,
+               ):
         isnom = False
         if (ncase == 0) and self.firstcaseisnom:
             isnom = True
@@ -143,7 +169,13 @@ class MCInVar(MCVar):
 
 ### MCOutVar Class ###
 class MCOutVar(MCVar):
-    def __init__(self, name, vals, valmap=None, ndraws=None, firstcaseisnom=True):
+    def __init__(self, 
+                 name           : str, 
+                 vals           : List[Any], 
+                 valmap         : Union[None, Dict[Any, int]] = None, 
+                 ndraws         : Union[None, int]            = None, 
+                 firstcaseisnom : bool                        = True,
+                 ):
         if ndraws is None:
             ndraws = len(vals)
             if firstcaseisnom:

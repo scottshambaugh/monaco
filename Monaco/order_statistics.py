@@ -7,7 +7,9 @@ Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A Guide for
 '''
 
 
-def pct2sig(p, bound='2-sided'):
+def pct2sig(p     : float,           # 0 < p < 1
+            bound : str = '2-sided', # '1-sided' or '2-sided'
+            ):
     # Converts a to a percentile to a gaussian sigma value (1-sided), or to the 
     # sigma value for which the range (-sigma, +sigma) bounds that percent of 
     # the normal distribution (2-sided)
@@ -24,7 +26,9 @@ def pct2sig(p, bound='2-sided'):
 
 
 
-def sig2pct(sig, bound='2-sided'):
+def sig2pct(sig   : float, 
+            bound : str = '2-sided', # '1-sided' or '2-sided'
+            ):
     # Converts a gaussian sigma value to a percentile (1-sided), or to the percent
     # of the normal distribution bounded by (-sigma, +sigma) (2-sided)
     if bound == '2-sided':
@@ -35,7 +39,12 @@ def sig2pct(sig, bound='2-sided'):
 
 
 
-def order_stat_TI_n(k, p, c, nmax=int(1e7), bound='2-sided'):
+def order_stat_TI_n(k     : int, 
+                    p     : float, # 0 < p < 1 
+                    c     : float, # 0 < c < 1
+                    nmax  : int = int(1e7), 
+                    bound : str = '2-sided', # '1-sided' or '2-sided'
+                    ):
     '''
     Order Statistic Tolerance Interval, find n
     This function returns the number of cases n necessary to say that the true 
@@ -87,7 +96,12 @@ def order_stat_TI_n(k, p, c, nmax=int(1e7), bound='2-sided'):
 
 
 
-def order_stat_TI_p(n, k, c, ptol=1e-9, bound='2-sided'):
+def order_stat_TI_p(n     : int, 
+                    k     : int, 
+                    c     : float, # 0 < c < 1 
+                    ptol  : float = 1e-9, 
+                    bound : str = '2-sided', # '1-sided' or '2-sided'
+                    ):
     # Order Statistic Tolerance Interval, find p
     order_stat_var_check(n=n, k=k, c=c)
     
@@ -114,7 +128,11 @@ def order_stat_TI_p(n, k, c, ptol=1e-9, bound='2-sided'):
 
 
 
-def order_stat_TI_k(n, p, c, bound='2-sided'):
+def order_stat_TI_k(n     : int, 
+                    p     : float, # 0 < p < 1 
+                    c     : float, # 0 < p < 1
+                    bound : str = '2-sided', # '1-sided' or '2-sided'
+                    ):
     # Order Statistic Tolerance Interval, find maximum k
     order_stat_var_check(n=n, p=p, c=c)
     
@@ -149,7 +167,11 @@ def order_stat_TI_k(n, p, c, bound='2-sided'):
        
 
 
-def order_stat_TI_c(n, k, p, bound='2-sided'):
+def order_stat_TI_c(n     : int, 
+                    k     : int,
+                    p     : float, # 0 < p < 1 
+                    bound : str = '2-sided', # '1-sided' or '2-sided'
+                    ):
     # Order Statistic Tolerance Interval, find c
     order_stat_var_check(n=n, p=p, k=k)
     
@@ -164,7 +186,12 @@ def order_stat_TI_c(n, k, p, bound='2-sided'):
 
 
 
-def order_stat_P_n(k, P, c, nmax=int(1e7), bound='2-sided'):
+def order_stat_P_n(k     : int, 
+                   P     : float, # 0 < P < 1 
+                   c     : float, # 0 < c < 1
+                   nmax  : int = int(1e7), 
+                   bound : str = '2-sided', # '1-sided' or '2-sided'
+                   ):
     '''
     Order Statistic Percentile, find n
     This function returns the number of cases n necessary to say that the true 
@@ -240,7 +267,11 @@ def order_stat_P_n(k, P, c, nmax=int(1e7), bound='2-sided'):
 
 
 
-def order_stat_P_k(n, P, c, bound='2-sided'):
+def order_stat_P_k(n     : int, 
+                   P     : float, # 0 < P < 1 
+                   c     : float, # 0 < c < 1
+                   bound : str = '2-sided', # '1-sided' or '2-sided'
+                   ):
     # Order Statistic Percentile, find maximum k
     order_stat_var_check(n=n, p=P, c=c)
     
@@ -298,7 +329,11 @@ def order_stat_P_k(n, P, c, bound='2-sided'):
 
 
 
-def order_stat_P_c(n, k, P, bound='2-sided'):
+def order_stat_P_c(n     : int, 
+                   k     : int, 
+                   P     : float, # 0 < P < 1
+                   bound : str = '2-sided', # '1-sided' or '2-sided'
+                   ):
     # Order Statistic Percentile, find c
     order_stat_var_check(n=n, p=P, k=k)
 
@@ -321,7 +356,11 @@ def order_stat_P_c(n, k, P, bound='2-sided'):
 
 
 
-def EPYP(n, l, u, p):
+def EPYP(n : int, 
+         l : int, 
+         u : int, 
+         p : float, # 0 < p < 1
+         ):
     # Estimated Probabiliity for the Y'th Percentile, see Chp. 5.2 of Reference
     order_stat_var_check(n=n, l=l, u=u, p=p)
     c = scipy.stats.binom.cdf(u-1, n, p) - scipy.stats.binom.cdf(l-1, n, p)
@@ -329,14 +368,20 @@ def EPYP(n, l, u, p):
 
 
 
-def EPTI(n, l, u, p):
+def EPTI(n : int, 
+         l : int, 
+         u : int, 
+         p : float, # 0 < p < 1
+         ):
     # Estimated Probabiliity for a Tolerance Interval, see Chp. 5.3 of Reference
     order_stat_var_check(n=n, l=l, u=u, p=p)
     c = scipy.stats.binom.cdf(u-l-1, n, p)
     return c
 
 
-def get_iP(n, P):
+def get_iP(n : int, 
+           P : float, # 0 < P < 1
+           ):
     # Index of Percentile (1-based indexing)
     iP = P*(n + 1) 
     iPl = int(np.floor(iP))

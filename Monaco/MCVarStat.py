@@ -1,11 +1,24 @@
+# Somewhat hacky type checking to avoid circular imports:
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from Monaco.MCVar import MCVar
+    
 import numpy as np
 from copy import copy
 from statistics import mode
 from scipy.stats.mstats import gmean
 from Monaco.order_statistics import order_stat_P_k, order_stat_TI_k, get_iP, pct2sig, sig2pct
+from typing import Union, Any, Callable, Dict
+
 
 class MCVarStat:
-    def __init__(self, mcvar, stattype, statkwargs={}, name=None):
+    def __init__(self, 
+                 mcvar      : MCVar,  
+                 stattype   : str, 
+                 statkwargs : Dict[str, Any] = dict(), 
+                 name       : Union[None, str] = None,
+                 ):
         '''
         valid stattypes with corresponding statkwargs:
             max
@@ -121,12 +134,16 @@ class MCVarStat:
         self.genStatsFunction(self.sigmaP)
 
 
-    def sigmaP(self, x):
+    def sigmaP(self, 
+               x, # TODO: explicit typing here
+               ):
         std = np.std(x)
         return np.mean(x) + self.sig*std
 
 
-    def genStatsFunction(self, fcn):
+    def genStatsFunction(self, 
+                         fcn : Callable,
+                         ):
         if self.mcvar.isscalar:
             self.nums = fcn(self.mcvar.nums)
             self.vals = copy(self.nums)
@@ -147,7 +164,6 @@ class MCVarStat:
             # Suppress warning since this will become valid when MCVar is split
             #print('Warning: MCVarStat only available for scalar or 1-D data')
             pass
-
 
 
     def genStatsOrderStatTI(self):
@@ -217,7 +233,6 @@ class MCVarStat:
             pass
 
 
-
     def genStatsOrderStatP(self):
         self.checkOrderStatsKWArgs()
       
@@ -285,7 +300,6 @@ class MCVarStat:
             pass
 
 
-
     def checkOrderStatsKWArgs(self):
         if 'p' not in self.statkwargs:
             raise ValueError(f'{self.stattype} requires the kwarg ''p''')
@@ -301,7 +315,9 @@ class MCVarStat:
             self.bound = self.statkwargs['bound']
 
 
-    def setName(self, name):
+    def setName(self, 
+                name : str,
+                ):
         if self.name is None:
             self.name = name
 
