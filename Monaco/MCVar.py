@@ -271,31 +271,31 @@ if __name__ == '__main__':
     
     mcinvars = dict()
     mcinvars['randint'] = MCInVar('randint', randint, (1, 5), 1000, seed=invarseeds[0])
-    print(mcinvars['randint'].stats())
+    print(mcinvars['randint'].stats()) # expected: DescribeResult(nobs=1001, minmax=(1.0, 4.0), mean=2.5394605394605394, variance=1.2766913086913088, skewness=-0.056403119793934316, kurtosis=-1.382700726059828)
     mcinvars['norm'] = MCInVar('norm', norm, (10, 4), 1000, seed=invarseeds[1])
-    print(mcinvars['norm'].stats())
+    print(mcinvars['norm'].stats()) # expected: DescribeResult(nobs=1001, minmax=(-2.8212216855605874, 23.174036745569452), mean=9.984598648914597, variance=16.33843268728046, skewness=-0.07632259336623287, kurtosis=-0.19961999746619252)
     mcinvars['norm'].addVarStat(stattype='orderstatTI', statkwargs={'p':0.75, 'c':0.95, 'bound':'2-sided'})
-    print(mcinvars['norm'].mcvarstats[0].vals)
+    print(mcinvars['norm'].mcvarstats[0].vals) # expected: [ 4.97752429 14.93268084]
     xk = np.array([1, 5, 6])
     pk = np.ones(len(xk))/len(xk)
     custom = rv_discrete(name='custom', values=(xk, pk))
     mcinvars['custom'] = MCInVar('custom', custom, (), 1000, seed=invarseeds[2])
-    print(mcinvars['custom'].stats())
-    print(mcinvars['custom'].vals[1:10])
-    print(mcinvars['custom'].getVal(0).val)
+    print(mcinvars['custom'].stats()) # expected: DescribeResult(nobs=1001, minmax=(1.0, 6.0), mean=4.105894105894106, variance=4.444775224775225, skewness=-0.7129149182621393, kurtosis=-1.3236396700106972)
+    print(mcinvars['custom'].vals[1:10]) # expected: [5, 1, 1, 6, 6, 5, 5, 5, 5]
+    print(mcinvars['custom'].getVal(0).val) # expected: 5.0
     mcinvars['map'] = MCInVar('map', custom, (), 10, nummap={1:'a',5:'e',6:'f'}, seed=invarseeds[3])
-    print(mcinvars['map'].vals)
-    print(mcinvars['map'].stats())
+    print(mcinvars['map'].vals) # expected: ['e', 'f', 'e', 'f', 'f', 'a', 'e', 'e', 'a', 'e', 'e']
+    print(mcinvars['map'].stats()) # expected: DescribeResult(nobs=11, minmax=(1.0, 6.0), mean=4.545454545454546, variance=3.2727272727272734, skewness=-1.405456737852613, kurtosis=0.38611111111111107)
     
     mcoutvars = dict()
     mcoutvars['test'] = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
-    print(mcoutvars['test'].getVal(1).val)
-    print(mcoutvars['test'].stats())
+    print(mcoutvars['test'].getVal(1).val) # expected: 0
+    print(mcoutvars['test'].stats()) # expected: DescribeResult(nobs=4, minmax=(0, 2), mean=1.25, variance=0.9166666666666666, skewness=-0.49338220021815865, kurtosis=-1.371900826446281)
     
     v = np.array([[1,1],[2,2],[3,3]])
     mcoutvars['test2'] = MCOutVar('test2', [v, v, v, v, v])
     mcoutvars['test2'].addVarStat(stattype='orderstatTI', statkwargs={'p':0.33, 'c':0.50, 'bound':'1-sided'})
     mcoutvars.update(mcoutvars['test2'].split())
-    print(mcoutvars['test2 [0]'].nums)
-    print(mcoutvars['test2 [0]'].mcvarstats[0].vals)
+    print(mcoutvars['test2 [0]'].nums) # expected: [array([1, 1]), array([1, 1]), array([1, 1]), array([1, 1]), array([1, 1])]
+    print(mcoutvars['test2 [0]'].mcvarstats[0].vals) # expected: [1. 1.]
 #'''

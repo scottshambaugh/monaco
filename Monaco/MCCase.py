@@ -69,14 +69,14 @@ if __name__ == '__main__':
     from scipy.stats import norm
     from MCVar import MCInVar
     np.random.seed(74494861)
-    var = {'Test':MCInVar('Test', norm, (10, 4), 10)}
-    case = MCCase(0, var, False)
-    print(case.mcinvals['Test'].val)
+    invar = {'Test':MCInVar('Test', norm, (10, 4), 10)}
+    case = MCCase(ncase=0, isnom=False, mcinvars=invar, constvals=dict())
+    print(case.mcinvals['Test'].val)      # expected: 10.000000000000002
     
     case.addOutVal('TestOut', [[0,0],[0,0],[0,0]])
-    print(case.mcoutvals['TestOut'].val)
-    print(case.mcoutvals['TestOut'].size)
+    print(case.mcoutvals['TestOut'].val)  # expected: [[0, 0], [0, 0], [0, 0]]
+    print(case.mcoutvals['TestOut'].size) # expected: (3, 2)
     valmap = {'a':0,'b':-1,'c':-2,'d':-3,'e':-4,'f':-5}
     case.addOutVal('TestOut2', [['a','b'],['c','d'],['e','f']], valmap = valmap)
-    print(case.mcoutvals['TestOut2'].num)
+    print(case.mcoutvals['TestOut2'].num) # expected: [[0, -1], [-2, -3], [-4, -5]]
 #'''

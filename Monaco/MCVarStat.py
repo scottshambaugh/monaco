@@ -337,13 +337,13 @@ if __name__ == '__main__':
     mcinvarstat3 = MCVarStat(mcinvar, stattype='gaussianP', statkwargs={'p':sig2pct(-3, bound=bound), 'bound':bound})
     mcinvarstat4 = MCVarStat(mcinvar, stattype='sigmaP', statkwargs={'sig':3, 'bound':bound})
     mcinvarstat5 = MCVarStat(mcinvar, stattype='mean')
-    print(mcinvarstat1.k)
-    print(mcinvarstat1.vals)
-    print(mcinvarstat2.k)
-    print(mcinvarstat2.vals)
-    print(mcinvarstat3.vals)
-    print(mcinvarstat4.vals)
-    print(mcinvarstat5.vals)
+    print(mcinvarstat1.k)    # expected: 135
+    print(mcinvarstat1.vals) # expected: 3.024354335001775
+    print(mcinvarstat2.k)    # expected: 8
+    print(mcinvarstat2.vals) # expected: [3.01323888 3.02664409 3.03566906]
+    print(mcinvarstat3.vals) # expected: -2.998215730189507
+    print(mcinvarstat4.vals) # expected: 2.995372635006932
+    print(mcinvarstat5.vals) # expected: -0.0014215475912877358
     
     v = np.array([-2, -1, 2, 3, 4, 5])
     var2 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
@@ -351,8 +351,8 @@ if __name__ == '__main__':
     mcoutvarstat2 = MCVarStat(var2, stattype='min')
     var3 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, [0,0]], firstcaseisnom=True)
     mcoutvarstat3 = MCVarStat(var3, stattype='min')
-    print(mcoutvarstat1.name)
-    print(mcoutvarstat1.vals)
-    print(mcoutvarstat2.vals)
-    print(mcoutvarstat3.vals)
+    print(mcoutvarstat1.name) # expected: 2-sided P60.0/50.0% Confidence Interval
+    print(mcoutvarstat1.vals) # expected: [[ -4.  -2.   4.] [ -2.  -1.   2.] [ -4.  -2.   4.] [ -6.  -3.   6.] [ -8.  -4.   8.] [-10.  -5.  10.]]
+    print(mcoutvarstat2.vals) # expected: [ -4.  -2.  -4.  -6.  -8. -10.]
+    print(mcoutvarstat3.vals) # expected: [-4. -2. -2. -3. -4. -5.]
 #'''

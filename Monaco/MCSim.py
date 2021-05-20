@@ -518,10 +518,10 @@ if __name__ == '__main__':
     sim.addInVar('Var1', randint, (1, 5))
     sim.addInVar('Var2', norm, (10, 4))
     sim.genCases()
-    print(sim.mcinvars['Var1'].name)
-    print(sim.mccases[0].mcinvals['Var1'].val)
-    print(sim.mcinvars['Var2'].name)
-    print(sim.mccases[0].mcinvals['Var2'].val)
-    print(sim.corr())
-    print(sim.cov())
+    print(sim.mcinvars['Var1'].name)           # expected: Var1
+    print(sim.mccases[0].mcinvals['Var1'].val) # expected: 2.0
+    print(sim.mcinvars['Var2'].name)           # expected: Var2
+    print(sim.mccases[0].mcinvals['Var2'].val) # expected: 10.000000000000002
+    print(sim.corr())                          # expected: (array([[ 1., -0.00189447], [-0.00189447, 1.]]), ['Var1', 'Var2'])
+    print(sim.cov())                           # expected: (array([[ 1.01818182e+00, -8.93478577e-03], [-8.93478577e-03, 2.18458910e+01]]), ['Var1', 'Var2'])
 #'''
