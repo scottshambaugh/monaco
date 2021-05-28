@@ -16,9 +16,9 @@ from scipy.stats import rv_continuous, rv_discrete
 
 class MCSim:
     def __init__(self, 
-                 name   : str, 
-                 ndraws : int, 
-                 fcns   : Dict[str, Callable], # fcns is a dict with keys 'preprocess', 'run', 'postprocess'
+                 name           : str, 
+                 ndraws         : int, 
+                 fcns           : Dict[str, Callable], # fcns is a dict with keys 'preprocess', 'run', 'postprocess'
                  firstcaseisnom : bool = True, 
                  seed           : int  = np.random.get_state()[1][0], 
                  cores          : int  = cpu_count(logical=False), 

@@ -261,7 +261,7 @@ class MCOutVar(MCVar):
 
 
 
-#'''
+'''
 ### Test ###
 if __name__ == '__main__':
     from scipy.stats import norm, randint

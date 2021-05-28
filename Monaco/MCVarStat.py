@@ -16,7 +16,7 @@ class MCVarStat:
     def __init__(self, 
                  mcvar      : MCVar,  
                  stattype   : str, 
-                 statkwargs : Dict[str, Any] = dict(), 
+                 statkwargs : Dict[str, Any]   = dict(), 
                  name       : Union[None, str] = None,
                  ):
         '''

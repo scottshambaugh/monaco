@@ -465,13 +465,13 @@ if __name__ == '__main__':
     
     mcinvars = dict()
     nummap={1:'a',2:'b',3:'c',4:'d',5:'e'}
-    mcinvars['randint'] = MCInVar('randint', randint, (1, 5), 1000, nummap=nummap)
-    mcinvars['norm'] = MCInVar('norm', norm, (10, 4), 1000)
-    mcinvars['norm'].addVarStat('orderstatTI', {'p':0.75, 'c':0.50, 'bound':'2-sided'})
-    mcinvars['norm'].addVarStat('orderstatP', {'p':0.5, 'c':0.9999, 'bound':'all'})
-    mcinvars['norm2'] = MCInVar('norm2', norm, (10, 4), 1000)
+    mcinvars['randint'] = MCInVar(name='randint', ndraws=1000, dist=randint, distkwargs={'low':1, 'high':5}, nummap=nummap)
+    mcinvars['norm'] = MCInVar(name='norm', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4})
+    mcinvars['norm'].addVarStat(stattype='orderstatTI', statkwargs={'p':0.75, 'c':0.50, 'bound':'2-sided'})
+    mcinvars['norm'].addVarStat(stattype='orderstatP', statkwargs={'p':0.5, 'c':0.9999, 'bound':'all'})
+    mcinvars['norm2'] = MCInVar(name='norm2', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4})
     mcoutvars = dict()
-    mcoutvars['test'] = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
+    mcoutvars['test'] = MCOutVar(name='test', vals=[1, 0, 2, 2], firstcaseisnom=True)
     
     f, (ax1, ax2) = plt.subplots(2, 1)
     mc_plot_hist(mcinvars['randint'], ax=ax1, orientation='horizontal')       # mc_plot_hist
@@ -485,13 +485,13 @@ if __name__ == '__main__':
     mc_plot(mcinvars['randint'], mcinvars['norm'], mcinvars['norm2'], cases=[], highlight_cases=range(10,30))  # mc_plot_3d_scatter
     
     v = np.array([-2, -1, 2, 3, 4, 5])
-    var1 = MCOutVar('testx', [v, v, v, v, v], firstcaseisnom=True)
-    var2 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
-    var3 = MCOutVar('testz', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
-    var2.addVarStat('sigmaP', {'sig':3})
-    var2.addVarStat('sigmaP', {'sig':-3})
-    var2.addVarStat('orderstatTI', {'p':0.6, 'c':0.50, 'bound':'2-sided'})
-    var2.addVarStat('mean')
+    var1 = MCOutVar(name='testx', vals=[v, v, v, v, v], firstcaseisnom=True)
+    var2 = MCOutVar(name='testy', vals=[1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
+    var3 = MCOutVar(name='testz', vals=[1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
+    var2.addVarStat(stattype='sigmaP', statkwargs={'sig':3})
+    var2.addVarStat(stattype='sigmaP', statkwargs={'sig':-3})
+    var2.addVarStat(stattype='orderstatTI', statkwargs={'p':0.6, 'c':0.50, 'bound':'2-sided'})
+    var2.addVarStat(stattype='mean')
     
     mc_plot(var2, highlight_cases=None)         # mc_plot_2d_line
     mc_plot(var1, var2, highlight_cases=[0,1])  # mc_plot_2d_line
