@@ -213,17 +213,15 @@ def mc_plot_2d_scatter(mcvarx   : MCVar,
                        title    : str               = '',
                        ):
     fig, ax = manage_axis(ax, is3d=False)
-    colorblack = [[0,0,0],]
-    colorred = [[1,0,0],]
 
     cases = get_cases(mcvarx.ncases, cases)
     highlight_cases = get_cases(mcvarx.ncases, highlight_cases)
     reg_cases = set(get_iterable(cases)) - set(get_iterable(highlight_cases))
     highlighted_cases = get_iterable(highlight_cases)
     if reg_cases:
-        plt.scatter(slice_by_index(mcvarx.nums, reg_cases), slice_by_index(mcvary.nums, reg_cases), edgecolors=None, c=colorblack, alpha=0.4)
+        plt.scatter(slice_by_index(mcvarx.nums, reg_cases), slice_by_index(mcvary.nums, reg_cases), edgecolors=None, c='k', alpha=0.4)
     if highlighted_cases:
-        plt.scatter(slice_by_index(mcvarx.nums, highlighted_cases), slice_by_index(mcvary.nums, highlighted_cases), edgecolors=None, c=colorred, alpha=1)        
+        plt.scatter(slice_by_index(mcvarx.nums, highlighted_cases), slice_by_index(mcvary.nums, highlighted_cases), edgecolors=None, c='r', alpha=1)        
 
     if rug_plot:
         all_cases = set(get_iterable(cases)) | set(get_iterable(highlight_cases))
@@ -242,7 +240,7 @@ def mc_plot_2d_scatter(mcvarx   : MCVar,
 def mc_plot_2d_line(mcvarx : MCVar, 
                     mcvary : MCVar, 
                     cases                      = None, # TODO: typing 
-                    highlight_cases            = [], # TODO: typing
+                    highlight_cases            = [],   # TODO: typing
                     ax     : Union[None, Axes] = None, 
                     title  : str               = '',
                     ):
@@ -284,8 +282,6 @@ def mc_plot_3d_scatter(mcvarx : MCVar,
                        title  : str               = '',
                        ):
     fig, ax = manage_axis(ax, is3d=True)
-    colorblack = [[0,0,0],]
-    colorred = [[1,0,0],]
     
     cases = get_cases(mcvarx.ncases, cases)
     highlight_cases = get_cases(mcvarx.ncases, highlight_cases)
@@ -293,10 +289,10 @@ def mc_plot_3d_scatter(mcvarx : MCVar,
     highlighted_cases = get_iterable(highlight_cases)
     if reg_cases:
         ax.scatter(slice_by_index(mcvarx.nums, reg_cases), slice_by_index(mcvary.nums, reg_cases), \
-                   slice_by_index(mcvarz.nums, reg_cases), edgecolors=None, c=colorblack, alpha=0.4)
+                   slice_by_index(mcvarz.nums, reg_cases), edgecolors=None, c='k', alpha=0.4)
     if highlighted_cases:
         ax.scatter(slice_by_index(mcvarx.nums, highlighted_cases), slice_by_index(mcvary.nums, highlighted_cases), \
-                   slice_by_index(mcvarz.nums, highlighted_cases), edgecolors=None, c=colorred, alpha=1)        
+                   slice_by_index(mcvarz.nums, highlighted_cases), edgecolors=None, c='r', alpha=1)        
 
     ax.set_xlabel(mcvarx.name)
     ax.set_ylabel(mcvary.name)
