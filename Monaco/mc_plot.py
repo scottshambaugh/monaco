@@ -1,11 +1,13 @@
 import numpy as np
-from scipy.stats import rv_continuous, rv_discrete, mode
+from scipy.stats import rv_continuous, rv_discrete, chi2, mode
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
+from matplotlib.patches import Ellipse
 from mpl_toolkits.mplot3d import Axes3D
 from Monaco.MCVar import MCVar, MCInVar, MCOutVar
 from copy import copy
 from helper_functions import get_iterable, slice_by_index, length
+from order_statistics import conf_ellipsoid_sig2pct
 from typing import Union
 
 
@@ -16,6 +18,8 @@ def mc_plot(mcvarx   : MCVar,
             cases                         = None, # TODO: typing 
             highlight_cases               = [],   # TODO: typing 
             rug_plot : bool               = True, 
+            cov_plot : bool               = True,
+            cov_p                         = None,  # TODO: typing 
             ax       : Union[None, Axes]  = None, 
             title    : str                = '',
             ):
@@ -70,7 +74,7 @@ def mc_plot(mcvarx   : MCVar,
             raise ValueError(f'Variables have inconsistent lengths: {mcvarx.name}:{mcvarx.size[1]}, {mcvary.name}:{mcvary.size[1]}')            
        
         if mcvarx.size[1] == 1:
-            fig, ax = mc_plot_2d_scatter(mcvarx=mcvarx, mcvary=mcvary, cases=cases, highlight_cases=highlight_cases, rug_plot=rug_plot, ax=ax, title=title)
+            fig, ax = mc_plot_2d_scatter(mcvarx=mcvarx, mcvary=mcvary, cases=cases, highlight_cases=highlight_cases, rug_plot=rug_plot, cov_plot=cov_plot, cov_p=cov_p, ax=ax, title=title)
             
         elif mcvarx.size[1] > 1:
             fig, ax = mc_plot_2d_line(mcvarx=mcvarx, mcvary=mcvary, cases=cases, highlight_cases=highlight_cases, ax=ax, title=title)
@@ -206,11 +210,13 @@ def mc_plot_cdf(mcvar       : MCVar,
 
 def mc_plot_2d_scatter(mcvarx   : MCVar, 
                        mcvary   : MCVar, 
-                       cases                        = None, # TODO: typing 
-                       highlight_cases              = [],   # TODO: typing
-                       rug_plot : bool              = True,
-                       ax       : Union[None, Axes] = None, 
-                       title    : str               = '',
+                       cases                         = None,  # TODO: typing 
+                       highlight_cases               = [],    # TODO: typing
+                       rug_plot : bool               = True,
+                       cov_plot : bool               = True,
+                       cov_p                         = None,  # TODO: typing 
+                       ax       : Union[None, Axes]  = None, 
+                       title    : str                = '',
                        ):
     fig, ax = manage_axis(ax, is3d=False)
 
@@ -227,6 +233,13 @@ def mc_plot_2d_scatter(mcvarx   : MCVar,
         all_cases = set(get_iterable(cases)) | set(get_iterable(highlight_cases))
         plot_rug_marks(ax, orientation='vertical', nums=slice_by_index(mcvarx.nums, all_cases))
         plot_rug_marks(ax, orientation='horizontal', nums=slice_by_index(mcvary.nums, all_cases))
+
+    if cov_plot:
+        if cov_p is None:
+            cov_p = conf_ellipsoid_sig2pct(3.0, df=2); # 3-sigma for 2D gaussian
+        cov_p = get_iterable(cov_p)
+        for p in cov_p:
+            plot_2d_cov_ellipse(ax=ax, mcvarx=mcvarx, mcvary=mcvary, p=p)
 
     plt.xlabel(mcvarx.name)
     plt.ylabel(mcvary.name)
@@ -443,6 +456,29 @@ def plot_rug_marks(ax          : Union[None, Axes],
 
 
 
+def plot_2d_cov_ellipse(ax     : Union[None, Axes], 
+                     mcvarx : MCVar, 
+                     mcvary : MCVar, 
+                     p      : float,
+                     ):
+    # See https://www.visiondummy.com/2014/04/draw-error-ellipse-representing-covariance-matrix/
+    allnums = [mcvarx.nums, mcvary.nums]
+    covs = np.cov(np.array(allnums))
+    eigvals, eigvecs = np.linalg.eig(covs)
+    center = [np.mean(mcvarx.nums), np.mean(mcvary.nums)]
+    angle = np.arctan2(eigvecs[0][1], eigvecs[0][0])*180/np.pi
+
+    scalefactor = chi2.ppf(p, df=2)
+    ellipse_axis_radii = np.sqrt(scalefactor*eigvals)
+    
+    ellipse = Ellipse(center, 2*ellipse_axis_radii[0], 2*ellipse_axis_radii[1], angle=angle, fill=False, edgecolor='b')
+    ax.add_patch(ellipse)
+    # TODO: Reenable the below with matplotlib >= 3.3.0
+    #plt.axline(xy1=(center[0], center[1]), slope=eigvecs[0][1]/eigvecs[0][0])
+    #plt.axline(xy1=(center[0], center[1]), slope=eigvecs[1][1]/eigvecs[1][0])
+
+
+
 def get_cases(ncases : int, 
               cases, # TODO: typing
               ):
@@ -477,7 +513,7 @@ if __name__ == '__main__':
     mc_plot_cdf(mcinvars['norm'], orientation='horizontal')                   # mc_plot_cdf
     mc_plot_cdf(mcoutvars['test'])                                            # mc_plot_cdf
     
-    mc_plot(mcinvars['randint'], mcinvars['norm'], cases=range(40,50), highlight_cases=range(10,30), rug_plot=True)  # mc_plot_2d_scatter
+    mc_plot(mcinvars['randint'], mcinvars['norm'], cases=None, highlight_cases=range(10,30), rug_plot=True, cov_plot=True, cov_p=[0.90, 0.95, 0.99])  # mc_plot_2d_scatter
     mc_plot(mcinvars['randint'], mcinvars['norm'], mcinvars['norm2'], cases=[], highlight_cases=range(10,30))  # mc_plot_3d_scatter
     
     v = np.array([-2, -1, 2, 3, 4, 5])
