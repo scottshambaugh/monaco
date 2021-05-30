@@ -188,17 +188,14 @@ class MCSim:
     def genCovarianceMatrix(self):
         self.covvarlist = []
         allnums = []
-        j = 0
         for var in self.mcinvars.keys():
             if self.mcinvars[var].isscalar:
                 allnums.append(self.mcinvars[var].nums)
                 self.covvarlist.append(self.mcinvars[var].name)
-                j = j+1
         for var in self.mcoutvars.keys():
             if self.mcoutvars[var].isscalar:
                 allnums.append(self.mcoutvars[var].nums)
                 self.covvarlist.append(self.mcoutvars[var].name)
-                j = j+1
         self.covs = np.cov(np.array(allnums))
         self.corrcoeffs = np.corrcoef(np.array(allnums))
         

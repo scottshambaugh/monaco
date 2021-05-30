@@ -198,7 +198,7 @@ def mc_plot_hist(mcvar       : MCVar,
 
 
 def mc_plot_cdf(mcvar       : MCVar, 
-                highlight_cases                 = [], # TODO: typing
+                highlight_cases                 = [],         # TODO: typing
                 orientation : str               = 'vertical', # 'vertical' or 'horizontal'
                 rug_plot    : bool              = True,
                 ax          : Union[None, Axes] = None, 
@@ -229,17 +229,17 @@ def mc_plot_2d_scatter(mcvarx   : MCVar,
     if highlighted_cases:
         plt.scatter(slice_by_index(mcvarx.nums, highlighted_cases), slice_by_index(mcvary.nums, highlighted_cases), edgecolors=None, c='r', alpha=1)        
 
-    if rug_plot:
-        all_cases = set(get_iterable(cases)) | set(get_iterable(highlight_cases))
-        plot_rug_marks(ax, orientation='vertical', nums=slice_by_index(mcvarx.nums, all_cases))
-        plot_rug_marks(ax, orientation='horizontal', nums=slice_by_index(mcvary.nums, all_cases))
-
     if cov_plot:
         if cov_p is None:
             cov_p = conf_ellipsoid_sig2pct(3.0, df=2); # 3-sigma for 2D gaussian
         cov_p = get_iterable(cov_p)
         for p in cov_p:
             plot_2d_cov_ellipse(ax=ax, mcvarx=mcvarx, mcvary=mcvary, p=p)
+
+    if rug_plot:
+        all_cases = set(get_iterable(cases)) | set(get_iterable(highlight_cases))
+        plot_rug_marks(ax, orientation='vertical', nums=slice_by_index(mcvarx.nums, all_cases))
+        plot_rug_marks(ax, orientation='horizontal', nums=slice_by_index(mcvary.nums, all_cases))
 
     plt.xlabel(mcvarx.name)
     plt.ylabel(mcvary.name)
@@ -290,7 +290,7 @@ def mc_plot_3d_scatter(mcvarx : MCVar,
                        mcvary : MCVar, 
                        mcvarz : MCVar, 
                        cases                      = None, # TODO: typing 
-                       highlight_cases            = [], # TODO: typing
+                       highlight_cases            = [],   # TODO: typing
                        ax     : Union[None, Axes] = None, 
                        title  : str               = '',
                        ):
@@ -321,7 +321,7 @@ def mc_plot_3d_line(mcvarx : MCVar,
                     mcvary : MCVar, 
                     mcvarz : MCVar, 
                     cases                      = None, # TODO: typing 
-                    highlight_cases            = [],  # TODO: typing
+                    highlight_cases            = [],   # TODO: typing
                     ax     : Union[None, Axes] = None, 
                     title  : str               = '',
                     ):
@@ -430,7 +430,7 @@ def apply_category_labels(ax : Axes,
 
 
 
-def get_hist_lim(orientation : str, # 'vertical' or 'horizontal' , 
+def get_hist_lim(orientation : str,  # 'vertical' or 'horizontal' , 
                  ax          : Axes, 
                  ):
     if orientation == 'vertical':
@@ -443,7 +443,7 @@ def get_hist_lim(orientation : str, # 'vertical' or 'horizontal' ,
 
 def plot_rug_marks(ax          : Union[None, Axes], 
                    orientation : str, # 'vertical' or 'horizontal' 
-                   nums,       # TODO: typing
+                   nums,              # TODO: typing
                    ):
     xlim = ax.get_xlim()
     ylim = ax.get_ylim()

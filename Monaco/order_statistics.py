@@ -10,8 +10,8 @@ Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A Guide for
 
 def pct2sig(p     : float,           # 0 < p < 1
             bound : str = '2-sided', # '1-sided' or '2-sided'
-            ):
-    # Converts a to a percentile to a gaussian sigma value (1-sided), or to the 
+            ) -> float:
+    # Converts a percentile to a gaussian sigma value (1-sided), or to the 
     # sigma value for which the range (-sigma, +sigma) bounds that percent of 
     # the normal distribution (2-sided)
     sig = None
@@ -89,7 +89,7 @@ def order_stat_TI_n(k     : int,
                     c     : float, # 0 < c < 1
                     nmax  : int = int(1e7), 
                     bound : str = '2-sided', # '1-sided' or '2-sided'
-                    ):
+                    ) -> int:
     '''
     Order Statistic Tolerance Interval, find n
     This function returns the number of cases n necessary to say that the true 
@@ -117,6 +117,8 @@ def order_stat_TI_n(k     : int,
         l = k  # we won't be using assymmetrical order stats
     elif bound == '1-sided':
         l = 0
+    else:
+        raise ValueError(f"{bound=} must be '1-sided' or '2-sided'")   
 
     # use bisection to get minimum n (secant method is unstable due to flat portions of curve)
     n = [1,nmax]
@@ -146,7 +148,7 @@ def order_stat_TI_p(n     : int,
                     c     : float, # 0 < c < 1 
                     ptol  : float = 1e-9, 
                     bound : str = '2-sided', # '1-sided' or '2-sided'
-                    ):
+                    ) -> float:
     # Order Statistic Tolerance Interval, find p
     order_stat_var_check(n=n, k=k, c=c)
     
@@ -154,6 +156,8 @@ def order_stat_TI_p(n     : int,
         l = k  # we won't be using assymmetrical order stats
     elif bound == '1-sided':
         l = 0
+    else:
+        raise ValueError(f"{bound=} must be '1-sided' or '2-sided'")   
     u = n + 1 - k
 
     # use bisection to get n (secant method is unstable due to flat portions of curve)
@@ -177,7 +181,7 @@ def order_stat_TI_k(n     : int,
                     p     : float, # 0 < p < 1 
                     c     : float, # 0 < p < 1
                     bound : str = '2-sided', # '1-sided' or '2-sided'
-                    ):
+                    ) -> int:
     # Order Statistic Tolerance Interval, find maximum k
     order_stat_var_check(n=n, p=p, c=c)
     
@@ -185,6 +189,9 @@ def order_stat_TI_k(n     : int,
         l = 1  # we won't be using assymmetrical order stats
     elif bound == '1-sided':
         l = 0
+    else:
+        raise ValueError(f"{bound=} must be '1-sided' or '2-sided'")   
+
     if EPTI(n, l, n, p) < c:
         print(f'Warning: {n=} is too small to meet {p=} at {c=} for {bound} tolerance interval at any order statistic')
         return None
@@ -216,7 +223,7 @@ def order_stat_TI_c(n     : int,
                     k     : int,
                     p     : float, # 0 < p < 1 
                     bound : str = '2-sided', # '1-sided' or '2-sided'
-                    ):
+                    ) -> float:
     # Order Statistic Tolerance Interval, find c
     order_stat_var_check(n=n, p=p, k=k)
     
@@ -224,6 +231,9 @@ def order_stat_TI_c(n     : int,
         l = k  # we won't be using assymmetrical order stats
     elif bound == '1-sided':
         l = 0
+    else:
+        raise ValueError(f"{bound=} must be '1-sided' or '2-sided'")   
+
     u = n + 1 - k
     
     c = EPTI(n, l, u, p)
@@ -232,11 +242,11 @@ def order_stat_TI_c(n     : int,
 
 
 def order_stat_P_n(k     : int, 
-                   P     : float, # 0 < P < 1 
-                   c     : float, # 0 < c < 1
+                   P     : float,           # 0 < P < 1 
+                   c     : float,           # 0 < c < 1
                    nmax  : int = int(1e7), 
-                   bound : str = '2-sided', # '1-sided' or '2-sided'
-                   ):
+                   bound : str = '2-sided', # '1-sided upper', '1-sided lower', or '2-sided'
+                   ) -> int:
     '''
     Order Statistic Percentile, find n
     This function returns the number of cases n necessary to say that the true 
@@ -286,6 +296,9 @@ def order_stat_P_n(k     : int,
         if l <= 0 or EPYP(n[0], l, u, P) < c:
             print(f'n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} at {c=}. Increase nmax, raise k, or loosen constraints.')
             return None
+    else:
+        raise ValueError(f"{bound=} must be '1-sided upper', '1-sided lower', or '2-sided'")   
+
 
     for i in range(maxsteps):
         step = (n[1]-n[0])/2
@@ -313,10 +326,10 @@ def order_stat_P_n(k     : int,
 
 
 def order_stat_P_k(n     : int, 
-                   P     : float, # 0 < P < 1 
-                   c     : float, # 0 < c < 1
-                   bound : str = '2-sided', # '1-sided' or '2-sided'
-                   ):
+                   P     : float,           # 0 < P < 1 
+                   c     : float,           # 0 < c < 1
+                   bound : str = '2-sided', # '1-sided upper', '1-sided lower', or '2-sided'
+                   ) -> int:
     # Order Statistic Percentile, find maximum k
     order_stat_var_check(n=n, p=P, c=c)
     
@@ -344,6 +357,8 @@ def order_stat_P_k(n     : int,
         if EPYP(n, l, u, P) < c:
             print(f'Warning: {n=} is too small to meet {P=} at {c=} for {bound} percentile confidence interval at any order statistic')
             return None
+    else:
+        raise ValueError(f"{bound=} must be '1-sided upper', '1-sided lower', or '2-sided'")
 
     # use bisection to get n (secant method is unstable due to flat portions of curve)
     maxsteps = 1000 # nmax hard limit of 2^1000
@@ -376,9 +391,9 @@ def order_stat_P_k(n     : int,
 
 def order_stat_P_c(n     : int, 
                    k     : int, 
-                   P     : float, # 0 < P < 1
-                   bound : str = '2-sided', # '1-sided' or '2-sided'
-                   ):
+                   P     : float,           # 0 < P < 1
+                   bound : str = '2-sided', # '1-sided upper', '1-sided lower', or '2-sided'
+                   ) -> float:
     # Order Statistic Percentile, find c
     order_stat_var_check(n=n, p=P, k=k)
 
@@ -392,6 +407,8 @@ def order_stat_P_c(n     : int,
     elif bound == '1-sided lower':
         l = iPl - k
         u = n + 1
+    else:
+        raise ValueError(f"{bound=} must be '1-sided upper', '1-sided lower', or '2-sided'")
         
     if l < 0 or u > n+1:
         raise ValueError(f'{l=} or {u=} are outside the valid bounds of (0, {n+1}) (check: {iP=}, {k=})') 
@@ -405,7 +422,7 @@ def EPYP(n : int,
          l : int, 
          u : int, 
          p : float, # 0 < p < 1
-         ):
+         ) -> float:
     # Estimated Probabiliity for the Y'th Percentile, see Chp. 5.2 of Reference
     order_stat_var_check(n=n, l=l, u=u, p=p)
     c = scipy.stats.binom.cdf(u-1, n, p) - scipy.stats.binom.cdf(l-1, n, p)
@@ -417,7 +434,7 @@ def EPTI(n : int,
          l : int, 
          u : int, 
          p : float, # 0 < p < 1
-         ):
+         ) -> float:
     # Estimated Probabiliity for a Tolerance Interval, see Chp. 5.3 of Reference
     order_stat_var_check(n=n, l=l, u=u, p=p)
     c = scipy.stats.binom.cdf(u-l-1, n, p)
@@ -426,7 +443,7 @@ def EPTI(n : int,
 
 def get_iP(n : int, 
            P : float, # 0 < P < 1
-           ):
+           ) -> Tuple[int, int, int]:
     # Index of Percentile (1-based indexing)
     iP = P*(n + 1) 
     iPl = int(np.floor(iP))
