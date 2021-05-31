@@ -17,8 +17,8 @@ def mc_plot(mcvarx   : MCVar,
             mcvarz   : Union[None, MCVar] = None, 
             cases                         = None, # TODO: typing 
             highlight_cases               = [],   # TODO: typing 
-            rug_plot : bool               = True, 
-            cov_plot : bool               = True,
+            rug_plot : bool               = False, 
+            cov_plot : bool               = False,
             cov_p                         = None,  # TODO: typing 
             ax       : Union[None, Axes]  = None, 
             title    : str                = '',
@@ -212,8 +212,8 @@ def mc_plot_2d_scatter(mcvarx   : MCVar,
                        mcvary   : MCVar, 
                        cases                         = None,  # TODO: typing 
                        highlight_cases               = [],    # TODO: typing
-                       rug_plot : bool               = True,
-                       cov_plot : bool               = True,
+                       rug_plot : bool               = False,
+                       cov_plot : bool               = False,
                        cov_p                         = None,  # TODO: typing 
                        ax       : Union[None, Axes]  = None, 
                        title    : str                = '',
@@ -457,10 +457,10 @@ def plot_rug_marks(ax          : Union[None, Axes],
 
 
 def plot_2d_cov_ellipse(ax     : Union[None, Axes], 
-                     mcvarx : MCVar, 
-                     mcvary : MCVar, 
-                     p      : float,
-                     ):
+                        mcvarx : MCVar, 
+                        mcvary : MCVar, 
+                        p      : float,
+                        ):
     # See https://www.visiondummy.com/2014/04/draw-error-ellipse-representing-covariance-matrix/
     allnums = [mcvarx.nums, mcvary.nums]
     covs = np.cov(np.array(allnums))
