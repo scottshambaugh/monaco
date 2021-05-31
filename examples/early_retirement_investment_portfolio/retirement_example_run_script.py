@@ -33,17 +33,23 @@ def retirement_example_run_script():
     
     wentbrokecases = [i for i, e in enumerate(sim.mcoutvars['Went Broke'].vals) if e == 'Yes']
     
-    mc_plot(sim.mcinvars['Year 0 Returns'], sim.mcoutvars['Final Balance'], highlight_cases=0)
-    mc_plot(sim.mcoutvars['Date'], sim.mcoutvars['Ending Balance'], highlight_cases=wentbrokecases)
+    mc_plot(sim.mcinvars['Year 0 Returns'], sim.mcoutvars['Final Balance'], highlight_cases=0, cov_plot=False)
     mc_plot(sim.mcoutvars['Went Broke'])
+    mc_plot(sim.mcinvars['Beginning Balance'], highlight_cases=0)
+    fix, ax = mc_plot(sim.mcoutvars['Date'], sim.mcoutvars['Ending Balance'], highlight_cases=wentbrokecases, title='Yearly Balances')
+    ax.set_yscale('symlog')
+    ax.set_ylim(bottom=1e4)
     
     sim.genCovarianceMatrix()
     plt.figure()
     yearly_return_broke_corr = []
     for i in range(nyears):
-        yearly_return_broke_corr.append(sim.covs[0][sim.covvarlist.index(f'Year {i} Returns')])
-    plt.plot(range(nyears), yearly_return_broke_corr)
+        yearly_return_broke_corr.append(sim.covs[sim.covvarlist.index('Went Broke')][sim.covvarlist.index(f'Year {i} Returns')])
+    plt.plot(range(nyears), yearly_return_broke_corr, 'k')
     plt.plot(range(nyears), np.zeros(nyears), 'k--')
+    plt.title('Correlation Between Yearly Return and Going Broke')
+    plt.ylabel('Correlation Coeff')
+    plt.xlabel('Year')
 
     return sim
 

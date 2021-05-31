@@ -37,7 +37,7 @@ def rocket_example_run_script():
     mc_plot(sim.mcoutvars['Easting [m]'], sim.mcoutvars['Northing [m]'], sim.mcoutvars['Altitude [m]'], title='Model Rocket Trajectory', highlight_cases=0)
     #import matplotlib.pyplot as plt
     #plt.savefig('rocket_trajectory.png')
-    mc_multi_plot(sim.mcoutvars['Landing Dist [m]'], sim.mcinvars['Wind Speed [m/s]'], title='Wind Speed vs Landing Distance', highlight_cases=0)
+    mc_multi_plot(sim.mcoutvars['Landing Dist [m]'], sim.mcinvars['Wind Speed [m/s]'], cov_p=0.95, title='Wind Speed vs Landing Distance w/ 95% CI', highlight_cases=0)
     #plt.savefig('wind_vs_landing.png')
     
     return sim

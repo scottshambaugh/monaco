@@ -2,11 +2,9 @@ import numpy as np
 import pandas as pd
 
 def retirement_example_sim(yearly_returns, beginning_investments, yearly_spending):
-    # nnodes: total number of nodes
-    # m0: max number of connections made by each new node
-    # p: the probability a node becomes infected if it shares an edge with an infected node
-    # n_infected_init: number of nodes infected at the first timestep
-    # open_scenario: if True, a random node will be attempt to be infected every timestep with probability p
+    # yearly_returns: A list of yearly investment returns
+    # beginning_investments: The money initially invested
+    # yearly_spending: The money withdrawn each year
     
     nyears = len(yearly_returns)
     
