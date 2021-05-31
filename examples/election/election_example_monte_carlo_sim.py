@@ -6,17 +6,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from election_example_sim import election_example_sim
+from election_example_run import election_example_run
 from election_example_preprocess import election_example_preprocess
 from election_example_postprocess import election_example_postprocess
 fcns = {'preprocess' :election_example_preprocess,   \
-        'run'        :election_example_sim,          \
+        'run'        :election_example_run,          \
         'postprocess':election_example_postprocess}
 
 ndraws = 1000
 seed=12362397
 
-def election_example_run_script():
+def election_example_monte_carlo_sim():
     sim = MCSim(name='election', ndraws=ndraws, fcns=fcns, firstcaseisnom=True, seed=seed, cores=4, savecasedata=False, verbose=True, debug=False)
     
     df = pd.read_csv('state_presidential_odds.csv')
@@ -78,5 +78,5 @@ def election_example_run_script():
 
 
 if __name__ == '__main__':
-    sim = election_example_run_script()
+    sim = election_example_monte_carlo_sim()
     

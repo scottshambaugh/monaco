@@ -8,12 +8,12 @@ from scipy.stats import randint, rv_discrete
 
 # Import the preprocess, sim, and postprocess function handles that you have created
 from template_preprocess import template_preprocess
-from template_sim import template_sim
+from template_run import template_run
 from template_postprocess import template_postprocess
 
 # These get packaged in the following format for MCSim to consume:
 fcns ={'preprocess' :template_preprocess,   \
-       'run'        :template_sim,          \
+       'run'        :template_run,          \
        'postprocess':template_postprocess}
 
 # Set the number of random draws you wish to make
@@ -32,7 +32,7 @@ seed=12362398
 # may make it slower than single-threaded execution
 cores = 1
 
-def template_run_script():
+def template_monte_carlo_sim():
     # We first initialize the sim with a name of our choosing
     sim = MCSim(name='Coin Flip', ndraws=ndraws, fcns=fcns, firstcaseisnom=firstcaseisnom, seed=seed, cores=cores, verbose=True, debug=False)
     
@@ -67,7 +67,8 @@ def template_run_script():
     print(f'{sim.name} Runtime: {sim.runtime}')
     
     # From here we can perform further postprocessing on our results. The outvar
-    # names were assigned in our postprocessing function
+    # names were assigned in our postprocessing function. We expect the heads 
+    # bias to be near the 70% we assigned up in flip_dist
     bias = sim.mcoutvars['Flip Result'].vals.count('heads')/sim.ncases*100
     print(f'Average heads bias: {bias}%')
     
@@ -90,5 +91,5 @@ def template_run_script():
     return sim
 
 if __name__ == '__main__':
-    sim = template_run_script()
+    sim = template_monte_carlo_sim()
     

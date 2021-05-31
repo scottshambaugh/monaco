@@ -5,11 +5,11 @@ from Monaco.mc_multi_plot import mc_multi_plot
 from Monaco.order_statistics import order_stat_TI_n, pct2sig
 from math import ceil
 
-from pandemic_example_sim import pandemic_example_sim
+from pandemic_example_run import pandemic_example_run
 from pandemic_example_preprocess import pandemic_example_preprocess
 from pandemic_example_postprocess import pandemic_example_postprocess
 fcns ={'preprocess' :pandemic_example_preprocess,   \
-       'run'        :pandemic_example_sim,          \
+       'run'        :pandemic_example_run,          \
        'postprocess':pandemic_example_postprocess}
 
 k = 2
@@ -20,7 +20,7 @@ ndraws = order_stat_TI_n(k=k, p=p, c=c, bound=bound)  # 77
 ndraws = ceil(ndraws/10)*10  # 80
 seed=12362398
 
-def pandemic_example_run_script():
+def pandemic_example_monte_carlo_sim():
 
     sim = MCSim(name='pandemic', ndraws=ndraws, fcns=fcns, firstcaseisnom=True, seed=seed, cores=4, verbose=True, debug=False)
     
@@ -45,5 +45,5 @@ def pandemic_example_run_script():
 
 
 if __name__ == '__main__':
-    sim = pandemic_example_run_script()
+    sim = pandemic_example_monte_carlo_sim()
     

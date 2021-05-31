@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-def election_example_sim(states, state_evs, state_dem_pct, state_rep_pct, state_other_pct):
+def election_example_run(states, state_evs, state_dem_pct, state_rep_pct, state_other_pct):
 
     dem_evs = 0
     rep_evs = 0
@@ -28,20 +28,21 @@ def election_example_sim(states, state_evs, state_dem_pct, state_rep_pct, state_
     return (dem_evs, rep_evs, other_evs, state_winners, state_recounts)
 
 
-#'''
+'''
 ### Test ###
-from Monaco.order_statistics import pct2sig
-data = pd.read_csv('state_presidential_odds.csv')
-states = data['State'].tolist()
-state_evs = dict(zip(data['State'], data['EV']))
-
-dem_sig = data['Dem_80_tol']/pct2sig(0.8, bound='2-sided')
-rep_sig = data['Rep_80_tol']/pct2sig(0.8, bound='2-sided')
-other_sig = data['Other_80_tol']/pct2sig(0.8, bound='2-sided')
-
-state_dem_pct = dict(zip(data['State'], data['Dem_Mean']))
-state_rep_pct = dict(zip(data['State'], data['Rep_Mean']))
-state_other_pct = dict(zip(data['State'], data['Other_Mean']))
-
-(dem_evs, rep_evs, other_evs, state_winners, state_recounts) = election_example_sim(states, state_evs, state_dem_pct, state_rep_pct, state_other_pct)
+if __name__ == '__main__':
+    from Monaco.order_statistics import pct2sig
+    data = pd.read_csv('state_presidential_odds.csv')
+    states = data['State'].tolist()
+    state_evs = dict(zip(data['State'], data['EV']))
+    
+    dem_sig = data['Dem_80_tol']/pct2sig(0.8, bound='2-sided')
+    rep_sig = data['Rep_80_tol']/pct2sig(0.8, bound='2-sided')
+    other_sig = data['Other_80_tol']/pct2sig(0.8, bound='2-sided')
+    
+    state_dem_pct = dict(zip(data['State'], data['Dem_Mean']))
+    state_rep_pct = dict(zip(data['State'], data['Rep_Mean']))
+    state_other_pct = dict(zip(data['State'], data['Other_Mean']))
+    
+    (dem_evs, rep_evs, other_evs, state_winners, state_recounts) = election_example_run(states, state_evs, state_dem_pct, state_rep_pct, state_other_pct)
 #'''

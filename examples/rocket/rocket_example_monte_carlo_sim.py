@@ -3,17 +3,17 @@ from Monaco.MCSim import MCSim
 from Monaco.mc_plot import mc_plot
 from Monaco.mc_multi_plot import mc_multi_plot
 
-from rocket_example_sim import rocket_example_sim
+from rocket_example_run import rocket_example_run
 from rocket_example_preprocess import rocket_example_preprocess
 from rocket_example_postprocess import rocket_example_postprocess
 fcns ={'preprocess' :rocket_example_preprocess,   \
-       'run'        :rocket_example_sim,          \
+       'run'        :rocket_example_run,          \
        'postprocess':rocket_example_postprocess}
 
 ndraws = 50
 seed=12362398
 
-def rocket_example_run_script():
+def rocket_example_monte_carlo_sim():
     sim = MCSim(name='Rocket', ndraws=ndraws, fcns=fcns, firstcaseisnom=True, seed=seed, cores=4, verbose=True, debug=False)
     
     sim.addInVar(name='Wind Azi [deg]', dist=uniform, distkwargs={'loc':0, 'scale':360})
@@ -43,5 +43,5 @@ def rocket_example_run_script():
     return sim
 
 if __name__ == '__main__':
-    sim = rocket_example_run_script()
+    sim = rocket_example_monte_carlo_sim()
     

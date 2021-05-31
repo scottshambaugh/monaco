@@ -1,5 +1,5 @@
 # The input arguments need to match up with the outputs from your preprocess function
-def template_sim(flip, flipper, coin):
+def template_run(flip, flipper, coin):
     
     # Your simulation calculations will happen here. This function can also be 
     # a wrapper to call another function or non-python code

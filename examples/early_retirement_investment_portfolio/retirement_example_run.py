@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-def retirement_example_sim(yearly_returns, beginning_investments, yearly_spending):
+def retirement_example_run(yearly_returns, beginning_investments, yearly_spending):
     # yearly_returns: A list of yearly investment returns
     # beginning_investments: The money initially invested
     # yearly_spending: The money withdrawn each year
@@ -31,7 +31,7 @@ def retirement_example_sim(yearly_returns, beginning_investments, yearly_spendin
 yearly_returns = np.ones(50)*0.07
 beginning_investments = 1000000
 yearly_spending = 50000
-df = retirement_example_sim(yearly_returns, beginning_investments, yearly_spending)
+df = retirement_example_run(yearly_returns, beginning_investments, yearly_spending)
 print(df.head)
 import matplotlib.pyplot as plt
 plt.plot(df.index.values, df['Ending Balance'].values)

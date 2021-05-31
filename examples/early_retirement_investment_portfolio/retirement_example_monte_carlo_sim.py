@@ -4,17 +4,17 @@ from Monaco.mc_plot import mc_plot, mc_plot_cov_corr
 import matplotlib.pyplot as plt
 import numpy as np
 
-from retirement_example_sim import retirement_example_sim
+from retirement_example_run import retirement_example_run
 from retirement_example_preprocess import retirement_example_preprocess
 from retirement_example_postprocess import retirement_example_postprocess
 fcns ={'preprocess' :retirement_example_preprocess,   \
-       'run'        :retirement_example_sim,          \
+       'run'        :retirement_example_run,          \
        'postprocess':retirement_example_postprocess}
 
 ndraws = 1000
 seed=12362397
 
-def retirement_example_run_script():
+def retirement_example_monte_carlo_sim():
 
     sim = MCSim(name='retirement', ndraws=ndraws, fcns=fcns, firstcaseisnom=True, seed=seed, cores=4, savecasedata=False, verbose=True, debug=True)
     
@@ -55,5 +55,5 @@ def retirement_example_run_script():
 
 
 if __name__ == '__main__':
-    sim = retirement_example_run_script()
+    sim = retirement_example_monte_carlo_sim()
     

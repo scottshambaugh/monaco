@@ -1,7 +1,7 @@
 import numpy as np
 import networkx as nx
 
-def pandemic_example_sim(nnodes, m0, p, nsteps, n_infected_init, open_scenario=True, seed=12059257):
+def pandemic_example_run(nnodes, m0, p, nsteps, n_infected_init, open_scenario=True, seed=12059257):
     # nnodes: total number of nodes
     # m0: max number of connections made by each new node
     # p: the probability a node becomes infected if it shares an edge with an infected node
@@ -49,6 +49,7 @@ def infect_node(nodes_status, t, node):
 
 '''
 ### Test ###
+if __name__ == '__main__':
 import matplotlib.pyplot as plt
 
 nnodes = 50000
@@ -59,8 +60,8 @@ n_infected_init = 3
 open_scenario = True
 seed = 129251
 
-(social_graph, nodes_status, infection_graph) = pandemic_example_sim(nnodes=nnodes, m0=m0, p=p, nsteps=nsteps, \
-                                                                    n_infected_init=n_infected_init, open_scenario=open_scenario, seed=seed)
+(social_graph, nodes_status, infection_graph) = pandemic_example_run(nnodes=nnodes, m0=m0, p=p, nsteps=nsteps, \
+                                                                     n_infected_init=n_infected_init, open_scenario=open_scenario, seed=seed)
 
 # # Plot social graph (diabled by default since it freezes for large nnodes)
 # from matplotlib import colors
