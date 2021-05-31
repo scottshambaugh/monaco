@@ -74,6 +74,9 @@ class MCVarStat:
             self.genStatsOrderStatTI()
         elif stattype == 'orderstatP':
             self.genStatsOrderStatP()
+        else:
+            raise ValueError(f"{self.stattype} must be one of the following: ",
+                             "'max', 'min', 'median', 'mean', 'geomean', 'mode', 'sigmaP', 'gaussianP', 'orderstatTI', 'orderstatP'")
 
 
     def genStatsMax(self):
