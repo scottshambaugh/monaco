@@ -10,6 +10,8 @@ def mc_multi_plot(mcvarx   : MCVar,
                   cases                          = None, # TODO: typing
                   highlight_cases                = [],   # TODO: typing
                   rug_plot : bool                = True,
+                  cov_plot : bool                = True,
+                  cov_p                          = None,  # TODO: typing 
                   fig      : Union[None, Figure] = None, 
                   title    : str                 = '',
                   ):
@@ -27,7 +29,7 @@ def mc_multi_plot(mcvarx   : MCVar,
 
     # Two Variable Plots
     if mcvarx.size[1] == 1 and mcvary.size[1] == 1:
-        fig, axs = mc_multi_plot_2d_scatter_hist(mcvarx=mcvarx, mcvary=mcvary, cases=cases, highlight_cases=highlight_cases, rug_plot=rug_plot, cumulative=False, fig=fig, title=title)
+        fig, axs = mc_multi_plot_2d_scatter_hist(mcvarx=mcvarx, mcvary=mcvary, cases=cases, highlight_cases=highlight_cases, rug_plot=rug_plot, cov_plot=cov_plot, cov_p=cov_p, cumulative=False, fig=fig, title=title)
             
     return fig, axs
 
@@ -38,6 +40,8 @@ def mc_multi_plot_2d_scatter_hist(mcvarx     : MCVar,
                                   cases                            = None, # TODO: typing
                                   highlight_cases                  = [],   # TODO: typing
                                   rug_plot   : bool                = True,
+                                  cov_plot   : bool                = True,
+                                  cov_p                            = None,  # TODO: typing 
                                   cumulative : bool                = False,
                                   fig        : Union[None, Figure] = None, 
                                   title      : str                 = '',
@@ -55,7 +59,7 @@ def mc_multi_plot_2d_scatter_hist(mcvarx     : MCVar,
 
     mc_plot_hist(mcvarx, highlight_cases=highlight_cases, rug_plot=False, ax=ax1, title='', cumulative=cumulative)
     mc_plot_hist(mcvary, highlight_cases=highlight_cases, rug_plot=False, ax=ax2, title='', cumulative=cumulative, orientation='horizontal')
-    mc_plot_2d_scatter(mcvarx, mcvary, cases=cases, highlight_cases=highlight_cases, rug_plot=rug_plot, ax=ax3, title='')
+    mc_plot_2d_scatter(mcvarx, mcvary, cases=cases, highlight_cases=highlight_cases, rug_plot=rug_plot, cov_plot=cov_plot, cov_p=cov_p, ax=ax3, title='')
     
     ax1.set_ylabel('')
     ax2.set_xlabel('')

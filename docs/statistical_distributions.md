@@ -26,7 +26,7 @@ This page contains a list of common probability distributions that you may want 
 
 ### Discrete Distributions:
 **Random Integer** [[SciPy Ref](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.randint.html), [Wikipedia](https://en.wikipedia.org/wiki/Discrete_uniform_distribution)]:     
-```randint(low, high)```, where ```low``` and ```high``` are the lower and upper bounds of the integer range. Also known as a *discrete* uniform distribution. Returns ```k``` in ```{low, low + 1, ..., high}```.
+```randint(low, high)```, where ```low``` and ```high``` are the lower and upper bounds of the integer range. Also known as a *discrete* uniform distribution. Returns ```k``` in ```{low, ..., high - 1}```.
 
 **Bernoulli Distribution** [[SciPy Ref](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.bernoulli.html), [Wikipedia](https://en.wikipedia.org/wiki/Bernoulli_distribution)]:     
 ```bernoulli(p)```, where ```p``` is the probability of success. Equivalent to a "weighted coin flip". Returns ```k``` in ```{0, 1}```.

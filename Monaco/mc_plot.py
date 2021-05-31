@@ -464,14 +464,14 @@ def plot_2d_cov_ellipse(ax     : Union[None, Axes],
     # See https://www.visiondummy.com/2014/04/draw-error-ellipse-representing-covariance-matrix/
     allnums = [mcvarx.nums, mcvary.nums]
     covs = np.cov(np.array(allnums))
-    eigvals, eigvecs = np.linalg.eig(covs)
+    eigvals, eigvecs = np.linalg.eigh(covs) # Use eigh over eig since covs is guaranteed symmetric
     center = [np.mean(mcvarx.nums), np.mean(mcvary.nums)]
     angle = np.arctan2(eigvecs[0][1], eigvecs[0][0])*180/np.pi
 
     scalefactor = chi2.ppf(p, df=2)
     ellipse_axis_radii = np.sqrt(scalefactor*eigvals)
     
-    ellipse = Ellipse(center, 2*ellipse_axis_radii[0], 2*ellipse_axis_radii[1], angle=angle, fill=False, edgecolor='b')
+    ellipse = Ellipse(center, 2*ellipse_axis_radii[0], 2*ellipse_axis_radii[1], angle=angle, fill=False, edgecolor='k')
     ax.add_patch(ellipse)
     # TODO: Reenable the below with matplotlib >= 3.3.0
     #plt.axline(xy1=(center[0], center[1]), slope=eigvecs[0][1]/eigvecs[0][0])
@@ -497,7 +497,7 @@ if __name__ == '__main__':
     
     mcinvars = dict()
     nummap={1:'a',2:'b',3:'c',4:'d',5:'e'}
-    mcinvars['randint'] = MCInVar(name='randint', ndraws=1000, dist=randint, distkwargs={'low':1, 'high':5}, nummap=nummap)
+    mcinvars['randint'] = MCInVar(name='randint', ndraws=1000, dist=randint, distkwargs={'low':1, 'high':6}, nummap=nummap)
     mcinvars['norm'] = MCInVar(name='norm', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4})
     mcinvars['norm'].addVarStat(stattype='orderstatTI', statkwargs={'p':0.75, 'c':0.50, 'bound':'2-sided'})
     mcinvars['norm'].addVarStat(stattype='orderstatP', statkwargs={'p':0.5, 'c':0.9999, 'bound':'all'})
