@@ -1,4 +1,4 @@
-## [Monaco](../../) - Statistical Distributions
+## [Monaco](../) - Statistical Distributions
 
 This page contains a list of common probability distributions that you may want to use to disperse your inputs in a Monte-Carlo analysis. For an overview of common distributions and how they are related, start with this excellent blog post: *[Common Probability Distributions: The Data Scientist’s Crib Sheet](https://medium.com/@srowen/common-probability-distributions-347e6b945ce4)*. 
 
@@ -39,3 +39,6 @@ This page contains a list of common probability distributions that you may want 
 
 **Poisson Distribution** [[SciPy Ref](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.poisson.html), [Wikipedia](https://en.wikipedia.org/wiki/Poisson_distribution)]:     
 ```poisson(mu)```, where ```mu``` is the expected rate of occurances (notated as lambda on wikipedia). Returns ```k ≥ 0```. Think of a call center that receives an average of lambda calls per minute, and this gives the odds of receiving ```k``` calls in any given minute.  
+
+**Custom Distribution** [[SciPy Ref](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.rv_discrete.html)]:
+```rv_discrete(values=(xk, pk))```, where ```xk``` is a list of integers, ```pk``` is a list of the probabilities associated with each integer. The sum of ```pk``` must equal 1. Returns ```x``` in ```xk```.

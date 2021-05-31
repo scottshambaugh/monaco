@@ -1,46 +1,35 @@
 # Monaco
-This library is a work-in-progress under heavy development. Not recommended for 
-outside use at this time.     
+This library is a work-in-progress under heavy development. Not recommended for outside use at this time.     
 Originally created in 2020 by Scott Shambaugh during Coronavirus quarantine.
 
 ### Overview
 
-At the heart of all serious forecasting, whether that be of elections, the 
-spread of pandemics, weather, or the path of a rocket on its way to Mars, is a 
-statistical tool known as the 
-[Monte-Carlo method](https://en.wikipedia.org/wiki/Monte_Carlo_method).
-The Monte-Carlo method, named for the rolling of the dice at the famous Monte 
-Carlo casino located in Monaco, allows you to quantify uncertainty by 
-introducing randomness to otherwise deterministic processes, and seeing what 
-the range of results is.
+At the heart of all serious forecasting, whether that be of elections, the spread of pandemics, weather, or the path of a rocket on its way to Mars, is a statistical tool known as the [Monte-Carlo method](https://en.wikipedia.org/wiki/Monte_Carlo_method). The Monte-Carlo method, named for the rolling of the dice at the famous Monte Carlo casino located in Monaco, allows you to quantify uncertainty by introducing randomness to otherwise deterministic processes, and seeing what the range of results is.
 
-Monaco is a python library for setting up, running, and analyzing Monte-Carlo 
-simulations. Users can define random input variables drawn from any of SciPy's 
-continuous or discrete distributions (including custom distributions), 
-preprocess and structure that data as needed to feed to their main simulation, 
-run that simulation in parallel anywhere from 1 to millions of times, and 
-postprocess the simulation outputs to obtain meaningful, statistically 
-significant conclusions. Plotting and statistical functions specific to use 
-cases that might be encountered are provided, and repeatability of results is ensured through careful management of random seeds.
+Monaco is a python library for setting up, running, and analyzing Monte-Carlo simulations. Users can define random input variables drawn from any of SciPy's continuous or discrete distributions (including custom distributions), preprocess and structure that data as needed to feed to their main simulation, run that simulation in parallel anywhere from 1 to millions of times, and postprocess the simulation outputs to obtain meaningful, statistically significant conclusions. Plotting and statistical functions specific to use cases that might be encountered are provided, and repeatability of results is ensured through careful management of random seeds.
 
 <p float="left" align="center">
 <img width="440" height="300" src="examples/rocket/rocket_trajectory.png">  
 <img width="360" height="270" src="examples/rocket/wind_vs_landing.png">
 </p>
 
-### Basic Architecture & Workflow:
-
-To run a Monte Carlo simulation, you must first have a function which you wish to run with randomized inputs. This python function can be a standalone script, a script which sets up and calls additional routines, or a wrapper for code written in other languages. We will call this your `run` function.
-
-The workhorse of the Monte Carlo Simulation which you will run is an `MCSim` object. To instantiate this object, you need to pass it two things: the number of random cases `ncases` which you want to run with, and a dict `fcns` of the handles for three functions which you need to create: `preprocess`, `run`, and `postprocess`. The processing functions will be explained in more detail in a moment.
-
-Once you have your MCSim object, you need to generate the randomized values which your `run` function will use. To do this, use the `MCSim.addInVar()` method to generate `MCInVar` objects. This method takes in the handle to any of SciPy's continuous or discrete probability distributions, as well as the required arguments for that probability distribution. It then randomly draws `ncases` numbers from that distribution, and assigns them to `MCInVal` objects. The raw value is stored in `MCInVal.num`. Optionally if nonnumeric random inputs are desired, the method can also take in a `nummap` dictionary which maps the randomly drawn integers to values of other types, stored in `MCInVal.val`.
-
-Once all input variables have been added, the sim can be run with `MCSim.runSim()`. The first thing that this does is generate `ncases` number of `MCCase` objects. Each of these objects stores the n'th value of each of the input variables. A repeatably random seed for each case is also generated for use by the `run` function if needed.
+### Basic Architecture:
+At the center of a Monte Carlo simulation is a program or a function which you wish to run with randomized inputs. Around this, the Monaco Monte Carlo architecture is structured like a sandwich.  At the top, you generate a large number of randomized values for your input variables. These input values are preprocessed into a form that your program accepts, your program is run, and at the bottom the results are postprocessed to extract values for the output variables. You can then plot, collect statistics about, or otherwise use all the input and output variables from your sim. The sandwich is sliced vertically into individual cases, which can be run in parallel to massively speed up computation.
 
 <p float="left" align="left">
 <img width="440" height="350" src="docs/val_var_case_architecture.png">  
 </p>
+
+### Basic Workflow:
+It may be more useful to step through the example in the [templates](templates/) directory which is heavily commented, or any of the other [examples](examples/), but the below is a higher-level description of a basic workflow.
+
+To run a Monte Carlo simulation, you must first have a function which you wish to run with randomized inputs. This python function can be a standalone script, a script which sets up and calls additional routines, or a wrapper for code written in other languages. We will call this your `run` function
+
+The workhorse of the Monte Carlo Simulation which you will run is an `MCSim` object. To instantiate this object, you need to pass it two things: the number of random cases `ncases` which you want to run with, and a dict `fcns` of the handles for three functions which you need to create: `preprocess`, `run`, and `postprocess`. The processing functions will be explained in more detail in a moment.
+
+Once you have your MCSim object, you need to generate the randomized values which your `run` function will use. To do this, use the `MCSim.addInVar()` method to generate `MCInVar` objects. This method takes in the handle to any of SciPy's continuous or discrete probability distributions, as well as the required arguments for that probability distribution. See [function calls for some common distributions here](docs/statistical_distributions.md). It then randomly draws `ncases` numbers from that distribution, and assigns them to `MCInVal` objects. The raw value is stored in `MCInVal.num`. Optionally if nonnumeric random inputs are desired, the method can also take in a `nummap` dictionary which maps the randomly drawn integers to values of other types, stored in `MCInVal.val`.
+
+Once all input variables have been added, the sim can be run with `MCSim.runSim()`. The first thing that this does is generate `ncases` number of `MCCase` objects. Each of these objects stores the n'th value of each of the input variables. A repeatably random seed for each case is also generated for use by the `run` function if needed.
 
 The simulation will now be run for all the individual cases via the function call chain shown below. This should give some light into what the three functions you passed to `MCSim` are doing. `preprocess` needs to take in an `MCCase` object, extract its random values, and package that along with any other data into the structure that `run` expects for its input arguments. The `run` function then executes on those inputs arguments and returns its outputs. The `postprocess` function then needs to take in the original `mccase` as well as those outputs. Within that function, you will need to perform any postprocessing you wish to do, and choose what data to log out by calling `MCCase.addOutVal(val)` on those values.
 
