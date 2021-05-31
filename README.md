@@ -39,7 +39,7 @@ Once you have your MCSim object, you need to generate the randomized values whic
 Once all input variables have been added, the sim can be run with `MCSim.runSim()`. The first thing that this does is generate `ncases` number of `MCCase` objects. Each of these objects stores the n'th value of each of the input variables. A repeatably random seed for each case is also generated for use by the `run` function if needed.
 
 <p float="left" align="left">
-<img width="440" height="150" src="docs/val_var_case_architecture.png">  
+<img width="440" height="350" src="docs/val_var_case_architecture.png">  
 </p>
 
 The simulation will now be run for all the individual cases via the function call chain shown below. This should give some light into what the three functions you passed to `MCSim` are doing. `preprocess` needs to take in an `MCCase` object, extract its random values, and package that along with any other data into the structure that `run` expects for its input arguments. The `run` function then executes on those inputs arguments and returns its outputs. The `postprocess` function then needs to take in the original `mccase` as well as those outputs. Within that function, you will need to perform any postprocessing you wish to do, and choose what data to log out by calling `MCCase.addOutVal(val)` on those values.
