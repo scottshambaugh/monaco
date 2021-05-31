@@ -9,7 +9,7 @@ from psutil import cpu_count
 from pathos.pools import ThreadPool as Pool
 from tqdm import tqdm
 from helper_functions import get_iterable, slice_by_index, vprint, vwrite
-from typing import Dict, Tuple, Set, List, Callable, Union, Any
+from typing import Dict, Set, List, Callable, Union, Any
 from scipy.stats import rv_continuous, rv_discrete
 
 
@@ -28,6 +28,8 @@ class MCSim:
                  savecasedata   : bool = True,
                  resultsdir     : Union[None, str, pathlib.Path] = None,
                  ):
+        
+        self.checkFcnsInput(fcns)
         
         self.name = name
         self.verbose = verbose
@@ -86,6 +88,15 @@ class MCSim:
         self.__dict__.update(state)
         if self.savecasedata:
             self.loadCases()
+
+
+    def checkFcnsInput(self,
+                       fcns: Dict,
+                       ):
+        if any(s not in fcns.keys() for s in ('preprocess', 'run', 'postprocess')):
+            raise ValueError(f"MCSim argument {fcns=} must have keys 'preprocess', 'run', and 'postprocess'")
+        if any(not callable(f) for f in fcns.values()):
+            raise ValueError(f"MCSim argument {fcns=} must contain functions as values")
                 
 
     def setFirstCaseNom(self, 
