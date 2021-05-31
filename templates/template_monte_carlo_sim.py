@@ -7,9 +7,7 @@ from Monaco.mc_plot import mc_plot, mc_plot_cov_corr
 from scipy.stats import randint, rv_discrete
 
 # Import the preprocess, sim, and postprocess function handles that you have created
-from template_preprocess import template_preprocess
-from template_run import template_run
-from template_postprocess import template_postprocess
+from template_functions import template_preprocess, template_run, template_postprocess
 
 # These get packaged in the following format for MCSim to consume:
 fcns ={'preprocess' :template_preprocess,   \
@@ -75,11 +73,10 @@ def template_monte_carlo_sim():
     # We can also quickly make some plots of our invars and outvars. The MCPlot 
     # function will automatically try to figure out which type of plot is most 
     # appropriate based on the number and dimension of the variables
-    # The cases argument here is a list of cases to highlight on the plots
     # This will make a histogram of the results:
-    mc_plot(sim.mcoutvars['Flip Result'], cases=[])
-    # And this scatter plot will show that the flips were random over time
-    mc_plot(sim.mcoutvars['Flip Number'], sim.mcoutvars['Flip Result'], cases=[])
+    mc_plot(sim.mcoutvars['Flip Result'])
+    # And this scatter plot will show that the flips were random over time:
+    mc_plot(sim.mcoutvars['Flip Number'], sim.mcoutvars['Flip Result'])
     
     # We can also look at the correlation between all scalar input and output
     # vars to see which are most affecting the others. This shows that the input 
