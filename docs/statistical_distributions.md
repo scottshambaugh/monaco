@@ -5,9 +5,9 @@ This page contains a list of common probability distributions that you may want 
 ### Usage
 
     # After having initialized your MCSim object as 'sim', 
-    # create a uniform random variable between 1 and 2
+    # create a continuous uniform random variable between 1 and 5
     from scipy.stats import uniform
-    sim.addInVar(name='var1', dist=uniform, distkwargs={'loc':1, 'scale':1})
+    sim.addInVar(name='var1', dist=uniform, distkwargs={'loc':1, 'scale':4})
 
 
 ### Continuous Distributions:
@@ -25,8 +25,11 @@ This page contains a list of common probability distributions that you may want 
 ```expon(scale = 1/lambda)```, where ```lambda``` is the expected rate parameter for the associated poisson process. The returned range of ```x``` is unbounded. Think of a call center which receives an average of ```lambda``` calls per minute, and this is the odds of ```x``` minutes passing between subsequent calls.
 
 ### Discrete Distributions:
-**Random Integer** [[SciPy Ref](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.randint.html), [Wikipedia](https://en.wikipedia.org/wiki/Discrete_uniform_distribution)]:     
+**Random Integers in Range** [[SciPy Ref](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.randint.html), [Wikipedia](https://en.wikipedia.org/wiki/Discrete_uniform_distribution)]:     
 ```randint(low, high)```, where ```low``` and ```high``` are the lower and upper bounds of the integer range. Also known as a *discrete* uniform distribution. Returns ```k``` in ```{low, ..., high - 1}```.
+
+**Random Integers with Custom Weights** [[SciPy Ref](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.rv_discrete.html)]:    
+```rv_discrete(values=(xk, pk))```, where ```xk``` is a list of integers and ```pk``` is a list of the probabilities associated with returning each integer. The sum of ```pk``` must equal 1, and each probability in it must be ```0 < p < 1```. Returns ```x``` in ```xk```.
 
 **Bernoulli Distribution** [[SciPy Ref](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.bernoulli.html), [Wikipedia](https://en.wikipedia.org/wiki/Bernoulli_distribution)]:     
 ```bernoulli(p)```, where ```p``` is the probability of success. Equivalent to a "weighted coin flip". Returns ```k``` in ```{0, 1}```.
@@ -39,6 +42,3 @@ This page contains a list of common probability distributions that you may want 
 
 **Poisson Distribution** [[SciPy Ref](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.poisson.html), [Wikipedia](https://en.wikipedia.org/wiki/Poisson_distribution)]:     
 ```poisson(mu)```, where ```mu``` is the expected rate of occurances (notated as lambda on wikipedia). Returns ```k ≥ 0```. Think of a call center that receives an average of lambda calls per minute, and this gives the odds of receiving ```k``` calls in any given minute.  
-
-**Custom Distribution** [[SciPy Ref](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.rv_discrete.html)]:
-```rv_discrete(values=(xk, pk))```, where ```xk``` is a list of integers, ```pk``` is a list of the probabilities associated with each integer. The sum of ```pk``` must equal 1. Returns ```x``` in ```xk```.
