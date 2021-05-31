@@ -78,11 +78,15 @@ def mc_multi_plot_2d_scatter_hist(mcvarx     : MCVar,
 if __name__ == '__main__':
     from Monaco.MCVar import MCInVar
     from scipy.stats import norm
+    import numpy as np
     plt.close('all')
     
+    generator = np.random.RandomState(74494861)
+    invarseeds = generator.randint(0, 2**31-1, size=10)
+        
     mcinvars = dict()
-    mcinvars['norm1'] = MCInVar('norm1', norm, (1, 5), 1000, seed=1)
-    mcinvars['norm2'] = MCInVar('norm2', norm, (10, 4), 1000, seed=2)
+    mcinvars['norm1'] = MCInVar('norm1', ndraws=1000, dist=norm, distkwargs={'loc':1, 'scale':5}, seed=invarseeds[0])
+    mcinvars['norm2'] = MCInVar('norm2', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4}, seed=invarseeds[1])
     
-    mc_multi_plot(mcinvars['norm1'], mcinvars['norm2'], highlight_cases=range(10,30), title='test')  # MCPlot2DScatter
+    mc_multi_plot(mcinvars['norm1'], mcinvars['norm2'], highlight_cases=range(10,30), rug_plot=True, cov_plot=True, cov_p=0.95, title='test')  # MCPlot2DScatter
 #'''

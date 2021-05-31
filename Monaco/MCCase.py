@@ -68,9 +68,9 @@ if __name__ == '__main__':
     import numpy as np
     from scipy.stats import norm
     from MCVar import MCInVar
-    np.random.seed(74494861)
-    invar = {'Test':MCInVar('Test', norm, (10, 4), 10)}
-    case = MCCase(ncase=0, isnom=False, mcinvars=invar, constvals=dict())
+    seed = 74494861
+    invar = {'Test':MCInVar('Test', ndraws=10, dist=norm, distkwargs={'loc':10, 'scale':4}, seed=seed)}
+    case = MCCase(ncase=0, isnom=False, mcinvars=invar, constvals=dict(), seed=seed)
     print(case.mcinvals['Test'].val)      # expected: 10.000000000000002
     
     case.addOutVal('TestOut', [[0,0],[0,0],[0,0]])

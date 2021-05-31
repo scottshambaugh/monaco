@@ -510,15 +510,15 @@ if __name__ == '__main__':
     def dummyfcn(*args):
         return 1
     from scipy.stats import norm, randint
-    np.random.seed(74494861)
-    sim = MCSim('Sim', 10, {'preprocess':dummyfcn, 'run':dummyfcn, 'postprocess':dummyfcn})
-    sim.addInVar('Var1', randint, (1, 5))
-    sim.addInVar('Var2', norm, (10, 4))
+    seed = 74494861
+    sim = MCSim(name='Sim', ndraws=10, fcns={'preprocess':dummyfcn, 'run':dummyfcn, 'postprocess':dummyfcn}, seed=seed)
+    sim.addInVar(name='Var1', dist=randint, distkwargs={'low':1, 'high':6})
+    sim.addInVar(name='Var2', dist=norm, distkwargs={'loc':10, 'scale':4})
     sim.genCases()
     print(sim.mcinvars['Var1'].name)           # expected: Var1
-    print(sim.mccases[0].mcinvals['Var1'].val) # expected: 2.0
+    print(sim.mccases[0].mcinvals['Var1'].val) # expected: 3.0
     print(sim.mcinvars['Var2'].name)           # expected: Var2
     print(sim.mccases[0].mcinvals['Var2'].val) # expected: 10.000000000000002
-    print(sim.corr())                          # expected: (array([[ 1., -0.00189447], [-0.00189447, 1.]]), ['Var1', 'Var2'])
-    print(sim.cov())                           # expected: (array([[ 1.01818182e+00, -8.93478577e-03], [-8.93478577e-03, 2.18458910e+01]]), ['Var1', 'Var2'])
+    print(sim.corr())                          # expected: (array([[ 1., -0.24301949], [-0.24301949,  1.]]), ['Var1', 'Var2'])
+    print(sim.cov())                           # expected: (array([[ 1.05454545, -1.18601857], [-1.18601857, 22.585799]]), ['Var1', 'Var2'])
 #'''

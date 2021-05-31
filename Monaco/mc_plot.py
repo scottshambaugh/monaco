@@ -491,17 +491,18 @@ def get_cases(ncases : int,
 '''
 ### Test ###
 if __name__ == '__main__':
-    np.random.seed(74494861)
     from scipy.stats import randint, norm
+    generator = np.random.RandomState(74494861)
+    invarseeds = generator.randint(0, 2**31-1, size=10)
     plt.close('all')
     
     mcinvars = dict()
     nummap={1:'a',2:'b',3:'c',4:'d',5:'e'}
-    mcinvars['randint'] = MCInVar(name='randint', ndraws=1000, dist=randint, distkwargs={'low':1, 'high':6}, nummap=nummap)
-    mcinvars['norm'] = MCInVar(name='norm', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4})
+    mcinvars['randint'] = MCInVar(name='randint', ndraws=1000, dist=randint, distkwargs={'low':1, 'high':6}, nummap=nummap, seed=invarseeds[0])
+    mcinvars['norm'] = MCInVar(name='norm', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4}, seed=invarseeds[1])
     mcinvars['norm'].addVarStat(stattype='orderstatTI', statkwargs={'p':0.75, 'c':0.50, 'bound':'2-sided'})
     mcinvars['norm'].addVarStat(stattype='orderstatP', statkwargs={'p':0.5, 'c':0.9999, 'bound':'all'})
-    mcinvars['norm2'] = MCInVar(name='norm2', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4})
+    mcinvars['norm2'] = MCInVar(name='norm2', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4}, seed=invarseeds[2])
     mcoutvars = dict()
     mcoutvars['test'] = MCOutVar(name='test', vals=[1, 0, 2, 2], firstcaseisnom=True)
     

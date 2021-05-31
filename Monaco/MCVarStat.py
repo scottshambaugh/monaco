@@ -329,8 +329,8 @@ if __name__ == '__main__':
     from scipy.stats import norm
     from Monaco.MCVar import MCInVar, MCOutVar
     seed = 74494861
-    
-    mcinvar = MCInVar('norm', norm, (0, 1), 100000, seed=seed)
+
+    mcinvar = MCInVar('norm', ndraws=100000, dist=norm, distkwargs={'loc':0, 'scale':1}, seed=seed)
     bound='1-sided'
     mcinvarstat1 = MCVarStat(mcinvar, stattype='orderstatTI', statkwargs={'p':sig2pct(3, bound=bound), 'c':0.50, 'bound':bound})
     mcinvarstat2 = MCVarStat(mcinvar, stattype='orderstatP', statkwargs={'p':sig2pct(3, bound=bound), 'c':0.50, 'bound':'all'})
