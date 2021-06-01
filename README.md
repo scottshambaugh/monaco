@@ -73,9 +73,10 @@ See the [examples](examples/) folder for some examples you can step through or u
 **Future Work:**
 * Run on remote server (Azure, Google Cloud)
 * Get custom distributions working
-* Linear trend lines on scatter plots
 * Convergence plots
 * Tornado plots
+* Sensitivity Indices (Sobol's Method)
+* Sampling schemes (random, grid, spectral)
 * Examples:
     * Evidence-Based Scheduling?
 * 2D/3D Line statistics?
@@ -89,6 +90,7 @@ See the [examples](examples/) folder for some examples you can step through or u
     * ~~Election Modeling~~
     * ~~Pandemic Modeling~~
     * ~~Rocket Flight~~
+* ~~Linear trend lines on scatter plots~~
 * ~~Save/load results to file~~
 * ~~3sig / X% / Mean / Min / Max statistics~~
 * ~~Make template files~~

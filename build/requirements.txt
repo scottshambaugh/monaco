@@ -1,6 +1,6 @@
-numpy==1.18.4+mkl
-scipy==1.4.1
-pathos==0.2.6
-matplotlib==3.2.1
-tdqm==4.46.0
-pandas=1.0.3
+numpy>=1.18.4
+scipy>=1.4.1
+pathos>=0.2.7
+matplotlib>=3.3.0
+tdqm>=4.46.0
+pandas>=1.0.3

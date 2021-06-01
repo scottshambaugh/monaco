@@ -463,19 +463,24 @@ def plot_2d_cov_ellipse(ax     : Union[None, Axes],
                         ):
     # See https://www.visiondummy.com/2014/04/draw-error-ellipse-representing-covariance-matrix/
     allnums = [mcvarx.nums, mcvary.nums]
+    center = [np.mean(mcvarx.nums), np.mean(mcvary.nums)]
+    
     covs = np.cov(np.array(allnums))
     eigvals, eigvecs = np.linalg.eigh(covs) # Use eigh over eig since covs is guaranteed symmetric
-    center = [np.mean(mcvarx.nums), np.mean(mcvary.nums)]
+    inds = (-eigvals).argsort() # sort from largest to smallest
+    eigvals = eigvals[inds]
+    eigvecs = eigvecs[inds]
     angle = np.arctan2(eigvecs[0][1], eigvecs[0][0])*180/np.pi
-
+    
     scalefactor = chi2.ppf(p, df=2)
     ellipse_axis_radii = np.sqrt(scalefactor*eigvals)
     
     ellipse = Ellipse(center, 2*ellipse_axis_radii[0], 2*ellipse_axis_radii[1], angle=angle, fill=False, edgecolor='k')
     ax.add_patch(ellipse)
-    # TODO: Reenable the below with matplotlib >= 3.3.0
-    #plt.axline(xy1=(center[0], center[1]), slope=eigvecs[0][1]/eigvecs[0][0])
-    #plt.axline(xy1=(center[0], center[1]), slope=eigvecs[1][1]/eigvecs[1][0])
+
+    # For now plot both eigenaxes
+    plt.axline(xy1=(center[0], center[1]), slope=eigvecs[0][1]/eigvecs[0][0], color='k')
+    plt.axline(xy1=(center[0], center[1]), slope=eigvecs[1][1]/eigvecs[1][0], color='k')
 
 
 
