@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.stats import rv_continuous, rv_discrete, describe
+from scipy.stats import rv_continuous, rv_discrete, uniform, describe
 from Monaco.MCVal import MCInVal, MCOutVal
 from Monaco.MCVarStat import MCVarStat
 from copy import copy
@@ -23,6 +23,7 @@ class MCVar:
         self.valmap = None
         self.nums = []
         self.nummap = None
+        self.pcts = []
         self.size = None
         self.isscalar = None
         self.mcvarstats = []
@@ -118,17 +119,22 @@ class MCInVar(MCVar):
         
         
     def draw(self):
+        self.pcts = []
         self.nums = []
         dist = self.dist(**self.distkwargs)
 
         if self.firstcaseisnom:
             self.ncases = self.ndraws + 1
-            self.nums.append(self.getNom())
+            nom_num = self.getNom()
+            self.nums.append(nom_num)
+            self.pcts.append(dist.cdf(nom_num))
   
-        self.nums.extend(dist.rvs(size=self.ndraws, random_state=self.seed).tolist())
+        pcts = uniform.rvs(size=self.ndraws, random_state=self.seed).tolist()
+        self.pcts.extend(pcts)
+        self.nums.extend(dist.ppf(pcts).tolist())
         
         if any(np.isnan(num) for num in self.nums):
-            raise ValueError(f'Invalid draw. Check distribution and parameters: {self.dist}, {self.distkwargs}')
+            raise ValueError(f'Invalid draw. Check distribution and parameters: {self.dist=}, {self.distkwargs=}')
 
         self.mapNums()
 
@@ -271,9 +277,9 @@ if __name__ == '__main__':
     mcinvars['randint'] = MCInVar('randint', ndraws=1000, dist=randint, distkwargs={'low':1, 'high':5}, seed=invarseeds[0])
     print(mcinvars['randint'].stats()) # expected: DescribeResult(nobs=1001, minmax=(1.0, 4.0), mean=2.5394605394605394, variance=1.2766913086913088, skewness=-0.056403119793934316, kurtosis=-1.382700726059828)
     mcinvars['norm'] = MCInVar('norm', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4}, seed=invarseeds[1])
-    print(mcinvars['norm'].stats()) # expected: DescribeResult(nobs=1001, minmax=(-2.8212216855605874, 23.174036745569452), mean=9.984598648914597, variance=16.33843268728046, skewness=-0.07632259336623287, kurtosis=-0.19961999746619252)
+    print(mcinvars['norm'].stats()) # expected: DescribeResult(nobs=1001, minmax=(-3.2763755735803652, 21.713592332532034), mean=9.94513614069452, variance=15.792150741321997, skewness=-0.0353388726779112, kurtosis=-0.08122682085492805)
     mcinvars['norm'].addVarStat(stattype='orderstatTI', statkwargs={'p':0.75, 'c':0.95, 'bound':'2-sided'})
-    print(mcinvars['norm'].mcvarstats[0].vals) # expected: [ 4.97752429 14.93268084]
+    print(mcinvars['norm'].mcvarstats[0].vals) # expected: [ 5.10075  14.75052273]
     xk = np.array([1, 5, 6])
     pk = np.ones(len(xk))/len(xk)
     custom = rv_discrete(name='custom', values=(xk, pk))
