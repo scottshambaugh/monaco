@@ -3,7 +3,7 @@ import pandas as pd
 from itertools import chain
 from copy import copy, deepcopy
 from Monaco.helper_functions import is_num
-from typing import Dict, Union, Any
+from typing import Union, Any
 from scipy.stats import rv_discrete, rv_continuous
 
 ### MCVal Base Class ###
@@ -33,7 +33,7 @@ class MCInVal(MCVal):
                  ncase  : int, 
                  num,     # num is a scalar, list, or list of lists, all of which have numeric values (TODO: type hinting)
                  dist   : Union[rv_discrete, rv_continuous], 
-                 nummap : Union[None, Dict[int, Any]] = None, 
+                 nummap : Union[None, dict[int, Any]] = None, 
                  isnom  : bool = False,
                  ):
         
@@ -79,7 +79,7 @@ class MCOutVal(MCVal):
                  name   : str, 
                  ncase  : int, 
                  val    : Any, 
-                 valmap : Union[None, Dict[Any, int]] = None, 
+                 valmap : Union[None, dict[Any, int]] = None, 
                  isnom  : bool = False,
                  ):
         super().__init__(name=name, ncase=ncase, isnom=isnom)

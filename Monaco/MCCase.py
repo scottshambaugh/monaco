@@ -1,14 +1,14 @@
 from Monaco.MCVar import MCVar
 from Monaco.MCVal import MCOutVal
-from typing import Dict, Union, Any
+from typing import Union, Any
 import numpy as np
 
 class MCCase():
     def __init__(self, 
                  ncase     : int, 
                  isnom     : bool, 
-                 mcinvars  : Dict[str, MCVar], 
-                 constvals : Dict[str, Any] = dict(),
+                 mcinvars  : dict[str, MCVar], 
+                 constvals : dict[str, Any] = dict(),
                  seed      : int = np.random.get_state()[1][0],
                  ):
         
@@ -55,7 +55,7 @@ class MCCase():
                   name   : str, 
                   val, # unconstrained type
                   split  : bool = True, 
-                  valmap : Union[None, Dict[Any, int]] = None
+                  valmap : Union[None, dict[Any, int]] = None
                   ):
         self.mcoutvals[name] = MCOutVal(name=name, ncase=self.ncase, val=val, valmap=valmap, isnom=self.isnom)
         if split:

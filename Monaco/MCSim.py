@@ -9,7 +9,7 @@ from psutil import cpu_count
 from pathos.pools import ThreadPool as Pool
 from tqdm import tqdm
 from helper_functions import get_iterable, slice_by_index, vprint, vwrite
-from typing import Dict, Set, List, Callable, Union, Any
+from typing import Callable, Union, Any
 from scipy.stats import rv_continuous, rv_discrete
 
 
@@ -18,7 +18,7 @@ class MCSim:
     def __init__(self, 
                  name           : str, 
                  ndraws         : int, 
-                 fcns           : Dict[str, Callable], # fcns is a dict with keys 'preprocess', 'run', 'postprocess'
+                 fcns           : dict[str, Callable], # fcns is a dict with keys 'preprocess', 'run', 'postprocess'
                  firstcaseisnom : bool = True, 
                  seed           : int  = np.random.get_state()[1][0], 
                  cores          : int  = cpu_count(logical=False), 
@@ -91,7 +91,7 @@ class MCSim:
 
 
     def checkFcnsInput(self,
-                       fcns: Dict,
+                       fcns: dict,
                        ):
         if any(s not in fcns.keys() for s in ('preprocess', 'run', 'postprocess')):
             raise ValueError(f"MCSim argument {fcns=} must have keys 'preprocess', 'run', and 'postprocess'")
@@ -116,8 +116,8 @@ class MCSim:
     def addInVar(self, 
                  name       : str, 
                  dist       : Union[rv_discrete, rv_continuous],
-                 distkwargs : Dict[str, Any], 
-                 nummap     : Union[None, Dict[int, Any]] = None,
+                 distkwargs : dict[str, Any], 
+                 nummap     : Union[None, dict[int, Any]] = None,
                  ):  
         self.ninvars += 1
         invarseed = (self.seed + hash(name)) % 2**32  # make seed dependent on var name and not order added
@@ -269,7 +269,7 @@ class MCSim:
 
 
     def runSim(self, 
-               cases : Union[None, List[int]] = None,
+               cases : Union[None, list[int]] = None,
                ):
         casestorun = self.downselectCases(cases=cases)
         casestopostprocess = self.downselectCases(cases=cases)
@@ -312,7 +312,7 @@ class MCSim:
 
     def downselectCases(self, 
                         cases = None, # TODO: typing
-                        ) -> Set[int]:
+                        ) -> set[int]:
         if cases is None:
             cases = set(range(self.ncases))
         else:

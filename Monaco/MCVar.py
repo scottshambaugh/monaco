@@ -3,7 +3,7 @@ from scipy.stats import rv_continuous, rv_discrete, describe
 from Monaco.MCVal import MCInVal, MCOutVal
 from Monaco.MCVarStat import MCVarStat
 from copy import copy
-from typing import Dict, List, Union, Any
+from typing import Union, Any
 
 
 ### MCVar Base Class ###
@@ -46,7 +46,7 @@ class MCVar:
     
     def addVarStat(self, 
                    stattype   : str, 
-                   statkwargs : Dict[str, Any]   = dict(), 
+                   statkwargs : dict[str, Any]   = dict(), 
                    name       : Union[None, str] = None,
                    ):
         self.mcvarstats.append(MCVarStat(mcvar=self, stattype=stattype, statkwargs=statkwargs, name=name))
@@ -73,7 +73,7 @@ class MCInVar(MCVar):
                  ndraws         : int, 
                  dist           : Union[rv_discrete, rv_continuous], 
                  distkwargs     : dict                        = dict(), 
-                 nummap         : Union[None, Dict[int, Any]] = None,
+                 nummap         : Union[None, dict[int, Any]] = None,
                  seed           : int                         = np.random.get_state()[1][0], 
                  firstcaseisnom : bool                        = True,
                  ):
@@ -169,8 +169,8 @@ class MCInVar(MCVar):
 class MCOutVar(MCVar):
     def __init__(self, 
                  name           : str, 
-                 vals           : List[Any], 
-                 valmap         : Union[None, Dict[Any, int]] = None, 
+                 vals           : list[Any], 
+                 valmap         : Union[None, dict[Any, int]] = None, 
                  ndraws         : Union[None, int]            = None, 
                  firstcaseisnom : bool                        = True,
                  ):

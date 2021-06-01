@@ -1,6 +1,5 @@
 import scipy.stats
 import numpy as np
-from typing import Tuple
 '''
 Reference:
 Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A Guide for 
@@ -443,7 +442,7 @@ def EPTI(n : int,
 
 def get_iP(n : int, 
            P : float, # 0 < P < 1
-           ) -> Tuple[int, int, int]:
+           ) -> tuple[int, int, int]:
     # Index of Percentile (1-based indexing)
     iP = P*(n + 1) 
     iPl = int(np.floor(iP))

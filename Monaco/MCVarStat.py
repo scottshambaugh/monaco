@@ -9,14 +9,14 @@ from copy import copy
 from statistics import mode
 from scipy.stats.mstats import gmean
 from Monaco.order_statistics import order_stat_P_k, order_stat_TI_k, get_iP, pct2sig, sig2pct
-from typing import Union, Any, Callable, Dict
+from typing import Union, Any, Callable
 
 
 class MCVarStat:
     def __init__(self, 
                  mcvar      : MCVar,  
                  stattype   : str, 
-                 statkwargs : Dict[str, Any]   = dict(), 
+                 statkwargs : dict[str, Any]   = dict(), 
                  name       : Union[None, str] = None,
                  ):
         '''
