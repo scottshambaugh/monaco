@@ -8,7 +8,8 @@ import numpy as np
 from copy import copy
 from statistics import mode
 from scipy.stats.mstats import gmean
-from Monaco.order_statistics import order_stat_P_k, order_stat_TI_k, get_iP, pct2sig, sig2pct
+from Monaco.gaussian_statistics import pct2sig, sig2pct
+from Monaco.order_statistics import order_stat_P_k, order_stat_TI_k, get_iP
 from typing import Union, Any, Callable
 
 

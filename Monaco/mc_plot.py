@@ -7,7 +7,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from Monaco.MCVar import MCVar, MCInVar, MCOutVar
 from copy import copy
 from helper_functions import get_iterable, slice_by_index, length
-from order_statistics import conf_ellipsoid_sig2pct
+from gaussian_statistics import conf_ellipsoid_sig2pct
 from typing import Union
 
 
