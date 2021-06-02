@@ -74,14 +74,19 @@ class MCInVar(MCVar):
                  name           : str, 
                  ndraws         : int, 
                  dist           : Union[rv_discrete, rv_continuous], 
-                 distkwargs     : dict                        = dict(), 
+                 distkwargs     : dict                        = dict(),
                  nummap         : Union[None, dict[int, Any]] = None,
+                 samplemethod   : str                         = 'random',
+                 ninvar         : int                         = None,
                  seed           : int                         = np.random.get_state()[1][0], 
                  firstcaseisnom : bool                        = True,
                  ):
         super().__init__(name=name, ndraws=ndraws, firstcaseisnom=firstcaseisnom)
+        
         self.dist = dist  
         self.distkwargs = distkwargs
+        self.samplemethod = samplemethod
+        self.ninvar = ninvar 
         self.seed = seed 
         self.nummap = nummap 
         
@@ -130,7 +135,7 @@ class MCInVar(MCVar):
             self.nums.append(nom_num)
             self.pcts.append(dist.cdf(nom_num))
             
-        pcts = mc_sampling(ndraws=self.ndraws, method='random', seed=self.seed)
+        pcts = mc_sampling(ndraws=self.ndraws, method=self.samplemethod, ninvar=self.ninvar, seed=self.seed)
         self.pcts.extend(pcts)
         self.nums.extend(dist.ppf(pcts).tolist())
         
@@ -275,12 +280,12 @@ if __name__ == '__main__':
     invarseeds = generator.randint(0, 2**31-1, size=10)
     
     mcinvars = dict()
-    mcinvars['randint'] = MCInVar('randint', ndraws=1000, dist=randint, distkwargs={'low':1, 'high':5}, seed=invarseeds[0])
+    mcinvars['randint'] = MCInVar('randint', ndraws=1000, dist=randint, distkwargs={'low':1, 'high':5}, seed=invarseeds[0], samplemethod='random')
     print(mcinvars['randint'].stats()) # expected: DescribeResult(nobs=1001, minmax=(1.0, 4.0), mean=2.5394605394605394, variance=1.2766913086913088, skewness=-0.056403119793934316, kurtosis=-1.382700726059828)
-    mcinvars['norm'] = MCInVar('norm', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4}, seed=invarseeds[1])
-    print(mcinvars['norm'].stats()) # expected: DescribeResult(nobs=1001, minmax=(-3.2763755735803652, 21.713592332532034), mean=9.94513614069452, variance=15.792150741321997, skewness=-0.0353388726779112, kurtosis=-0.08122682085492805)
+    mcinvars['norm'] = MCInVar('norm', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4}, seed=invarseeds[1], samplemethod='sobol', ninvar=1)
+    print(mcinvars['norm'].stats()) # expected: DescribeResult(nobs=1001, minmax=(-2.3890763127951384, 23.188773382767856), mean=10.020645996325538, variance=15.961392314718784, skewness=0.022881602038503188, kurtosis=-0.030661167563347913)
     mcinvars['norm'].addVarStat(stattype='orderstatTI', statkwargs={'p':0.75, 'c':0.95, 'bound':'2-sided'})
-    print(mcinvars['norm'].mcvarstats[0].vals) # expected: [ 5.10075  14.75052273]
+    print(mcinvars['norm'].mcvarstats[0].vals) # expected: [ 5.19332804 14.85744951]
     xk = np.array([1, 5, 6])
     pk = np.ones(len(xk))/len(xk)
     custom = rv_discrete(name='custom', values=(xk, pk))

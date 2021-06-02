@@ -20,6 +20,7 @@ class MCSim:
                  ndraws         : int, 
                  fcns           : dict[str, Callable], # fcns is a dict with keys 'preprocess', 'run', 'postprocess'
                  firstcaseisnom : bool = True, 
+                 samplemethod   : str  = 'random', # 'random' or 'sobol'
                  seed           : int  = np.random.get_state()[1][0], 
                  cores          : int  = cpu_count(logical=False), 
                  verbose        : bool = True,
@@ -37,6 +38,7 @@ class MCSim:
         self.ndraws = ndraws
         self.fcns = fcns
         self.firstcaseisnom = firstcaseisnom
+        self.samplemethod = samplemethod
         self.seed = seed
         self.cores = cores
         self.savesimdata = savesimdata 
@@ -123,7 +125,7 @@ class MCSim:
         invarseed = (self.seed + hash(name)) % 2**32  # make seed dependent on var name and not order added
         self.invarseeds.append(invarseed)
         self.mcinvars[name] = MCInVar(name=name, dist=dist, distkwargs=distkwargs, ndraws=self.ndraws, nummap=nummap, \
-                                      seed=invarseed, firstcaseisnom=self.firstcaseisnom)
+                                      samplemethod=self.samplemethod, ninvar=self.ninvars, seed=invarseed, firstcaseisnom=self.firstcaseisnom)
 
 
     def addConstVal(self, 
@@ -522,7 +524,7 @@ if __name__ == '__main__':
         return 1
     from scipy.stats import norm, randint
     seed = 74494861
-    sim = MCSim(name='Sim', ndraws=100, fcns={'preprocess':dummyfcn, 'run':dummyfcn, 'postprocess':dummyfcn}, seed=seed)
+    sim = MCSim(name='Sim', ndraws=100, fcns={'preprocess':dummyfcn, 'run':dummyfcn, 'postprocess':dummyfcn}, samplemethod='random', seed=seed)
     sim.addInVar(name='Var1', dist=randint, distkwargs={'low':1, 'high':6})
     sim.addInVar(name='Var2', dist=norm, distkwargs={'loc':10, 'scale':4})
     sim.genCases()
@@ -530,6 +532,6 @@ if __name__ == '__main__':
     print(sim.mccases[0].mcinvals['Var1'].val) # expected: 3.0
     print(sim.mcinvars['Var2'].name)           # expected: Var2
     print(sim.mccases[0].mcinvals['Var2'].val) # expected: 10.000000000000002
-    print(sim.corr())                          # expected: (array([[ 1., -0.1987622], [-0.1987622,  1.]]), ['Var1', 'Var2'])
-    print(sim.cov())                           # expected: (array([[ 1.83168317, -1.1956579], [-1.1956579, 19.75585937]]), ['Var1', 'Var2'])
+    print(sim.corr())                          # expected: (array([[ 1., -0.07512466], [-0.07512466,  1.]]), ['Var1', 'Var2'])
+    print(sim.cov())                           # expected: (array([[ 2.07009901, -0.40962856], [-0.40962856, 14.36230848]]), ['Var1', 'Var2'])
 #'''

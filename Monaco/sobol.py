@@ -1,3 +1,4 @@
+# TODO: Remove and just bring in sobolsequence package as a dependency?
 '''
 MIT License
 
@@ -24,26 +25,28 @@ SOFTWARE.
 import numpy as np
 
 
-def rightmost_zero(n):
-    """Position of the lowest 0-bit in the binary representation of integer `n`."""
+def rightmost_zero(n : int) -> int:
+    '''Position of the lowest 0-bit in the binary representation of integer `n`.'''
     s = np.binary_repr(n)
-    i = s[::-1].find("0")
+    i = s[::-1].find('0')
     if i == -1:
         i = len(s)
     return i
 
 
-def generator(dimension, skip=0):
-    """Generator for the Sobol sequence"""
+def generator(dimension : int, 
+              skip      : int = 0,
+              ) -> np.ndarray:
+    '''Generator for the Sobol sequence'''
     DIMS = 1111  # maximum number of dimensions
     BITS = 30  # maximum number of bits
 
     if not (1 <= dimension <= DIMS):
-        raise ValueError("Sobol: dimension must be between 1 and %i." % DIMS)
+        raise ValueError(f'Sobol: dimension must be between 1 and {DIMS}.')
 
     # initialize direction numbers
     V = np.zeros((DIMS, BITS), dtype=int)
-    data = np.genfromtxt(__file__.replace(".py", "1111.tsv"), dtype=int)
+    data = np.genfromtxt(__file__.replace('.py', '1111.tsv'), dtype=int)
     poly = data[:, 0]
     V[:, :13] = data[:, 1:14]
     V[0, :] = 1
@@ -69,8 +72,11 @@ def generator(dimension, skip=0):
         yield point / 2 ** BITS
 
 
-def sample(dimension, n_points, skip=0):
-    """Generate a Sobol point set.
+def sample(dimension : int, 
+           n_points  : int, 
+           skip      : int = 0,
+           ) -> list:
+    '''Generate a Sobol point set.
 
     Parameters
     ----------
@@ -85,7 +91,7 @@ def sample(dimension, n_points, skip=0):
     -------
     array, shape=(n_points, dimension)
         Samples from the Sobol sequence.
-    """
+    '''
     sobol = generator(dimension, skip)
     points = np.empty((n_points, dimension))
     for i in range(n_points):

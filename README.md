@@ -76,7 +76,6 @@ See the [examples](examples/) folder for some examples you can step through or u
 * Convergence plots
 * Tornado plots
 * Sensitivity Indices (Sobol's Method)
-* Sampling schemes (random, grid, spectral)
 * Examples:
     * Evidence-Based Scheduling?
 * 2D/3D Line statistics?
@@ -114,6 +113,7 @@ See the [examples](examples/) folder for some examples you can step through or u
 * ~~Dataframe support~~
 * ~~Plot tolerance intervals as shaded regions~~
 * ~~Get keyboard interrupt working~~
+* ~~ Sampling schemes (random, sobol, more?)~~
 
 
 ### License:
