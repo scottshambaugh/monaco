@@ -2,6 +2,7 @@ import numpy as np
 from scipy.stats import rv_continuous, rv_discrete, uniform, describe
 from Monaco.MCVal import MCInVal, MCOutVal
 from Monaco.MCVarStat import MCVarStat
+from mc_sampling import mc_sampling
 from copy import copy
 from typing import Union, Any
 
@@ -128,8 +129,8 @@ class MCInVar(MCVar):
             nom_num = self.getNom()
             self.nums.append(nom_num)
             self.pcts.append(dist.cdf(nom_num))
-  
-        pcts = uniform.rvs(size=self.ndraws, random_state=self.seed).tolist()
+            
+        pcts = mc_sampling(ndraws=self.ndraws, method='random', seed=self.seed)
         self.pcts.extend(pcts)
         self.nums.extend(dist.ppf(pcts).tolist())
         
