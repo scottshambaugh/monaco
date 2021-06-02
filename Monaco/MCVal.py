@@ -31,7 +31,8 @@ class MCInVal(MCVal):
     def __init__(self, 
                  name   : str, 
                  ncase  : int, 
-                 num,     # num is a scalar, list, or list of lists, all of which have numeric values (TODO: type hinting)
+                 pct    : float,
+                 num    : float,
                  dist   : Union[rv_discrete, rv_continuous], 
                  nummap : Union[None, dict[int, Any]] = None, 
                  isnom  : bool = False,
@@ -39,6 +40,7 @@ class MCInVal(MCVal):
         
         super().__init__(name=name, ncase=ncase, isnom=isnom)
         self.dist = dist
+        self.pct = pct
         self.num = num        
         self.nummap = nummap
         self.isscalar = True
@@ -171,7 +173,7 @@ class MCOutVal(MCVal):
 ### Test ###
 if __name__ == '__main__':
     from scipy.stats import norm
-    a = MCInVal(name='TestA', ncase=1, num=0, dist=norm, isnom=True)
+    a = MCInVal(name='TestA', ncase=1, pct=0.5, num=0, dist=norm, isnom=True)
     print(a.val) # expected: 0
     b = MCOutVal(name='TestB', ncase=1, val=[[0,0],[0,0],[0,0]], isnom=True)
     print(b.size) # expected: (3, 2)

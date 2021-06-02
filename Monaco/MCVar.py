@@ -166,7 +166,7 @@ class MCInVar(MCVar):
         if (ncase == 0) and self.firstcaseisnom:
             isnom = True
             
-        val = MCInVal(name=self.name, ncase=ncase, num=self.nums[ncase], dist=self.dist, nummap=self.nummap, isnom=isnom)
+        val = MCInVal(name=self.name, ncase=ncase, pct=self.pcts[ncase], num=self.nums[ncase], dist=self.dist, nummap=self.nummap, isnom=isnom)
         return val
 
 
