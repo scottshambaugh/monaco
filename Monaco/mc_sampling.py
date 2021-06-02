@@ -17,7 +17,7 @@ def mc_sampling(ndraws : int,
         
         # Note: Randomization using seeds not necessary for sobol, but it's nice
         #       to be able to get slightly different results with different seeds
-        sobol_skip = int(seed % 2**10)  
+        sobol_skip = int(seed % 2**10)
         sobol_points = sobol.sample(dimension=ninvar, n_points=ndraws, skip=sobol_skip)
         pcts = np.array(sobol_points)[:,ninvar-1] # ninvar will always be >= 1
         
