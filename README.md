@@ -76,6 +76,7 @@ See the [examples](examples/) folder for some examples you can step through or u
 * Convergence plots
 * Tornado plots
 * Sensitivity Indices (Sobol's Method)
+* Move to scipy qmc module when released in 1.7.0
 * Examples:
     * Evidence-Based Scheduling?
 * 2D/3D Line statistics?
