@@ -11,6 +11,6 @@ has a 10% chance of failure. These produce enough nonlinear dynamics to make
 for interesting results. 
 
 <p float="left" align="center">
-<img width="440" height="300" src="./rocket_trajectory.png">  
-<img width="360" height="270" src="./wind_vs_landing.png">
+<img width="293.08" height="270" src="./rocket_trajectory.png">  
+<img width="384.94" height="270" src="./wind_vs_landing.png">
 </p>

@@ -9,8 +9,8 @@ At the heart of all serious forecasting, whether that be of elections, the sprea
 Monaco is a python library for setting up, running, and analyzing Monte-Carlo simulations. Users can define random input variables drawn using chosen sampling methods from any of SciPy's continuous or discrete distributions (including custom distributions), preprocess and structure that data as needed to feed to their main simulation, run that simulation in parallel anywhere from 1 to millions of times, and postprocess the simulation outputs to obtain meaningful, statistically significant conclusions. Plotting and statistical functions specific to use cases that might be encountered are provided, and repeatability of results is ensured through careful management of random seeds.
 
 <p float="left" align="center">
-<img width="440" height="300" src="examples/rocket/rocket_trajectory.png">  
-<img width="360" height="270" src="examples/rocket/wind_vs_landing.png">
+<img width="293.08" height="270" src="examples/rocket/rocket_trajectory.png">  
+<img width="384.94" height="270" src="examples/rocket/wind_vs_landing.png">
 </p>
 
 ### Basic Architecture:
