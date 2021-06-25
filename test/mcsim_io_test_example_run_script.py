@@ -2,12 +2,12 @@ from Monaco.MCSim import MCSim
 import dill
 import os
 
-from test_example_sim import test_example_sim
-from test_example_preprocess import test_example_preprocess
-from test_example_postprocess import test_example_postprocess
-fcns ={'preprocess' :test_example_preprocess,   \
-       'run'        :test_example_sim,          \
-       'postprocess':test_example_postprocess}
+from mytest_example_sim import mytest_example_sim
+from mytest_example_preprocess import mytest_example_preprocess
+from mytest_example_postprocess import mytest_example_postprocess
+fcns ={'preprocess' :mytest_example_preprocess,   \
+       'run'        :mytest_example_sim,          \
+       'postprocess':mytest_example_postprocess}
 
 ndraws = 16
 seed=12362398

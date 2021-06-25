@@ -1,3 +1,5 @@
+# gaussian_statistics.py
+
 import scipy.stats
 import numpy as np
 
@@ -76,12 +78,3 @@ def conf_ellipsoid_sig2pct(sig : float,  # sig > 0
     p = scipy.stats.chi2.cdf(sig**2, df=df)
     return p
 
-
-'''
-### Test ###
-if __name__ == '__main__':
-    print(sig2pct(-3, bound='2-sided'), sig2pct(3, bound='1-sided')) # expected: -0.99730, 0.99865
-    print(pct2sig(0.9973002, bound='2-sided'), pct2sig(0.0013499, bound='1-sided')) # expected: 3, -3
-    print(conf_ellipsoid_sig2pct(3, df=1), conf_ellipsoid_sig2pct(3, df=2)) # expected: 0.99730, 0.98889
-    print(conf_ellipsoid_pct2sig(0.9973002, df=1), conf_ellipsoid_pct2sig(0.988891, df=2)) # expected: 3.0, 3.0
-#'''

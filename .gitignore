@@ -1,8 +1,16 @@
 __pycache__/
 _build/
 *.py[cod]
+
+# Pytest
+.hypothesis/
+.pytest_cache/
+
+# MCSim Results
 *_results/
 *.mccase
 *.mcsim
+
+# Security Keys
 *.pem
 *.ppk
