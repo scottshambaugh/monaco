@@ -1,7 +1,7 @@
 # test_gaussian_statistics.py
 
 import pytest
-from gaussian_statistics import pct2sig, sig2pct, conf_ellipsoid_pct2sig, conf_ellipsoid_sig2pct
+from Monaco.gaussian_statistics import pct2sig, sig2pct, conf_ellipsoid_pct2sig, conf_ellipsoid_sig2pct
 
 def test_sig2pct():
     assert sig2pct(sig= 3, bound='1-sided') == pytest.approx( 0.9986501)

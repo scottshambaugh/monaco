@@ -1,4 +1,6 @@
 # Monaco
+![Unit Tests](https://github.com/scottshambaugh/Monaco/actions/workflows/unit_tests.yml/badge.svg)
+
 This library is a work-in-progress under heavy development. Not recommended for outside use at this time.     
 Originally created in 2020 by Scott Shambaugh during Coronavirus quarantine.
 
@@ -114,7 +116,7 @@ See the [examples](examples/) folder for some examples you can step through or u
 * ~~Dataframe support~~
 * ~~Plot tolerance intervals as shaded regions~~
 * ~~Get keyboard interrupt working~~
-* ~~ Sampling schemes (random, sobol, more?)~~
+* ~~Sampling schemes (random, sobol, more?)~~
 
 
 ### License:
