@@ -2,5 +2,5 @@ numpy>=1.18.4
 scipy>=1.4.1
 pathos>=0.2.7
 matplotlib>=3.3.0
-tdqm>=4.46.0
+tqdm>=4.46.0
 pandas>=1.0.3
