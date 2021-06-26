@@ -78,13 +78,13 @@ See the [examples](examples/) folder for some examples you can step through or u
 * Convergence plots
 * Tornado plots
 * Sensitivity Indices (Sobol's Method)
-* Move to scipy qmc module when released in 1.7.0
 * Examples:
     * Evidence-Based Scheduling?
 * 2D/3D Line statistics?
 * Make pip installable?
 * Correlation matrix input?
 * Ability to plot derived data in addition to mcvars?
+* Speed up sampling by not regenerating qmc sequences for each invar 
 
 **Done:**
 * ~~Examples:~~
@@ -116,7 +116,7 @@ See the [examples](examples/) folder for some examples you can step through or u
 * ~~Dataframe support~~
 * ~~Plot tolerance intervals as shaded regions~~
 * ~~Get keyboard interrupt working~~
-* ~~Sampling schemes (random, sobol, more?)~~
+* ~~Sampling schemes (random, sobol, etc)~~
 
 
 ### License:

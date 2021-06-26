@@ -1,6 +1,7 @@
+# mc_sampling.py
+
 import scipy.stats
 import numpy as np
-import sobol
 
 def mc_sampling(ndraws : int, 
                 method : str = 'random', 
@@ -9,25 +10,31 @@ def mc_sampling(ndraws : int,
                 ) -> list[float]:
     
     if method in ('sobol', 'sobol_random'):
-        if (ninvar is None) or (not 1 <= ninvar <= 1111):
-            raise ValueError(f'{ninvar=} must be between 1 and 1111 for the sobol or sobol_random method')
+        if (ninvar is None) or (not 1 <= ninvar <= 21201):
+            raise ValueError(f'{ninvar=} must be between 1 and 21201 for the sobol or sobol_random method')
 
     if method == 'random':
         pcts = scipy.stats.uniform.rvs(size=ndraws, random_state=seed)
-        
-    elif method == 'sobol':
-        sobol_points = sobol.sample(dimension=ninvar, n_points=ndraws, skip=0)
-        pcts = np.array(sobol_points)[:,ninvar-1] # ninvar will always be >= 1
-        
-    elif method == 'sobol_random':
-        # TODO: Replace this with proper Owen's Scrambling, ,currently doesn't help freq spectra
-        sobol_skip = int(seed % 2**10)
-        sobol_points = sobol.sample(dimension=ninvar, n_points=ndraws, skip=sobol_skip)
-        pcts = np.array(sobol_points)[:,ninvar-1] # ninvar will always be >= 1
-                
+    
+    elif method in ('sobol', 'sobol_random', 'halton', 'halton_random', 'latin_hypercube'):
+        # TODO: We should only generate the sequences once for the max ninvar, and cache that data
+        scramble = False
+        if method in ('sobol_random', 'halton_random'):
+            scramble = True
+    
+        if method in ('sobol', 'sobol_random'):
+            sampler = scipy.stats.qmc.Sobol(d=ninvar, scramble=scramble, seed=seed)
+        elif method in ('halton', 'halton_random'):
+            sampler = scipy.stats.qmc.Halton(d=ninvar, scramble=scramble, seed=seed)
+        elif method == 'latin_hypercube':
+            sampler = scipy.stats.qmc.LatinHypercube(d=ninvar)
+            
+        points = sampler.random(n=ndraws)
+        pcts = np.array(points)[:,ninvar-1] # ninvar will always be >= 1
+
     else:
         raise ValueError(f'{method=} must be one of the following: ',
-                         "'random', 'sobol', 'sobol_random")
+                         "'random', 'sobol', 'sobol_random', 'halton', 'halton_random', 'latin_hypercube'")
     
     return pcts
 
@@ -83,11 +90,14 @@ if __name__ == '__main__':
         #fig.savefig(f'../docs/{method}_sampling.png')
         
     
-    generator = np.random.RandomState(74494850)
+    generator = np.random.RandomState(744948050)
     seeds = generator.randint(0, 2**31-1, size=10)
-    ndraws = 500
+    ndraws = 512
     plot_sampling_test(ndraws=ndraws, method='random', seeds=seeds)
     plot_sampling_test(ndraws=ndraws, method='sobol', seeds=seeds)
     plot_sampling_test(ndraws=ndraws, method='sobol_random', seeds=seeds)
+    plot_sampling_test(ndraws=ndraws, method='halton', seeds=seeds)
+    plot_sampling_test(ndraws=ndraws, method='halton_random', seeds=seeds)
+    plot_sampling_test(ndraws=ndraws, method='latin_hypercube', seeds=seeds)
     
 #'''
