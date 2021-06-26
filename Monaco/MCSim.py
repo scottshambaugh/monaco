@@ -125,7 +125,7 @@ class MCSim:
         invarseed = (self.seed + hash(name)) % 2**32  # make seed dependent on var name and not order added
         self.invarseeds.append(invarseed)
         self.mcinvars[name] = MCInVar(name=name, dist=dist, distkwargs=distkwargs, ndraws=self.ndraws, nummap=nummap, \
-                                      samplemethod=self.samplemethod, ninvar=self.ninvars, seed=invarseed, firstcaseisnom=self.firstcaseisnom)
+                                      samplemethod=self.samplemethod, ninvar=self.ninvars, seed=invarseed, firstcaseisnom=self.firstcaseisnom, autodraw=False)
 
 
     def addConstVal(self, 
@@ -146,7 +146,14 @@ class MCSim:
             self.genCases()
 
 
+    def drawVars(self):
+        for mcinvar in self.mcinvars.values():
+            mcinvar.draw(ninvar_max=self.ninvars)
+
+
     def genCases(self):
+        self.drawVars()
+        
         generator = np.random.RandomState(self.seed)
         self.caseseeds = generator.randint(0, 2**31-1, size=self.ncases)
         mccases = []
@@ -246,7 +253,6 @@ class MCSim:
         self.mcinvars = dict()
         self.constvals = dict()
         self.ninvars = 0
-        self.setNDraws(self.ndraws)
         self.invarseeds = []
         self.caseseeds = []
         self.starttime = None

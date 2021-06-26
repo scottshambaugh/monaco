@@ -80,6 +80,7 @@ class MCInVar(MCVar):
                  ninvar         : int                         = None,
                  seed           : int                         = np.random.get_state()[1][0], 
                  firstcaseisnom : bool                        = True,
+                 autodraw       : bool                        = True,
                  ):
         super().__init__(name=name, ndraws=ndraws, firstcaseisnom=firstcaseisnom)
         
@@ -94,7 +95,8 @@ class MCInVar(MCVar):
         self.size = (1, 1)
         
         self.genValMap()
-        self.draw()
+        if autodraw:
+            self.draw(ninvar_max=None)
 
 
     def mapNums(self):
@@ -121,10 +123,13 @@ class MCInVar(MCVar):
                   ):
         self.ndraws = ndraws
         self.setFirstCaseNom(self.firstcaseisnom)
-        self.draw()
         
         
-    def draw(self):
+    def draw(self, 
+             ninvar_max : int = None,
+             ):
+        if ninvar_max is None:
+            ninvar_max = self.ninvar
         self.pcts = []
         self.nums = []
         dist = self.dist(**self.distkwargs)
@@ -135,7 +140,7 @@ class MCInVar(MCVar):
             self.nums.append(nom_num)
             self.pcts.append(dist.cdf(nom_num))
             
-        pcts = mc_sampling(ndraws=self.ndraws, method=self.samplemethod, ninvar=self.ninvar, seed=self.seed)
+        pcts = mc_sampling(ndraws=self.ndraws, method=self.samplemethod, ninvar=self.ninvar, ninvar_max=ninvar_max, seed=self.seed)
         self.pcts.extend(pcts)
         self.nums.extend(dist.ppf(pcts).tolist())
         

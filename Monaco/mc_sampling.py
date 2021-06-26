@@ -2,41 +2,59 @@
 
 import scipy.stats
 import numpy as np
+from functools import lru_cache
 
-def mc_sampling(ndraws : int, 
-                method : str = 'random', 
-                ninvar : int = None,
-                seed   : int = np.random.get_state()[1][0],
+def mc_sampling(ndraws     : int, 
+                method     : str = 'random', 
+                ninvar     : int = None,
+                ninvar_max : int = None,
+                seed       : int = np.random.get_state()[1][0],
                 ) -> list[float]:
     
     if method in ('sobol', 'sobol_random'):
-        if (ninvar is None) or (not 1 <= ninvar <= 21201):
-            raise ValueError(f'{ninvar=} must be between 1 and 21201 for the sobol or sobol_random method')
+        if not 1 <= ninvar <= 21201:
+            raise ValueError(f'{ninvar=} must be between 1 and 21201 for the {method} method')
 
     if method == 'random':
         pcts = scipy.stats.uniform.rvs(size=ndraws, random_state=seed)
     
     elif method in ('sobol', 'sobol_random', 'halton', 'halton_random', 'latin_hypercube'):
-        # TODO: We should only generate the sequences once for the max ninvar, and cache that data
+        if (ninvar is None) or (ninvar_max is None):
+            raise ValueError(f'{ninvar=} and {ninvar_max=} must defined for the {method} method')           
+            
         scramble = False
         if method in ('sobol_random', 'halton_random'):
             scramble = True
-    
-        if method in ('sobol', 'sobol_random'):
-            sampler = scipy.stats.qmc.Sobol(d=ninvar, scramble=scramble, seed=seed)
-        elif method in ('halton', 'halton_random'):
-            sampler = scipy.stats.qmc.Halton(d=ninvar, scramble=scramble, seed=seed)
-        elif method == 'latin_hypercube':
-            sampler = scipy.stats.qmc.LatinHypercube(d=ninvar)
+        elif method in ('sobol', 'halton', 'latin_hypercube'):
+            seed = 0 # These do not use randomness, so keep seed constant for caching
             
-        points = sampler.random(n=ndraws)
-        pcts = np.array(points)[:,ninvar-1] # ninvar will always be >= 1
+        all_pcts = cached_pcts(ndraws=ndraws, method=method, ninvar_max=ninvar_max, scramble=scramble, seed=seed)
+        pcts = all_pcts[:,ninvar-1] # ninvar will always be >= 1
 
     else:
         raise ValueError(f'{method=} must be one of the following: ',
                          "'random', 'sobol', 'sobol_random', 'halton', 'halton_random', 'latin_hypercube'")
     
     return pcts
+
+@lru_cache(maxsize=1)
+def cached_pcts(ndraws     : int,
+                method     : str, 
+                ninvar_max : int,
+                scramble   : bool, 
+                seed       : int,
+                ):
+    if method in ('sobol', 'sobol_random'):
+        sampler = scipy.stats.qmc.Sobol(d=ninvar_max, scramble=scramble, seed=seed)
+    elif method in ('halton', 'halton_random'):
+        sampler = scipy.stats.qmc.Halton(d=ninvar_max, scramble=scramble, seed=seed)
+    elif method == 'latin_hypercube':
+        sampler = scipy.stats.qmc.LatinHypercube(d=ninvar_max)
+    
+    points = sampler.random(n=ndraws)
+    all_pcts = np.array(points)
+    
+    return all_pcts
 
 
 
@@ -47,14 +65,15 @@ if __name__ == '__main__':
     def plot_sampling_test(ndraws, method, seeds):
         import matplotlib.pyplot as plt
         
-        pcts = np.array([mc_sampling(ndraws=ndraws, method=method, ninvar=1, seed=seeds[0]), 
-                         mc_sampling(ndraws=ndraws, method=method, ninvar=2, seed=seeds[1])])
+        pcts = np.array([mc_sampling(ndraws=ndraws, method=method, ninvar_max=2, ninvar=1, seed=seeds[0]), 
+                         mc_sampling(ndraws=ndraws, method=method, ninvar_max=2, ninvar=2, seed=seeds[1])])
         
         fig, axs = plt.subplots(1, 3)
         fig.suptitle(f'Sampling Method: {method}', fontweight='bold')
         fig.set_dpi(96)
         fig.set_size_inches(16, 5)
 
+        
         axs[0].set_title('Uniform')
         axs[0].scatter(pcts[0], pcts[1], alpha=0.5)
         square = plt.Rectangle((0,0), 1, 1, color='k', fill=False)
@@ -99,5 +118,6 @@ if __name__ == '__main__':
     plot_sampling_test(ndraws=ndraws, method='halton', seeds=seeds)
     plot_sampling_test(ndraws=ndraws, method='halton_random', seeds=seeds)
     plot_sampling_test(ndraws=ndraws, method='latin_hypercube', seeds=seeds)
-    
+    print(cached_pcts.cache_info())
+
 #'''
