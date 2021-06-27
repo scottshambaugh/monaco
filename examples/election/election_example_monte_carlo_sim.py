@@ -1,5 +1,5 @@
 from scipy.stats import norm, uniform
-from Monaco.order_statistics import pct2sig
+from Monaco.gaussian_statistics import pct2sig
 from Monaco.MCSim import MCSim
 from Monaco.mc_plot import mc_plot
 import matplotlib.pyplot as plt
@@ -17,7 +17,7 @@ ndraws = 1000
 seed=12362397
 
 def election_example_monte_carlo_sim():
-    sim = MCSim(name='election', ndraws=ndraws, fcns=fcns, firstcaseisnom=True, seed=seed, cores=4, savecasedata=False, verbose=True, debug=False)
+    sim = MCSim(name='election', ndraws=ndraws, fcns=fcns, firstcaseisnom=False, seed=seed, cores=4, samplemethod='random', savecasedata=False, verbose=True, debug=False)
     
     df = pd.read_csv('state_presidential_odds.csv')
     states = df['State'].tolist()

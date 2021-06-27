@@ -144,8 +144,8 @@ class MCInVar(MCVar):
         
         if any(np.isinf(num) for num in self.nums):
             print(f'Warning: Infinite value drawn. Check distribution and parameters: {self.dist=}, {self.distkwargs=}')
-            if self.samplemethod == 'sobol':    
-                print(f"Warning: Infinite value draw may happen with {self.dist=} for the first point of the 'sobol' sampling method. Consider using 'sobol_random' instead.")
+            if self.samplemethod in ('sobol', 'halton'):    
+                print(f"Warning: Infinite value draw may happen with {self.dist=} for the first point of the {self.samplemethod} sampling method. Consider using 'sobol_random' instead.")
 
         if any(np.isnan(num) for num in self.nums):
             raise ValueError(f'Invalid draw. Check distribution and parameters: {self.dist=}, {self.distkwargs=}')

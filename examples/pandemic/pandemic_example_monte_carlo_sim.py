@@ -2,8 +2,9 @@ from scipy.stats import uniform
 from Monaco.MCSim import MCSim
 from Monaco.mc_plot import mc_plot
 from Monaco.mc_multi_plot import mc_multi_plot
-from Monaco.order_statistics import order_stat_TI_n, pct2sig
+from Monaco.order_statistics import order_stat_TI_n
 from math import ceil
+
 
 from pandemic_example_run import pandemic_example_run
 from pandemic_example_preprocess import pandemic_example_preprocess

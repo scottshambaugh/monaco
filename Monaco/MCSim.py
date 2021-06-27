@@ -19,7 +19,7 @@ class MCSim:
                  name           : str, 
                  ndraws         : int, 
                  fcns           : dict[str, Callable], # fcns is a dict with keys 'preprocess', 'run', 'postprocess'
-                 firstcaseisnom : bool = True, 
+                 firstcaseisnom : bool = False, 
                  samplemethod   : str  = 'sobol_random',
                  seed           : int  = np.random.get_state()[1][0], 
                  cores          : int  = cpu_count(logical=False), 
@@ -152,6 +152,7 @@ class MCSim:
 
 
     def genCases(self):
+        vprint(self.verbose, 'Drawing random samples...', flush=True)
         self.drawVars()
         
         generator = np.random.RandomState(self.seed)
@@ -272,7 +273,7 @@ class MCSim:
         casestopostprocess = set(range(self.ncases)) - self.casesrun
 
         vprint(self.verbose, f"Resuming incomplete '{self.name}' Monte Carlo simulation with {len(casestorun)}/{self.ncases} cases remaining to run, " + \
-                             f"and {len(casestopostprocess)}/{self.ncases} cases remaining to post process...", end='', flush=True)
+                             f"and {len(casestopostprocess)}/{self.ncases} cases remaining to post process...", end='\n', flush=True)
         self.runSimWorker(casestorun=casestorun, casestopostprocess=casestopostprocess)
 
 
@@ -282,7 +283,7 @@ class MCSim:
         casestorun = self.downselectCases(cases=cases)
         casestopostprocess = self.downselectCases(cases=cases)
 
-        vprint(self.verbose, f"Running '{self.name}' Monte Carlo simulation with {len(casestorun)}/{self.ncases} cases...", end='', flush=True)
+        vprint(self.verbose, f"Running '{self.name}' Monte Carlo simulation with {len(casestorun)}/{self.ncases} cases...", end='\n', flush=True)
         self.runSimWorker(casestorun=casestorun, casestopostprocess=casestopostprocess)
 
 
@@ -361,7 +362,7 @@ class MCSim:
             self.pbar1 = None
 
         if self.savecasedata:
-            vprint(self.verbose, f"\nCase results saved in '{self.resultsdir}'", end='', flush=True)
+            vprint(self.verbose, f"\nRaw case results saved in '{self.resultsdir}'", end='', flush=True)
 
 
     def postProcessCases(self, 

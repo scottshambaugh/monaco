@@ -3,6 +3,8 @@
 import scipy.stats
 import numpy as np
 from functools import lru_cache
+import warnings
+import sys
 
 def mc_sampling(ndraws     : int, 
                 method     : str = 'sobol_random', 
@@ -51,7 +53,10 @@ def cached_pcts(ndraws     : int,
     elif method == 'latin_hypercube':
         sampler = scipy.stats.qmc.LatinHypercube(d=ninvar_max)
     
-    points = sampler.random(n=ndraws)
+    if not sys.warnoptions:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=UserWarning) # Suppress the power of 2 warning for sobol / halton sequences
+            points = sampler.random(n=ndraws)
     all_pcts = np.array(points)
     
     return all_pcts

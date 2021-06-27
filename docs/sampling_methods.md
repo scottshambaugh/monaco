@@ -22,12 +22,12 @@ The third is ```sobol_random``` sampling, which takes the sequence of Sobol poin
 * Results vary slightly when the seed is changed.
 * The point at 0 is scrambled away, so it can be used for generating any probability distribution.
 
-The only disadvantage of ```sobol_random``` is that it is slower than ```sobol``` sampling due to the randomization and lack of caching. On my machine, drawing 10^6 points for each of 10 variables takes approximately 1 second for ```sobol_random```, and only 10 milliseconds for ```sobol```.
+The only disadvantage of ```sobol_random``` is that it is slower than ```sobol``` sampling due to the randomization and lack of caching. On my machine, drawing 10^6 points for each of 10 variables takes approximately 1 second for ```sobol_random```, and only 10 milliseconds for ```sobol```. For large numbers of input variables, this may take a significant portion of the overall Monte Carlo workflow time.
 
 Also implemented for completeness is ```halton```, ```halton_random```, and ```latin_hypercube``` sampling. However the Halton sequence usually performs worse than the Sobol sequence, and Latin Hypercube sampling gives only a marginal improvement over random at the cost of being unaffected by seeds, so users generally should not use these.
 
 ### Best Practices
-What sampling method should you use? ```sobol_random``` has been shown in literature to generally give the best results with fastest convergence, so it is the default. Make sure to use a power of 2 for the number of draws if performing integration. In the rare case where you are performing integration and are drawing only from uniform distributions, you can fall back to ```sobol``` for a slight speedup.  ```random``` sampling should only be used as a teaching tool or if a flat frequency spectra is critical, and the others should not be used.
+What sampling method should you use? ```sobol_random``` has been shown in literature to generally give the best results with fastest convergence, so it is the default. Make sure to use a power of 2 for the number of draws if performing integration. If you are drawing only from uniform distributions, you can fall back to ```sobol``` for a speedup.  ```random``` sampling should only be used as a teaching tool, if a flat frequency spectra is critical, or if the sampling time is otherwise prohibitively long. The others should not be used.
 
 ### Comparison Plots
 <p float="left" align="center">
@@ -43,3 +43,8 @@ What sampling method should you use? ```sobol_random``` has been shown in litera
 </br>
 <img width="768" height="240" src="latin_hypercube_sampling.png">
 </p>
+
+### Further Reading
+* [Roberts, Martin. The Unreasonable Effectiveness of Quasirandom Sequences.” Extreme Learning, 25 April 2018](http://extremelearning.com.au/unreasonable-effectiveness-of-quasirandom-sequences/)
+* [Owen, Art B. "On dropping the first Sobol'point." arXiv preprint arXiv:2008.08051 (2020).](https://arxiv.org/abs/2008.08051)
+* [Perrier, Hélène, et al. "Sequences with low‐discrepancy blue‐noise 2‐D projections." Computer Graphics Forum. Vol. 37. No. 2. 2018.](https://onlinelibrary.wiley.com/doi/abs/10.1111/cgf.13366)
