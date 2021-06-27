@@ -7,6 +7,14 @@ from typing import Union
 from time import time
 from functools import wraps
 
+
+def next_power_of_2(x : int) -> int:
+    if x <= 0:
+        return 0
+    else:    
+        return int(2**np.ceil(np.log2(x)))
+
+
 def is_num(val) -> bool:
     if isinstance(val, bool):
         return False
