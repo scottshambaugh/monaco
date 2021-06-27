@@ -20,7 +20,7 @@ class MCSim:
                  ndraws         : int, 
                  fcns           : dict[str, Callable], # fcns is a dict with keys 'preprocess', 'run', 'postprocess'
                  firstcaseisnom : bool = True, 
-                 samplemethod   : str  = 'random', # 'random' or 'sobol'
+                 samplemethod   : str  = 'sobol_random',
                  seed           : int  = np.random.get_state()[1][0], 
                  cores          : int  = cpu_count(logical=False), 
                  verbose        : bool = True,
@@ -222,7 +222,7 @@ class MCSim:
         for i, coeff in enumerate(self.corrcoeffs[0]):
             if np.isnan(coeff):
                 vprint(self.verbose, f"Warning: Unable to generate correlation coefficient for '{self.covvarlist[i]}'. " + \
-                                      "This may happen if this variable does not vary.")
+                                      "This may happen if this variable does not vary, or if an infinite value was drawn.")
 
 
     def corr(self):
@@ -523,6 +523,7 @@ class MCSim:
             filepath.unlink()
 
 
+
 '''
 ### Test ###
 if __name__ == '__main__':
@@ -538,6 +539,6 @@ if __name__ == '__main__':
     print(sim.mccases[0].mcinvals['Var1'].val) # expected: 3.0
     print(sim.mcinvars['Var2'].name)           # expected: Var2
     print(sim.mccases[0].mcinvals['Var2'].val) # expected: 10.000000000000002
-    print(sim.corr())                          # expected: (array([[ 1., -0.07512466], [-0.07512466,  1.]]), ['Var1', 'Var2'])
-    print(sim.cov())                           # expected: (array([[ 2.07009901, -0.40962856], [-0.40962856, 14.36230848]]), ['Var1', 'Var2'])
+    print(sim.corr())                          # expected: (array([[ 1., 0.10204185], [0.10204185,  1.]]), ['Var1', 'Var2'])
+    print(sim.cov())                           # expected: (array([[ 1.83366337, 0.57730438], [0.57730438, 17.45554588]]), ['Var1', 'Var2'])
 #'''

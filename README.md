@@ -84,7 +84,6 @@ See the [examples](examples/) folder for some examples you can step through or u
 * Make pip installable?
 * Correlation matrix input?
 * Ability to plot derived data in addition to mcvars?
-* Speed up sampling by not regenerating qmc sequences for each invar 
 
 **Done:**
 * ~~Examples:~~
@@ -117,6 +116,7 @@ See the [examples](examples/) folder for some examples you can step through or u
 * ~~Plot tolerance intervals as shaded regions~~
 * ~~Get keyboard interrupt working~~
 * ~~Sampling schemes (random, sobol, etc)~~
+* ~~Speed up sampling by not regenerating qmc sequences for each invar~~
 
 
 ### License:
