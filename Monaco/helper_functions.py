@@ -4,6 +4,8 @@ from tqdm import tqdm
 import numpy as np
 import pandas as pd
 from typing import Union
+from time import time
+from functools import wraps
 
 def is_num(val) -> bool:
     if isinstance(val, bool):
@@ -54,6 +56,18 @@ def vprint(verbose, *args, **kwargs):
 def vwrite(verbose, *args, **kwargs):
     if verbose:
         tqdm.write(*args, **kwargs)
+        
+        
+def timeit(fcn):
+    @wraps(fcn)
+    def timed(*args, **kw):
+        t0 = time()
+        output = fcn(*args, **kw)
+        t1 = time()
+        print(f'"{fcn.__name__}" took {(t1 - t0)*1000 : .3f} ms to execute.\n')
+        return output
+    return timed
+
 
 '''
 ### Test ###
