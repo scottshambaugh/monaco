@@ -8,6 +8,7 @@ import pandas as pd
 from typing import Union
 from time import time
 from functools import wraps
+from hashlib import sha512
 
 
 def next_power_of_2(x : int) -> int:
@@ -15,6 +16,10 @@ def next_power_of_2(x : int) -> int:
         return 0
     else:    
         return int(2**np.ceil(np.log2(x)))
+
+
+def hash_str_repeatable(s : str) -> int:
+    return int(sha512(s.encode('utf-8')).hexdigest(), 16)
 
 
 def is_num(val) -> bool:

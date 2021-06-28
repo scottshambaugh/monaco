@@ -10,7 +10,7 @@ from Monaco.MCVar import MCInVar, MCOutVar
 from psutil import cpu_count
 from pathos.pools import ThreadPool as Pool
 from tqdm import tqdm
-from helper_functions import get_iterable, slice_by_index, vprint, vwrite
+from helper_functions import get_iterable, slice_by_index, vprint, vwrite, hash_str_repeatable
 from typing import Callable, Union, Any
 from scipy.stats import rv_continuous, rv_discrete
 
@@ -123,7 +123,7 @@ class MCSim:
                  nummap     : Union[None, dict[int, Any]] = None,
                  ):  
         self.ninvars += 1
-        invarseed = (self.seed + hash(name)) % 2**32  # make seed dependent on var name and not order added
+        invarseed = (self.seed + hash_str_repeatable(name)) % 2**32  # make seed dependent on var name and not order added
         self.invarseeds.append(invarseed)
         self.mcinvars[name] = MCInVar(name=name, dist=dist, distkwargs=distkwargs, ndraws=self.ndraws, nummap=nummap, \
                                       samplemethod=self.samplemethod, ninvar=self.ninvars, seed=invarseed, firstcaseisnom=self.firstcaseisnom, autodraw=False)
