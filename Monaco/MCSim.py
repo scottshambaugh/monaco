@@ -524,23 +524,3 @@ class MCSim:
             filepath = self.resultsdir / file
             filepath.unlink()
 
-
-
-'''
-### Test ###
-if __name__ == '__main__':
-    def dummyfcn(*args):
-        return 1
-    from scipy.stats import norm, randint
-    seed = 74494861
-    sim = MCSim(name='Sim', ndraws=100, fcns={'preprocess':dummyfcn, 'run':dummyfcn, 'postprocess':dummyfcn}, samplemethod='random', seed=seed)
-    sim.addInVar(name='Var1', dist=randint, distkwargs={'low':1, 'high':6})
-    sim.addInVar(name='Var2', dist=norm, distkwargs={'loc':10, 'scale':4})
-    sim.genCases()
-    print(sim.mcinvars['Var1'].name)           # expected: Var1
-    print(sim.mccases[0].mcinvals['Var1'].val) # expected: 3.0
-    print(sim.mcinvars['Var2'].name)           # expected: Var2
-    print(sim.mccases[0].mcinvals['Var2'].val) # expected: 10.000000000000002
-    print(sim.corr())                          # expected: (array([[ 1., 0.10204185], [0.10204185,  1.]]), ['Var1', 'Var2'])
-    print(sim.cov())                           # expected: (array([[ 1.83366337, 0.57730438], [0.57730438, 17.45554588]]), ['Var1', 'Var2'])
-#'''
