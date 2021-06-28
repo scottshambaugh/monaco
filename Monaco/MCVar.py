@@ -7,6 +7,7 @@ from Monaco.MCVarStat import MCVarStat
 from Monaco.mc_sampling import mc_sampling
 from copy import copy
 from typing import Union, Any
+from warnings import warn
 
 
 ### MCVar Base Class ###
@@ -145,9 +146,9 @@ class MCInVar(MCVar):
         self.nums.extend(dist.ppf(pcts).tolist())
         
         if any(np.isinf(num) for num in self.nums):
-            print(f'Warning: Infinite value drawn. Check distribution and parameters: {self.dist=}, {self.distkwargs=}')
+            warn(f'Infinite value drawn. Check distribution and parameters: {self.dist=}, {self.distkwargs=}')
             if self.samplemethod in ('sobol', 'halton'):    
-                print(f"Warning: Infinite value draw may happen with {self.dist=} for the first point of the {self.samplemethod} sampling method. Consider using 'sobol_random' instead.")
+                warn(f"Infinite value draw may happen with {self.dist=} for the first point of the {self.samplemethod} sampling method. Consider using 'sobol_random' instead.")
 
         if any(np.isnan(num) for num in self.nums):
             raise ValueError(f'Invalid draw. Check distribution and parameters: {self.dist=}, {self.distkwargs=}')
@@ -282,7 +283,7 @@ class MCOutVar(MCVar):
 
 
 
-'''
+#'''
 ### Test ###
 if __name__ == '__main__':
     from scipy.stats import norm, randint

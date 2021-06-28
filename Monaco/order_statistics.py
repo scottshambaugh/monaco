@@ -2,6 +2,7 @@
 
 import scipy.stats
 import numpy as np
+from warnings import warn
 '''
 Reference:
 Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A Guide for 
@@ -118,7 +119,7 @@ def order_stat_TI_k(n     : int,
         raise ValueError(f"{bound=} must be '1-sided' or '2-sided'")   
 
     if EPTI(n, l, n, p) < c:
-        print(f'Warning: {n=} is too small to meet {p=} at {c=} for {bound} tolerance interval at any order statistic')
+        warn(f'{n=} is too small to meet {p=} at {c=} for {bound} tolerance interval at any order statistic')
         return None
 
     # use bisection to get n (secant method is unstable due to flat portions of curve)
@@ -264,7 +265,7 @@ def order_stat_P_k(n     : int,
         l = iPl - k[1] + 1 # we won't be using assymmetrical order stats
         u = iPu + k[1] - 1
         if l <= 0 or u >= n+1 or EPYP(n, l, u, P) < c:
-            print(f'Warning: {n=} is too small to meet {P=} at {c=} for {bound} percentile confidence interval at any order statistic')
+            warn(f'{n=} is too small to meet {P=} at {c=} for {bound} percentile confidence interval at any order statistic')
             return None
 
     elif bound == '1-sided upper':
@@ -272,7 +273,7 @@ def order_stat_P_k(n     : int,
         l = 0
         u = iPu + k[1] - 1
         if u >= n + 1 or EPYP(n, l, u, P) < c:
-            print(f'Warning: {n=} is too small to meet {P=} at {c=} for {bound} percentile confidence interval at any order statistic')
+            warn(f'{n=} is too small to meet {P=} at {c=} for {bound} percentile confidence interval at any order statistic')
             return None
 
     elif bound == '1-sided lower':
@@ -280,7 +281,7 @@ def order_stat_P_k(n     : int,
         l = iPl - k[1] + 1
         u = n + 1
         if EPYP(n, l, u, P) < c:
-            print(f'Warning: {n=} is too small to meet {P=} at {c=} for {bound} percentile confidence interval at any order statistic')
+            warn(f'{n=} is too small to meet {P=} at {c=} for {bound} percentile confidence interval at any order statistic')
             return None
     else:
         raise ValueError(f"{bound=} must be '1-sided upper', '1-sided lower', or '2-sided'")

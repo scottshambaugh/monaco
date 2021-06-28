@@ -7,7 +7,7 @@ import pathlib
 from datetime import datetime
 from Monaco.MCCase import MCCase
 from Monaco.MCVar import MCInVar, MCOutVar
-from Monaco.helper_functions import get_iterable, slice_by_index, vprint, vwrite, hash_str_repeatable
+from Monaco.helper_functions import get_iterable, slice_by_index, vprint, vwarn, vwrite, hash_str_repeatable
 from psutil import cpu_count
 from pathos.pools import ThreadPool as Pool
 from tqdm import tqdm
@@ -223,8 +223,8 @@ class MCSim:
         
         for i, coeff in enumerate(self.corrcoeffs[0]):
             if np.isnan(coeff):
-                vprint(self.verbose, f"Warning: Unable to generate correlation coefficient for '{self.covvarlist[i]}'. " + \
-                                      "This may happen if this variable does not vary, or if an infinite value was drawn.")
+                vwarn(self.verbose, f"Unable to generate correlation coefficient for '{self.covvarlist[i]}'. " + \
+                                     "This may happen if this variable does not vary, or if an infinite value was drawn.")
 
 
     def corr(self):
@@ -468,21 +468,21 @@ class MCSim:
                     try:
                         mccase = dill.load(file)
                         if mccase.runtime is None:  # only load mccase if it completed running
-                            vwrite(self.verbose, f'\nWarning: {filepath.name} did not finish running, not loaded', end='')
+                            vwarn(self.verbose, f'{filepath.name} did not finish running, not loaded')
                         else:
                             self.mccases.append(mccase)
                             
                             if mccase.runsimid != self.runsimid:
-                                vwrite(self.verbose, f'\nWarning: {filepath.name} is not from the most recent run and may be stale', end='')
+                                vwarn(self.verbose, f'{filepath.name} is not from the most recent run and may be stale')
                                 casesstale.add(case)
                             casesloaded.add(case)
                             casesnotloaded.remove(case)
                             if case in self.casespostprocessed:
                                 casesnotpostprocessed.remove(case)
                     except Exception: 
-                        vwrite(f'\nWarning: Unknown error loading {filepath.name}', end='')
+                        vwarn(f'Unknown error loading {filepath.name}')
             except FileNotFoundError:
-                vwrite(self.verbose, f'\nWarning: {filepath.name} expected but not found', end='')
+                vwarn(self.verbose, f'{filepath.name} expected but not found')
             pbar.update(1)
         
         self.casesrun = set(casesloaded)
@@ -491,16 +491,16 @@ class MCSim:
         vprint(self.verbose, f'\nData for {len(casesloaded)}/{self.ncases} cases loaded from disk', flush=True)
         
         if casesnotloaded != set():
-            vprint(self.verbose, 'Warning: The following cases were not loaded: [' + ', '.join([str(i) for i in casesnotloaded]) + ']')
+            vwarn(self.verbose, 'The following cases were not loaded: [' + ', '.join([str(i) for i in casesnotloaded]) + ']')
         if casesnotpostprocessed != set():
-            vprint(self.verbose, 'Warning: The following cases have not been postprocessed: [' + ', '.join([str(i) for i in casesnotpostprocessed]) + ']')
+            vwarn(self.verbose, 'The following cases have not been postprocessed: [' + ', '.join([str(i) for i in casesnotpostprocessed]) + ']')
         if casesstale != set():
-            vprint(self.verbose, 'Warning: The following cases were loaded but may be stale: [' + ', '.join([str(i) for i in casesstale]) + ']')
+            vwarn(self.verbose, 'The following cases were loaded but may be stale: [' + ', '.join([str(i) for i in casesstale]) + ']')
         
         extrafiles = self.findExtraResultsFiles()
         if extrafiles != set():
-            vprint(self.verbose, "Warning: The following extra .mcsim and .mccase files were found in the results directory, run removeExtraResultsFiles() to clean them up: ['" + \
-                                 "', '".join([file for file in extrafiles]) + "']")
+            vwarn(self.verbose, "The following extra .mcsim and .mccase files were found in the results directory, run removeExtraResultsFiles() to clean them up: ['" + \
+                                "', '".join([file for file in extrafiles]) + "']")
         
 
     def findExtraResultsFiles(self):

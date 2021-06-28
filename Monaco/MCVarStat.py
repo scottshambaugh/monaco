@@ -168,7 +168,7 @@ class MCVarStat:
                 
         else:
             # Suppress warning since this will become valid when MCVar is split
-            #print('Warning: MCVarStat only available for scalar or 1-D data')
+            #warn('MCVarStat only available for scalar or 1-D data')
             pass
 
 
@@ -235,7 +235,7 @@ class MCVarStat:
                 
         else:
             # Suppress warning since this will become valid when MCVar is split
-            #print('Warning: MCVarStat only available for scalar or 1-D data')
+            #warn('MCVarStat only available for scalar or 1-D data')
             pass
 
 
@@ -302,7 +302,7 @@ class MCVarStat:
                 
         else:
             # Suppress warning since this will become valid when MCVar is split
-            #print('Warning: MCVarStat only available for scalar or 1-D data')
+            #warn('MCVarStat only available for scalar or 1-D data')
             pass
 
 
