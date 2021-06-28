@@ -8,8 +8,8 @@ from matplotlib.patches import Ellipse
 from mpl_toolkits.mplot3d import Axes3D
 from Monaco.MCVar import MCVar, MCInVar, MCOutVar
 from copy import copy
-from helper_functions import get_iterable, slice_by_index, length
-from gaussian_statistics import conf_ellipsoid_sig2pct
+from Monaco.helper_functions import get_iterable, slice_by_index, length
+from Monaco.gaussian_statistics import conf_ellipsoid_sig2pct
 from typing import Union
 
 
