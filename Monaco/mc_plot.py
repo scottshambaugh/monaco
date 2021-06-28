@@ -1,3 +1,5 @@
+# mc_plot.py
+
 import numpy as np
 from scipy.stats import rv_continuous, rv_discrete, chi2, mode
 import matplotlib.pyplot as plt

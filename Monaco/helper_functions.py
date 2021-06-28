@@ -1,4 +1,6 @@
-from collections import Iterable
+# helper_functions.py
+
+from collections.abc import Iterable
 from operator import itemgetter
 from tqdm import tqdm
 import numpy as np

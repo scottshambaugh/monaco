@@ -1,5 +1,7 @@
+# MCVar.py
+
 import numpy as np
-from scipy.stats import rv_continuous, rv_discrete, uniform, describe
+from scipy.stats import rv_continuous, rv_discrete, describe
 from Monaco.MCVal import MCInVal, MCOutVal
 from Monaco.MCVarStat import MCVarStat
 from mc_sampling import mc_sampling

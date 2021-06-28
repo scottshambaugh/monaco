@@ -1,3 +1,5 @@
+# MCCase.py
+
 from Monaco.MCVar import MCVar
 from Monaco.MCVal import MCOutVal
 from typing import Union, Any

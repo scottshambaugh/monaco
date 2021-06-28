@@ -1,3 +1,5 @@
+# MCSim.py
+
 import os
 import numpy as np
 import dill
@@ -11,7 +13,6 @@ from tqdm import tqdm
 from helper_functions import get_iterable, slice_by_index, vprint, vwrite
 from typing import Callable, Union, Any
 from scipy.stats import rv_continuous, rv_discrete
-
 
 
 class MCSim:
@@ -152,7 +153,7 @@ class MCSim:
 
 
     def genCases(self):
-        vprint(self.verbose, 'Drawing random samples...', flush=True)
+        vprint(self.verbose, f"Drawing random samples for {self.ninvars} input variables via the '{self.samplemethod}' method...", flush=True)
         self.drawVars()
         
         generator = np.random.RandomState(self.seed)
@@ -168,7 +169,7 @@ class MCSim:
                 isnom = True
             mccases.append(MCCase(ncase=i, isnom=isnom, mcinvars=self.mcinvars, constvals=self.constvals, seed=int(self.caseseeds[i])))
             mccases[i].siminput = self.fcns['preprocess'](mccases[i])
-            if not (self.pbar0 is None):
+            if self.verbose and not (self.pbar0 is None):
                 self.pbar0.update(1)
         
         self.mccases = mccases
