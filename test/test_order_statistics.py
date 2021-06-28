@@ -77,4 +77,4 @@ if __name__ == '__main__':
     print(order_stat_P_n(k=10, c=0.950, P=0.50, bound='2-sided'))        # expected: 108, Table A.15g (conservative)
     print(order_stat_P_n(k=11, c=0.9566, P=0.95, bound='1-sided upper')) # expected: 1018, Table A.16 (conservative)
     print(order_stat_P_n(k=11, c=0.9566, P=0.05, bound='1-sided lower')) # expected: 1018, Table A.16 (conservative)
-'''
+#'''
