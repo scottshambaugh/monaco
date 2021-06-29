@@ -27,7 +27,7 @@ def mc_sampling(ndraws     : int,
         scramble = False
         if method in ('sobol_random', 'halton_random'):
             scramble = True
-        elif method in ('sobol', 'halton', 'latin_hypercube'):
+        elif method in ('sobol', 'halton'):
             seed = 0 # These do not use randomness, so keep seed constant for caching
             
         all_pcts = cached_pcts(ndraws=ndraws, method=method, ninvar_max=ninvar_max, scramble=scramble, seed=seed)
@@ -51,12 +51,13 @@ def cached_pcts(ndraws     : int,
     elif method in ('halton', 'halton_random'):
         sampler = scipy.stats.qmc.Halton(d=ninvar_max, scramble=scramble, seed=seed)
     elif method == 'latin_hypercube':
-        sampler = scipy.stats.qmc.LatinHypercube(d=ninvar_max)
+        sampler = scipy.stats.qmc.LatinHypercube(d=ninvar_max, seed=seed)
     
     if not sys.warnoptions:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=UserWarning) # Suppress the power of 2 warning for sobol / halton sequences
             points = sampler.random(n=ndraws)
+    
     all_pcts = np.array(points)
     
     return all_pcts
