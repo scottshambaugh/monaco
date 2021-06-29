@@ -21,8 +21,11 @@ def test_order_stat_TI_c():
 
 def test_order_stat_TI_k():
     assert os.order_stat_TI_k(n=667, p=0.99, c=0.90, bound='2-sided') == 2
-    assert os.order_stat_TI_k(n=20, p=0.99, c=0.90, bound='2-sided') is None
 
+def test_order_stat_TI_k_warning():
+    with pytest.warns(UserWarning, match='is too small'):
+        orderstat = os.order_stat_TI_k(n=20, p=0.99, c=0.90, bound='2-sided')
+    assert orderstat is None
 
 # Order Statistic Percentile Functions
 @pytest.mark.parametrize("n,k,P,bound,ans", [
@@ -38,11 +41,14 @@ def test_order_stat_P_c(n,k,P,bound,ans):
     (100, 0.95 , 0.50,       '2-sided', 10), # Ref. Table A.15g
     (100, 0.95 , 0.90, '1-sided upper',  5), # Ref. Table A.16
     (100, 0.95 , 0.10, '1-sided lower',  5), # Ref. Table A.16
-    ( 10, 0.999, 0.05, '1-sided lower',  None),
 ])
 def test_order_stat_P_k(n,c,P,bound,ans):
     assert os.order_stat_P_k(n=n, c=c, P=P, bound=bound) == ans
 
+def test_order_stat_P_k_warning():
+    with pytest.warns(UserWarning, match='is too small'):
+        orderstat = os.order_stat_P_k(n=10, c=0.999, P=0.05, bound='1-sided lower')
+    assert orderstat is None
 
 @pytest.mark.parametrize("k,c,P,bound,ans", [
     (10, 0.95  , 0.50,       '2-sided',  108), # Ref. Table A.15g (conservative)
