@@ -7,6 +7,7 @@ from copy import copy, deepcopy
 from Monaco.helper_functions import is_num
 from typing import Union, Any
 from scipy.stats import rv_discrete, rv_continuous
+from sortedcontainers import SortedSet
 
 ### MCVal Base Class ###
 class MCVal():
@@ -129,12 +130,12 @@ class MCOutVal(MCVal):
                 if all(isinstance(x, bool) for x in chain(*self.val)):
                     self.valmap = {True:1, False:0}                  
                 elif not all(is_num(x) for x in chain(*self.val)):
-                    self.valmap = {str(key):idx for idx, key in enumerate(set(chain(*self.val)))}
+                    self.valmap = {str(key):idx for idx, key in enumerate(SortedSet(chain(*self.val)))}
             else:
                 if not all(is_num(x) for x in self.val):
                     self.valmap = {True:1, False:0}
                 elif not all(is_num(x) for x in self.val):
-                    self.valmap = {str(key):idx for idx, key in enumerate(set(self.val))}
+                    self.valmap = {str(key):idx for idx, key in enumerate(SortedSet(self.val))}
 
                 
     def mapVal(self):
@@ -183,8 +184,8 @@ if __name__ == '__main__':
     bsplit = b.split()
     print(bsplit['TestB [0]'].val) # expected: [0, 0]
     c = MCOutVal(name='TestC', ncase=1, val=[['a','a'],['b','b'],['a','b']], isnom=True)
-    print(c.valmap) # expected: {'b': 0, 'a': 1}
-    print(c.num) # expected: [[1, 1], [0, 0], [1, 0]]
+    print(c.valmap) # expected: {'a': 0, 'b': 1}
+    print(c.num) # expected: [[0, 0], [1, 1], [0, 1]]
     d = MCOutVal(name='TestD', ncase=1, val=[True, False], valmap={True:2, False:1})
     print(d.val) # expected: [True, False]
     print(d.num) # expected: [2, 1]
