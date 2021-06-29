@@ -25,12 +25,13 @@ def test_mcsampling_error():
 
 
 ### Inline Testing ###
-'''
-### Test ###
+# Can run here or copy into bottom of main file
+#'''
 if __name__ == '__main__':
     
     def plot_sampling_test(ndraws, method, seeds, genplot=True):
         import matplotlib.pyplot as plt
+        import scipy.stats
         
         pcts = np.array([mc_sampling(ndraws=ndraws, method=method, ninvar=1, ninvar_max=2, seed=seeds[0]), 
                          mc_sampling(ndraws=ndraws, method=method, ninvar=2, ninvar_max=2, seed=seeds[1])])
@@ -62,7 +63,8 @@ if __name__ == '__main__':
             axs[1].set_aspect('equal')
             
             axs[2].set_title('Frequency Spectra')
-            ndraws_freq = 1000000
+            ndraws_freq = 10000
+            #ndraws_freq = 1000000  # For better frequency plots
             n_freq_grid = 2**8
             pcts_freq = np.array([mc_sampling(ndraws=ndraws_freq, method=method, ninvar=1, ninvar_max=2, seed=seeds[0]), 
                                   mc_sampling(ndraws=ndraws_freq, method=method, ninvar=2, ninvar_max=2, seed=seeds[1])])
@@ -87,6 +89,6 @@ if __name__ == '__main__':
     plot_sampling_test(ndraws=ndraws, method='halton', seeds=seeds)
     plot_sampling_test(ndraws=ndraws, method='halton_random', seeds=seeds)
     plot_sampling_test(ndraws=ndraws, method='latin_hypercube', seeds=seeds)
-    print(cached_pcts.cache_info())
+    #print(cached_pcts.cache_info())  # Can only check caching when run in main file
 
 #'''

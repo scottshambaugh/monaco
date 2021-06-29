@@ -2,7 +2,7 @@
 
 import pytest
 import numpy as np
-from scipy.stats import norm, randint, rv_discrete
+from scipy.stats import rv_discrete
 from Monaco.MCVar import MCInVar, MCOutVar
 
 generator = np.random.RandomState(74494861)
@@ -15,6 +15,7 @@ custom_dist = rv_discrete(name='custom', values=(xk, pk))
 
 @pytest.fixture
 def mcinvar_norm_random():
+    from scipy.stats import norm
     return MCInVar('norm', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4}, seed=invarseeds[1], samplemethod='random')
 
 @pytest.fixture
@@ -22,10 +23,12 @@ def mcinvar_custom_dist():
     return MCInVar('custom', ndraws=1000, dist=custom_dist, distkwargs=dict(), ninvar=1, samplemethod='random', seed=invarseeds[2])
 
 def test_mcinvar_norm_sobol_warning():
+    from scipy.stats import norm
     with pytest.warns(UserWarning, match='Infinite value'):
         MCInVar('norm', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4}, seed=invarseeds[1], samplemethod='sobol', ninvar=1)
 
 def test_mcinvar_discrete():
+    from scipy.stats import randint
     invar = MCInVar('randint', ndraws=1000, dist=randint, distkwargs={'low':1, 'high':5}, seed=invarseeds[0], samplemethod='random')
     assert invar.stats().mean == pytest.approx(2.5374625)
 
@@ -72,7 +75,8 @@ def test_mcoutvar_split_orderstat(mcoutvars_split):
 
     
 ### Inline Testing ###
-'''
+# Can run here or copy into bottom of main file
+#'''
 if __name__ == '__main__':
     from scipy.stats import norm, randint
     generator = np.random.RandomState(74494861)
@@ -93,7 +97,7 @@ if __name__ == '__main__':
     print(mcinvars['custom'].stats()) # expected: DescribeResult(nobs=1001, minmax=(1.0, 6.0), mean=4.105894105894106, variance=4.444775224775225, skewness=-0.7129149182621393, kurtosis=-1.3236396700106972)
     print(mcinvars['custom'].vals[1:10]) # expected: [5, 1, 1, 6, 6, 5, 5, 5, 5]
     print(mcinvars['custom'].getVal(0).val) # expected: 5.0
-    mcinvars['map'] = MCInVar('map', ndraws=10, dist=custom, distkwargs=dict(), ninvar=1, nummap={1:'a',5:'e',6:'f'}, samplemethod='random', seed=invarseeds[3])
+    mcinvars['map'] = MCInVar('map', ndraws=10, dist=custom_dist, distkwargs=dict(), ninvar=1, nummap={1:'a',5:'e',6:'f'}, samplemethod='random', seed=invarseeds[3])
     print(mcinvars['map'].vals) # expected: ['e', 'f', 'e', 'f', 'f', 'a', 'e', 'e', 'a', 'e', 'e']
     print(mcinvars['map'].stats()) # expected: DescribeResult(nobs=11, minmax=(1.0, 6.0), mean=4.545454545454546, variance=3.2727272727272734, skewness=-1.405456737852613, kurtosis=0.38611111111111107)
     

@@ -3,11 +3,11 @@
 import pytest
 import numpy as np
 import pandas as pd
-from scipy.stats import norm
 from Monaco.MCVal import MCInVal, MCOutVal
 
 
 def test_mcinval():
+    from scipy.stats import norm
     inval = MCInVal(name='test', ncase=1, pct=0.5, num=0, dist=norm, isnom=True)
     assert inval.val == 0
 
@@ -50,8 +50,8 @@ def test_mcoutval_dataframe():
 
 
 ### Inline Testing ###
-'''
-### Test ###
+# Can run here or copy into bottom of main file
+#'''
 if __name__ == '__main__':
     from scipy.stats import norm
     a = MCInVal(name='TestA', ncase=1, pct=0.5, num=0, dist=norm, isnom=True)

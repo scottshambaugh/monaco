@@ -1,7 +1,8 @@
 # test_order_statistics.py
 
 import pytest
-import Monaco.order_statistics as os
+from Monaco.order_statistics import order_stat_TI_n, order_stat_TI_k, order_stat_TI_c, order_stat_TI_p
+from Monaco.order_statistics import order_stat_P_n, order_stat_P_k, order_stat_P_c
 
 '''
 Reference:
@@ -11,20 +12,20 @@ Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A Guide for
 
 # Order Statistic Tolerance Interval Functions
 def test_order_stat_TI_n():
-    assert os.order_stat_TI_n(k=2, p=0.99, c=0.90, bound='2-sided') == 667
+    assert order_stat_TI_n(k=2, p=0.99, c=0.90, bound='2-sided') == 667
 
 def test_order_stat_TI_p():
-    assert os.order_stat_TI_p(n=667, k=2, c=0.90, bound='2-sided') == pytest.approx(0.9900114)
+    assert order_stat_TI_p(n=667, k=2, c=0.90, bound='2-sided') == pytest.approx(0.9900114)
 
 def test_order_stat_TI_c():
-    assert os.order_stat_TI_c(n=667, k=2, p=0.99, bound='2-sided') == pytest.approx(0.9004787)
+    assert order_stat_TI_c(n=667, k=2, p=0.99, bound='2-sided') == pytest.approx(0.9004787)
 
 def test_order_stat_TI_k():
-    assert os.order_stat_TI_k(n=667, p=0.99, c=0.90, bound='2-sided') == 2
+    assert order_stat_TI_k(n=667, p=0.99, c=0.90, bound='2-sided') == 2
 
 def test_order_stat_TI_k_warning():
     with pytest.warns(UserWarning, match='is too small'):
-        orderstat = os.order_stat_TI_k(n=20, p=0.99, c=0.90, bound='2-sided')
+        orderstat = order_stat_TI_k(n=20, p=0.99, c=0.90, bound='2-sided')
     assert orderstat is None
 
 # Order Statistic Percentile Functions
@@ -34,7 +35,7 @@ def test_order_stat_TI_k_warning():
     (1000, 11, 0.05, '1-sided lower', 0.9566518), # Ref. Table A.16, 39+11=50
 ])
 def test_order_stat_P_c(n,k,P,bound,ans):
-    assert os.order_stat_P_c(n=n, k=k, P=P, bound=bound) == pytest.approx(ans)
+    assert order_stat_P_c(n=n, k=k, P=P, bound=bound) == pytest.approx(ans)
 
 
 @pytest.mark.parametrize("n,c,P,bound,ans", [
@@ -43,11 +44,11 @@ def test_order_stat_P_c(n,k,P,bound,ans):
     (100, 0.95 , 0.10, '1-sided lower',  5), # Ref. Table A.16
 ])
 def test_order_stat_P_k(n,c,P,bound,ans):
-    assert os.order_stat_P_k(n=n, c=c, P=P, bound=bound) == ans
+    assert order_stat_P_k(n=n, c=c, P=P, bound=bound) == ans
 
 def test_order_stat_P_k_warning():
     with pytest.warns(UserWarning, match='is too small'):
-        orderstat = os.order_stat_P_k(n=10, c=0.999, P=0.05, bound='1-sided lower')
+        orderstat = order_stat_P_k(n=10, c=0.999, P=0.05, bound='1-sided lower')
     assert orderstat is None
 
 @pytest.mark.parametrize("k,c,P,bound,ans", [
@@ -56,16 +57,13 @@ def test_order_stat_P_k_warning():
     (11, 0.9566, 0.05, '1-sided lower', 1018), # Ref. Table A.16 (conservative)
 ])
 def test_order_stat_P_n(k,c,P,bound,ans):
-    assert os.order_stat_P_n(k=k, c=c, P=P, bound=bound) == pytest.approx(ans)
+    assert order_stat_P_n(k=k, c=c, P=P, bound=bound) == pytest.approx(ans)
 
 
 ### Inline Testing ###
-'''
+# Can run here or copy into bottom of main file
+#'''
 if __name__ == '__main__':
-    print(sig2pct(-3, bound='2-sided'), sig2pct(3, bound='1-sided')) # expected: -0.99730, 0.99865
-    print(pct2sig(0.9973002, bound='2-sided'), pct2sig(0.0013499, bound='1-sided')) # expected: 3, -3
-    print(conf_ellipsoid_sig2pct(3, df=1), conf_ellipsoid_sig2pct(3, df=2)) # expected: 0.99730, 0.98889
-    print(conf_ellipsoid_pct2sig(0.9973002, df=1), conf_ellipsoid_pct2sig(0.988891, df=2)) # expected: 3.0, 3.0
     print('TI Functions:')
     print(order_stat_TI_n(k=2, p=0.99, c=0.90, bound='2-sided'))   # expected: 667
     print(order_stat_TI_p(n=667, k=2, c=0.90, bound='2-sided'))    # expected: 0.99001
