@@ -9,6 +9,7 @@ from typing import Union
 from time import time
 from functools import wraps
 from hashlib import sha512
+from warnings import warn
 
 
 def next_power_of_2(x : int) -> int:
@@ -66,6 +67,11 @@ def slice_by_index(sequence, indices) -> list:
 def vprint(verbose, *args, **kwargs):
     if verbose:
         print(*args, **kwargs)
+
+
+def vwarn(verbose, *args, **kwargs):
+    if verbose:
+        warn(*args, **kwargs)
 
 
 def vwrite(verbose, *args, **kwargs):
