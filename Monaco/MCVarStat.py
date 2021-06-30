@@ -187,7 +187,7 @@ class MCVarStat:
         else:
             raise ValueError(f'{self.bound} is not a valid bound for genStatsOrderStatTI')
 
-        self.setName(f'{self.bound} P{self.p*100}/{self.c*100}% Confidence Interval')
+        self.setName(f'{self.bound} P{round(self.p*100,4)}/{round(self.c*100,4)}% Confidence Interval')
 
         self.k = order_stat_TI_k(n=self.mcvar.ncases, p=self.p, c=self.c, bound=self.bound)
 
@@ -327,38 +327,3 @@ class MCVarStat:
         if self.name is None:
             self.name = name
 
-
-
-'''
-### Test ###
-if __name__ == '__main__':
-    from scipy.stats import norm
-    from Monaco.MCVar import MCInVar, MCOutVar
-    seed = 74494861
-
-    mcinvar = MCInVar('norm', ndraws=100000, dist=norm, distkwargs={'loc':0, 'scale':1}, seed=seed)
-    bound='1-sided'
-    mcinvarstat1 = MCVarStat(mcinvar, stattype='orderstatTI', statkwargs={'p':sig2pct(3, bound=bound), 'c':0.50, 'bound':bound})
-    mcinvarstat2 = MCVarStat(mcinvar, stattype='orderstatP', statkwargs={'p':sig2pct(3, bound=bound), 'c':0.50, 'bound':'all'})
-    mcinvarstat3 = MCVarStat(mcinvar, stattype='gaussianP', statkwargs={'p':sig2pct(-3, bound=bound), 'bound':bound})
-    mcinvarstat4 = MCVarStat(mcinvar, stattype='sigmaP', statkwargs={'sig':3, 'bound':bound})
-    mcinvarstat5 = MCVarStat(mcinvar, stattype='mean')
-    print(mcinvarstat1.k)    # expected: 135
-    print(mcinvarstat1.vals) # expected: 3.024354335001775
-    print(mcinvarstat2.k)    # expected: 8
-    print(mcinvarstat2.vals) # expected: [3.01323888 3.02664409 3.03566906]
-    print(mcinvarstat3.vals) # expected: -2.998215730189507
-    print(mcinvarstat4.vals) # expected: 2.995372635006932
-    print(mcinvarstat5.vals) # expected: -0.0014215475912877358
-    
-    v = np.array([-2, -1, 2, 3, 4, 5])
-    var2 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
-    mcoutvarstat1 = MCVarStat(var2, stattype='orderstatTI', statkwargs={'p':0.6, 'c':0.50, 'bound':'all'})
-    mcoutvarstat2 = MCVarStat(var2, stattype='min')
-    var3 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, [0,0]], firstcaseisnom=True)
-    mcoutvarstat3 = MCVarStat(var3, stattype='min')
-    print(mcoutvarstat1.name) # expected: 2-sided P60.0/50.0% Confidence Interval
-    print(mcoutvarstat1.vals) # expected: [[ -4.  -2.   4.] [ -2.  -1.   2.] [ -4.  -2.   4.] [ -6.  -3.   6.] [ -8.  -4.   8.] [-10.  -5.  10.]]
-    print(mcoutvarstat2.vals) # expected: [ -4.  -2.  -4.  -6.  -8. -10.]
-    print(mcoutvarstat3.vals) # expected: [-4. -2. -2. -3. -4. -5.]
-#'''
