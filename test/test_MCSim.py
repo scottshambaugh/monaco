@@ -2,11 +2,10 @@
 
 import pytest
 from Monaco.MCSim import MCSim
+from mcsim_testing_fcns import dummyfcn
 import numpy as np
 
 seed = 74494861
-def dummyfcn(*args):
-    return 1
 
 @pytest.fixture
 def sim():

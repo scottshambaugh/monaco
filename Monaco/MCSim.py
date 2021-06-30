@@ -492,16 +492,16 @@ class MCSim:
         vprint(self.verbose, f'\nData for {len(casesloaded)}/{self.ncases} cases loaded from disk', flush=True)
         
         if casesnotloaded != set():
-            vwarn(self.verbose, 'The following cases were not loaded: [' + ', '.join([str(i) for i in casesnotloaded]) + ']')
+            vwarn(self.verbose, 'The following cases were not loaded: [' + ', '.join([str(i) for i in sorted(casesnotloaded)]) + ']')
         if casesnotpostprocessed != set():
-            vwarn(self.verbose, 'The following cases have not been postprocessed: [' + ', '.join([str(i) for i in casesnotpostprocessed]) + ']')
+            vwarn(self.verbose, 'The following cases have not been postprocessed: [' + ', '.join([str(i) for i in sorted(casesnotpostprocessed)]) + ']')
         if casesstale != set():
-            vwarn(self.verbose, 'The following cases were loaded but may be stale: [' + ', '.join([str(i) for i in casesstale]) + ']')
+            vwarn(self.verbose, 'The following cases were loaded but may be stale: [' + ', '.join([str(i) for i in sorted(casesstale)]) + ']')
         
         extrafiles = self.findExtraResultsFiles()
         if extrafiles != set():
             vwarn(self.verbose, "The following extra .mcsim and .mccase files were found in the results directory, run removeExtraResultsFiles() to clean them up: ['" + \
-                                "', '".join([file for file in extrafiles]) + "']")
+                                "', '".join([file for file in sorted(extrafiles)]) + "']")
         
 
     def findExtraResultsFiles(self):
