@@ -24,7 +24,7 @@ def hash_str_repeatable(s : str) -> int:
 
 
 def is_num(val) -> bool:
-    if isinstance(val, bool):
+    if isinstance(val, bool) or isinstance(val, str):
         return False
     else:
         try:
@@ -38,7 +38,7 @@ def is_num(val) -> bool:
 def length(x) -> Union[None, int]:
     if isinstance(x, Iterable):
         return len(x)
-    elif isinstance(x, (np.float, float, bool, int)):
+    elif isinstance(x, (np.float64, float, bool, int)):
         return 1
     else:
         return None
@@ -56,6 +56,7 @@ def get_iterable(x) -> Union[tuple, Iterable]:
 
 
 def slice_by_index(sequence, indices) -> list:
+    indices = get_iterable(indices)
     if not sequence or not indices:
         return []
     items = itemgetter(*indices)(sequence)

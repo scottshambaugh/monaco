@@ -41,8 +41,8 @@ def test_mcoutval_valmap_bool_default():
 def test_mcoutval_dataframe():
     nvals = 3
     dates = pd.date_range(start='2020-01-01', periods=nvals, freq='YS')
-    df = pd.DataFrame({'vals': range(nvals)}, index = dates)
-    mcoutval1 = MCOutVal(name='test1', ncase=1, val=df['vals'], isnom=True)
+    df = pd.DataFrame({'vals1': range(nvals), 'vals2': range(nvals)}, index = dates)
+    mcoutval1 = MCOutVal(name='test1', ncase=1, val=df['vals1'], isnom=True)
     assert all(mcoutval1.num == [0, 1, 2])
     
     mcoutval2 = MCOutVal(name='test2', ncase=1, val=df.index, isnom=True)
@@ -73,8 +73,8 @@ if __name__ == '__main__':
     
     nvals = 3
     dates = pd.date_range(start='2020-01-01', periods=nvals, freq='YS')
-    df = pd.DataFrame({'vals': range(nvals)}, index = dates)
-    f = MCOutVal(name='TestF', ncase=1, val=df['vals'], isnom=True)
+    df = pd.DataFrame({'vals1': range(nvals), 'vals2': range(nvals)}, index = dates)
+    f = MCOutVal(name='TestF', ncase=1, val=df['vals1'], isnom=True)
     print(f.num) # expected: [0 1 2]
     g = MCOutVal(name='TestG', ncase=1, val=df.index, isnom=True)
     print(g.val) # expected: ['2020-01-01T00:00:00.000000000' '2021-01-01T00:00:00.000000000' '2022-01-01T00:00:00.000000000']
