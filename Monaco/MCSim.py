@@ -452,7 +452,7 @@ class MCSim:
 
 
     def loadCases(self):
-        vprint(self.verbose, f"{self.filepath} indicates {len(self.casesrun)}/{self.ncases} cases were run, attempting to load raw case data from disk...", end='', flush=True)
+        vprint(self.verbose, f"{self.filepath} indicates {len(self.casesrun)}/{self.ncases} cases were run, attempting to load raw case data from disk...", end='\n', flush=True)
         self.mccases = []
         casesloaded = set()
         casesstale = set()

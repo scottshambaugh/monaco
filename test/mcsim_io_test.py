@@ -1,18 +1,28 @@
 from Monaco.MCSim import MCSim
 import dill
 import os
-
-from mytest_example_sim import mytest_example_sim
-from mytest_example_preprocess import mytest_example_preprocess
-from mytest_example_postprocess import mytest_example_postprocess
-fcns ={'preprocess' :mytest_example_preprocess,   \
-       'run'        :mytest_example_sim,          \
-       'postprocess':mytest_example_postprocess}
+from time import sleep
 
 ndraws = 16
 seed=12362398
 
-def mcsim_io_mcsim_io_test_example_run_script():
+### Functions 
+def testing_preprocess(mccase):
+    return ([True,])
+
+def testing_run(inputs):
+    sleep(0.01)
+    return (True)
+
+def testing_postprocess(mccase, output):
+    mccase.addOutVal('casenum', mccase.ncase)
+
+fcns ={'preprocess' :testing_preprocess,   \
+       'run'        :testing_run,          \
+       'postprocess':testing_postprocess}
+
+### Main Sim 
+def mcsim_io_test_example_sim():
     sim = MCSim(name='mcsim_io_test', ndraws=ndraws, fcns=fcns, firstcaseisnom=False, seed=seed, cores=2, verbose=True)
     sim.runSim()
     
@@ -61,6 +71,8 @@ def mcsim_io_mcsim_io_test_example_run_script():
 
     return sim
 
+
 if __name__ == '__main__':
-    sim = mcsim_io_mcsim_io_test_example_run_script()
+    sim = mcsim_io_test_example_sim()
+    os.remove(sim.resultsdir)
     
