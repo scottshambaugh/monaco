@@ -153,8 +153,9 @@ class MCSim:
 
 
     def genCases(self):
-        vprint(self.verbose, f"Drawing random samples for {self.ninvars} input variables via the '{self.samplemethod}' method...", flush=True)
-        self.drawVars()
+        if self.ninvars > 0:
+            vprint(self.verbose, f"Drawing random samples for {self.ninvars} input variables via the '{self.samplemethod}' method...", flush=True)
+            self.drawVars()
         
         generator = np.random.RandomState(self.seed)
         self.caseseeds = generator.randint(0, 2**31-1, size=self.ncases)
@@ -274,7 +275,7 @@ class MCSim:
         casestopostprocess = set(range(self.ncases)) - self.casesrun
 
         vprint(self.verbose, f"Resuming incomplete '{self.name}' Monte Carlo simulation with {len(casestorun)}/{self.ncases} cases remaining to run, " + \
-                             f"and {len(casestopostprocess)}/{self.ncases} cases remaining to post process...", end='\n', flush=True)
+                             f"and {len(casestopostprocess)}/{self.ncases} cases remaining to post process...", flush=True)
         self.runSimWorker(casestorun=casestorun, casestopostprocess=casestopostprocess)
 
 
@@ -284,7 +285,7 @@ class MCSim:
         casestorun = self.downselectCases(cases=cases)
         casestopostprocess = self.downselectCases(cases=cases)
 
-        vprint(self.verbose, f"Running '{self.name}' Monte Carlo simulation with {len(casestorun)}/{self.ncases} cases...", end='\n', flush=True)
+        vprint(self.verbose, f"Running '{self.name}' Monte Carlo simulation with {len(casestorun)}/{self.ncases} cases...", flush=True)
         self.runSimWorker(casestorun=casestorun, casestopostprocess=casestopostprocess)
 
 

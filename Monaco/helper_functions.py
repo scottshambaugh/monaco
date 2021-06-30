@@ -9,7 +9,7 @@ from typing import Union
 from time import time
 from functools import wraps
 from hashlib import sha512
-from warnings import warn
+import warnings
 
 
 def next_power_of_2(x : int) -> int:
@@ -70,9 +70,16 @@ def vprint(verbose, *args, **kwargs):
         print(*args, **kwargs)
 
 
+def warn_short_format(message, category, filename, lineno, file=None, line=None):
+    return f'{category.__name__}: {message}\n'
+
+
 def vwarn(verbose, *args, **kwargs):
     if verbose:
-        warn(*args, **kwargs)
+        warn_default_format = warnings.formatwarning
+        warnings.formatwarning = warn_short_format
+        warnings.warn(*args, **kwargs)
+        warnings.formatwarning = warn_default_format
 
 
 def vwrite(verbose, *args, **kwargs):
