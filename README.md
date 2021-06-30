@@ -67,7 +67,6 @@ See the [examples](examples/) folder for some examples you can step through or u
 * Flesh out READMEs and documentation
 * Examples:
     * Integration
-* Break out tests
 * 2D Scatter Statistics
 * Run on remote server (AWS)
 * Parallelize preprocessing
@@ -117,6 +116,7 @@ See the [examples](examples/) folder for some examples you can step through or u
 * ~~Get keyboard interrupt working~~
 * ~~Sampling schemes (random, sobol, etc)~~
 * ~~Speed up sampling by not regenerating qmc sequences for each invar~~
+* ~~Break out tests~~
 
 
 ### License:

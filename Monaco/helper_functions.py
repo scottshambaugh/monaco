@@ -90,9 +90,3 @@ def timeit(fcn):
         return output
     return timed
 
-
-'''
-### Test ###
-if __name__ == '__main__':
-    pass
-#'''
