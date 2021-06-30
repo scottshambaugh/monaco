@@ -1,6 +1,7 @@
 from scipy.stats import uniform
 from Monaco.MCSim import MCSim
 from Monaco.helper_functions import next_power_of_2
+import numpy as np
 
 # Define our functions
 def integration_example_preprocess(mccase):
@@ -22,7 +23,7 @@ fcns ={'preprocess' :integration_example_preprocess,   \
 # Integration best practices:
 savecasedata = False           # File I/O will crush performance, so recommended not to save case data
 samplemethod = 'sobol'         # Use 'sobol' over 'sobol_random' for a speedup, since all our dists are uniform
-ndraws = next_power_of_2(1e6)  # The sobol methods need to be a power of 2 for best performance and balance
+ndraws = next_power_of_2(1e4)  # The sobol methods need to be a power of 2 for best performance and balance
 firstcaseisnom = False         # Since we want a power of 2, we should not run a 'nominal' case which would add 1
 
 seed=12362397
@@ -50,7 +51,17 @@ def integration_example_monte_carlo_sim():
     import matplotlib.pyplot as plt
     indices_under_curve = [i for i, x in enumerate(sim.mcoutvars['is_under_curve'].vals) if x]
     fig, ax = mc_plot(sim.mcinvars['x'], sim.mcinvars['y'], highlight_cases=indices_under_curve)
+    ax.axis('equal')
     plt.title(resultsstr)
+    fig.tight_layout()
+    
+    pi_convergence = total_area*np.cumsum(sim.mcoutvars['is_under_curve'].nums)/np.arange(1, ndraws+1)
+    plt.figure()
+    plt.axhline(np.pi, color='k')
+    plt.plot(pi_convergence)
+    plt.ylim((3.1, 3.2))
+    plt.xlabel('Sample #')
+    plt.ylabel('Approx. value of π')
     #'''
     
     return sim
