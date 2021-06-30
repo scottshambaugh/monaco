@@ -55,7 +55,7 @@ See the [examples](examples/) folder for some examples you can step through or u
     - [early_retirement_investment_portfolio](examples/early_retirement_investment_portfolio/)
     - [election](examples/election/)
     - [evidence_based_scheduling](examples/evidence_based_scheduling/) (TODO)
-    - [integration](examples/integration/) (TODO)
+    - [integration](examples/integration/)
     - [pandemic](examples/pandemic/)
     - [rocket](examples/rocket/)
 * [Monaco](Monaco/)
@@ -65,8 +65,6 @@ See the [examples](examples/) folder for some examples you can step through or u
 ### TODO:
 **Before Release:**
 * Flesh out READMEs and documentation
-* Examples:
-    * Integration
 * 2D Scatter Statistics
 * Run on remote server (AWS)
 * Parallelize preprocessing
@@ -88,6 +86,7 @@ See the [examples](examples/) folder for some examples you can step through or u
 * ~~Examples:~~
     * ~~Early Retirement Investment Portfolio~~
     * ~~Election Modeling~~
+    * ~~Integration~~
     * ~~Pandemic Modeling~~
     * ~~Rocket Flight~~
 * ~~Linear trend lines on scatter plots~~
