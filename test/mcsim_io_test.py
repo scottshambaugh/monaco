@@ -1,7 +1,10 @@
+# mcsim_io_test.py
+
 from Monaco.MCSim import MCSim
 import dill
 import os
 from time import sleep
+import tempfile
 
 ndraws = 16
 seed=12362398
@@ -22,8 +25,9 @@ fcns ={'preprocess' :testing_preprocess,   \
        'postprocess':testing_postprocess}
 
 ### Main Sim 
-def mcsim_io_test_example_sim():
-    sim = MCSim(name='mcsim_io_test', ndraws=ndraws, fcns=fcns, firstcaseisnom=False, seed=seed, cores=2, verbose=True)
+def mcsim_io_test_example_sim(resultsdir):
+    sim = MCSim(name='mcsim_io_test', ndraws=ndraws, fcns=fcns, firstcaseisnom=False, seed=seed, cores=2, verbose=True, resultsdir=resultsdir)
+    print(sim.resultsdir)
     sim.runSim()
     
     results_dir = sim.resultsdir
@@ -73,6 +77,12 @@ def mcsim_io_test_example_sim():
 
 
 if __name__ == '__main__':
-    sim = mcsim_io_test_example_sim()
-    os.remove(sim.resultsdir)
+    '''
+    resultsdir = 'mcsim_io_test'
+    sim = mcsim_io_test_example_sim(resultsdir)
+    #'''
+    #'''
+    with tempfile.TemporaryDirectory() as resultsdir:
+        sim = mcsim_io_test_example_sim(resultsdir)
+    #'''
     

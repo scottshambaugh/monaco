@@ -46,10 +46,10 @@ class MCSim:
         self.savecasedata = savecasedata
 
         self.rootdir = pathlib.Path.cwd()
-        if resultsdir is pathlib.Path:
+        if isinstance(resultsdir, str):
+            resultsdir = pathlib.Path(resultsdir)
+        if isinstance(resultsdir, pathlib.Path):
             self.resultsdir = resultsdir
-        elif resultsdir is str:                 
-            self.resultsdir = self.rootdir / resultsdir
         else:
             self.resultsdir = self.rootdir / f'{self.name}_results'
         self.filepath = self.resultsdir / f'{self.name}.mcsim'
