@@ -1,3 +1,11 @@
 ## [Monaco](../) - Test
 
-* **mcsim_io_test:** Tests saving and loading results
+Run unit tests starting with "test_" with the ```pytest``` command.
+
+Here are the tests which generate plots that may need to be reviewed manually:
+* test_mc_plot
+* test_mc_multi_plot
+* test_mc_sampling
+
+Here are the tests which are diagnostic but do not test functionality:
+* pooling_speed_test

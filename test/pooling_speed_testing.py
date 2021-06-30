@@ -5,7 +5,10 @@ from pathos.pools import SerialPool
 from multiprocessing import Pool
 from Monaco.helper_functions import timeit
 from time import time
-from test.mcsim_testing_fcns import slowfcn
+
+from time import sleep
+def slowfcn(n):
+    sleep(1.0)
 
 @timeit
 def test(n,p):
