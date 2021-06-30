@@ -3,7 +3,6 @@
 from Monaco.MCSim import MCSim
 import dill
 import os
-from time import sleep
 import tempfile
 
 ndraws = 16
@@ -14,7 +13,8 @@ def testing_preprocess(mccase):
     return ([True,])
 
 def testing_run(inputs):
-    sleep(0.01)
+    #from time import sleep
+    #sleep(1)
     return (True)
 
 def testing_postprocess(mccase, output):
@@ -27,7 +27,6 @@ fcns ={'preprocess' :testing_preprocess,   \
 ### Main Sim 
 def mcsim_io_test_example_sim(resultsdir):
     sim = MCSim(name='mcsim_io_test', ndraws=ndraws, fcns=fcns, firstcaseisnom=False, seed=seed, cores=2, verbose=True, resultsdir=resultsdir)
-    print(sim.resultsdir)
     sim.runSim()
     
     results_dir = sim.resultsdir

@@ -3,17 +3,8 @@ from pathos.pools import ThreadPool
 from pathos.pools import ParallelPool
 from pathos.pools import SerialPool
 from multiprocessing import Pool
-import time
-
-def timeit(method):
-    def timed(*args, **kw):
-        ts = time.time()
-        result = method(*args, **kw)
-        te = time.time()
-        print ('%r (%r, %r) %2.2f sec' % \
-              (method.__name__, args, kw, te-ts))
-        return result
-    return timed
+from Monaco.helper_functions import timeit
+from time import time
 
 def slowfcn(n):
     from time import sleep
@@ -33,11 +24,11 @@ def main():
 
     nloops = 8
     print('For Loop')
-    ts = time.time()
+    t0 = time()
     for i in range(nloops):
         slowfcn(i)
-    te = time.time()
-    print ('%r () %2.2f sec' % ('test', te-ts))
+    t1 = time()
+    print (f'"test" took {(t1 - t0)*1000 : .3f} ms to execute.\n')
     print('ThreadPool')
     test(nloops,tpool)
     print('ParallelPool')
