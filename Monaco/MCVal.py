@@ -7,7 +7,6 @@ from copy import copy, deepcopy
 from Monaco.helper_functions import is_num
 from typing import Union, Any
 from scipy.stats import rv_discrete, rv_continuous
-from sortedcontainers import SortedSet
 
 ### MCVal Base Class ###
 class MCVal():
@@ -130,12 +129,12 @@ class MCOutVal(MCVal):
                 if all(isinstance(x, bool) for x in chain(*self.val)):
                     self.valmap = {True:1, False:0}                  
                 elif not all(is_num(x) for x in chain(*self.val)):
-                    self.valmap = {str(key):idx for idx, key in enumerate(SortedSet(chain(*self.val)))}
+                    self.valmap = {str(key):idx for idx, key in enumerate(sorted(set(chain(*self.val))))}
             else:
                 if not all(is_num(x) for x in self.val):
                     self.valmap = {True:1, False:0}
                 elif not all(is_num(x) for x in self.val):
-                    self.valmap = {str(key):idx for idx, key in enumerate(SortedSet(self.val))}
+                    self.valmap = {str(key):idx for idx, key in enumerate(sorted(set(self.val)))}
 
                 
     def mapVal(self):

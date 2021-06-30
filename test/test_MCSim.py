@@ -2,7 +2,7 @@
 
 import pytest
 from Monaco.MCSim import MCSim
-from mcsim_testing_fcns import dummyfcn
+from test.mcsim_testing_fcns import dummyfcn
 import numpy as np
 
 seed = 74494861
