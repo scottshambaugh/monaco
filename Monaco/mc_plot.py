@@ -389,6 +389,25 @@ def mc_plot_cov_corr(matrix    : np.ndarray,
 
 
 
+def mc_plot_convergence(mcvar   : MCVar, 
+                        refline : Union[int, float] = None,
+                        ax      : Union[None, Axes] = None, 
+                        title   : str               = '',
+                        ):
+    fig, ax = manage_axis(ax, is3d=False)
+
+    cummean = np.cumsum(mcvar.nums)/np.arange(1, mcvar.ncases+1)
+    if not refline is None:
+        plt.axhline(refline, color='k')
+    plt.plot(cummean)
+
+    ax.set_xlabel('Sample #')
+    ax.set_ylabel(f'Convergence of {mcvar.name} Average')
+    plt.title(title)
+
+    return fig, ax
+
+
 def manage_axis(ax   : Union[None, Axes], 
                 is3d : bool = False,
                 ):

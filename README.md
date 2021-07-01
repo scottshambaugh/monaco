@@ -72,7 +72,6 @@ See the [examples](examples/) folder for some examples you can step through or u
 **Future Work:**
 * Run on remote server (Azure, Google Cloud)
 * Get custom distributions working
-* Convergence plots
 * Tornado plots
 * Sensitivity Indices (Sobol's Method)
 * Examples:
@@ -116,6 +115,7 @@ See the [examples](examples/) folder for some examples you can step through or u
 * ~~Sampling schemes (random, sobol, etc)~~
 * ~~Speed up sampling by not regenerating qmc sequences for each invar~~
 * ~~Break out tests~~
+* ~~Convergence plots~~
 
 
 ### License:

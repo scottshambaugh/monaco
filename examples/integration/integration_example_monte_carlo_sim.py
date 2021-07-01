@@ -47,21 +47,15 @@ def integration_example_monte_carlo_sim():
     print(resultsstr)
     
     '''
-    from Monaco.mc_plot import mc_plot
+    from Monaco.mc_plot import mc_plot, mc_plot_convergence
     import matplotlib.pyplot as plt
     indices_under_curve = [i for i, x in enumerate(sim.mcoutvars['is_under_curve'].vals) if x]
     fig, ax = mc_plot(sim.mcinvars['x'], sim.mcinvars['y'], highlight_cases=indices_under_curve)
     ax.axis('equal')
     plt.title(resultsstr)
-    fig.tight_layout()
     
-    pi_convergence = total_area*np.cumsum(sim.mcoutvars['is_under_curve'].nums)/np.arange(1, ndraws+1)
-    plt.figure()
-    plt.axhline(np.pi, color='k')
-    plt.plot(pi_convergence)
-    plt.ylim((3.1, 3.2))
-    plt.xlabel('Sample #')
-    plt.ylabel('Approx. value of π')
+    fig, ax = mc_plot_convergence(sim.mcoutvars['is_under_curve'], refline = np.pi/4, title='Approx. value of π/4')
+    ax.set_ylim((3.1/4, 3.2/4))
     #'''
     
     return sim
