@@ -84,7 +84,7 @@ def test_mcsim_remove_extra_files(mcsim_with_extra_files):
 
 ### Inline Testing ###
 def mcsim_io_test_example_sim(resultsdir):
-    sim = MCSim(name='mcsim_io_test', ndraws=ndraws, fcns=fcns(), firstcaseisnom=False, seed=seed, cores=2, verbose=True, resultsdir=resultsdir)
+    sim = MCSim(name='mcsim_io_test', ndraws=ndraws, fcns=fcns(), firstcaseisnom=False, seed=seed, cores=2, verbose=True, resultsdir=resultsdir, debug=False)
     sim.runSim()
     
     results_dir = sim.resultsdir
@@ -138,7 +138,10 @@ def mcsim_io_test_example_sim(resultsdir):
 
 if __name__ == '__main__':
     #'''
+    import shutil
     resultsdir = 'mcsim_io_test'
+    if os.path.isdir(resultsdir):
+        shutil.rmtree(resultsdir)
     sim = mcsim_io_test_example_sim(resultsdir)
     #'''
     '''

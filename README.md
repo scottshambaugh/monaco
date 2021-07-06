@@ -67,7 +67,6 @@ See the [examples](examples/) folder for some examples you can step through or u
 * Flesh out READMEs and documentation
 * 2D Scatter Statistics
 * Run on remote server (AWS)
-* Parallelize preprocessing
 
 **Future Work:**
 * Run on remote server (Azure, Google Cloud)
@@ -116,6 +115,8 @@ See the [examples](examples/) folder for some examples you can step through or u
 * ~~Speed up sampling by not regenerating qmc sequences for each invar~~
 * ~~Break out tests~~
 * ~~Convergence plots~~
+* ~~Parallelize preprocessing~~
+
 
 
 ### License:

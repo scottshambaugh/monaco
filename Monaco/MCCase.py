@@ -27,6 +27,7 @@ class MCCase():
         
         self.filepath = None
         self.runsimid = None
+        self.haspreprocessed = False
         self.hasrun = False
         self.haspostprocessed = False
         
