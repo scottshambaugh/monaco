@@ -79,11 +79,11 @@ class MCSim:
         self.pbar1 = None
         self.pbar2 = None
 
-        self.runsimid = self.genID()
+        self.runsimid = None
 
         self.ncases = ndraws + 1
         self.setFirstCaseNom(firstcaseisnom)
-        self.setNDraws(self.ndraws)
+        self.setNDraws(self.ndraws) # Will regen runsimid
                 
 
     def __getstate__(self):
@@ -144,14 +144,14 @@ class MCSim:
     def setNDraws(self, 
                   ndraws: int,
                   ):
-        casestogenerate = set(range(ndraws)) - set(range(self.ndraws))
+        self.clearResults()
         self.ndraws = ndraws
         self.setFirstCaseNom(self.firstcaseisnom)
         for mcinvar in self.mcinvars.values():
             mcinvar.setNDraws(ndraws)
         if self.mcinvars != dict():
             self.drawVars()
-            self.genCases(cases=casestogenerate)
+        self.genCases(cases=None) # Will regenerate all cases
 
 
     def drawVars(self):
