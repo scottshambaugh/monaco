@@ -150,7 +150,6 @@ def mc_plot_hist(mcvar       : MCVar,
     elif isinstance(mcvar, MCOutVar): 
         plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False, orientation=orientation, cumulative=cumulative, histtype='bar', facecolor='k', alpha=0.5)
     
-    highlighted_cases = get_iterable(highlight_cases)
     if cumulative:
         ylabeltext = 'Cumulative Probability'
     else:
@@ -162,9 +161,9 @@ def mc_plot_hist(mcvar       : MCVar,
     xlim = ax.get_xlim()
     ylim = ax.get_ylim()
 
-    # Highligted highlight_cases and MCVarStats
+    # Highlight cases and MCVarStats
     if orientation == 'vertical':
-        for i in highlighted_cases:
+        for i in highlight_cases:
             plt.plot([mcvar.nums[i], mcvar.nums[i]], [ylim[0], ylim[0]+(ylim[1]-ylim[0])*0.20], linestyle='-', linewidth=1, color='red')
         for mcvarstat in mcvar.mcvarstats:
             nums = get_iterable(mcvarstat.nums)
@@ -179,7 +178,7 @@ def mc_plot_hist(mcvar       : MCVar,
         apply_category_labels(ax, mcvarx=mcvar)
         
     elif orientation == 'horizontal':
-        for i in highlighted_cases:
+        for i in highlight_cases:
             plt.plot([xlim[0], xlim[0]+(xlim[1]-xlim[0])*0.20], [mcvar.nums[i], mcvar.nums[i]], linestyle='-', linewidth=1, color='red')
         for mcvarstat in mcvar.mcvarstats:
             nums = get_iterable(mcvarstat.nums)
@@ -224,12 +223,11 @@ def mc_plot_2d_scatter(mcvarx   : MCVar,
 
     cases = get_cases(mcvarx.ncases, cases)
     highlight_cases = get_cases(mcvarx.ncases, highlight_cases)
-    reg_cases = set(get_iterable(cases)) - set(get_iterable(highlight_cases))
-    highlighted_cases = get_iterable(highlight_cases)
+    reg_cases = set(cases) - set(highlight_cases)
     if reg_cases:
         plt.scatter(slice_by_index(mcvarx.nums, reg_cases), slice_by_index(mcvary.nums, reg_cases), edgecolors=None, c='k', alpha=0.4)
-    if highlighted_cases:
-        plt.scatter(slice_by_index(mcvarx.nums, highlighted_cases), slice_by_index(mcvary.nums, highlighted_cases), edgecolors=None, c='r', alpha=1)        
+    if highlight_cases:
+        plt.scatter(slice_by_index(mcvarx.nums, highlight_cases), slice_by_index(mcvary.nums, highlight_cases), edgecolors=None, c='r', alpha=1)
 
     if cov_plot:
         if cov_p is None:
@@ -239,7 +237,7 @@ def mc_plot_2d_scatter(mcvarx   : MCVar,
             plot_2d_cov_ellipse(ax=ax, mcvarx=mcvarx, mcvary=mcvary, p=p)
 
     if rug_plot:
-        all_cases = set(get_iterable(cases)) | set(get_iterable(highlight_cases))
+        all_cases = set(cases) | set(highlight_cases)
         plot_rug_marks(ax, orientation='vertical', nums=slice_by_index(mcvarx.nums, all_cases))
         plot_rug_marks(ax, orientation='horizontal', nums=slice_by_index(mcvary.nums, all_cases))
 
@@ -263,11 +261,10 @@ def mc_plot_2d_line(mcvarx : MCVar,
     
     cases = get_cases(mcvarx.ncases, cases)
     highlight_cases = get_cases(mcvarx.ncases, highlight_cases)
-    reg_cases = set(get_iterable(cases)) - set(get_iterable(highlight_cases))
-    highlighted_cases = get_iterable(highlight_cases)
+    reg_cases = set(cases) - set(highlight_cases)
     for i in reg_cases:
         plt.plot(mcvarx.nums[i], mcvary.nums[i], linestyle='-', color='black', alpha=0.2)
-    for i in highlighted_cases:
+    for i in highlight_cases:
         plt.plot(mcvarx.nums[i], mcvary.nums[i], linestyle='-', color='red', alpha=1)     
 
     for mcvarstat in mcvary.mcvarstats:
@@ -300,14 +297,13 @@ def mc_plot_3d_scatter(mcvarx : MCVar,
     
     cases = get_cases(mcvarx.ncases, cases)
     highlight_cases = get_cases(mcvarx.ncases, highlight_cases)
-    reg_cases = set(get_iterable(cases)) - set(get_iterable(highlight_cases))
-    highlighted_cases = get_iterable(highlight_cases)
+    reg_cases = set(cases) - set(highlight_cases)
     if reg_cases:
         ax.scatter(slice_by_index(mcvarx.nums, reg_cases), slice_by_index(mcvary.nums, reg_cases), \
                    slice_by_index(mcvarz.nums, reg_cases), edgecolors=None, c='k', alpha=0.4)
-    if highlighted_cases:
-        ax.scatter(slice_by_index(mcvarx.nums, highlighted_cases), slice_by_index(mcvary.nums, highlighted_cases), \
-                   slice_by_index(mcvarz.nums, highlighted_cases), edgecolors=None, c='r', alpha=1)        
+    if highlight_cases:
+        ax.scatter(slice_by_index(mcvarx.nums, highlight_cases), slice_by_index(mcvary.nums, highlight_cases), \
+                   slice_by_index(mcvarz.nums, highlight_cases), edgecolors=None, c='r', alpha=1)
 
     ax.set_xlabel(mcvarx.name)
     ax.set_ylabel(mcvary.name)
@@ -331,11 +327,10 @@ def mc_plot_3d_line(mcvarx : MCVar,
     
     cases = get_cases(mcvarx.ncases, cases)
     highlight_cases = get_cases(mcvarx.ncases, highlight_cases)
-    reg_cases = set(get_iterable(cases)) - set(get_iterable(highlight_cases))
-    highlighted_cases = get_iterable(highlight_cases)
+    reg_cases = set(cases) - set(highlight_cases)
     for i in reg_cases:
         ax.plot(mcvarx.nums[i], mcvary.nums[i], mcvarz.nums[i], linestyle='-', color='black', alpha=0.3)
-    for i in highlighted_cases:
+    for i in highlight_cases:
         ax.plot(mcvarx.nums[i], mcvary.nums[i], mcvarz.nums[i], linestyle='-', color='red', alpha=1)
         
     ax.set_xlabel(mcvarx.name)
@@ -510,5 +505,6 @@ def get_cases(ncases : int,
               ):
     if cases is None:
         cases = list(range(ncases))
+    cases = get_iterable(cases)
     return cases
         

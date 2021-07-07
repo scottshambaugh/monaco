@@ -79,6 +79,7 @@ See the [examples](examples/) folder for some examples you can step through or u
 * Make pip installable?
 * Correlation matrix input?
 * Ability to plot derived data in addition to mcvars?
+* Integration statistics
 
 **Done:**
 * ~~Examples:~~

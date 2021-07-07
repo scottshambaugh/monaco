@@ -28,9 +28,9 @@ if __name__ == '__main__':
     
     f, (ax1, ax2) = plt.subplots(2, 1)
     mc_plot_hist(mcinvars['randint'], ax=ax1, orientation='horizontal')       # mc_plot_hist
+    mc_plot_cdf(mcinvars['randint'], ax=ax2)                                  # mc_plot_cdf
     mc_plot(mcinvars['norm'], title='norm')                                   # mc_plot_hist
     mc_plot_hist(mcoutvars['test'], orientation='horizontal', rug_plot=False) # mc_plot_hist
-    mc_plot_cdf(mcinvars['randint'], ax=ax2)                                  # mc_plot_cdf
     mc_plot_cdf(mcinvars['norm'], orientation='horizontal')                   # mc_plot_cdf
     mc_plot_cdf(mcoutvars['test'])                                            # mc_plot_cdf
     
