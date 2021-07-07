@@ -151,7 +151,6 @@ class MCSim:
             mcinvar.setNDraws(ndraws)
         if self.mcinvars != dict():
             self.drawVars()
-        self.genCases(cases=None) # Will regenerate all cases
 
 
     def drawVars(self):
@@ -159,16 +158,84 @@ class MCSim:
             vprint(self.verbose, f"Drawing random samples for {self.ninvars} input variables via the '{self.samplemethod}' method...", flush=True)
         for mcinvar in self.mcinvars.values():
             mcinvar.draw(ninvar_max=self.ninvars)
-    
-    
-    def genCaseSeeds(self):
-        generator = np.random.RandomState(self.seed)
-        self.caseseeds = generator.randint(0, 2**31-1, size=self.ncases)
+
+
+    def runSim(self, 
+               cases : Union[None, int, list[int], set[int]] = None,
+               ):
+        cases = self.downselectCases(cases=cases)
+        casestogenerate = cases
+        casestopreprocess = cases
+        casestorun = cases
+        casestopostprocess = cases
+
+        vprint(self.verbose, f"Running '{self.name}' Monte Carlo simulation with {len(casestorun)}/{self.ncases} cases...", flush=True)
+        self.runSimWorker(casestogenerate=casestogenerate, casestopreprocess=casestopreprocess, casestorun=casestorun, casestopostprocess=casestopostprocess)
+
+
+    def runIncompleteSim(self):
+        casestopreprocess = set(range(self.ncases)) - self.casespreprocessed
+        casestorun = set(range(self.ncases)) - self.casesrun | casestopreprocess
+        casestopostprocess = set(range(self.ncases)) - self.casespostprocessed | casestopreprocess | casestorun
+        casestogenerate = casestopreprocess
+
+        vprint(self.verbose, f"Resuming incomplete '{self.name}' Monte Carlo simulation with " + \
+                             f"{len(casestopostprocess)}/{self.ncases} cases remaining to preprocess, " + \
+                             f"{len(casestorun)}/{self.ncases} cases remaining to run, " + \
+                             f"and {len(casestopostprocess)}/{self.ncases} cases remaining to postprocess...", flush=True)
+        self.runSimWorker(casestogenerate=casestogenerate, casestopreprocess=casestopreprocess, casestorun=casestorun, casestopostprocess=casestopostprocess)
+
+
+    def runSimWorker(self, 
+                     casestogenerate    : Union[None, int, list[int], set[int]],
+                     casestopreprocess  : Union[None, int, list[int], set[int]],
+                     casestorun         : Union[None, int, list[int], set[int]],
+                     casestopostprocess : Union[None, int, list[int], set[int]],
+                     ):            
+        self.starttime = datetime.now()
+
+        if casestorun in (None, set(range(self.ncases))):
+            self.clearResults() # only clear results if we are rerunning all cases
+
+        self.runsimid = self.genID()
+
+        if self.savesimdata or self.savecasedata:
+            if not os.path.exists(self.resultsdir):
+                os.makedirs(self.resultsdir)
+            if self.savesimdata:
+                self.saveSimToFile()
+        
+        self.drawVars()
+        self.genCases(cases=casestogenerate)
+        self.preProcessCases(cases=casestopreprocess)
+        self.runCases(cases=casestorun, calledfromrunsim=True)
+        self.postProcessCases(cases=casestopostprocess)
+        self.genOutVars()
+
+        self.endtime = datetime.now()
+        self.runtime = self.endtime - self.starttime
+        
+        vprint(self.verbose, f'\nRuntime: {self.runtime}', flush=True)
+        
+        if self.savesimdata:
+            vprint(self.verbose, 'Saving sim results to file...', flush=True)
+            self.saveSimToFile()
+            vprint(self.verbose, f"Sim results saved in '{self.filepath}'", flush=True)
+
+
+    def genRunSimID(self):
+        self.runsimid = self.genID()
+
+
+    def genID(self):
+        uniqueid = (self.seed + hash(self.name) + hash(datetime.now())) % 2**32
+        return uniqueid
 
 
     def genCases(self,
                  cases : Union[None, int, list[int], set[int]] = None,
                  ):
+        vprint(self.verbose, 'Generating cases...', flush=True)
         self.genCaseSeeds()
         
         if cases is None:
@@ -183,24 +250,9 @@ class MCSim:
         self.mccases.sort(key=lambda mccase: mccase.ncase)
 
     
-    def preProcessCase(self, 
-                       mccase : MCCase,
-                       ):
-        try:
-            mccase.siminput = self.fcns['preprocess'](mccase)
-            self.casespreprocessed.add(mccase.ncase)
-            mccase.haspreprocessed = True
-            
-        except Exception:
-            if self.debug:
-                raise
-            else:
-                vwarn(self.verbose, f'\nPreprocessing case {mccase.ncase} failed')
-            
-        if not (self.pbar0 is None):
-            self.pbar0.update(1)
-            
-        return mccase
+    def genCaseSeeds(self):
+        generator = np.random.RandomState(self.seed)
+        self.caseseeds = generator.randint(0, 2**31-1, size=self.ncases)
 
 
     def preProcessCases(self, 
@@ -209,7 +261,7 @@ class MCSim:
         cases = self.downselectCases(cases=cases)
         
         if self.verbose:
-            self.pbar0 = tqdm(total=len(cases), desc='Generating cases', unit=' cases', position=0)
+            self.pbar0 = tqdm(total=len(cases), desc='Preprocessing cases', unit=' cases', position=0)
 
         if self.cores == 1:
             for case in cases:
@@ -233,6 +285,139 @@ class MCSim:
             self.pbar0 = None
 
 
+    def preProcessCase(self, 
+                       mccase : MCCase,
+                       ):
+        try:
+            mccase.siminput = self.fcns['preprocess'](mccase)
+            self.casespreprocessed.add(mccase.ncase)
+            mccase.haspreprocessed = True
+            
+        except Exception:
+            if self.debug:
+                raise
+            else:
+                vwarn(self.verbose, f'\nPreprocessing case {mccase.ncase} failed')
+            
+        if not (self.pbar0 is None):
+            self.pbar0.update(1)
+            
+        return mccase
+
+
+    def runCases(self, 
+                 cases            : Union[None, int, list[int], set[int]],
+                 calledfromrunsim : bool = False):
+        cases = self.downselectCases(cases=cases)
+        
+        if not calledfromrunsim:
+            self.runsimid = self.genID()
+            
+        if self.verbose:
+            self.pbar1 = tqdm(total=len(cases), desc='Running cases', unit=' cases', position=0)
+
+        if self.cores == 1:
+            for case in cases:
+                self.runCase(mccase=self.mccases[case])
+
+        else:
+            p = Pool(self.cores)
+            try:
+                casesrun = p.imap(self.runCase, slice_by_index(self.mccases, cases))
+                casesrun = list(casesrun) # dummy function to ensure we wait for imap to finish
+                p.terminate()
+                p.restart()
+            except KeyboardInterrupt:
+                p.terminate()
+                p.restart()
+                raise
+
+        if self.verbose:
+            self.pbar1.refresh()
+            self.pbar1.close()
+            self.pbar1 = None
+
+        if self.savecasedata:
+            vprint(self.verbose, f"\nRaw case results saved in '{self.resultsdir}'", end='', flush=True)
+
+
+    def runCase(self, 
+                mccase : MCCase,
+                ):
+        try:
+            mccase.starttime = datetime.now()
+            mccase.simrawoutput = self.fcns['run'](*get_iterable(mccase.siminput))
+            mccase.endtime = datetime.now()
+            mccase.runtime = mccase.endtime - mccase.starttime
+            mccase.runsimid = self.runsimid
+            mccase.hasrun = True
+            
+            if self.savecasedata:
+                filepath = self.resultsdir / f'{self.name}_{mccase.ncase}.mccase'
+                mccase.filepath = filepath
+                filepath.unlink(missing_ok = True)
+                with open(filepath,'wb') as file:
+                    dill.dump(mccase, file, protocol=dill.HIGHEST_PROTOCOL)
+    
+            self.casesrun.add(mccase.ncase)
+            
+        except Exception:
+            if self.debug:
+                raise
+            vwrite(self.verbose, f'\nRunning case {mccase.ncase} failed')
+        
+        if not (self.pbar1 is None):
+            self.pbar1.update(1)
+
+
+    def postProcessCases(self, 
+                         cases : Union[None, int, list[int], set[int]],
+                         ):
+        cases = self.downselectCases(cases=cases)
+        
+        if self.verbose:
+            self.pbar2 = tqdm(total=len(cases), desc='Postprocessing cases', unit=' cases', position=0)
+
+        if self.cores == 1:
+            for case in cases:
+                self.postProcessCase(mccase=self.mccases[case])
+
+        else:
+            p = Pool(self.cores)
+            try:
+                casespostprocessed = p.imap(self.postProcessCase, slice_by_index(self.mccases, cases))
+                casespostprocessed = list(casespostprocessed) # dummy function to ensure we wait for imap to finish
+                p.terminate()
+                p.restart()
+            except KeyboardInterrupt:
+                p.terminate()
+                p.restart()
+                raise
+            
+        if self.verbose:
+            self.pbar2.refresh()
+            self.pbar2.close()
+            self.pbar2 = None
+
+
+    def postProcessCase(self, 
+                        mccase : MCCase,
+                        ):
+        try:
+            self.fcns['postprocess'](mccase, *get_iterable(mccase.simrawoutput))
+            self.casespostprocessed.add(mccase.ncase)
+            mccase.haspostprocessed = True
+            
+        except Exception:
+            if self.debug:
+                raise
+            else:
+                vwrite(self.verbose, f'\nPostprocessing case {mccase.ncase} failed')
+            
+        if not (self.pbar2 is None):
+            self.pbar2.update(1)
+            
+            
     def genOutVars(self):
         for varname in self.mccases[0].mcoutvals.keys():
             vals = []
@@ -311,77 +496,6 @@ class MCSim:
         self.invarseeds = []
         self.caseseeds = []
         self.starttime = None
-        
-
-    def genRunSimID(self):
-        self.runsimid = self.genID()
-
-
-    def genID(self):
-        uniqueid = (self.seed + hash(self.name) + hash(datetime.now())) % 2**32
-        return uniqueid
-
-
-    def runIncompleteSim(self):
-        casestopreprocess = set(range(self.ncases)) - self.casespreprocessed
-        casestorun = set(range(self.ncases)) - self.casesrun | casestopreprocess
-        casestopostprocess = set(range(self.ncases)) - self.casespostprocessed | casestopreprocess | casestorun
-        casestogenerate = casestopreprocess
-
-        vprint(self.verbose, f"Resuming incomplete '{self.name}' Monte Carlo simulation with " + \
-                             f"{len(casestopostprocess)}/{self.ncases} cases remaining to pre process, " + \
-                             f"{len(casestorun)}/{self.ncases} cases remaining to run, " + \
-                             f"and {len(casestopostprocess)}/{self.ncases} cases remaining to post process...", flush=True)
-        self.runSimWorker(casestogenerate=casestogenerate, casestopreprocess=casestopreprocess, casestorun=casestorun, casestopostprocess=casestopostprocess)
-
-
-    def runSim(self, 
-               cases : Union[None, int, list[int], set[int]] = None,
-               ):
-        cases = self.downselectCases(cases=cases)
-        casestogenerate = cases
-        casestopreprocess = cases
-        casestorun = cases
-        casestopostprocess = cases
-
-        vprint(self.verbose, f"Running '{self.name}' Monte Carlo simulation with {len(casestorun)}/{self.ncases} cases...", flush=True)
-        self.runSimWorker(casestogenerate=casestogenerate, casestopreprocess=casestopreprocess, casestorun=casestorun, casestopostprocess=casestopostprocess)
-
-
-    def runSimWorker(self, 
-                     casestogenerate    : Union[None, int, list[int], set[int]],
-                     casestopreprocess  : Union[None, int, list[int], set[int]],
-                     casestorun         : Union[None, int, list[int], set[int]],
-                     casestopostprocess : Union[None, int, list[int], set[int]],
-                     ):            
-        self.starttime = datetime.now()
-
-        if casestorun == set(range(self.ncases)):
-            self.clearResults() # only clear results if we are rerunning all cases
-        else:
-            self.runsimid = self.genID()
-
-        if self.savesimdata or self.savecasedata:
-            if not os.path.exists(self.resultsdir):
-                os.makedirs(self.resultsdir)
-            if self.savesimdata:
-                self.saveSimToFile()
-        
-        self.drawVars()
-        self.genCases(cases=casestogenerate)
-        self.preProcessCases(cases=casestopreprocess)
-        self.runCases(cases=casestorun, calledfromrunsim=True)
-        self.postProcessCases(cases=casestopostprocess)
-        self.genOutVars()
-
-        self.endtime = datetime.now()
-        self.runtime = self.endtime - self.starttime
-        
-        vprint(self.verbose, f'\nRuntime: {self.runtime}', flush=True)
-        
-        if self.savesimdata:
-            self.saveSimToFile()
-            vprint(self.verbose, f"Sim results saved in '{self.filepath}'", flush=True)
 
 
     def downselectCases(self, 
@@ -392,119 +506,6 @@ class MCSim:
         else:
             cases = set(get_iterable(cases))
         return cases
-
-
-    def runCases(self, 
-                 cases            : Union[None, int, list[int], set[int]],
-                 calledfromrunsim : bool = False):
-        cases = self.downselectCases(cases=cases)
-        
-        if not calledfromrunsim:
-            self.runsimid = self.genID()
-            
-        if self.verbose:
-            self.pbar1 = tqdm(total=len(cases), desc='Running cases', unit=' cases', position=0)
-
-        if self.cores == 1:
-            for case in cases:
-                self.runCase(mccase=self.mccases[case])
-
-        else:
-            p = Pool(self.cores)
-            try:
-                casesrun = p.imap(self.runCase, slice_by_index(self.mccases, cases))
-                casesrun = list(casesrun) # dummy function to ensure we wait for imap to finish
-                p.terminate()
-                p.restart()
-            except KeyboardInterrupt:
-                p.terminate()
-                p.restart()
-                raise
-
-        if self.verbose:
-            self.pbar1.refresh()
-            self.pbar1.close()
-            self.pbar1 = None
-
-        if self.savecasedata:
-            vprint(self.verbose, f"\nRaw case results saved in '{self.resultsdir}'", end='', flush=True)
-
-
-    def postProcessCases(self, 
-                         cases : Union[None, int, list[int], set[int]],
-                         ):
-        cases = self.downselectCases(cases=cases)
-        
-        if self.verbose:
-            self.pbar2 = tqdm(total=len(cases), desc='Post processing cases', unit=' cases', position=0)
-
-        if self.cores == 1:
-            for case in cases:
-                self.postProcessCase(mccase=self.mccases[case])
-
-        else:
-            p = Pool(self.cores)
-            try:
-                casespostprocessed = p.imap(self.postProcessCase, slice_by_index(self.mccases, cases))
-                casespostprocessed = list(casespostprocessed) # dummy function to ensure we wait for imap to finish
-                p.terminate()
-                p.restart()
-            except KeyboardInterrupt:
-                p.terminate()
-                p.restart()
-                raise
-            
-        if self.verbose:
-            self.pbar2.refresh()
-            self.pbar2.close()
-            self.pbar2 = None
-
-
-    def runCase(self, 
-                mccase : MCCase,
-                ):
-        try:
-            mccase.starttime = datetime.now()
-            mccase.simrawoutput = self.fcns['run'](*get_iterable(mccase.siminput))
-            mccase.endtime = datetime.now()
-            mccase.runtime = mccase.endtime - mccase.starttime
-            mccase.runsimid = self.runsimid
-            mccase.hasrun = True
-            
-            if self.savecasedata:
-                filepath = self.resultsdir / f'{self.name}_{mccase.ncase}.mccase'
-                mccase.filepath = filepath
-                filepath.unlink(missing_ok = True)
-                with open(filepath,'wb') as file:
-                    dill.dump(mccase, file, protocol=dill.HIGHEST_PROTOCOL)
-    
-            self.casesrun.add(mccase.ncase)
-            
-        except Exception:
-            if self.debug:
-                raise
-            vwrite(self.verbose, f'\nRunning case {mccase.ncase} failed')
-        
-        if not (self.pbar1 is None):
-            self.pbar1.update(1)
-
-
-    def postProcessCase(self, 
-                        mccase : MCCase,
-                        ):
-        try:
-            self.fcns['postprocess'](mccase, *get_iterable(mccase.simrawoutput))
-            self.casespostprocessed.add(mccase.ncase)
-            mccase.haspostprocessed = True
-            
-        except Exception:
-            if self.debug:
-                raise
-            else:
-                vwrite(self.verbose, f'\nPostprocessing case {mccase.ncase} failed')
-            
-        if not (self.pbar2 is None):
-            self.pbar2.update(1)
 
 
     def saveSimToFile(self):
