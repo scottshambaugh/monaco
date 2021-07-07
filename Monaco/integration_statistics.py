@@ -32,29 +32,3 @@ def integration_error(isUnderCurve : Union[list[int], list[bool]],  # List of 0 
     error = error1sig*pct2sig(conf)
     return error
 
-'''
-if __name__ == '__main__':
-    generator = np.random.RandomState(seed = 24565213)
-    generator.randint(0, 1, size=1000)
-
-    #print(integration_error([0, 2, 3, 1, 2]))
-    print(integration_error([True, False, True]))
-    x = generator.randint(0, 2, size=1000)
-    print(np.mean(x), integration_error(x, volume=1, conf=0.95))
-    #print(integration_error(x, volume=1, runningError=True, conf=0.95))
-    
-    n = len(x)
-    cummean = np.cumsum(x)/np.arange(1 ,n+1)
-    err = integration_error(x, volume=1, runningError=True, conf=0.99)
-    import matplotlib.pyplot as plt
-    plt.figure()
-    plt.hlines(0.5, 0., 1000, 'k')
-    plt.plot(cummean)
-    plt.plot(cummean+err)
-    plt.plot(cummean-err)
-    plt.figure()
-    plt.loglog(err)
-    plt.plot(np.abs(cummean - 0.5))
-    plt.plot()
-    
-#'''
