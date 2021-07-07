@@ -8,7 +8,7 @@ from Monaco.MCVar import MCInVar
 def mccase():
     seed = 74494861
     from scipy.stats import norm
-    invar = {'Test':MCInVar('Test', ndraws=10, ninvar=1, dist=norm, distkwargs={'loc':10, 'scale':4}, seed=seed)}
+    invar = {'Test':MCInVar('Test', ndraws=10, ninvar=1, dist=norm, distkwargs={'loc':10, 'scale':4}, seed=seed, firstcaseisnom=True)}
     mccase = MCCase(ncase=0, isnom=False, mcinvars=invar, constvals=dict(), seed=seed)
     return mccase
 
@@ -32,7 +32,7 @@ def test_mccase_addoutval_with_valmap(mccase):
 if __name__ == '__main__':
     from scipy.stats import norm
     seed = 74494861
-    invar = {'Test':MCInVar('Test', ndraws=10, ninvar=1, dist=norm, distkwargs={'loc':10, 'scale':4}, seed=seed)}
+    invar = {'Test':MCInVar('Test', ndraws=10, ninvar=1, dist=norm, distkwargs={'loc':10, 'scale':4}, seed=seed, firstcaseisnom=True)}
     case = MCCase(ncase=0, isnom=False, mcinvars=invar, constvals=dict(), seed=seed)
     print(case.mcinvals['Test'].val)      # expected: 10.000000000000002
     

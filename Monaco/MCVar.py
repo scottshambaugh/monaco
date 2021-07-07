@@ -82,7 +82,7 @@ class MCInVar(MCVar):
                  samplemethod   : str                         = 'sobol_random',
                  ninvar         : int                         = None,
                  seed           : int                         = np.random.get_state()[1][0], 
-                 firstcaseisnom : bool                        = True,
+                 firstcaseisnom : bool                        = False,
                  autodraw       : bool                        = True,
                  ):
         super().__init__(name=name, ndraws=ndraws, firstcaseisnom=firstcaseisnom)
@@ -195,7 +195,7 @@ class MCOutVar(MCVar):
                  vals           : list[Any], 
                  valmap         : Union[None, dict[Any, int]] = None, 
                  ndraws         : Union[None, int]            = None, 
-                 firstcaseisnom : bool                        = True,
+                 firstcaseisnom : bool                        = False,
                  ):
         if ndraws is None:
             ndraws = len(vals)
