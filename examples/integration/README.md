@@ -6,7 +6,6 @@ This calculates the value of pi by [Monte-Carlo integration](https://en.wikipedi
 <p float="left" align="center">
 <img width="440" height="300" src="./circle_integration.png">  
 <img width="440" height="300" src="./pi_convergence.png">  
-</p>
-<p float="left" align="center">
+</br>
 <img width="440" height="300" src="./pi_error.png">  
 </p>
