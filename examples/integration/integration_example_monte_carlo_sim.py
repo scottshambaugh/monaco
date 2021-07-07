@@ -10,11 +10,11 @@ def integration_example_preprocess(mccase):
     return (x, y)
 
 def integration_example_run(x, y):
-    is_under_curve = x**2 + y**2 < 1
-    return is_under_curve
+    isUnderCurve = x**2 + y**2 < 1
+    return isUnderCurve
 
-def integration_example_postprocess(mccase, is_under_curve):
-    mccase.addOutVal('is_under_curve', is_under_curve)
+def integration_example_postprocess(mccase, isUnderCurve):
+    mccase.addOutVal('pi_est', isUnderCurve)
 
 fcns ={'preprocess' :integration_example_preprocess,   \
        'run'        :integration_example_run,          \
@@ -23,7 +23,7 @@ fcns ={'preprocess' :integration_example_preprocess,   \
 # Integration best practices:
 savecasedata = False           # File I/O will crush performance, so recommended not to save case data
 samplemethod = 'sobol'         # Use 'sobol' over 'sobol_random' for a speedup, since all our dists are uniform
-ndraws = next_power_of_2(1e4)  # The sobol methods need to be a power of 2 for best performance and balance
+ndraws = next_power_of_2(1e5)  # The sobol methods need to be a power of 2 for best performance and balance
 firstcaseisnom = False         # Since we want a power of 2, we should not run a 'nominal' case which would add 1
 
 seed=12362397
@@ -41,21 +41,22 @@ def integration_example_monte_carlo_sim():
     sim.runSim()
     
     total_area = xrange*yrange
-    under_curve_pct = sum(sim.mcoutvars['is_under_curve'].nums)/ndraws # Note that (True,False) vals are automatically valmapped to the nums (1,0)
+    under_curve_pct = sum(sim.mcoutvars['pi_est'].nums)/ndraws # Note that (True,False) vals are automatically valmapped to the nums (1,0)
 
     resultsstr = f'π ≈ {under_curve_pct*total_area}, n = {ndraws}'
     print(resultsstr)
     
-    '''
-    from Monaco.mc_plot import mc_plot, mc_plot_convergence
+    #'''
+    from Monaco.mc_plot import mc_plot, mc_plot_integration_convergence, mc_plot_integration_error
     import matplotlib.pyplot as plt
-    indices_under_curve = [i for i, x in enumerate(sim.mcoutvars['is_under_curve'].vals) if x]
+    indices_under_curve = [i for i, x in enumerate(sim.mcoutvars['pi_est'].vals) if x]
     fig, ax = mc_plot(sim.mcinvars['x'], sim.mcinvars['y'], highlight_cases=indices_under_curve)
     ax.axis('equal')
     plt.title(resultsstr)
     
-    fig, ax = mc_plot_convergence(sim.mcoutvars['is_under_curve'], refline = np.pi/4, title='Approx. value of π/4')
-    ax.set_ylim((3.1/4, 3.2/4))
+    fig, ax = mc_plot_integration_convergence(sim.mcoutvars['pi_est'], refval = np.pi, volume=total_area, conf=0.95, title='Approx. value of π')
+    ax.set_ylim((3.1, 3.2))
+    fig, ax = mc_plot_integration_error(sim.mcoutvars['pi_est'], refval = np.pi, volume=total_area, conf=0.95, title='Approx. error of π')
     #'''
     
     return sim

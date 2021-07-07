@@ -10,6 +10,7 @@ from Monaco.MCVar import MCVar, MCInVar, MCOutVar
 from copy import copy
 from Monaco.helper_functions import get_iterable, slice_by_index, length
 from Monaco.gaussian_statistics import conf_ellipsoid_sig2pct
+from Monaco.integration_statistics import integration_error
 from typing import Union
 
 
@@ -384,23 +385,52 @@ def mc_plot_cov_corr(matrix    : np.ndarray,
 
 
 
-def mc_plot_convergence(mcvar   : MCVar, 
-                        refline : Union[int, float] = None,
-                        ax      : Union[None, Axes] = None, 
-                        title   : str               = '',
-                        ):
+def mc_plot_integration_convergence(mcoutvar : MCOutVar,
+                                    volume   : float,
+                                    refval   : Union[int, float]  = None,
+                                    conf     : float              = 0.95,
+                                    ax       : Union[None, Axes]  = None, 
+                                    title    : str                = '',
+                                    ):
     fig, ax = manage_axis(ax, is3d=False)
 
-    cummean = np.cumsum(mcvar.nums)/np.arange(1, mcvar.ncases+1)
-    if not refline is None:
-        plt.axhline(refline, color='k')
-    plt.plot(cummean)
+    if not refval is None:
+        ax.axhline(refval, color='k')
 
+    cummean = volume*np.cumsum(mcoutvar.nums)/np.arange(1, mcoutvar.ncases+1)
+    err = integration_error(isUnderCurve=mcoutvar.nums, volume=volume, runningError=True, conf=conf)
+    ax.plot(cummean,'r')
+    ax.plot(cummean+err, 'b')
+    ax.plot(cummean-err, 'b')
+    
     ax.set_xlabel('Sample #')
-    ax.set_ylabel(f'Convergence of {mcvar.name} Average')
+    ax.set_ylabel(f'Convergence of {mcoutvar.name} Integral')
+    ax.set_title(title)
+
+    return fig, ax
+
+
+
+def mc_plot_integration_error(mcoutvar : MCOutVar,
+                              volume   : float,
+                              refval   : float,
+                              conf     : float              = 0.95,
+                              ax       : Union[None, Axes]  = None, 
+                              title    : str                = '',
+                              ):
+    fig, ax = manage_axis(ax, is3d=False)
+
+    cummean = volume*np.cumsum(mcoutvar.nums)/np.arange(1, mcoutvar.ncases+1)
+    err = integration_error(isUnderCurve=mcoutvar.nums, volume=volume, runningError=True, conf=conf)
+    ax.loglog(err, 'b')
+    ax.plot(np.abs(cummean - refval), 'r')
+    
+    ax.set_xlabel('Sample #')
+    ax.set_ylabel(f'{mcoutvar.name} {round(conf*100, 2)}% Confidence Error')
     plt.title(title)
 
     return fig, ax
+
 
 
 def manage_axis(ax   : Union[None, Axes], 

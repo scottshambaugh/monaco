@@ -10,7 +10,7 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     from scipy.stats import randint, norm
     from Monaco.MCVar import MCInVar, MCOutVar
-    from Monaco.mc_plot import mc_plot, mc_plot_hist, mc_plot_cdf, mc_plot_cov_corr, mc_plot_convergence
+    from Monaco.mc_plot import mc_plot, mc_plot_hist, mc_plot_cdf, mc_plot_cov_corr, mc_plot_integration_convergence, mc_plot_integration_error
     
     generator = np.random.RandomState(74494861)
     invarseeds = generator.randint(0, 2**31-1, size=10)
@@ -52,6 +52,8 @@ if __name__ == '__main__':
     
     mc_plot_cov_corr(np.array([[2, 0.1111, np.nan],[-0.19, -1, np.nan], [np.nan, np.nan, np.nan]]), ['Test1', 'Test2', 'Test3'])
 
-    mc_plot_convergence(mcinvars['norm'], refline=10)
+    mcinvars['randint2'] = MCInVar(name='randint2', ndraws=1000, dist=randint, distkwargs={'low':0, 'high':2}, samplemethod='random', seed=invarseeds[3])
+    mc_plot_integration_convergence(mcinvars['randint2'], volume=1, refval=0.5, conf=0.95)
+    mc_plot_integration_error(mcinvars['randint2'], volume=1, refval=0.5, conf=0.95)
 #'''
 

@@ -29,9 +29,9 @@ if __name__ == '__main__':
     err = integration_error(x, volume=2, runningError=True, conf=0.95)
     plt.figure()
     plt.hlines(0.5, 0, n, 'k')
-    plt.plot(cummean, 'b')
-    plt.plot(cummean+err, 'r')
-    plt.plot(cummean-err, 'r')
+    plt.plot(cummean, 'r')
+    plt.plot(cummean+err, 'b')
+    plt.plot(cummean-err, 'b')
     plt.ylim((0, 1))
     plt.ylabel(f'{round(conf*100, 2)}% Confidence Integration Bounds')
     
