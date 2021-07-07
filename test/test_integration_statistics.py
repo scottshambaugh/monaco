@@ -42,8 +42,8 @@ if __name__ == '__main__':
     
     n = int(2**15)
     conf = 0.95
-    seed = 2510604
-    midpoint = 5
+    seed = 25106011
+    midpoint = 1
     x1 = mc_sampling(ndraws=n, method='random', ninvar=1, seed=seed)*midpoint*2
     x2 = mc_sampling(ndraws=n, method='sobol', ninvar=1, seed=seed)*midpoint*2
     
@@ -51,24 +51,25 @@ if __name__ == '__main__':
     cummean2 = np.cumsum(x2)/np.arange(1 ,n+1)
     err1 = integration_error(x1, volume=1, conf=conf, samplemethod='random', runningError=True)
     err2 = integration_error(x2, volume=1, conf=conf, dimension=1, samplemethod='sobol', runningError=True)
+    alpha = 0.85
     plt.figure()
     plt.hlines(midpoint, 0, n, 'k')
-    plt.plot(cummean1, 'r')
-    plt.plot(cummean1+err1, 'b')
-    plt.plot(cummean1-err1, 'b')
-    plt.plot(cummean2, 'darkred')
-    plt.plot(cummean2+err2, 'darkblue')
-    plt.plot(cummean2-err2, 'darkblue')
-    plt.ylim((midpoint*0.9, midpoint*1.1))
+    h1, = plt.plot(cummean1, 'r', alpha=alpha)
+    h3, = plt.plot(cummean1+err1, 'b', alpha=alpha)
+    plt.plot(cummean1-err1, 'b', alpha=alpha)
+    h2, = plt.plot(cummean2, 'darkred', alpha=alpha)
+    h4, = plt.plot(cummean2+err2, 'darkblue', alpha=alpha)
+    plt.plot(cummean2-err2, 'darkblue', alpha=alpha)
+    plt.ylim((midpoint*0.975, midpoint*1.025))
     plt.ylabel(f'{round(conf*100, 2)}% Confidence Integration Bounds')
+    plt.legend([h3, h1, h4, h2], ['Random Error Bound', 'Random True Error', 'Sobol Error Bound', 'Sobol True Error'])
     
     plt.figure()
-    plt.plot(np.abs(cummean1 - midpoint), 'r')
-    plt.plot(np.abs(cummean2 - midpoint), 'darkred')
-    plt.loglog(err1, 'b')
-    plt.loglog(err2, 'darkblue')
+    h1, = plt.plot(np.abs(cummean1 - midpoint), 'r', alpha=alpha)
+    h2, = plt.plot(np.abs(cummean2 - midpoint), 'darkred', alpha=alpha)
+    h3, = plt.loglog(err1, 'b', alpha=alpha)
+    h4, = plt.loglog(err2, 'darkblue', alpha=alpha)
     plt.ylabel(f'{round(conf*100, 2)}% Confidence Absolute Error')
-    plt.text(1e1, 1e-4, 'Sobol Sampling')
-    plt.text(1e3, 1e0, 'Random Sampling')
+    plt.legend([h3, h1, h4, h2], ['Random Error Bound', 'Random True Error', 'Sobol Error Bound', 'Sobol True Error'])
     
 #'''

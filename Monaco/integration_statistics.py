@@ -45,7 +45,6 @@ def integration_error(nums         : list[float],
         
         error1sig[error1sig == 0] = max(error1sig) # Leading zeros will throw off plots, fill with reasonable dummy data
 
-    
     error = error1sig*pct2sig(conf)
     return error
 
