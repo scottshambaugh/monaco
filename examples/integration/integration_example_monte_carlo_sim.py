@@ -64,7 +64,7 @@ def integration_example_monte_carlo_sim():
     underCurvePct = sum(sim.mcoutvars['pi_est'].nums)/ndraws # Note that (True,False) vals are automatically valmapped to the nums (1,0)
     err = integration_error(sim.mcoutvars['pi_est'].nums, volume=totalArea, runningError=False, conf=conf)
 
-    resultsstr = f'π ≈ {underCurvePct*totalArea}, n = {ndraws}, {round(conf*100, 2)}% error = ±{err:0.5f}'
+    resultsstr = f'π ≈ {underCurvePct*totalArea:0.5f}, n = {ndraws}, {round(conf*100, 2)}% error = ±{err:0.5f}'
     print(resultsstr)
     
     '''
