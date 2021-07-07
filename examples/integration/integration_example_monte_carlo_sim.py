@@ -28,29 +28,30 @@ fcns ={'preprocess' :integration_example_preprocess,   \
 xrange = [-1, 1]
 yrange = [-1, 1]
 totalArea = (xrange[1] - xrange[0])*(yrange[1] - yrange[0])
-
-# Maximum Error bound:
-# Sobol sampling will give much faster convergence than random. But for random 
-# sampling, we can determine how many samples we would need to reach an absolute
-# error of 0.01 at 95% confidence. 
-# A-priori, we do not know the standard deviation, so best practice is to use 
-# the maximum possible gives the low and high values in your range, and the 
-# a-posteriori error will be better than this since the actual variance is known.
-# You can bootstrap the standard deviation by running a shorter sim and extracting
-# stdev from there
-error = 0.01
-conf = 0.95
-stdev = max_stdev(low=0, high=1)
-nIfRandom = integration_n_from_err(error=error, volume=totalArea, stdev=stdev, conf=conf)
-print(f'Number of samples needed to reach an error ≤ ±{error} at {round(conf*100, 2)}% confidence if using random sampling: {nIfRandom}')
+dimension = 2
 
 # Integration best practices:
 savecasedata = False                 # File I/O will crush performance, so recommended not to save case data
 samplemethod = 'sobol'               # Use 'sobol' over 'sobol_random' for a speedup, since all our dists are uniform
-ndraws = next_power_of_2(nIfRandom)  # The sobol methods need to be a power of 2 for best performance and balance
 firstcaseisnom = False               # Since we want a power of 2, we should not run a 'nominal' case which would add 1
 
-seed=12362397
+# Maximum Error bound:
+# Sobol sampling will give much faster convergence than random.
+# A-priori, we do not know the standard deviation, so best practice is to use 
+# the maximum possible gives the low and high values in your range, and the 
+# a-posteriori error will be better than this since the actual variance is known.
+# You can bootstrap the standard deviation by running a shorter sim and extracting
+# stdev from there.
+error = 0.01
+conf = 0.95
+stdev = max_stdev(low=0, high=1)
+print(f'Maximum possible standard deviation: {stdev:0.3f}')
+nRandom = integration_n_from_err(error=error, volume=totalArea, stdev=stdev, conf=conf, samplemethod='random')
+nSobol  = integration_n_from_err(error=error, volume=totalArea, stdev=stdev, conf=conf, dimension=dimension, samplemethod='sobol')
+print(f'Number of samples needed to reach an error ≤ ±{error} at {round(conf*100, 2)}% confidence if using random vs sobol sampling: {nRandom} vs {nSobol}')
+ndraws = next_power_of_2(nSobol)  # The sobol methods need to be a power of 2 for best performance and balance
+
+seed=123639
 
 def integration_example_monte_carlo_sim():
 
@@ -62,9 +63,10 @@ def integration_example_monte_carlo_sim():
     sim.runSim()
     
     underCurvePct = sum(sim.mcoutvars['pi_est'].nums)/ndraws # Note that (True,False) vals are automatically valmapped to the nums (1,0)
-    err = integration_error(sim.mcoutvars['pi_est'].nums, volume=totalArea, runningError=False, conf=conf)
-
-    resultsstr = f'π ≈ {underCurvePct*totalArea:0.5f}, n = {ndraws}, {round(conf*100, 2)}% error = ±{err:0.5f}'
+    err = integration_error(sim.mcoutvars['pi_est'].nums, volume=totalArea, runningError=False, conf=conf, dimension=dimension, samplemethod=samplemethod)
+    stdev = np.std(sim.mcoutvars['pi_est'].nums, ddof=1)
+    
+    resultsstr = f'π ≈ {underCurvePct*totalArea:0.5f}, n = {ndraws}, {round(conf*100, 2)}% error = ±{err:0.5f}, stdev={stdev:0.3f}'
     print(resultsstr)
     
     '''
@@ -75,9 +77,9 @@ def integration_example_monte_carlo_sim():
     ax.axis('equal')
     plt.title(resultsstr)
     
-    fig, ax = mc_plot_integration_convergence(sim.mcoutvars['pi_est'], refval=np.pi, volume=totalArea, conf=0.95, title='Approx. value of π')
+    fig, ax = mc_plot_integration_convergence(sim.mcoutvars['pi_est'], refval=np.pi, volume=totalArea, conf=0.95, title='Approx. value of π', dimension=dimension, samplemethod=samplemethod)
     ax.set_ylim((3.10, 3.18))
-    fig, ax = mc_plot_integration_error(sim.mcoutvars['pi_est'], refval=np.pi, volume=totalArea, conf=0.95, title='Approx. error of π')
+    fig, ax = mc_plot_integration_error(sim.mcoutvars['pi_est'], refval=np.pi, volume=totalArea, conf=0.95, title='Approx. error of π', dimension=dimension, samplemethod=samplemethod)
     #'''
     
     return sim

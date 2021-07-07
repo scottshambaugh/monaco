@@ -48,4 +48,5 @@ What sampling method should you use? ```sobol_random``` has been shown in litera
 * [Roberts, Martin. "The Unreasonable Effectiveness of Quasirandom Sequences." Extreme Learning, 25 April 2018](http://extremelearning.com.au/unreasonable-effectiveness-of-quasirandom-sequences/)
 * [Perrier, Hélène, et al. "Sequences with low‐discrepancy blue‐noise 2‐D projections." Computer Graphics Forum. Vol. 37. No. 2. 2018.](https://onlinelibrary.wiley.com/doi/abs/10.1111/cgf.13366)
 * [Owen, Art B. "On dropping the first Sobol'point." arXiv preprint arXiv:2008.08051 (2020).](https://arxiv.org/abs/2008.08051)
+* [Morokoff, William J., and Russel E. Caflisch. "Quasi-random sequences and their discrepancies." SIAM Journal on Scientific Computing 15.6 (1994): 1251-1279.](https://epubs.siam.org/doi/pdf/10.1137/0915077))
 * [Chrisman, Lonnie. "Latin Hypercube vs. Monte Carlo Sampling." Analytica, 23 July 2014](https://lumina.com/latin-hypercube-vs-monte-carlo-sampling/)

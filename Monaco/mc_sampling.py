@@ -11,7 +11,7 @@ def mc_sampling(ndraws     : int,
                 ninvar     : int = None,
                 ninvar_max : int = None,
                 seed       : int = np.random.get_state()[1][0],
-                ) -> list[float]:
+                ) -> np.ndarray:
     if ninvar_max is None:
         ninvar_max = ninvar
 

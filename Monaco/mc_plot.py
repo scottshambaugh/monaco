@@ -385,12 +385,14 @@ def mc_plot_cov_corr(matrix    : np.ndarray,
 
 
 
-def mc_plot_integration_convergence(mcoutvar : MCOutVar,
-                                    volume   : float,
-                                    refval   : Union[int, float]  = None,
-                                    conf     : float              = 0.95,
-                                    ax       : Union[None, Axes]  = None, 
-                                    title    : str                = '',
+def mc_plot_integration_convergence(mcoutvar     : MCOutVar,
+                                    volume       : float,
+                                    refval       : Union[int, float] = None,
+                                    conf         : float             = 0.95,
+                                    dimension    : int               = None,
+                                    samplemethod : str               = 'random', # 'random' or 'sobol'
+                                    ax           : Union[None, Axes] = None, 
+                                    title        : str               = '',
                                     ):
     fig, ax = manage_axis(ax, is3d=False)
 
@@ -398,7 +400,7 @@ def mc_plot_integration_convergence(mcoutvar : MCOutVar,
         ax.axhline(refval, color='k')
 
     cummean = volume*np.cumsum(mcoutvar.nums)/np.arange(1, mcoutvar.ncases+1)
-    err = integration_error(nums=mcoutvar.nums, volume=volume, runningError=True, conf=conf)
+    err = integration_error(nums=mcoutvar.nums, volume=volume, conf=conf, dimension=dimension, samplemethod=samplemethod, runningError=True)
     ax.plot(cummean,'r')
     ax.plot(cummean+err, 'b')
     ax.plot(cummean-err, 'b')
@@ -411,17 +413,19 @@ def mc_plot_integration_convergence(mcoutvar : MCOutVar,
 
 
 
-def mc_plot_integration_error(mcoutvar : MCOutVar,
-                              volume   : float,
-                              refval   : float,
-                              conf     : float              = 0.95,
-                              ax       : Union[None, Axes]  = None, 
-                              title    : str                = '',
+def mc_plot_integration_error(mcoutvar     : MCOutVar,
+                              volume       : float,
+                              refval       : float,
+                              conf         : float             = 0.95,
+                              dimension    : int               = None,
+                              samplemethod : str               = 'random', # 'random' or 'sobol'
+                              ax           : Union[None, Axes] = None, 
+                              title        : str               = '',
                               ):
     fig, ax = manage_axis(ax, is3d=False)
 
     cummean = volume*np.cumsum(mcoutvar.nums)/np.arange(1, mcoutvar.ncases+1)
-    err = integration_error(nums=mcoutvar.nums, volume=volume, runningError=True, conf=conf)
+    err = integration_error(nums=mcoutvar.nums, volume=volume, conf=conf, dimension=dimension, samplemethod=samplemethod, runningError=True)
     ax.loglog(err, 'b')
     ax.plot(np.abs(cummean - refval), 'r')
     
