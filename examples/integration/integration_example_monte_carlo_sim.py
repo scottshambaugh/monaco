@@ -1,7 +1,7 @@
 from scipy.stats import uniform
 from Monaco.MCSim import MCSim
 from Monaco.helper_functions import next_power_of_2
-from Monaco.integration_statistics import integration_n_from_err
+from Monaco.integration_statistics import integration_error, integration_n_from_err, max_stdev
 import numpy as np
 
 # Define our functions
@@ -11,6 +11,9 @@ def integration_example_preprocess(mccase):
     return (x, y)
 
 def integration_example_run(x, y):
+    # Note that you can return True/False for simple area integrals (since these
+    # vals automatically get valmapped to the nums 1/0), but best practice is to 
+    # return the value of the function at each sample point.
     isUnderCurve = x**2 + y**2 < 1
     return isUnderCurve
 
@@ -29,17 +32,23 @@ totalArea = (xrange[1] - xrange[0])*(yrange[1] - yrange[0])
 # Maximum Error bound:
 # Sobol sampling will give much faster convergence than random. But for random 
 # sampling, we can determine how many samples we would need to reach an absolute
-# error of 0.01 at 95% confidence
+# error of 0.01 at 95% confidence. 
+# A-priori, we do not know the standard deviation, so best practice is to use 
+# the maximum possible gives the low and high values in your range, and the 
+# a-posteriori error will be better than this since the actual variance is known.
+# You can bootstrap the standard deviation by running a shorter sim and extracting
+# stdev from there
 error = 0.01
 conf = 0.95
-nIfRandom = integration_n_from_err(error=error, volume=totalArea, conf=conf)
-print(f'Number of samples needed to reach an error < {error} if using random sampling: {nIfRandom}')
+stdev = max_stdev(low=0, high=1)
+nIfRandom = integration_n_from_err(error=error, volume=totalArea, stdev=stdev, conf=conf)
+print(f'Number of samples needed to reach an error ≤ ±{error} at {round(conf*100, 2)}% confidence if using random sampling: {nIfRandom}')
 
 # Integration best practices:
-savecasedata = False           # File I/O will crush performance, so recommended not to save case data
-samplemethod = 'sobol'         # Use 'sobol' over 'sobol_random' for a speedup, since all our dists are uniform
-ndraws = next_power_of_2(1e5)  # The sobol methods need to be a power of 2 for best performance and balance
-firstcaseisnom = False         # Since we want a power of 2, we should not run a 'nominal' case which would add 1
+savecasedata = False                 # File I/O will crush performance, so recommended not to save case data
+samplemethod = 'sobol'               # Use 'sobol' over 'sobol_random' for a speedup, since all our dists are uniform
+ndraws = next_power_of_2(nIfRandom)  # The sobol methods need to be a power of 2 for best performance and balance
+firstcaseisnom = False               # Since we want a power of 2, we should not run a 'nominal' case which would add 1
 
 seed=12362397
 
@@ -53,8 +62,9 @@ def integration_example_monte_carlo_sim():
     sim.runSim()
     
     underCurvePct = sum(sim.mcoutvars['pi_est'].nums)/ndraws # Note that (True,False) vals are automatically valmapped to the nums (1,0)
+    err = integration_error(sim.mcoutvars['pi_est'].nums, volume=totalArea, runningError=False, conf=conf)
 
-    resultsstr = f'π ≈ {underCurvePct*totalArea}, n = {ndraws}'
+    resultsstr = f'π ≈ {underCurvePct*totalArea}, n = {ndraws}, {round(conf*100, 2)}% error = ±{err:0.5f}'
     print(resultsstr)
     
     '''
@@ -65,9 +75,9 @@ def integration_example_monte_carlo_sim():
     ax.axis('equal')
     plt.title(resultsstr)
     
-    fig, ax = mc_plot_integration_convergence(sim.mcoutvars['pi_est'], refval = np.pi, volume=totalArea, conf=0.95, title='Approx. value of π')
-    ax.set_ylim((3.1, 3.2))
-    fig, ax = mc_plot_integration_error(sim.mcoutvars['pi_est'], refval = np.pi, volume=totalArea, conf=0.95, title='Approx. error of π')
+    fig, ax = mc_plot_integration_convergence(sim.mcoutvars['pi_est'], refval=np.pi, volume=totalArea, conf=0.95, title='Approx. value of π')
+    ax.set_ylim((3.10, 3.18))
+    fig, ax = mc_plot_integration_error(sim.mcoutvars['pi_est'], refval=np.pi, volume=totalArea, conf=0.95, title='Approx. error of π')
     #'''
     
     return sim
