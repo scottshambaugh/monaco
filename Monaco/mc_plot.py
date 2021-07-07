@@ -17,11 +17,11 @@ from typing import Union
 def mc_plot(mcvarx   : MCVar, 
             mcvary   : Union[None, MCVar] = None, 
             mcvarz   : Union[None, MCVar] = None, 
-            cases                         = None, # TODO: typing 
-            highlight_cases               = [],   # TODO: typing 
+            cases           : Union[None, int, list[int], set[int]] = None, # All cases 
+            highlight_cases : Union[None, int, list[int], set[int]] = [],   # No cases 
             rug_plot : bool               = False, 
             cov_plot : bool               = False,
-            cov_p                         = None,  # TODO: typing 
+            cov_p    : Union[None, float, list[float], set[float]]  = None,
             ax       : Union[None, Axes]  = None, 
             title    : str                = '',
             ):
@@ -97,7 +97,7 @@ def mc_plot(mcvarx   : MCVar,
 
 
 def mc_plot_hist(mcvar       : MCVar, 
-                 highlight_cases                 = [], # TODO: typing
+                 highlight_cases : Union[None, int, list[int], set[int]] = [], # No cases
                  cumulative  : bool              = False,
                  orientation : str               = 'vertical', # 'vertical' or 'horizontal'
                  rug_plot    : bool              = True,
@@ -200,7 +200,7 @@ def mc_plot_hist(mcvar       : MCVar,
 
 
 def mc_plot_cdf(mcvar       : MCVar, 
-                highlight_cases                 = [],         # TODO: typing
+                highlight_cases : Union[None, int, list[int], set[int]] = [], # No cases
                 orientation : str               = 'vertical', # 'vertical' or 'horizontal'
                 rug_plot    : bool              = True,
                 ax          : Union[None, Axes] = None, 
@@ -212,11 +212,11 @@ def mc_plot_cdf(mcvar       : MCVar,
 
 def mc_plot_2d_scatter(mcvarx   : MCVar, 
                        mcvary   : MCVar, 
-                       cases                         = None,  # TODO: typing 
-                       highlight_cases               = [],    # TODO: typing
+                       cases           : Union[None, int, list[int], set[int]] = None,  # All cases 
+                       highlight_cases : Union[None, int, list[int], set[int]] = [],    # No cases
                        rug_plot : bool               = False,
                        cov_plot : bool               = False,
-                       cov_p                         = None,  # TODO: typing 
+                       cov_p    : Union[None, float, list[float], set[float]]  = None,
                        ax       : Union[None, Axes]  = None, 
                        title    : str                = '',
                        ):
@@ -254,8 +254,8 @@ def mc_plot_2d_scatter(mcvarx   : MCVar,
 
 def mc_plot_2d_line(mcvarx : MCVar, 
                     mcvary : MCVar, 
-                    cases                      = None, # TODO: typing 
-                    highlight_cases            = [],   # TODO: typing
+                    cases           : Union[None, int, list[int], set[int]] = None, # All cases 
+                    highlight_cases : Union[None, int, list[int], set[int]] = [],   # No cases
                     ax     : Union[None, Axes] = None, 
                     title  : str               = '',
                     ):
@@ -291,8 +291,8 @@ def mc_plot_2d_line(mcvarx : MCVar,
 def mc_plot_3d_scatter(mcvarx : MCVar, 
                        mcvary : MCVar, 
                        mcvarz : MCVar, 
-                       cases                      = None, # TODO: typing 
-                       highlight_cases            = [],   # TODO: typing
+                       cases           : Union[None, int, list[int], set[int]] = None, # All cases 
+                       highlight_cases : Union[None, int, list[int], set[int]] = [],   # No cases
                        ax     : Union[None, Axes] = None, 
                        title  : str               = '',
                        ):
@@ -322,8 +322,8 @@ def mc_plot_3d_scatter(mcvarx : MCVar,
 def mc_plot_3d_line(mcvarx : MCVar, 
                     mcvary : MCVar, 
                     mcvarz : MCVar, 
-                    cases                      = None, # TODO: typing 
-                    highlight_cases            = [],   # TODO: typing
+                    cases           : Union[None, int, list[int], set[int]] = None, # All cases 
+                    highlight_cases : Union[None, int, list[int], set[int]] = [],   # No cases
                     ax     : Union[None, Axes] = None, 
                     title  : str               = '',
                     ):
@@ -349,7 +349,7 @@ def mc_plot_3d_line(mcvarx : MCVar,
 
 
 def mc_plot_cov_corr(matrix    : np.ndarray, 
-                     varnames, # TODO: typing 
+                     varnames  : list[str],
                      ax        : Union[None, Axes] = None, 
                      title     : str               = '',
                      ):
@@ -464,7 +464,7 @@ def get_hist_lim(orientation : str,  # 'vertical' or 'horizontal' ,
 
 def plot_rug_marks(ax          : Union[None, Axes], 
                    orientation : str, # 'vertical' or 'horizontal' 
-                   nums,              # TODO: typing
+                   nums        : Union[list[int], list[float]]
                    ):
     xlim = ax.get_xlim()
     ylim = ax.get_ylim()
@@ -506,7 +506,7 @@ def plot_2d_cov_ellipse(ax     : Union[None, Axes],
 
 
 def get_cases(ncases : int, 
-              cases, # TODO: typing
+              cases  : Union[None, int, list[int], set[int]],
               ):
     if cases is None:
         cases = list(range(ncases))

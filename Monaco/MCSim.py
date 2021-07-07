@@ -167,7 +167,7 @@ class MCSim:
 
 
     def genCases(self,
-                 cases = None, #TODO: typing
+                 cases : Union[None, int, list[int], set[int]] = None,
                  ):
         self.genCaseSeeds()
         
@@ -204,7 +204,7 @@ class MCSim:
 
 
     def preProcessCases(self, 
-                        cases, #TODO: typing
+                        cases : Union[None, int, list[int], set[int]],
                         ):
         cases = self.downselectCases(cases=cases)
         
@@ -336,7 +336,7 @@ class MCSim:
 
 
     def runSim(self, 
-               cases : Union[None, list[int]] = None,
+               cases : Union[None, int, list[int], set[int]] = None,
                ):
         cases = self.downselectCases(cases=cases)
         casestogenerate = cases
@@ -349,10 +349,10 @@ class MCSim:
 
 
     def runSimWorker(self, 
-                     casestogenerate,    # TODO: typing
-                     casestopreprocess,  # TODO: typing
-                     casestorun,         # TODO: typing 
-                     casestopostprocess, # TODO: typing
+                     casestogenerate    : Union[None, int, list[int], set[int]],
+                     casestopreprocess  : Union[None, int, list[int], set[int]],
+                     casestorun         : Union[None, int, list[int], set[int]],
+                     casestopostprocess : Union[None, int, list[int], set[int]],
                      ):            
         self.starttime = datetime.now()
 
@@ -385,7 +385,7 @@ class MCSim:
 
 
     def downselectCases(self, 
-                        cases = None, # TODO: typing
+                        cases : Union[None, int, list[int], set[int]] = None,
                         ) -> set[int]:
         if cases is None:
             cases = set(range(self.ncases))
@@ -395,7 +395,7 @@ class MCSim:
 
 
     def runCases(self, 
-                 cases, # TODO: typing
+                 cases            : Union[None, int, list[int], set[int]],
                  calledfromrunsim : bool = False):
         cases = self.downselectCases(cases=cases)
         
@@ -431,7 +431,7 @@ class MCSim:
 
 
     def postProcessCases(self, 
-                         cases, #TODO: typing
+                         cases : Union[None, int, list[int], set[int]],
                          ):
         cases = self.downselectCases(cases=cases)
         

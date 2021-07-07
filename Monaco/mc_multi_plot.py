@@ -9,11 +9,11 @@ from typing import Union
 
 def mc_multi_plot(mcvarx   : MCVar, 
                   mcvary   : MCVar,
-                  cases                          = None, # TODO: typing
-                  highlight_cases                = [],   # TODO: typing
+                  cases           : Union[None, int, list[int], set[int]] = None, # All cases
+                  highlight_cases : Union[None, int, list[int], set[int]] = [],   # No cases
                   rug_plot : bool                = True,
                   cov_plot : bool                = True,
-                  cov_p                          = None,  # TODO: typing 
+                  cov_p    : Union[None, float, list[float], set[float]]  = None,
                   fig      : Union[None, Figure] = None, 
                   title    : str                 = '',
                   ):
@@ -39,11 +39,11 @@ def mc_multi_plot(mcvarx   : MCVar,
 
 def mc_multi_plot_2d_scatter_hist(mcvarx     : MCVar, 
                                   mcvary     : MCVar,
-                                  cases                            = None, # TODO: typing
-                                  highlight_cases                  = [],   # TODO: typing
+                                  cases           : Union[None, int, list[int], set[int]] = None, # All cases
+                                  highlight_cases : Union[None, int, list[int], set[int]] = [],   # No cases
                                   rug_plot   : bool                = True,
                                   cov_plot   : bool                = True,
-                                  cov_p                            = None,  # TODO: typing 
+                                  cov_p      : Union[None, float, list[float], set[float]]  = None,
                                   cumulative : bool                = False,
                                   fig        : Union[None, Figure] = None, 
                                   title      : str                 = '',
