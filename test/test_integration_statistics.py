@@ -62,6 +62,10 @@ if __name__ == '__main__':
     plt.plot(cummean2-err2, 'darkblue', alpha=alpha)
     plt.ylim((midpoint*0.975, midpoint*1.025))
     plt.ylabel(f'{round(conf*100, 2)}% Confidence Integration Bounds')
+<<<<<<< HEAD
+=======
+    plt.xlabel('Sample #')
+>>>>>>> develop
     plt.legend([h3, h1, h4, h2], ['Random Error Bound', 'Random True Error', 'Sobol Error Bound', 'Sobol True Error'])
     
     plt.figure()
@@ -70,6 +74,10 @@ if __name__ == '__main__':
     h3, = plt.loglog(err1, 'b', alpha=alpha)
     h4, = plt.loglog(err2, 'darkblue', alpha=alpha)
     plt.ylabel(f'{round(conf*100, 2)}% Confidence Absolute Error')
+<<<<<<< HEAD
+=======
+    plt.xlabel('Sample #')
+>>>>>>> develop
     plt.legend([h3, h1, h4, h2], ['Random Error Bound', 'Random True Error', 'Sobol Error Bound', 'Sobol True Error'])
     
 #'''
