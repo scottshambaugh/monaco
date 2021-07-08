@@ -1,18 +1,24 @@
+# pooling_speed_testing.py
+
 from pathos.pools import ProcessPool
 from pathos.pools import ThreadPool
 from pathos.pools import ParallelPool
 from pathos.pools import SerialPool
 from multiprocessing import Pool
 from Monaco.helper_functions import timeit
-from time import time
 
-from time import sleep
 def slowfcn(n):
+    from time import sleep
     sleep(1.0)
 
 @timeit
 def test(n,p):
     (p.map(slowfcn, range(n)))
+
+@timeit
+def forloop(n):
+    for i in range(n):
+        slowfcn(i)
 
 def main():
     npool = 4
@@ -24,11 +30,7 @@ def main():
 
     nloops = 8
     print('For Loop')
-    t0 = time()
-    for i in range(nloops):
-        slowfcn(i)
-    t1 = time()
-    print (f'"test" took {(t1 - t0)*1000 : .3f} ms to execute.\n')
+    forloop(nloops)
     print('ThreadPool')
     test(nloops,tpool)
     print('ParallelPool')
