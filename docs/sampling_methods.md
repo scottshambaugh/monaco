@@ -30,11 +30,11 @@ Also implemented for completeness are the ```halton```, ```halton_random```, and
 What sampling method should you use? ```sobol_random``` has been shown in literature to generally give the best results with fastest convergence, so it is the default. Make sure to use a power of 2 for the number of draws if performing integration. If you are drawing only from uniform distributions, you can fall back to ```sobol``` for a speedup.  ```random``` sampling should only be used as a teaching tool, if a flat frequency spectra is critical, or if the sampling time is otherwise prohibitively long. The others should not be used.
 
 ### Integration
-For integration, random sampling will converge at a big O rate of <img src="https://render.githubusercontent.com/render/math?math=O(\frac{1}{\sqrt{n}})">, while sobol sampling over *d* dimensions will converge at the faster <img src="https://render.githubusercontent.com/render/math?math=O(\frac{\log(n)^d}{n})">. Here are the error plots for a 1-dimensional integral with a true area of 1.
+For integration, random sampling will converge at a big O rate of <img src="https://render.githubusercontent.com/render/math?math=O(\frac{1}{\sqrt{n}})">, while sobol sampling over *d* dimensions will eventually converge at the faster <img src="https://render.githubusercontent.com/render/math?math=O(\frac{\log(n)^d}{n})">. However, the *n* required to reach this convergence rate grows superexponentially with *d*, and for integrals larger than 3 dimensions sobol sampling will generally perform no better than random. So, if *d ≥ 4*, it is recommended to use random sampling for the speedup. Here are the error plots for a 2-D integral of the unit circle (which converges to π).
 
 <p float="left" align="center">
-<img width="440" height="300" src="random_vs_sobol_convergence.png">  
-<img width="440" height="300" src="random_vs_sobol_error.png">  
+<img width="440" height="300" src="random_vs_sobol_convergence.png">
+<img width="440" height="300" src="random_vs_sobol_error.png">
 </p>
 
 ### Comparison Plots
