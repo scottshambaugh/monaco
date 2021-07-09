@@ -46,16 +46,17 @@ error = 0.01
 conf = 0.95
 stdev = max_stdev(low=0, high=1)
 print(f'Maximum possible standard deviation: {stdev:0.3f}')
-nRandom = integration_n_from_err(error=error, volume=totalArea, stdev=stdev, conf=conf, samplemethod='random')
+nRandom = integration_n_from_err(error=error, volume=totalArea, stdev=stdev, conf=conf, dimension=dimension, samplemethod='random')
 nSobol  = integration_n_from_err(error=error, volume=totalArea, stdev=stdev, conf=conf, dimension=dimension, samplemethod='sobol')
 print(f'Number of samples needed to reach an error ≤ ±{error} at {round(conf*100, 2)}% confidence if using random vs sobol sampling: {nRandom} vs {nSobol}')
 ndraws = next_power_of_2(nSobol)  # The sobol methods need to be a power of 2 for best performance and balance
+print(f'Rounding up to next power of 2: {ndraws} samples')
 
 seed=123639
 
 def integration_example_monte_carlo_sim():
 
-    sim = MCSim(name='integration', ndraws=ndraws, fcns=fcns, firstcaseisnom=firstcaseisnom, samplemethod=samplemethod, seed=seed, cores=4, savecasedata=savecasedata, verbose=True, debug=True)
+    sim = MCSim(name='integration', ndraws=ndraws, fcns=fcns, firstcaseisnom=firstcaseisnom, samplemethod=samplemethod, seed=seed, cores=4, savecasedata=savecasedata, savesimdata=False, verbose=True, debug=True)
     
     sim.addInVar(name='x', dist=uniform, distkwargs={'loc':xrange[0], 'scale':(xrange[1] - xrange[0])}) # -1 <= x <= 1
     sim.addInVar(name='y', dist=uniform, distkwargs={'loc':yrange[0], 'scale':(yrange[1] - yrange[0])}) # -1 <= y <= 1

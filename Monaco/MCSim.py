@@ -101,7 +101,7 @@ class MCSim:
     def checkFcnsInput(self,
                        fcns: dict,
                        ):
-        if any(s not in fcns.keys() for s in ('preprocess', 'run', 'postprocess')):
+        if set(fcns.keys()) != {'preprocess', 'run', 'postprocess'}:
             raise ValueError(f"MCSim argument {fcns=} must have keys 'preprocess', 'run', and 'postprocess'")
         if any(not callable(f) for f in fcns.values()):
             raise ValueError(f"MCSim argument {fcns=} must contain functions as values")
@@ -164,20 +164,15 @@ class MCSim:
                cases : Union[None, int, list[int], set[int]] = None,
                ):
         cases = self.downselectCases(cases=cases)
-        casestogenerate = cases
-        casestopreprocess = cases
-        casestorun = cases
-        casestopostprocess = cases
-
-        vprint(self.verbose, f"Running '{self.name}' Monte Carlo simulation with {len(casestorun)}/{self.ncases} cases...", flush=True)
-        self.runSimWorker(casestogenerate=casestogenerate, casestopreprocess=casestopreprocess, casestorun=casestorun, casestopostprocess=casestopostprocess)
+        vprint(self.verbose, f"Running '{self.name}' Monte Carlo simulation with {len(cases)}/{self.ncases} cases...", flush=True)
+        self.runSimWorker(casestogenerate=cases, casestopreprocess=cases, casestorun=cases, casestopostprocess=cases)
 
 
     def runIncompleteSim(self):
-        casestopreprocess = set(range(self.ncases)) - self.casespreprocessed
-        casestorun = set(range(self.ncases)) - self.casesrun | casestopreprocess
-        casestopostprocess = set(range(self.ncases)) - self.casespostprocessed | casestopreprocess | casestorun
-        casestogenerate = casestopreprocess
+        casestopreprocess  = self.allCases() - self.casespreprocessed
+        casestorun         = self.allCases() - self.casesrun           | casestopreprocess
+        casestopostprocess = self.allCases() - self.casespostprocessed | casestopreprocess | casestorun
+        casestogenerate    = casestopreprocess
 
         vprint(self.verbose, f"Resuming incomplete '{self.name}' Monte Carlo simulation with " + \
                              f"{len(casestopostprocess)}/{self.ncases} cases remaining to preprocess, " + \
@@ -194,7 +189,7 @@ class MCSim:
                      ):            
         self.starttime = datetime.now()
 
-        if casestorun in (None, set(range(self.ncases))):
+        if casestorun in (None, self.allCases()):
             self.clearResults() # only clear results if we are rerunning all cases
 
         self.runsimid = self.genID()
@@ -215,7 +210,7 @@ class MCSim:
         self.endtime = datetime.now()
         self.runtime = self.endtime - self.starttime
         
-        vprint(self.verbose, f'\nRuntime: {self.runtime}', flush=True)
+        vprint(self.verbose, f'Simulation complete! Runtime: {self.runtime}', flush=True)
         
         if self.savesimdata:
             vprint(self.verbose, 'Saving sim results to file...', flush=True)
@@ -502,10 +497,15 @@ class MCSim:
                         cases : Union[None, int, list[int], set[int]] = None,
                         ) -> set[int]:
         if cases is None:
-            cases = set(range(self.ncases))
+            cases = self.allCases()
         else:
             cases = set(get_iterable(cases))
         return cases
+
+
+    def allCases(self) -> set[int]:
+        allCases = set(range(self.ncases))
+        return allCases
 
 
     def saveSimToFile(self):
@@ -520,9 +520,9 @@ class MCSim:
         vprint(self.verbose, f"{self.filepath} indicates {len(self.casesrun)}/{self.ncases} cases were run, attempting to load raw case data from disk...", end='\n', flush=True)
         self.mccases = []
         casesloaded = set()
-        casesstale = set()
-        casesnotloaded = set(range(self.ncases))
-        casesnotpostprocessed = set(range(self.ncases))
+        casesstale  = set()
+        casesnotloaded        = self.allCases()
+        casesnotpostprocessed = self.allCases()
         
         pbar = tqdm(total=len(self.casesrun), unit=' cases', desc='Loading', position=0)
         
@@ -551,17 +551,17 @@ class MCSim:
                 vwarn(self.verbose, f'{filepath.name} expected but not found')
             pbar.update(1)
         
-        self.casespreprocessed = set(casesloaded)
-        self.casesrun = set(casesloaded)
+        self.casespreprocessed  = set(casesloaded)
+        self.casesrun           = set(casesloaded)
         self.casespostprocessed = set(casesloaded) - casesnotpostprocessed
         pbar.refresh()
         pbar.close()
         vprint(self.verbose, f'\nData for {len(casesloaded)}/{self.ncases} cases loaded from disk', flush=True)
         
         if casesnotloaded != set():
-            vwarn(self.verbose, 'The following cases were not loaded: [' + ', '.join([str(i) for i in sorted(casesnotloaded)]) + ']')
+            vwarn(self.verbose, 'The following cases were not loaded: ['              + ', '.join([str(i) for i in sorted(casesnotloaded)]) + ']')
         if casesnotpostprocessed != set():
-            vwarn(self.verbose, 'The following cases have not been postprocessed: [' + ', '.join([str(i) for i in sorted(casesnotpostprocessed)]) + ']')
+            vwarn(self.verbose, 'The following cases have not been postprocessed: ['  + ', '.join([str(i) for i in sorted(casesnotpostprocessed)]) + ']')
         if casesstale != set():
             vwarn(self.verbose, 'The following cases were loaded but may be stale: [' + ', '.join([str(i) for i in sorted(casesstale)]) + ']')
         
