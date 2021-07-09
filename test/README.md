@@ -10,3 +10,4 @@ Here are the tests which generate plots that may need to be reviewed manually:
 
 Here are the tests which are diagnostic but do not test functionality:
 * pooling_speed_testing
+* n_sphere_sampling_testing

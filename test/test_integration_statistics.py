@@ -4,14 +4,14 @@ import pytest
 from Monaco.integration_statistics import integration_error, integration_n_from_err, max_variance, max_stdev
 
 def test_integration_error():
-    assert integration_error([1, 0, 2], conf=0.95, samplemethod='random', runningError=False) == pytest.approx(1.1315857)
-    assert integration_error([1, 0, 2], conf=0.95, samplemethod='random', runningError=True) == pytest.approx([1.1315857, 0.9799819, 1.1315857])
-    assert integration_error([1, 0, 2], conf=0.95, dimension=1, samplemethod='sobol', runningError=False) == pytest.approx(0.7177468)
-    assert integration_error([1, 0, 2], conf=0.95, dimension=1, samplemethod='sobol', runningError=True) == pytest.approx([0.7177468, 0.4803176, 0.7177468])
+    assert integration_error([1, 0, 2], conf=0.95, dimension=1, samplemethod='random', runningError=False) == pytest.approx(0.4619679)
+    assert integration_error([1, 0, 2], conf=0.95, dimension=1, samplemethod='random', runningError=True) == pytest.approx([0.8001519, 0.5657928, 0.4619679])
+    assert integration_error([1, 0, 2], conf=0.95, dimension=1, samplemethod='sobol',  runningError=False) == pytest.approx(0.4619679)
+    assert integration_error([1, 0, 2], conf=0.95, dimension=1, samplemethod='sobol',  runningError=True) == pytest.approx([0.4803176, 0.4803176, 0.4619679])
 
 
 def test_integration_n_from_err():
-    assert integration_n_from_err(error=0.01, volume=1, stdev=1, conf=0.95, samplemethod='random') == 38415
+    assert integration_n_from_err(error=0.01, volume=1, dimension=1, stdev=1, conf=0.95, samplemethod='random') == 38415
     assert integration_n_from_err(error=0.01, volume=1, dimension=1, stdev=1, conf=0.95, samplemethod='sobol') == 1424
 
 
@@ -31,12 +31,12 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     from Monaco.mc_sampling import mc_sampling
 
-    print(integration_error([1, 0, 2], conf=0.95, samplemethod='random', runningError=False))                  # Expected: 1.1315857
-    print(integration_error([1, 0, 2], conf=0.95, samplemethod='random', runningError=True))                   # Expected: [1.1315857, 0.9799819, 1.1315857]
-    print(integration_error([1, 0, 2], conf=0.95, dimension=1, samplemethod='sobol', runningError=False))      # Expected: 0.7177468
-    print(integration_error([1, 0, 2], conf=0.95, dimension=1, samplemethod='sobol', runningError=True))       # Expected: [0.7177468, 0.4803176, 0.7177468]
-    print(integration_n_from_err(error=0.01, volume=1, dimension=1, stdev=1, conf=0.95, samplemethod='sobol')) # Expected: 1424
-    print(integration_n_from_err(error=0.01, volume=1, stdev=1, conf=0.95, samplemethod='random'))             # Expected: 38415
+    print(integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod='random', runningError=False))      # Expected: 0.4619679
+    print(integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod='random', runningError=True))       # Expected: [0.8001519, 0.5657928, 0.4619679]
+    print(integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod='sobol',  runningError=False))      # Expected: 0.4619679
+    print(integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod='sobol',  runningError=True))       # Expected: [0.4803176, 0.4803176, 0.4619679]
+    print(integration_n_from_err(error=0.01, volume=1, dimension=1, stdev=1, conf=0.95, samplemethod='random')) # Expected: 38415
+    print(integration_n_from_err(error=0.01, volume=1, dimension=1, stdev=1, conf=0.95, samplemethod='sobol'))  # Expected: 1424
     print(max_variance(low=0, high=1))  # Expected: 0.25
     print(max_stdev(low=0, high=1))     # Expected: 0.5
     
@@ -49,8 +49,8 @@ if __name__ == '__main__':
     
     cummean1 = np.cumsum(x1)/np.arange(1 ,n+1)
     cummean2 = np.cumsum(x2)/np.arange(1 ,n+1)
-    err1 = integration_error(x1, volume=1, conf=conf, samplemethod='random', runningError=True)
-    err2 = integration_error(x2, volume=1, conf=conf, dimension=1, samplemethod='sobol', runningError=True)
+    err1 = integration_error(x1, dimension=1, volume=1, conf=conf, samplemethod='random', runningError=True)
+    err2 = integration_error(x2, dimension=1, volume=1, conf=conf, samplemethod='sobol', runningError=True)
     alpha = 0.85
     plt.figure()
     plt.hlines(midpoint, 0, n, 'k')

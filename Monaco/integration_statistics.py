@@ -6,9 +6,9 @@ from typing import Union
 from Monaco.gaussian_statistics import pct2sig
 
 def integration_error(nums         : list[float],
+                      dimension    : int, 
                       volume       : float            = 1,  # By default, returns an unscaled error
                       conf         : float            = 0.95,
-                      dimension    : Union[None, int] = None, # required only for samplemethod='sobol'
                       samplemethod : str              = 'random', # 'random' or 'sobol'
                       runningError : bool             = False,
                       ) -> Union[float, list[float]]:
@@ -21,10 +21,12 @@ def integration_error(nums         : list[float],
     
     elif not runningError:
         stdev = np.std(nums, ddof=1)
+        error1sig_random = volume*np.sqrt((2**(-1*dimension) - 3**(-1*dimension))/n)
         if samplemethod == 'random':
-            error1sig = volume*stdev/np.sqrt(n)
+            error1sig = error1sig_random
         elif samplemethod == 'sobol':
-            error1sig = volume*stdev*np.log(n)**dimension/n
+            error1sig_sobol = volume*stdev*np.log(n)**dimension/n
+            error1sig = np.minimum(error1sig_random, error1sig_sobol)
     
     else:
         # Use Welford's algorithm to calculate the running variance
@@ -38,10 +40,12 @@ def integration_error(nums         : list[float],
         variances[1:] = S[1:]/np.arange(1, n)
         stdevs = np.sqrt(variances)
                 
+        error1sig_random = volume*np.sqrt((2**(-1*dimension) - 3**(-1*dimension))/np.arange(1, n+1))
         if samplemethod == 'random':
-            error1sig = volume*stdevs/np.sqrt(np.arange(1, n+1))
+            error1sig = error1sig_random
         elif samplemethod == 'sobol':
-            error1sig = volume*stdevs*np.log(np.arange(1, n+1))**dimension/np.arange(1, n+1)
+            error1sig_sobol = volume*stdevs*np.log(np.arange(1, n+1))**dimension/np.arange(1, n+1)
+            error1sig = np.minimum(error1sig_random, error1sig_sobol)
         
         error1sig[error1sig == 0] = max(error1sig) # Leading zeros will throw off plots, fill with reasonable dummy data
 
@@ -51,9 +55,9 @@ def integration_error(nums         : list[float],
 
 def integration_n_from_err(error        : float,
                            volume       : float,
-                           stdev        : float, 
+                           dimension    : int,
                            conf         : float            = 0.95,
-                           dimension    : Union[None, int] = None, # required only for samplemethod='sobol'
+                           stdev        : float            = None, # required only for samplemethod='sobol' 
                            samplemethod : str              = 'random', # 'random' or 'sobol'
                            ) -> int:
     # We generally do not know a-priori what the standard deviation will be, so
@@ -65,16 +69,20 @@ def integration_n_from_err(error        : float,
     
     integration_args_check(error=error, volume=volume, stdev=stdev, conf=conf, samplemethod=samplemethod, dimension=dimension)
     
+    n_random = (volume*pct2sig(conf)*stdev/error)**2
     if samplemethod == 'random':
-        n = (volume*pct2sig(conf)*stdev/error)**2
+        n = n_random
     elif samplemethod == 'sobol':
         def f(n):
             return volume*stdev*pct2sig(conf)*np.log(n)**dimension/n - error
         try:
             rootResults = root_scalar(f, method='brentq', bracket=[2**8, 2**31-1], xtol=0.1, maxiter=int(1e3))
-            n = rootResults.root
-        except Exception:
-            raise ValueError(f"Cannot reach error tolerance of ±{error}. Adjust error tolerance or fall back to samplemethod='random'")
+            n_sobol = rootResults.root
+            n = np.min([n_random, n_sobol])
+        except:
+            # For higher than 3 dimensions, reaching n may be difficult, and will be much larger than n_random anyways
+            # warn(f"Cannot reach error tolerance of ±{error}. Falling back to samplemethod='random'")
+            n = n_random
         
     n = int(np.ceil(n))
     return n
@@ -85,7 +93,7 @@ def integration_args_check(error        : float,
                            stdev        : float, 
                            conf         : float,
                            samplemethod : str,
-                           dimension    : Union[None, int],
+                           dimension    : int,
                           ):
     if (not error is None) and (error < 0):
         raise ValueError(f"{error=} must be positive")
@@ -97,8 +105,8 @@ def integration_args_check(error        : float,
         raise ValueError(f"{conf=} must be between 0 and 1")
     if samplemethod not in ('random', 'sobol'):
         raise ValueError(f"{samplemethod=} must be either 'random', or 'sobol'")
-    if samplemethod == 'sobol' and (dimension is None or dimension < 1):
-        raise ValueError(f'{dimension=} must be a positive integer defined for {samplemethod=}')
+    if dimension < 1:
+        raise ValueError(f'{dimension=} must be a positive integer')
 
 
 def max_variance(low  : float,

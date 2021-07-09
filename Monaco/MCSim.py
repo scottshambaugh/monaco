@@ -210,7 +210,7 @@ class MCSim:
         self.endtime = datetime.now()
         self.runtime = self.endtime - self.starttime
         
-        vprint(self.verbose, f'\nRuntime: {self.runtime}', flush=True)
+        vprint(self.verbose, f'Simulation complete! Runtime: {self.runtime}', flush=True)
         
         if self.savesimdata:
             vprint(self.verbose, 'Saving sim results to file...', flush=True)
