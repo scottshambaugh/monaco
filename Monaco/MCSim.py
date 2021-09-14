@@ -7,21 +7,28 @@ import pathlib
 from datetime import datetime
 from Monaco.MCCase import MCCase
 from Monaco.MCVar import MCInVar, MCOutVar
+from Monaco.mc_sampling import SampleMethod
 from Monaco.helper_functions import get_iterable, slice_by_index, vprint, vwarn, vwrite, hash_str_repeatable
 from psutil import cpu_count
 from pathos.pools import ThreadPool as Pool
 from tqdm import tqdm
 from typing import Callable, Union, Any
 from scipy.stats import rv_continuous, rv_discrete
+from enum import Enum, auto
+
+class MCFunctions(Enum):
+    PREPROCESS  = auto()
+    RUN         = auto()
+    POSTPROCESS = auto()
 
 
 class MCSim:
     def __init__(self, 
                  name           : str, 
                  ndraws         : int, 
-                 fcns           : dict[str, Callable], # fcns is a dict with keys 'preprocess', 'run', 'postprocess'
+                 fcns           : dict[MCFunctions, Callable], # fcns is a dict with keys MCFunctions.PREPROCESS, RUN, and POSTPROCESS
                  firstcaseisnom : bool = False, 
-                 samplemethod   : str  = 'sobol_random',
+                 samplemethod   : SampleMethod  = SampleMethod.SOBOL_RANDOM,
                  seed           : int  = np.random.get_state()[1][0], 
                  cores          : int  = cpu_count(logical=False), 
                  verbose        : bool = True,
@@ -101,8 +108,8 @@ class MCSim:
     def checkFcnsInput(self,
                        fcns: dict,
                        ):
-        if set(fcns.keys()) != {'preprocess', 'run', 'postprocess'}:
-            raise ValueError(f"MCSim argument {fcns=} must have keys 'preprocess', 'run', and 'postprocess'")
+        if set(fcns.keys()) != {MCFunctions.PREPROCESS, MCFunctions.RUN, MCFunctions.POSTPROCESS}:
+            raise ValueError(f"MCSim argument {fcns=} must have keys MCFunctions.PREPROCESS, RUN, and POSTPROCESS")
         if any(not callable(f) for f in fcns.values()):
             raise ValueError(f"MCSim argument {fcns=} must contain functions as values")
                 
@@ -284,7 +291,7 @@ class MCSim:
                        mccase : MCCase,
                        ):
         try:
-            mccase.siminput = self.fcns['preprocess'](mccase)
+            mccase.siminput = self.fcns[MCFunctions.PREPROCESS](mccase)
             self.casespreprocessed.add(mccase.ncase)
             mccase.haspreprocessed = True
             
@@ -341,7 +348,7 @@ class MCSim:
                 ):
         try:
             mccase.starttime = datetime.now()
-            mccase.simrawoutput = self.fcns['run'](*get_iterable(mccase.siminput))
+            mccase.simrawoutput = self.fcns[MCFunctions.RUN](*get_iterable(mccase.siminput))
             mccase.endtime = datetime.now()
             mccase.runtime = mccase.endtime - mccase.starttime
             mccase.runsimid = self.runsimid
@@ -399,7 +406,7 @@ class MCSim:
                         mccase : MCCase,
                         ):
         try:
-            self.fcns['postprocess'](mccase, *get_iterable(mccase.simrawoutput))
+            self.fcns[MCFunctions.POSTPROCESS](mccase, *get_iterable(mccase.simrawoutput))
             self.casespostprocessed.add(mccase.ncase)
             mccase.haspostprocessed = True
             

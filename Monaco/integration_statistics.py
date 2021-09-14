@@ -4,12 +4,13 @@ import numpy as np
 from scipy.optimize import root_scalar
 from typing import Union
 from Monaco.gaussian_statistics import pct2sig
+from Monaco.mc_sampling import SampleMethod
 
 def integration_error(nums         : list[float],
                       dimension    : int, 
                       volume       : float            = 1,  # By default, returns an unscaled error
                       conf         : float            = 0.95,
-                      samplemethod : str              = 'random', # 'random' or 'sobol'
+                      samplemethod : SampleMethod     = SampleMethod.RANDOM, # SampleMethod.RANDOM or SOBOL
                       runningError : bool             = False,
                       ) -> Union[float, list[float]]:
     
@@ -22,9 +23,9 @@ def integration_error(nums         : list[float],
     elif not runningError:
         stdev = np.std(nums, ddof=1)
         error1sig_random = volume*np.sqrt((2**(-1*dimension) - 3**(-1*dimension))/n)
-        if samplemethod == 'random':
+        if samplemethod == SampleMethod.RANDOM:
             error1sig = error1sig_random
-        elif samplemethod == 'sobol':
+        elif samplemethod == SampleMethod.SOBOL:
             error1sig_sobol = volume*stdev*np.log(n)**dimension/n
             error1sig = np.minimum(error1sig_random, error1sig_sobol)
     
@@ -41,9 +42,9 @@ def integration_error(nums         : list[float],
         stdevs = np.sqrt(variances)
                 
         error1sig_random = volume*np.sqrt((2**(-1*dimension) - 3**(-1*dimension))/np.arange(1, n+1))
-        if samplemethod == 'random':
+        if samplemethod == SampleMethod.RANDOM:
             error1sig = error1sig_random
-        elif samplemethod == 'sobol':
+        elif samplemethod == SampleMethod.SOBOL:
             error1sig_sobol = volume*stdevs*np.log(np.arange(1, n+1))**dimension/np.arange(1, n+1)
             error1sig = np.minimum(error1sig_random, error1sig_sobol)
         
@@ -57,8 +58,8 @@ def integration_n_from_err(error        : float,
                            volume       : float,
                            dimension    : int,
                            conf         : float            = 0.95,
-                           stdev        : float            = None, # required only for samplemethod='sobol' 
-                           samplemethod : str              = 'random', # 'random' or 'sobol'
+                           stdev        : float            = None, # required only for samplemethod=SampleMethod.SOBOL
+                           samplemethod : SampleMethod     = SampleMethod.RANDOM, # SampleMethod.RANDOM or SampleMethod.SOBOL
                            ) -> int:
     # We generally do not know a-priori what the standard deviation will be, so
     # best practice is to set to the max range of values on the interval, and 
@@ -70,9 +71,9 @@ def integration_n_from_err(error        : float,
     integration_args_check(error=error, volume=volume, stdev=stdev, conf=conf, samplemethod=samplemethod, dimension=dimension)
     
     n_random = (volume*pct2sig(conf)*stdev/error)**2
-    if samplemethod == 'random':
+    if samplemethod == SampleMethod.RANDOM:
         n = n_random
-    elif samplemethod == 'sobol':
+    elif samplemethod == SampleMethod.SOBOL:
         def f(n):
             return volume*stdev*pct2sig(conf)*np.log(n)**dimension/n - error
         try:
@@ -81,7 +82,7 @@ def integration_n_from_err(error        : float,
             n = np.min([n_random, n_sobol])
         except:
             # For higher than 3 dimensions, reaching n may be difficult, and will be much larger than n_random anyways
-            # warn(f"Cannot reach error tolerance of ±{error}. Falling back to samplemethod='random'")
+            # warn(f'Cannot reach error tolerance of ±{error}. Falling back to samplemethod=SampleMethod.RANDOM')
             n = n_random
         
     n = int(np.ceil(n))
@@ -92,7 +93,7 @@ def integration_args_check(error        : float,
                            volume       : float,
                            stdev        : float, 
                            conf         : float,
-                           samplemethod : str,
+                           samplemethod : SampleMethod,
                            dimension    : int,
                           ):
     if (not error is None) and (error < 0):
@@ -103,8 +104,8 @@ def integration_args_check(error        : float,
         raise ValueError(f"{stdev=} must be positive")
     if not 0 < conf < 1:
         raise ValueError(f"{conf=} must be between 0 and 1")
-    if samplemethod not in ('random', 'sobol'):
-        raise ValueError(f"{samplemethod=} must be either 'random', or 'sobol'")
+    if samplemethod not in (SampleMethod.RANDOM, SampleMethod.SOBOL):
+        raise ValueError(f"{samplemethod=} must be either SampleMethod.RANDOM, or SampleMethod.SOBOL")
     if dimension < 1:
         raise ValueError(f'{dimension=} must be a positive integer')
 

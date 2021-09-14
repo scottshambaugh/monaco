@@ -1,7 +1,8 @@
 # test_MCSim.py
 
 import pytest
-from Monaco.MCSim import MCSim
+from Monaco.MCSim import MCSim, MCFunctions
+from Monaco.mc_sampling import SampleMethod
 from test.mcsim_testing_fcns import dummyfcn
 import numpy as np
 
@@ -10,7 +11,8 @@ seed = 74494861
 @pytest.fixture
 def sim():
     from scipy.stats import norm, randint
-    sim = MCSim(name='Sim', ndraws=100, fcns={'preprocess':dummyfcn, 'run':dummyfcn, 'postprocess':dummyfcn}, firstcaseisnom=True, verbose=False, samplemethod='random', seed=seed, debug=True, cores=1)
+    fcns = {MCFunctions.PREPROCESS:dummyfcn, MCFunctions.RUN:dummyfcn, MCFunctions.POSTPROCESS:dummyfcn}
+    sim = MCSim(name='Sim', ndraws=100, fcns=fcns, firstcaseisnom=True, verbose=False, samplemethod=SampleMethod.RANDOM, seed=seed, debug=True, cores=1)
     sim.addInVar(name='Var1', dist=randint, distkwargs={'low':1, 'high':6})
     sim.addInVar(name='Var2', dist=norm, distkwargs={'loc':10, 'scale':4})
     sim.drawVars()
@@ -35,7 +37,8 @@ if __name__ == '__main__':
         return 1
     from scipy.stats import norm, randint
     seed = 74494861
-    sim2 = MCSim(name='Sim2', ndraws=100, fcns={'preprocess':dummyfcn2, 'run':dummyfcn2, 'postprocess':dummyfcn2}, firstcaseisnom=True, samplemethod='random', seed=seed, debug=True, cores=1)
+    fcns2 = {MCFunctions.PREPROCESS:dummyfcn2, MCFunctions.RUN:dummyfcn2, MCFunctions.POSTPROCESS:dummyfcn2}
+    sim2 = MCSim(name='Sim2', ndraws=100, fcns=fcns2, firstcaseisnom=True, samplemethod=SampleMethod.RANDOM, seed=seed, debug=True, cores=1)
     sim2.addInVar(name='Var1', dist=randint, distkwargs={'low':1, 'high':6})
     sim2.addInVar(name='Var2', dist=norm, distkwargs={'loc':10, 'scale':4})
     sim2.drawVars()

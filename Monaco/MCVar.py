@@ -4,7 +4,7 @@ import numpy as np
 from scipy.stats import rv_continuous, rv_discrete, describe
 from Monaco.MCVal import MCInVal, MCOutVal
 from Monaco.MCVarStat import MCVarStat
-from Monaco.mc_sampling import mc_sampling
+from Monaco.mc_sampling import mc_sampling, SampleMethod
 from copy import copy
 from typing import Union, Any
 from warnings import warn
@@ -79,7 +79,7 @@ class MCInVar(MCVar):
                  dist           : Union[rv_discrete, rv_continuous], 
                  distkwargs     : dict                        = dict(),
                  nummap         : Union[None, dict[int, Any]] = None,
-                 samplemethod   : str                         = 'sobol_random',
+                 samplemethod   : SampleMethod                = SampleMethod.SOBOL_RANDOM,
                  ninvar         : int                         = None,
                  seed           : int                         = np.random.get_state()[1][0], 
                  firstcaseisnom : bool                        = False,
@@ -147,8 +147,8 @@ class MCInVar(MCVar):
         
         if any(np.isinf(num) for num in self.nums):
             warn(f'Infinite value drawn. Check distribution and parameters: {self.dist=}, {self.distkwargs=}')
-            if self.samplemethod in ('sobol', 'halton'):    
-                warn(f"Infinite value draw may happen with {self.dist=} for the first point of the {self.samplemethod} sampling method. Consider using 'sobol_random' instead.")
+            if self.samplemethod in (SampleMethod.SOBOL, SampleMethod.HALTON):
+                warn(f"Infinite value draw may happen with {self.dist=} for the first point of the {self.samplemethod} sampling method. Consider using SOBOL_RANDOM instead.")
 
         if any(np.isnan(num) for num in self.nums):
             raise ValueError(f'Invalid draw. Check distribution and parameters: {self.dist=}, {self.distkwargs=}')
@@ -251,7 +251,7 @@ class MCOutVar(MCVar):
             self.nums[i] = self.getVal(i).num  
 
 
-    def getVal(self, ncase):  # ncase is an integer
+    def getVal(self, ncase : int):
         isnom = False
         if (ncase == 0) and self.firstcaseisnom:
             isnom = True

@@ -2,18 +2,18 @@
 
 import pytest
 import numpy as np
-from Monaco.mc_sampling import mc_sampling
+from Monaco.mc_sampling import mc_sampling, SampleMethod
 
 generator = np.random.RandomState(744948050)
 seeds = generator.randint(0, 2**31-1, size=10)
 
 @pytest.mark.parametrize("method,ninvar,seed,ans", [
-    (         'random', None, seeds[0], 0.5424051),
-    (          'sobol',    2, seeds[1], 0.0      ),
-    (   'sobol_random',    2, seeds[2], 0.0952614),
-    (         'halton',    2, seeds[3], 0.0      ),
-    (  'halton_random',    2, seeds[4], 0.9198435),
-    ('latin_hypercube',    2, seeds[5], 0.3522243),
+    (SampleMethod.RANDOM,       None, seeds[0], 0.5424051),
+    (SampleMethod.SOBOL,           2, seeds[1], 0.0      ),
+    (SampleMethod.SOBOL_RANDOM,    2, seeds[2], 0.0952614),
+    (SampleMethod.HALTON,          2, seeds[3], 0.0      ),
+    (SampleMethod.HALTON_RANDOM,   2, seeds[4], 0.9198435),
+    (SampleMethod.LATIN_HYPERCUBE, 2, seeds[5], 0.3522243),
 ])
 def test_mcsampling(method, ninvar, seed, ans):
     pcts = mc_sampling(ndraws=512, method=method, ninvar=ninvar, ninvar_max=None, seed=seed)
@@ -21,7 +21,7 @@ def test_mcsampling(method, ninvar, seed, ans):
 
 def test_mcsampling_error():
     with pytest.raises(ValueError):
-        mc_sampling(ndraws=512, method='sobol', ninvar=None, ninvar_max=None, seed=seeds[0])
+        mc_sampling(ndraws=512, method=SampleMethod.SOBOL, ninvar=None, ninvar_max=None, seed=seeds[0])
 
 
 ### Inline Testing ###
@@ -83,12 +83,12 @@ if __name__ == '__main__':
     generator = np.random.RandomState(744948050)
     seeds = generator.randint(0, 2**31-1, size=10)
     ndraws = 512
-    plot_sampling_test(ndraws=ndraws, method='random', seeds=seeds)
-    plot_sampling_test(ndraws=ndraws, method='sobol', seeds=seeds)
-    plot_sampling_test(ndraws=ndraws, method='sobol_random', seeds=seeds)
-    plot_sampling_test(ndraws=ndraws, method='halton', seeds=seeds)
-    plot_sampling_test(ndraws=ndraws, method='halton_random', seeds=seeds)
-    plot_sampling_test(ndraws=ndraws, method='latin_hypercube', seeds=seeds)
+    plot_sampling_test(ndraws=ndraws, method=SampleMethod.RANDOM,          seeds=seeds)
+    plot_sampling_test(ndraws=ndraws, method=SampleMethod.SOBOL,           seeds=seeds)
+    plot_sampling_test(ndraws=ndraws, method=SampleMethod.SOBOL_RANDOM,    seeds=seeds)
+    plot_sampling_test(ndraws=ndraws, method=SampleMethod.HALTON,          seeds=seeds)
+    plot_sampling_test(ndraws=ndraws, method=SampleMethod.HALTON_RANDOM,   seeds=seeds)
+    plot_sampling_test(ndraws=ndraws, method=SampleMethod.LATIN_HYPERCUBE, seeds=seeds)
     #print(cached_pcts.cache_info())  # Can only check caching when run in main file
 
 #'''

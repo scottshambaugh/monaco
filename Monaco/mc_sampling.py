@@ -5,29 +5,39 @@ import numpy as np
 from functools import lru_cache
 import warnings
 import sys
+from enum import Enum, auto
+
+class SampleMethod(Enum):
+    RANDOM          = auto()
+    SOBOL           = auto()
+    SOBOL_RANDOM    = auto()
+    HALTON          = auto()
+    HALTON_RANDOM   = auto()
+    LATIN_HYPERCUBE = auto()
+
 
 def mc_sampling(ndraws     : int, 
-                method     : str = 'sobol_random', 
-                ninvar     : int = None,
-                ninvar_max : int = None,
-                seed       : int = np.random.get_state()[1][0],
+                method     : SampleMethod = SampleMethod.SOBOL_RANDOM,
+                ninvar     : int          = None,
+                ninvar_max : int          = None,
+                seed       : int          = np.random.get_state()[1][0],
                 ) -> np.ndarray:
     if ninvar_max is None:
         ninvar_max = ninvar
 
-    if method == 'random':
+    if method == SampleMethod.RANDOM:
         pcts = scipy.stats.uniform.rvs(size=ndraws, random_state=seed)
     
-    elif method in ('sobol', 'sobol_random', 'halton', 'halton_random', 'latin_hypercube'):
+    elif method in (SampleMethod.SOBOL, SampleMethod.SOBOL_RANDOM, SampleMethod.HALTON, SampleMethod.HALTON_RANDOM, SampleMethod.LATIN_HYPERCUBE):
         if ninvar is None:
             raise ValueError(f'{ninvar=} must defined for the {method} method')           
-        elif (not 1 <= ninvar <= 21201) and method in ('sobol', 'sobol_random'):
+        elif (not 1 <= ninvar <= 21201) and method in (SampleMethod.SOBOL, SampleMethod.SOBOL_RANDOM):
             raise ValueError(f'{ninvar=} must be between 1 and 21201 for the {method} method')
         
         scramble = False
-        if method in ('sobol_random', 'halton_random'):
+        if method in (SampleMethod.SOBOL_RANDOM, SampleMethod.HALTON_RANDOM):
             scramble = True
-        elif method in ('sobol', 'halton'):
+        elif method in (SampleMethod.SOBOL, SampleMethod.HALTON):
             seed = 0 # These do not use randomness, so keep seed constant for caching
             
         all_pcts = cached_pcts(ndraws=ndraws, method=method, ninvar_max=ninvar_max, scramble=scramble, seed=seed)
@@ -35,7 +45,7 @@ def mc_sampling(ndraws     : int,
 
     else:
         raise ValueError(f'{method=} must be one of the following: ',
-                         "'random', 'sobol', 'sobol_random', 'halton', 'halton_random', 'latin_hypercube'")
+                         'SampleMethod.RANDOM, SOBOL, SOBOL_RANDOM, HALTON, HALTON_RANDOM, LATIN_HYPERCUBE')
     
     return pcts
 
@@ -46,11 +56,11 @@ def cached_pcts(ndraws     : int,
                 scramble   : bool, 
                 seed       : int,
                 ) -> np.ndarray:
-    if method in ('sobol', 'sobol_random'):
+    if method in (SampleMethod.SOBOL, SampleMethod.SOBOL_RANDOM):
         sampler = scipy.stats.qmc.Sobol(d=ninvar_max, scramble=scramble, seed=seed)
-    elif method in ('halton', 'halton_random'):
+    elif method in (SampleMethod.HALTON, SampleMethod.HALTON_RANDOM):
         sampler = scipy.stats.qmc.Halton(d=ninvar_max, scramble=scramble, seed=seed)
-    elif method == 'latin_hypercube':
+    elif method == SampleMethod.LATIN_HYPERCUBE:
         sampler = scipy.stats.qmc.LatinHypercube(d=ninvar_max, seed=seed)
     
     if not sys.warnoptions:

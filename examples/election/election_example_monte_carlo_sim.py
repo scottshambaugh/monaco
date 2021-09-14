@@ -1,7 +1,8 @@
 from scipy.stats import norm, uniform
 from Monaco.gaussian_statistics import pct2sig
-from Monaco.MCSim import MCSim
+from Monaco.MCSim import MCSim, MCFunctions
 from Monaco.mc_plot import mc_plot
+from Monaco.mc_sampling import SampleMethod
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -9,15 +10,15 @@ import pandas as pd
 from election_example_run import election_example_run
 from election_example_preprocess import election_example_preprocess
 from election_example_postprocess import election_example_postprocess
-fcns = {'preprocess' :election_example_preprocess,   \
-        'run'        :election_example_run,          \
-        'postprocess':election_example_postprocess}
+fcns = {MCFunctions.PREPROCESS :election_example_preprocess,   \
+        MCFunctions.RUN        :election_example_run,          \
+        MCFunctions.POSTPROCESS:election_example_postprocess}
 
 ndraws = 1000
 seed=12362397
 
 def election_example_monte_carlo_sim():
-    sim = MCSim(name='election', ndraws=ndraws, fcns=fcns, firstcaseisnom=False, seed=seed, cores=4, samplemethod='random', savecasedata=False, verbose=True, debug=False)
+    sim = MCSim(name='election', ndraws=ndraws, fcns=fcns, firstcaseisnom=False, seed=seed, cores=4, samplemethod=SampleMethod.RANDOM, savecasedata=False, verbose=True, debug=False)
     
     df = pd.read_csv('state_presidential_odds.csv')
     states = df['State'].tolist()

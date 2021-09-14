@@ -1,14 +1,14 @@
 from scipy.stats import uniform, rv_discrete
-from Monaco.MCSim import MCSim
+from Monaco.MCSim import MCSim, MCFunctions
 from Monaco.mc_plot import mc_plot
 from Monaco.mc_multi_plot import mc_multi_plot
 
 from rocket_example_run import rocket_example_run
 from rocket_example_preprocess import rocket_example_preprocess
 from rocket_example_postprocess import rocket_example_postprocess
-fcns ={'preprocess' :rocket_example_preprocess,   \
-       'run'        :rocket_example_run,          \
-       'postprocess':rocket_example_postprocess}
+fcns ={MCFunctions.PREPROCESS :rocket_example_preprocess,   \
+       MCFunctions.RUN        :rocket_example_run,          \
+       MCFunctions.POSTPROCESS:rocket_example_postprocess}
 
 ndraws = 50
 seed=12362398

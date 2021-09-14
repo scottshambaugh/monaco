@@ -1,5 +1,6 @@
 from scipy.stats import uniform
-from Monaco.MCSim import MCSim
+from Monaco.MCSim import MCSim, MCFunctions
+from Monaco.mc_sampling import SampleMethod
 from Monaco.helper_functions import next_power_of_2
 from Monaco.integration_statistics import integration_error, integration_n_from_err, max_stdev
 import numpy as np
@@ -20,9 +21,9 @@ def integration_example_run(x, y):
 def integration_example_postprocess(mccase, isUnderCurve):
     mccase.addOutVal('pi_est', isUnderCurve)
 
-fcns ={'preprocess' :integration_example_preprocess,   \
-       'run'        :integration_example_run,          \
-       'postprocess':integration_example_postprocess}
+fcns ={MCFunctions.PREPROCESS :integration_example_preprocess,   \
+       MCFunctions.RUN        :integration_example_run,          \
+       MCFunctions.POSTPROCESS:integration_example_postprocess}
 
 # We need to know the limits of integration beforehand, and for integration these should always be uniform dists
 xrange = [-1, 1]
@@ -32,7 +33,7 @@ dimension = 2
 
 # Integration best practices:
 savecasedata = False                 # File I/O will crush performance, so recommended not to save case data
-samplemethod = 'sobol'               # Use 'sobol' over 'sobol_random' for a speedup, since all our dists are uniform
+samplemethod = SampleMethod.SOBOL    # Use SOBOL over SOBOL_RANDOM for a speedup, since all our dists are uniform
 firstcaseisnom = False               # Since we want a power of 2, we should not run a 'nominal' case which would add 1
 
 # Maximum Error bound:
@@ -46,8 +47,8 @@ error = 0.01
 conf = 0.95
 stdev = max_stdev(low=0, high=1)
 print(f'Maximum possible standard deviation: {stdev:0.3f}')
-nRandom = integration_n_from_err(error=error, volume=totalArea, stdev=stdev, conf=conf, dimension=dimension, samplemethod='random')
-nSobol  = integration_n_from_err(error=error, volume=totalArea, stdev=stdev, conf=conf, dimension=dimension, samplemethod='sobol')
+nRandom = integration_n_from_err(error=error, volume=totalArea, stdev=stdev, conf=conf, dimension=dimension, samplemethod=SampleMethod.RANDOM)
+nSobol  = integration_n_from_err(error=error, volume=totalArea, stdev=stdev, conf=conf, dimension=dimension, samplemethod=SampleMethod.SOBOL)
 print(f'Number of samples needed to reach an error ≤ ±{error} at {round(conf*100, 2)}% confidence if using random vs sobol sampling: {nRandom} vs {nSobol}')
 ndraws = next_power_of_2(nSobol)  # The sobol methods need to be a power of 2 for best performance and balance
 print(f'Rounding up to next power of 2: {ndraws} samples')

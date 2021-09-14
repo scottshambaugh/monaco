@@ -11,18 +11,19 @@ if __name__ == '__main__':
     from scipy.stats import randint, norm
     from Monaco.MCVar import MCInVar, MCOutVar
     from Monaco.mc_plot import mc_plot, mc_plot_hist, mc_plot_cdf, mc_plot_cov_corr, mc_plot_integration_convergence, mc_plot_integration_error
-    
+    from Monaco.mc_sampling import SampleMethod
+
     generator = np.random.RandomState(74494861)
     invarseeds = generator.randint(0, 2**31-1, size=10)
     plt.close('all')
     
     mcinvars = dict()
     nummap={1:'a',2:'b',3:'c',4:'d',5:'e'}
-    mcinvars['randint'] = MCInVar(name='randint', ndraws=1000, dist=randint, distkwargs={'low':1, 'high':6}, nummap=nummap, samplemethod='random', seed=invarseeds[0])
-    mcinvars['norm'] = MCInVar(name='norm', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4}, samplemethod='random', seed=invarseeds[1])
+    mcinvars['randint'] = MCInVar(name='randint', ndraws=1000, dist=randint, distkwargs={'low':1, 'high':6}, nummap=nummap, samplemethod=SampleMethod.RANDOM, seed=invarseeds[0])
+    mcinvars['norm'] = MCInVar(name='norm', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4}, samplemethod=SampleMethod.RANDOM, seed=invarseeds[1])
     mcinvars['norm'].addVarStat(stattype='orderstatTI', statkwargs={'p':0.75, 'c':0.50, 'bound':'2-sided'})
     mcinvars['norm'].addVarStat(stattype='orderstatP', statkwargs={'p':0.5, 'c':0.9999, 'bound':'all'})
-    mcinvars['norm2'] = MCInVar(name='norm2', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4}, samplemethod='random', seed=invarseeds[2])
+    mcinvars['norm2'] = MCInVar(name='norm2', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4}, samplemethod=SampleMethod.RANDOM, seed=invarseeds[2])
     mcoutvars = dict()
     mcoutvars['test'] = MCOutVar(name='test', vals=[1, 0, 2, 2], firstcaseisnom=True)
     
@@ -52,7 +53,7 @@ if __name__ == '__main__':
     
     mc_plot_cov_corr(np.array([[2, 0.1111, np.nan],[-0.19, -1, np.nan], [np.nan, np.nan, np.nan]]), ['Test1', 'Test2', 'Test3'])
 
-    mcinvars['randint2'] = MCInVar(name='randint2', ndraws=1000, dist=randint, distkwargs={'low':0, 'high':2}, samplemethod='random', seed=invarseeds[3])
+    mcinvars['randint2'] = MCInVar(name='randint2', ndraws=1000, dist=randint, distkwargs={'low':0, 'high':2}, samplemethod=SampleMethod.RANDOM, seed=invarseeds[3])
     mc_plot_integration_convergence(mcinvars['randint2'], volume=1, refval=0.5, conf=0.95)
     mc_plot_integration_error(mcinvars['randint2'], volume=1, refval=0.5, conf=0.95)
 #'''

@@ -11,15 +11,16 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     from Monaco.MCVar import MCInVar
     from Monaco.mc_multi_plot import mc_multi_plot
-    
+    from Monaco.mc_sampling import SampleMethod
+
     plt.close('all')
     
     generator = np.random.RandomState(74494861)
     invarseeds = generator.randint(0, 2**31-1, size=10)
         
     mcinvars = dict()
-    mcinvars['norm1'] = MCInVar('norm1', ndraws=1000, dist=norm, distkwargs={'loc':1, 'scale':5}, seed=invarseeds[0], samplemethod='random')
-    mcinvars['norm2'] = MCInVar('norm2', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4}, seed=invarseeds[1], samplemethod='random')
+    mcinvars['norm1'] = MCInVar('norm1', ndraws=1000, dist=norm, distkwargs={'loc':1, 'scale':5}, seed=invarseeds[0], samplemethod=SampleMethod.RANDOM)
+    mcinvars['norm2'] = MCInVar('norm2', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4}, seed=invarseeds[1], samplemethod=SampleMethod.RANDOM)
     
     mc_multi_plot(mcinvars['norm1'], mcinvars['norm2'], highlight_cases=range(10,30), rug_plot=True, cov_plot=True, cov_p=0.95, title='test')  # MCPlot2DScatter
 #'''

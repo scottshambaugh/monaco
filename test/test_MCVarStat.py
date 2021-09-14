@@ -4,13 +4,14 @@ import pytest
 import numpy as np
 from Monaco.MCVarStat import MCVarStat
 from Monaco.gaussian_statistics import sig2pct
+from Monaco.mc_sampling import SampleMethod
 
 @pytest.fixture
 def mcinvar():
     from scipy.stats import norm
     from Monaco.MCVar import MCInVar
     seed = 74494861
-    return MCInVar('norm', ndraws=100000, dist=norm, distkwargs={'loc':0, 'scale':1}, samplemethod='random', seed=seed)
+    return MCInVar('norm', ndraws=100000, dist=norm, distkwargs={'loc':0, 'scale':1}, samplemethod=SampleMethod.RANDOM, seed=seed)
 
 
 bound='1-sided'
@@ -59,7 +60,7 @@ if __name__ == '__main__':
     from Monaco.MCVar import MCInVar, MCOutVar
     seed = 74494861
 
-    mcinvar2 = MCInVar('norm', ndraws=100000, dist=norm, distkwargs={'loc':0, 'scale':1}, samplemethod='random', seed=seed)
+    mcinvar2 = MCInVar('norm', ndraws=100000, dist=norm, distkwargs={'loc':0, 'scale':1}, samplemethod=SampleMethod.RANDOM, seed=seed)
     bound='1-sided'
     mcinvarstat1 = MCVarStat(mcinvar2, stattype='orderstatTI', statkwargs={'p':sig2pct(3, bound=bound), 'c':0.50, 'bound':bound})
     mcinvarstat2 = MCVarStat(mcinvar2, stattype='orderstatP', statkwargs={'p':sig2pct(3, bound=bound), 'c':0.50, 'bound':'all'})
