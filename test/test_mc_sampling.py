@@ -38,7 +38,7 @@ if __name__ == '__main__':
         
         if genplot:
             fig, axs = plt.subplots(1, 3)
-            fig.suptitle(f'Sampling Method: {method}', fontweight='bold')
+            fig.suptitle(f'{method}', fontweight='bold')
             fig.set_dpi(96)
             fig.set_size_inches(16, 5)
     
