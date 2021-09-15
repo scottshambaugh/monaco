@@ -8,10 +8,11 @@ from Monaco.mc_sampling import mc_sampling, SampleMethod
 from copy import copy
 from typing import Union, Any
 from warnings import warn
+from abc import ABC, abstractmethod
 
 
 ### MCVar Base Class ###
-class MCVar:
+class MCVar(ABC):
     def __init__(self, 
                  name           : str, 
                  ndraws         : int, 
@@ -61,13 +62,15 @@ class MCVar:
         self.mcvarstats = []
 
 
+    @abstractmethod
     def getVal(self, 
                ncase : int,
                ):
-        raise NotImplementedError() # abstract method
+        pass
 
+    @abstractmethod
     def getNom(self):
-        raise NotImplementedError() # abstract method
+        pass
 
 
 
@@ -148,12 +151,23 @@ class MCInVar(MCVar):
         if any(np.isinf(num) for num in self.nums):
             warn(f'Infinite value drawn. Check distribution and parameters: {self.dist=}, {self.distkwargs=}')
             if self.samplemethod in (SampleMethod.SOBOL, SampleMethod.HALTON):
-                warn(f"Infinite value draw may happen with {self.dist=} for the first point of the {self.samplemethod} sampling method. Consider using SOBOL_RANDOM instead.")
+                warn(f"Infinite value draw may happen with {self.dist=} for the first point of the {self.samplemethod} sampling method. Consider using {SampleMethod.SOBOL_RANDOM} instead.")
 
         if any(np.isnan(num) for num in self.nums):
             raise ValueError(f'Invalid draw. Check distribution and parameters: {self.dist=}, {self.distkwargs=}')
 
         self.mapNums()
+
+
+    def getVal(self,
+               ncase : int,
+               ):
+        isnom = False
+        if (ncase == 0) and self.firstcaseisnom:
+            isnom = True
+
+        val = MCInVal(name=self.name, ncase=ncase, pct=self.pcts[ncase], num=self.nums[ncase], dist=self.dist, nummap=self.nummap, isnom=isnom)
+        return val
 
 
     def getNom(self):
@@ -174,17 +188,6 @@ class MCInVar(MCVar):
         
         else:
             return None
-
-
-    def getVal(self, 
-               ncase : int,
-               ):
-        isnom = False
-        if (ncase == 0) and self.firstcaseisnom:
-            isnom = True
-            
-        val = MCInVal(name=self.name, ncase=ncase, pct=self.pcts[ncase], num=self.nums[ncase], dist=self.dist, nummap=self.nummap, isnom=isnom)
-        return val
 
 
 

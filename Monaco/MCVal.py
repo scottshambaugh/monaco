@@ -7,6 +7,7 @@ from copy import copy, deepcopy
 from Monaco.helper_functions import is_num
 from typing import Union, Any
 from scipy.stats import rv_discrete, rv_continuous
+from abc import ABC
 
 ### MCVal Base Class ###
 class MCVal():
