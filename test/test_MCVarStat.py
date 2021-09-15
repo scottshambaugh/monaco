@@ -54,8 +54,7 @@ def test_mcoutvarstat_2d_irregular():
 
 ### Inline Testing ###
 # Can run here or copy into bottom of main file
-#'''
-if __name__ == '__main__':
+def inline_testing():
     from scipy.stats import norm
     from Monaco.MCVar import MCInVar, MCOutVar
     seed = 74494861
@@ -86,4 +85,6 @@ if __name__ == '__main__':
     print(mcoutvarstat1.vals) # expected: [[ -4.  -2.   4.] [ -2.  -1.   2.] [ -4.  -2.   4.] [ -6.  -3.   6.] [ -8.  -4.   8.] [-10.  -5.  10.]]
     print(mcoutvarstat2.vals) # expected: [ -4.  -2.  -4.  -6.  -8. -10.]
     print(mcoutvarstat3.vals) # expected: [-4. -2. -2. -3. -4. -5.]
-#'''
+    
+if __name__ == '__main__':
+    inline_testing()

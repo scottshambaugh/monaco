@@ -135,8 +135,7 @@ def mcsim_io_test_example_sim(resultsdir):
 
     return sim
 
-
-if __name__ == '__main__':
+def inline_testing():
     #'''
     import shutil
     resultsdir = 'mcsim_io_test'
@@ -149,4 +148,7 @@ if __name__ == '__main__':
     with tempfile.TemporaryDirectory() as resultsdir:
         sim = mcsim_io_test_example_sim(resultsdir)
     #'''
-    
+    return sim
+
+if __name__ == '__main__':
+    sim = inline_testing()

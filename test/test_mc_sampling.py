@@ -26,9 +26,7 @@ def test_mcsampling_error():
 
 ### Inline Testing ###
 # Can run here or copy into bottom of main file
-#'''
-if __name__ == '__main__':
-    
+def inline_testing():
     def plot_sampling_test(ndraws, method, seeds, genplot=True):
         import matplotlib.pyplot as plt
         import scipy.stats
@@ -78,8 +76,7 @@ if __name__ == '__main__':
             #fig.savefig(f'../docs/{method}_sampling.png')
         
         return pcts
-        
-    
+
     generator = np.random.RandomState(744948050)
     seeds = generator.randint(0, 2**31-1, size=10)
     ndraws = 512
@@ -91,4 +88,5 @@ if __name__ == '__main__':
     plot_sampling_test(ndraws=ndraws, method=SampleMethod.LATIN_HYPERCUBE, seeds=seeds)
     #print(cached_pcts.cache_info())  # Can only check caching when run in main file
 
-#'''
+if __name__ == '__main__':
+    inline_testing()

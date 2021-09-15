@@ -62,8 +62,7 @@ def test_order_stat_P_n(k,c,P,bound,ans):
 
 ### Inline Testing ###
 # Can run here or copy into bottom of main file
-#'''
-if __name__ == '__main__':
+def inline_testing():
     print('TI Functions:')
     print(order_stat_TI_n(k=2, p=0.99, c=0.90, bound='2-sided'))   # expected: 667
     print(order_stat_TI_p(n=667, k=2, c=0.90, bound='2-sided'))    # expected: 0.99001
@@ -81,4 +80,7 @@ if __name__ == '__main__':
     print(order_stat_P_n(k=10, c=0.950, P=0.50, bound='2-sided'))        # expected: 108, Table A.15g (conservative)
     print(order_stat_P_n(k=11, c=0.9566, P=0.95, bound='1-sided upper')) # expected: 1018, Table A.16 (conservative)
     print(order_stat_P_n(k=11, c=0.9566, P=0.05, bound='1-sided lower')) # expected: 1018, Table A.16 (conservative)
-#'''
+
+
+if __name__ == '__main__':
+    inline_testing()

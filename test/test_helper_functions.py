@@ -69,9 +69,7 @@ def test_slice_by_index(indices,ans):
 
 ### Inline Testing ###
 # Can run here or copy into bottom of main file
-#'''
-if __name__ == '__main__':
-
+def inline_testing():
     print(next_power_of_2(0))  # Expected: 0
     print(next_power_of_2(5))  # Expected: 8
     
@@ -93,5 +91,6 @@ if __name__ == '__main__':
     print(slice_by_index(data, []))      # Expected: []
     print(slice_by_index(data, 0))       # Expected: [0]
     print(slice_by_index(data, [3, 5]))  # Expected: [3, 5]
-    
-#'''
+
+if __name__ == '__main__':
+    inline_testing()    

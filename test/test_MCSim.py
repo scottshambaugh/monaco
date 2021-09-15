@@ -31,10 +31,10 @@ def test_mcsim_corr_cov(sim):
 
 ### Inline Testing ###
 # Can run here or copy into bottom of main file
-#'''
-if __name__ == '__main__':
+def inline_testing():
     def dummyfcn2(*args):
         return 1
+
     from scipy.stats import norm, randint
     seed = 74494861
     fcns2 = {MCFunctions.PREPROCESS:dummyfcn2, MCFunctions.RUN:dummyfcn2, MCFunctions.POSTPROCESS:dummyfcn2}
@@ -50,4 +50,6 @@ if __name__ == '__main__':
     print(sim2.mccases[1].mcinvals['Var2'].val) # expected: 9.019513324531903
     print(sim2.corr())                          # expected: (array([[ 1., -0.07565637], [-0.07565637,  1.]]), ['Var1', 'Var2'])
     print(sim2.cov())                           # expected: (array([[ 2.27009901, -0.43928375], [-0.43928375, 14.85095717]]), ['Var1', 'Var2'])
-#'''
+
+if __name__ == '__main__':
+    inline_testing()

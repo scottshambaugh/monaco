@@ -28,8 +28,7 @@ def test_mccase_addoutval_with_valmap(mccase):
 
 ### Inline Testing ###
 # Can run here or copy into bottom of main file
-#'''
-if __name__ == '__main__':
+def inline_testing():
     from scipy.stats import norm
     seed = 74494861
     invar = {'Test':MCInVar('Test', ndraws=10, ninvar=1, dist=norm, distkwargs={'loc':10, 'scale':4}, seed=seed, firstcaseisnom=True)}
@@ -42,4 +41,7 @@ if __name__ == '__main__':
     valmap = {'a':0,'b':-1,'c':-2,'d':-3,'e':-4,'f':-5}
     case.addOutVal('TestOut2', [['a','b'],['c','d'],['e','f']], valmap = valmap)
     print(case.mcoutvals['TestOut2'].num) # expected: [[0, -1], [-2, -3], [-4, -5]]
-#'''
+
+
+if __name__ == '__main__':
+    inline_testing()

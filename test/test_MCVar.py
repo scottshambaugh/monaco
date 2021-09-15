@@ -77,8 +77,7 @@ def test_mcoutvar_split_orderstat(mcoutvars_split):
     
 ### Inline Testing ###
 # Can run here or copy into bottom of main file
-#'''
-if __name__ == '__main__':
+def inline_testing():
     from scipy.stats import norm, randint
     generator = np.random.RandomState(74494861)
     invarseeds = generator.randint(0, 2**31-1, size=10)
@@ -113,4 +112,7 @@ if __name__ == '__main__':
     mcoutvars.update(mcoutvars['test2'].split())
     print(mcoutvars['test2 [0]'].nums) # expected: [array([1, 1]), array([1, 1]), array([1, 1]), array([1, 1]), array([1, 1])]
     print(mcoutvars['test2 [0]'].mcvarstats[0].vals) # expected: [1. 1.]
-#'''
+
+    
+if __name__ == '__main__':
+    inline_testing()

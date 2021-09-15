@@ -4,8 +4,7 @@
 
 ### Inline Testing ###
 # Can run here or copy into bottom of main file
-#'''
-if __name__ == '__main__':
+def inline_testing():
     import numpy as np
     from scipy.stats import norm
     import matplotlib.pyplot as plt
@@ -23,4 +22,6 @@ if __name__ == '__main__':
     mcinvars['norm2'] = MCInVar('norm2', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4}, seed=invarseeds[1], samplemethod=SampleMethod.RANDOM)
     
     mc_multi_plot(mcinvars['norm1'], mcinvars['norm2'], highlight_cases=range(10,30), rug_plot=True, cov_plot=True, cov_p=0.95, title='test')  # MCPlot2DScatter
-#'''
+
+if __name__ == '__main__':
+    inline_testing()

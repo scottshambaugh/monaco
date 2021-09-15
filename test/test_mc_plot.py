@@ -4,8 +4,7 @@
 
 ### Inline Testing ###
 # Can run here or copy into bottom of main file
-#'''
-if __name__ == '__main__':
+def inline_testing():
     import numpy as np
     import matplotlib.pyplot as plt
     from scipy.stats import randint, norm
@@ -56,5 +55,7 @@ if __name__ == '__main__':
     mcinvars['randint2'] = MCInVar(name='randint2', ndraws=1000, dist=randint, distkwargs={'low':0, 'high':2}, samplemethod=SampleMethod.RANDOM, seed=invarseeds[3])
     mc_plot_integration_convergence(mcinvars['randint2'], volume=1, refval=0.5, conf=0.95, dimension=1)
     mc_plot_integration_error(mcinvars['randint2'], volume=1, refval=0.5, conf=0.95, dimension=1)
-#'''
 
+
+if __name__ == '__main__':
+    inline_testing()

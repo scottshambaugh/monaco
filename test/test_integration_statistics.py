@@ -26,8 +26,7 @@ def test_max_stdev():
 
 ### Inline Testing ###
 # Can run here or copy into bottom of main file
-#'''
-if __name__ == '__main__':
+def inline_testing():
     import numpy as np
     import matplotlib.pyplot as plt
     from Monaco.mc_sampling import mc_sampling
@@ -74,5 +73,6 @@ if __name__ == '__main__':
     plt.ylabel(f'{round(conf*100, 2)}% Confidence Absolute Error')
     plt.xlabel('Sample #')
     plt.legend([h3, h1, h4, h2], ['Random Error Bound', 'Random True Error', 'Sobol Error Bound', 'Sobol True Error'])
-    
-#'''
+
+if __name__ == '__main__':
+    inline_testing()

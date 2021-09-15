@@ -51,8 +51,7 @@ def test_mcoutval_dataframe():
 
 ### Inline Testing ###
 # Can run here or copy into bottom of main file
-#'''
-if __name__ == '__main__':
+def inline_testing():
     from scipy.stats import norm
     a = MCInVal(name='TestA', ncase=1, pct=0.5, num=0, dist=norm, isnom=True)
     print(a.val) # expected: 0
@@ -78,4 +77,7 @@ if __name__ == '__main__':
     print(f.num) # expected: [0 1 2]
     g = MCOutVal(name='TestG', ncase=1, val=df.index, isnom=True)
     print(g.val) # expected: ['2020-01-01T00:00:00.000000000' '2021-01-01T00:00:00.000000000' '2022-01-01T00:00:00.000000000']
-#'''
+
+
+if __name__ == '__main__':
+    inline_testing()
