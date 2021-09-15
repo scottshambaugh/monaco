@@ -50,6 +50,7 @@ def inline_testing():
     print(sim2.mccases[1].mcinvals['Var2'].val) # expected: 9.019513324531903
     print(sim2.corr())                          # expected: (array([[ 1., -0.07565637], [-0.07565637,  1.]]), ['Var1', 'Var2'])
     print(sim2.cov())                           # expected: (array([[ 2.27009901, -0.43928375], [-0.43928375, 14.85095717]]), ['Var1', 'Var2'])
+    print(MCFunctions.PREPROCESS == 'preprocess')
 
 if __name__ == '__main__':
     inline_testing()

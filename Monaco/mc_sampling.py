@@ -5,15 +5,15 @@ import numpy as np
 from functools import lru_cache
 import warnings
 import sys
-from enum import Enum, auto
+from enum import Enum
 
-class SampleMethod(Enum):
-    RANDOM          = auto()
-    SOBOL           = auto()
-    SOBOL_RANDOM    = auto()
-    HALTON          = auto()
-    HALTON_RANDOM   = auto()
-    LATIN_HYPERCUBE = auto()
+class SampleMethod(str, Enum):
+    RANDOM          = 'random'
+    SOBOL           = 'sobol'
+    SOBOL_RANDOM    = 'sobol_random'
+    HALTON          = 'halton'
+    HALTON_RANDOM   = 'halton_random'
+    LATIN_HYPERCUBE = 'latin_hypercube'
 
 
 def mc_sampling(ndraws     : int, 
@@ -44,8 +44,9 @@ def mc_sampling(ndraws     : int,
         pcts = all_pcts[:,ninvar-1] # ninvar will always be >= 1
 
     else:
-        raise ValueError(f'{method=} must be one of the following: ',
-                         'SampleMethod.RANDOM, SOBOL, SOBOL_RANDOM, HALTON, HALTON_RANDOM, LATIN_HYPERCUBE')
+        raise ValueError("".join([f'{method=} must be one of the following: ',
+                                  f'{SampleMethod.RANDOM}, {SampleMethod.SOBOL}, {SampleMethod.SOBOL_RANDOM}, '
+                                  f'{SampleMethod.HALTON}, {SampleMethod.HALTON_RANDOM}, {SampleMethod.LATIN_HYPERCUBE}']))
     
     return pcts
 

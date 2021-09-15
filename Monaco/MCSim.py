@@ -14,12 +14,12 @@ from pathos.pools import ThreadPool as Pool
 from tqdm import tqdm
 from typing import Callable, Union, Any
 from scipy.stats import rv_continuous, rv_discrete
-from enum import Enum, auto
+from enum import Enum
 
-class MCFunctions(Enum):
-    PREPROCESS  = auto()
-    RUN         = auto()
-    POSTPROCESS = auto()
+class MCFunctions(str, Enum):
+    PREPROCESS  = 'preprocess'
+    RUN         = 'run'
+    POSTPROCESS = 'postprocess'
 
 
 class MCSim:
@@ -28,7 +28,7 @@ class MCSim:
                  ndraws         : int, 
                  fcns           : dict[MCFunctions, Callable], # fcns is a dict with keys MCFunctions.PREPROCESS, RUN, and POSTPROCESS
                  firstcaseisnom : bool = False, 
-                 samplemethod   : SampleMethod  = SampleMethod.SOBOL_RANDOM,
+                 samplemethod   : SampleMethod = SampleMethod.SOBOL_RANDOM,
                  seed           : int  = np.random.get_state()[1][0], 
                  cores          : int  = cpu_count(logical=False), 
                  verbose        : bool = True,
@@ -109,7 +109,7 @@ class MCSim:
                        fcns: dict,
                        ):
         if set(fcns.keys()) != {MCFunctions.PREPROCESS, MCFunctions.RUN, MCFunctions.POSTPROCESS}:
-            raise ValueError(f"MCSim argument {fcns=} must have keys MCFunctions.PREPROCESS, RUN, and POSTPROCESS")
+            raise ValueError(f"MCSim argument {fcns=} must have keys {MCFunctions.PREPROCESS}, {MCFunctions.RUN}, and {MCFunctions.POSTPROCESS}")
         if any(not callable(f) for f in fcns.values()):
             raise ValueError(f"MCSim argument {fcns=} must contain functions as values")
                 

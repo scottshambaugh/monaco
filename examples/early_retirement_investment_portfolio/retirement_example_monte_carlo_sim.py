@@ -1,23 +1,22 @@
 from scipy.stats import norm, uniform
-from Monaco.MCSim import MCSim, MCFunctions
+from Monaco.MCSim import MCSim
 from Monaco.mc_plot import mc_plot, mc_plot_cov_corr
-from Monaco.mc_sampling import SampleMethod
 import matplotlib.pyplot as plt
 import numpy as np
 
 from retirement_example_run import retirement_example_run
 from retirement_example_preprocess import retirement_example_preprocess
 from retirement_example_postprocess import retirement_example_postprocess
-fcns ={MCFunctions.PREPROCESS :retirement_example_preprocess,   \
-       MCFunctions.RUN        :retirement_example_run,          \
-       MCFunctions.POSTPROCESS:retirement_example_postprocess}
+fcns ={'preprocess' :retirement_example_preprocess,   \
+       'run'        :retirement_example_run,          \
+       'postprocess':retirement_example_postprocess}
 
 ndraws = 1024
 seed=12362397
 
 def retirement_example_monte_carlo_sim():
 
-    sim = MCSim(name='retirement', ndraws=ndraws, fcns=fcns, firstcaseisnom=True, samplemethod=SampleMethod.SOBOL_RANDOM, seed=seed, cores=4, savecasedata=False, verbose=True, debug=True)
+    sim = MCSim(name='retirement', ndraws=ndraws, fcns=fcns, firstcaseisnom=True, samplemethod='sobol_random', seed=seed, cores=4, savecasedata=False, verbose=True, debug=True)
     
     sp500_mean = 0.114
     sp500_stdev = 0.197

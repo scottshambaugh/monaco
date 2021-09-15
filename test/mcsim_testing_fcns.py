@@ -11,9 +11,9 @@ def testing_postprocess(mccase, output):
     mccase.addOutVal('casenum', mccase.ncase)
 
 def fcns():
-    fcns ={MCFunctions.PREPROCESS :testing_preprocess,   \
-           MCFunctions.RUN        :testing_run,          \
-           MCFunctions.POSTPROCESS:testing_postprocess}
+    fcns ={'preprocess' :testing_preprocess,   \
+           'run'        :testing_run,          \
+           'postprocess':testing_postprocess}
     return fcns
 
 def dummyfcn(*args):

@@ -1,4 +1,4 @@
-from Monaco.MCSim import MCSim, MCFunctions
+from Monaco.MCSim import MCSim
 from Monaco.mc_plot import mc_plot, mc_plot_cov_corr
 
 # Import the statistical distributions from scipy.stats that you will be using
@@ -10,9 +10,9 @@ from scipy.stats import randint, rv_discrete
 from template_functions import template_preprocess, template_run, template_postprocess
 
 # These get packaged in the following format for MCSim to consume:
-fcns ={MCFunctions.PREPROCESS :template_preprocess,   \
-       MCFunctions.RUN        :template_run,          \
-       MCFunctions.POSTPROCESS:template_postprocess}
+fcns ={'preprocess' :template_preprocess,   \
+       'run'        :template_run,          \
+       'postprocess':template_postprocess}
 
 # Set the number of random draws you wish to make
 # If firstcaseisnom is True, then case 0 will be run with the mean of each 

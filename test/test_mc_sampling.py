@@ -36,7 +36,7 @@ def inline_testing():
         
         if genplot:
             fig, axs = plt.subplots(1, 3)
-            fig.suptitle(f'{method}', fontweight='bold')
+            fig.suptitle(f"samplemethod = '{method}'", fontweight='bold')
             fig.set_dpi(96)
             fig.set_size_inches(16, 5)
     
