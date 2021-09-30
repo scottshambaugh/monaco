@@ -10,7 +10,7 @@ from Monaco.MCVar import MCVar, MCInVar, MCOutVar
 from Monaco.helper_functions import get_iterable, slice_by_index, length
 from Monaco.gaussian_statistics import conf_ellipsoid_sig2pct
 from Monaco.integration_statistics import integration_error
-from Monaco.mc_sampling import SampleMethod
+from Monaco.MCEnums import SampleMethod
 from copy import copy
 from typing import Union
 

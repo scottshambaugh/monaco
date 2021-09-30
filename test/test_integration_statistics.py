@@ -2,7 +2,7 @@
 
 import pytest
 from Monaco.integration_statistics import integration_error, integration_n_from_err, max_variance, max_stdev
-from Monaco.mc_sampling import SampleMethod
+from Monaco.MCEnums import SampleMethod
 
 def test_integration_error():
     assert integration_error([1, 0, 2], conf=0.95, dimension=1, samplemethod=SampleMethod.RANDOM, runningError=False) == pytest.approx(0.4619679)

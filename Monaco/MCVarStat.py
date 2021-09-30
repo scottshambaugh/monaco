@@ -12,6 +12,7 @@ from statistics import mode
 from scipy.stats.mstats import gmean
 from Monaco.gaussian_statistics import pct2sig, sig2pct
 from Monaco.order_statistics import order_stat_P_k, order_stat_TI_k, get_iP
+from Monaco.MCEnums import StatBound, VarStat, VarStatSide
 from typing import Union, Any, Callable
 
 
@@ -44,8 +45,8 @@ class MCVarStat:
             orderstatP(p, c, bound)
                 p       0 <= p <= 1             Percentile
                 c       0 < c < 1               Confidence (default 0.95)
-                bound   '1-sided low', 'all',   Bound (default 2-sided)
-                        '1-sided high', 
+                bound   '1-sided lower', 'all', Bound (default 2-sided)
+                        '1-sided upper', 
                         '2-sided', 'nearest', 
         '''
 
@@ -57,29 +58,30 @@ class MCVarStat:
         self.vals = None
         self.name = name
         
-        if stattype == 'max':
+        if stattype == VarStat.MAX:
             self.genStatsMax()
-        elif stattype == 'min':
+        elif stattype == VarStat.MIN:
             self.genStatsMin()
-        elif stattype == 'median':
+        elif stattype == VarStat.MEDIAN:
             self.genStatsMedian()
-        elif stattype == 'mean':
+        elif stattype == VarStat.MEAN:
             self.genStatsMean()
-        elif stattype == 'geomean':
+        elif stattype == VarStat.GEOMEAN:
             self.genStatsGeoMean()
-        elif stattype == 'mode':
+        elif stattype == VarStat.MODE:
             self.genStatsMode()
-        elif stattype == 'sigmaP':
+        elif stattype == VarStat.SIGMAP:
             self.genStatsSigmaP()
-        elif stattype == 'gaussianP':
+        elif stattype == VarStat.GAUSSIANP:
             self.genStatsGaussianP()
-        elif stattype == 'orderstatTI':
+        elif stattype == VarStat.ORDERSTATTI:
             self.genStatsOrderStatTI()
-        elif stattype == 'orderstatP':
+        elif stattype == VarStat.ORDERSTATP:
             self.genStatsOrderStatP()
         else:
-            raise ValueError(f"{self.stattype=} must be one of the following: ",
-                             "'max', 'min', 'median', 'mean', 'geomean', 'mode', 'sigmaP', 'gaussianP', 'orderstatTI', 'orderstatP'")
+            raise ValueError("".join([f"{self.stattype=} must be one of the following: ",
+                                      f"{VarStat.MAX}, {VarStat.MIN}, {VarStat.MEDIAN}, {VarStat.MEAN}, {VarStat.GEOMEAN}, {VarStat.MODE},",
+                                      f"{VarStat.SIGMAP}, {VarStat.GAUSSIANP}, {VarStat.ORDERSTATTI}, {VarStat.ORDERSTATP}"]))
 
 
     def genStatsMax(self):
@@ -116,7 +118,7 @@ class MCVarStat:
         if 'sig' not in self.statkwargs:
             raise ValueError(f'{self.stattype} requires the kwarg ''sig''')
         if 'bound' not in self.statkwargs:
-            self.bound = '2-sided'
+            self.bound = StatBound.TWOSIDED
         else:
             self.bound = self.statkwargs['bound']
 
@@ -130,7 +132,7 @@ class MCVarStat:
         if 'p' not in self.statkwargs:
             raise ValueError(f'{self.stattype} requires the kwarg ''p''')
         if 'bound' not in self.statkwargs:
-            self.bound = '2-sided'
+            self.bound = StatBound.TWOSIDED
         else:
             self.bound = self.statkwargs['bound']
 
@@ -175,15 +177,15 @@ class MCVarStat:
     def genStatsOrderStatTI(self):
         self.checkOrderStatsKWArgs()
       
-        if self.bound == '1-sided' and self.p >= 0.5:
-            self.side = 'high'
-        elif self.bound == '1-sided':
-            self.side = 'low'
-        elif self.bound == '2-sided':
-            self.side = 'both'
-        elif self.bound == 'all':
-            self.bound = '2-sided'
-            self.side = 'all'
+        if self.bound == StatBound.ONESIDED and self.p >= 0.5:
+            self.side = VarStatSide.HIGH
+        elif self.bound == StatBound.ONESIDED:
+            self.side = VarStatSide.LOW
+        elif self.bound == StatBound.TWOSIDED:
+            self.side = VarStatSide.BOTH
+        elif self.bound == StatBound.ALL:
+            self.bound = StatBound.TWOSIDED
+            self.side = VarStatSide.ALL
         else:
             raise ValueError(f'{self.bound} is not a valid bound for genStatsOrderStatTI')
 
@@ -193,17 +195,17 @@ class MCVarStat:
 
         if self.mcvar.isscalar:
             sortednums = sorted(self.mcvar.nums)
-            if self.side == 'low':
+            if self.side == VarStatSide.LOW:
                 sortednums.reverse()
-            if self.side in ('high', 'low'):
+            if self.side in (VarStatSide.HIGH, VarStatSide.LOW):
                 self.nums = sortednums[-self.k]
                 if self.mcvar.nummap is not None:
                     self.vals = self.mcvar.nummap[self.nums]
-            elif self.side == 'both':
+            elif self.side == VarStatSide.BOTH:
                 self.nums = np.array([sortednums[self.k-1], sortednums[-self.k]])
                 if self.mcvar.nummap is not None:
                     self.vals = np.array([self.mcvar.nummap[self.nums[0]], self.mcvar.nummap[self.nums[1]]])
-            elif self.side == 'all':
+            elif self.side == VarStatSide.ALL:
                 self.nums = np.array([sortednums[self.k-1], np.median(sortednums), sortednums[-self.k]])
                 if self.mcvar.nummap is not None:
                     self.vals = np.array([self.mcvar.nummap[self.nums[0]], self.mcvar.nummap[self.nums[1]], self.mcvar.nummap[self.nums[2]]])
@@ -213,20 +215,20 @@ class MCVarStat:
         elif self.mcvar.size[0] == 1:
             npoints = max(len(x) for x in self.mcvar.nums)
             self.nums = np.empty(npoints)
-            if self.side == 'both':
+            if self.side == VarStatSide.BOTH:
                 self.nums = np.empty((npoints, 2))
-            elif self.side == 'all':
+            elif self.side == VarStatSide.ALL:
                 self.nums = np.empty((npoints, 3))
             for i in range(npoints):
                 numsatidx = [x[i] for x in self.mcvar.nums if len(x)>i]
                 sortednums = sorted(numsatidx)
-                if self.side == 'low':
+                if self.side == VarStatSide.LOW:
                     sortednums.reverse()
-                if self.side in ('high', 'low'):
+                if self.side in (VarStatSide.HIGH, VarStatSide.LOW):
                     self.nums[i] = sortednums[-self.k]
-                elif self.side == 'both':
+                elif self.side == VarStatSide.BOTH:
                     self.nums[i,:] = [sortednums[self.k-1], sortednums[-self.k]]
-                elif self.side == 'all':
+                elif self.side == VarStatSide.ALL:
                     self.nums[i,:] = [sortednums[self.k-1], sortednums[int(np.round(len(sortednums)/2)-1)], sortednums[-self.k]]
             if self.mcvar.nummap is not None:
                 self.vals = np.array([[self.mcvar.nummap[x] for x in y] for y in self.nums])
@@ -243,10 +245,10 @@ class MCVarStat:
         self.checkOrderStatsKWArgs()
       
         bound = self.bound
-        if self.bound not in ('1-sided high', '1-sided low', '2-sided', 'nearest', 'all'):
+        if self.bound not in (StatBound.ONESIDED_UPPER, StatBound.ONESIDED_LOWER, StatBound.TWOSIDED, StatBound.NEAREST, StatBound.ALL):
             raise ValueError(f'{self.bound} is not a valid bound for genStatsOrderStatP')
-        elif self.bound in ('nearest', 'all'):
-            bound = '2-sided'
+        elif self.bound in (StatBound.NEAREST, StatBound.ALL):
+            bound = StatBound.TWOSIDED
         
         self.setName(f'{self.bound} {self.c*100}% Confidence Bound around {self.p*100}th Percentile')
 
@@ -255,20 +257,20 @@ class MCVarStat:
         (iPl, iP, iPu) = get_iP(n=self.mcvar.ncases, P=self.p) 
         if self.mcvar.isscalar:
             sortednums = sorted(self.mcvar.nums)
-            if self.bound == '1-sided low':
+            if self.bound == StatBound.ONESIDED_LOWER:
                 self.nums = sortednums[iPl - self.k]
-            elif self.bound == '1-sided high':
+            elif self.bound == StatBound.ONESIDED_UPPER:
                 self.nums = sortednums[iPu + self.k]
-            elif self.bound == 'nearest':
+            elif self.bound == StatBound.NEAREST:
                 self.nums = sortednums[iP]
-            if self.bound in ('1-sided low', '1-sided high', 'nearest'):
+            if self.bound in (StatBound.ONESIDED_LOWER, StatBound.ONESIDED_UPPER, StatBound.NEAREST):
                 if self.mcvar.nummap is not None:
                     self.vals = self.mcvar.nummap[self.nums]
-            elif self.bound == '2-sided':
+            elif self.bound == StatBound.TWOSIDED:
                 self.nums = np.array([sortednums[iPl - self.k], sortednums[iPu + self.k]])
                 if self.mcvar.nummap is not None:
                     self.vals = np.array([self.mcvar.nummap[self.nums[0]], self.mcvar.nummap[self.nums[1]]])
-            elif self.bound == 'all':
+            elif self.bound == StatBound.ALL:
                 self.nums = np.array([sortednums[iPl - self.k], sortednums[iP], sortednums[iPu + self.k]])
                 if self.mcvar.nummap is not None:
                     self.vals = np.array([self.mcvar.nummap[self.nums[0]], self.mcvar.nummap[self.nums[1]], self.mcvar.nummap[self.nums[2]]])
@@ -278,22 +280,22 @@ class MCVarStat:
         elif self.mcvar.size[0] == 1:
             npoints = max(len(x) for x in self.mcvar.nums)
             self.nums = np.empty(npoints)
-            if self.bound == '2-sided':
+            if self.bound == StatBound.TWOSIDED:
                 self.nums = np.empty((npoints, 2))
-            elif self.bound == 'all':
+            elif self.bound == StatBound.ALL:
                 self.nums = np.empty((npoints, 3))
             for i in range(npoints):
                 numsatidx = [x[i] for x in self.mcvar.nums if len(x)>i]
                 sortednums = sorted(numsatidx)
-                if self.bound == '1-sided low':
+                if self.bound == StatBound.ONESIDED_LOWER:
                     self.nums[i] = sortednums[iPl - self.k]
-                elif self.bound == '1-sided high':
+                elif self.bound == StatBound.ONESIDED_UPPER:
                     self.nums[i] = sortednums[iPu + self.k]
-                elif self.bound == 'nearest':
+                elif self.bound == StatBound.NEAREST:
                     self.nums[i] = sortednums[iP]
-                elif self.bound == '2-sided':
+                elif self.bound == StatBound.TWOSIDED:
                     self.nums[i,:] = [sortednums[iPl - self.k], sortednums[iPu + self.k]]
-                elif self.bound == 'all':
+                elif self.bound == StatBound.ALL:
                     self.nums[i,:] = [sortednums[iPl - self.k], sortednums[iP], sortednums[iPu + self.k]]
             if self.mcvar.nummap is not None:
                 self.vals = np.array([[self.mcvar.nummap[x] for x in y] for y in self.nums])
@@ -316,7 +318,7 @@ class MCVarStat:
         else:
             self.c = self.statkwargs['c']
         if 'bound' not in self.statkwargs:
-            self.bound = '2-sided'
+            self.bound = StatBound.TWOSIDED
         else:
             self.bound = self.statkwargs['bound']
 

@@ -4,7 +4,7 @@ import numpy as np
 from scipy.optimize import root_scalar
 from typing import Union
 from Monaco.gaussian_statistics import pct2sig
-from Monaco.mc_sampling import SampleMethod
+from Monaco.MCEnums import SampleMethod
 
 def integration_error(nums         : list[float],
                       dimension    : int, 
@@ -105,7 +105,7 @@ def integration_args_check(error        : float,
     if not 0 < conf < 1:
         raise ValueError(f"{conf=} must be between 0 and 1")
     if samplemethod not in (SampleMethod.RANDOM, SampleMethod.SOBOL):
-        raise ValueError(f"{samplemethod=} must be either SampleMethod.RANDOM, or SampleMethod.SOBOL")
+        raise ValueError(f"{samplemethod=} must be either {SampleMethod.RANDOM} or {SampleMethod.SOBOL}")
     if dimension < 1:
         raise ValueError(f'{dimension=} must be a positive integer')
 

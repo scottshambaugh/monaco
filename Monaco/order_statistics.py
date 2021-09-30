@@ -3,6 +3,7 @@
 import scipy.stats
 import numpy as np
 from warnings import warn
+from Monaco.MCEnums import StatBound
 '''
 Reference:
 Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A Guide for 
@@ -13,8 +14,8 @@ Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A Guide for
 def order_stat_TI_n(k     : int, 
                     p     : float, # 0 < p < 1 
                     c     : float, # 0 < c < 1
-                    nmax  : int = int(1e7), 
-                    bound : str = '2-sided', # '1-sided' or '2-sided'
+                    nmax  : int       = int(1e7), 
+                    bound : StatBound = StatBound.TWOSIDED, # '1-sided' or '2-sided'
                     ) -> int:
     '''
     Order Statistic Tolerance Interval, find n
@@ -39,12 +40,12 @@ def order_stat_TI_n(k     : int,
     '''
     order_stat_var_check(p=p, k=k, c=c, nmax=nmax)
     
-    if bound == '2-sided':
+    if bound == StatBound.TWOSIDED:
         l = k  # we won't be using assymmetrical order stats
-    elif bound == '1-sided':
+    elif bound == StatBound.ONESIDED:
         l = 0
     else:
-        raise ValueError(f"{bound=} must be '1-sided' or '2-sided'")   
+        raise ValueError(f"{bound=} must be {StatBound.ONESIDED} or {StatBound.TWOSIDED}")
 
     # use bisection to get minimum n (secant method is unstable due to flat portions of curve)
     n = [1,nmax]
@@ -72,18 +73,18 @@ def order_stat_TI_n(k     : int,
 def order_stat_TI_p(n     : int, 
                     k     : int, 
                     c     : float, # 0 < c < 1 
-                    ptol  : float = 1e-9, 
-                    bound : str = '2-sided', # '1-sided' or '2-sided'
+                    ptol  : float     = 1e-9, 
+                    bound : StatBound = StatBound.TWOSIDED, # '1-sided' or '2-sided'
                     ) -> float:
     # Order Statistic Tolerance Interval, find p
     order_stat_var_check(n=n, k=k, c=c)
     
-    if bound == '2-sided':
+    if bound == StatBound.TWOSIDED:
         l = k  # we won't be using assymmetrical order stats
-    elif bound == '1-sided':
+    elif bound == StatBound.ONESIDED:
         l = 0
     else:
-        raise ValueError(f"{bound=} must be '1-sided' or '2-sided'")   
+        raise ValueError(f"{bound=} must be {StatBound.ONESIDED} or {StatBound.TWOSIDED}")
     u = n + 1 - k
 
     # use bisection to get n (secant method is unstable due to flat portions of curve)
@@ -106,17 +107,17 @@ def order_stat_TI_p(n     : int,
 def order_stat_TI_k(n     : int, 
                     p     : float, # 0 < p < 1 
                     c     : float, # 0 < p < 1
-                    bound : str = '2-sided', # '1-sided' or '2-sided'
+                    bound : StatBound = StatBound.TWOSIDED, # '1-sided' or '2-sided'
                     ) -> int:
     # Order Statistic Tolerance Interval, find maximum k
     order_stat_var_check(n=n, p=p, c=c)
     
-    if bound == '2-sided':
+    if bound == StatBound.TWOSIDED:
         l = 1  # we won't be using assymmetrical order stats
-    elif bound == '1-sided':
+    elif bound == StatBound.ONESIDED:
         l = 0
     else:
-        raise ValueError(f"{bound=} must be '1-sided' or '2-sided'")   
+        raise ValueError(f"{bound=} must be {StatBound.ONESIDED} or {StatBound.TWOSIDED}")
 
     if EPTI(n, l, n, p) < c:
         warn(f'{n=} is too small to meet {p=} at {c=} for {bound} tolerance interval at any order statistic')
@@ -131,9 +132,9 @@ def order_stat_TI_k(n     : int,
         if step < 1:
             return int(k[1])-1
         else:
-            if bound == '2-sided':
+            if bound == StatBound.TWOSIDED:
                 l = ktemp  # we won't be using assymmetrical order stats
-            elif bound == '1-sided':
+            elif bound == StatBound.ONESIDED:
                 l = 0
             u = n + 1 - ktemp
             
@@ -148,17 +149,17 @@ def order_stat_TI_k(n     : int,
 def order_stat_TI_c(n     : int, 
                     k     : int,
                     p     : float, # 0 < p < 1 
-                    bound : str = '2-sided', # '1-sided' or '2-sided'
+                    bound : StatBound = StatBound.TWOSIDED, # '1-sided' or '2-sided'
                     ) -> float:
     # Order Statistic Tolerance Interval, find c
     order_stat_var_check(n=n, p=p, k=k)
     
-    if bound == '2-sided':
+    if bound == StatBound.TWOSIDED:
         l = k  # we won't be using assymmetrical order stats
-    elif bound == '1-sided':
+    elif bound == StatBound.ONESIDED:
         l = 0
     else:
-        raise ValueError(f"{bound=} must be '1-sided' or '2-sided'")   
+        raise ValueError(f"{bound=} must be {StatBound.ONESIDED} or {StatBound.TWOSIDED}")
 
     u = n + 1 - k
     
@@ -171,7 +172,7 @@ def order_stat_P_n(k     : int,
                    P     : float,           # 0 < P < 1 
                    c     : float,           # 0 < c < 1
                    nmax  : int = int(1e7), 
-                   bound : str = '2-sided', # '1-sided upper', '1-sided lower', or '2-sided'
+                   bound : StatBound = StatBound.TWOSIDED, # '1-sided' or '2-sided'
                    ) -> int:
     '''
     Order Statistic Percentile, find n
@@ -204,26 +205,26 @@ def order_stat_P_n(k     : int,
     maxsteps = 1000 # nmax hard limit of 2^1000
     
     (iPl, iP, iPu) = get_iP(n[0], P)
-    if bound == '2-sided':
+    if bound == StatBound.TWOSIDED:
         l = iPl - k + 1 # we won't be using assymmetrical order stats
         u = iPu + k - 1
         if l <= 0 or u >= n[1] + 1 or EPYP(n[0], l, u, P) < c:
             print(f'n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} at {c=}. Increase nmax, raise k, or loosen constraints.')
             return None
-    elif bound == '1-sided upper':
+    elif bound == StatBound.ONESIDED_UPPER:
         l = 0
         u = iPu + k -1
         if u >= n[1] + 1 or EPYP(n[0], l, u, P) < c:
             print(f'n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} at {c=}. Increase nmax, raise k, or loosen constraints.')
             return None
-    elif bound == '1-sided lower':
+    elif bound == StatBound.ONESIDED_LOWER:
         l = iPl - k + 1
         u = n[0] + 1
         if l <= 0 or EPYP(n[0], l, u, P) < c:
             print(f'n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} at {c=}. Increase nmax, raise k, or loosen constraints.')
             return None
     else:
-        raise ValueError(f"{bound=} must be '1-sided upper', '1-sided lower', or '2-sided'")   
+        raise ValueError(f"{bound=} must be {StatBound.ONESIDED_UPPER}, {StatBound.ONESIDED_LOWER}, or {StatBound.TWOSIDED}")
 
 
     for i in range(maxsteps):
@@ -233,13 +234,13 @@ def order_stat_P_n(k     : int,
         else:
             ntemp = n[0] + np.ceil(step)
             (iPl, iP, iPu) = get_iP(ntemp, P)    
-            if bound == '2-sided':
+            if bound == StatBound.TWOSIDED:
                 l = iPl - k  # we won't be using assymmetrical order stats
                 u = iPu + k
-            elif bound == '1-sided upper':
+            elif bound == StatBound.ONESIDED_UPPER:
                 l = 0
                 u = iPu + k
-            elif bound == '1-sided lower':
+            elif bound == StatBound.ONESIDED_LOWER:
                 l = iPl - k
                 u = ntemp + 1
             if EPYP(ntemp, l, u, P) > c:
@@ -254,13 +255,13 @@ def order_stat_P_n(k     : int,
 def order_stat_P_k(n     : int, 
                    P     : float,           # 0 < P < 1 
                    c     : float,           # 0 < c < 1
-                   bound : str = '2-sided', # '1-sided upper', '1-sided lower', or '2-sided'
+                   bound : StatBound = StatBound.TWOSIDED, # '1-sided upper', '1-sided lower', or '2-sided'
                    ) -> int:
     # Order Statistic Percentile, find maximum k
     order_stat_var_check(n=n, p=P, c=c)
     
     (iPl, iP, iPu) = get_iP(n, P)    
-    if bound == '2-sided':
+    if bound == StatBound.TWOSIDED:
         k = [1, min(iPl, n + 1 - iPu)]
         l = iPl - k[1] + 1 # we won't be using assymmetrical order stats
         u = iPu + k[1] - 1
@@ -268,7 +269,7 @@ def order_stat_P_k(n     : int,
             warn(f'{n=} is too small to meet {P=} at {c=} for {bound} percentile confidence interval at any order statistic')
             return None
 
-    elif bound == '1-sided upper':
+    elif bound == StatBound.ONESIDED_UPPER:
         k = [1, n + 1 - iPu]
         l = 0
         u = iPu + k[1] - 1
@@ -276,7 +277,7 @@ def order_stat_P_k(n     : int,
             warn(f'{n=} is too small to meet {P=} at {c=} for {bound} percentile confidence interval at any order statistic')
             return None
 
-    elif bound == '1-sided lower':
+    elif bound == StatBound.ONESIDED_LOWER:
         k = [1, iPl]
         l = iPl - k[1] + 1
         u = n + 1
@@ -284,7 +285,7 @@ def order_stat_P_k(n     : int,
             warn(f'{n=} is too small to meet {P=} at {c=} for {bound} percentile confidence interval at any order statistic')
             return None
     else:
-        raise ValueError(f"{bound=} must be '1-sided upper', '1-sided lower', or '2-sided'")
+        raise ValueError(f"{bound=} must be {StatBound.ONESIDED_UPPER}, {StatBound.ONESIDED_LOWER}, or {StatBound.TWOSIDED}")
 
     # use bisection to get n (secant method is unstable due to flat portions of curve)
     maxsteps = 1000 # nmax hard limit of 2^1000
@@ -296,13 +297,13 @@ def order_stat_P_k(n     : int,
             return int(k[1])
         
         else:
-            if bound == '2-sided':
+            if bound == StatBound.TWOSIDED:
                 l = iPl - ktemp
                 u = iPu + ktemp
-            elif bound == '1-sided upper':
+            elif bound == StatBound.ONESIDED_UPPER:
                 l = 0
                 u = iPu + ktemp
-            elif bound == '1-sided lower':
+            elif bound == StatBound.ONESIDED_LOWER:
                 l = iPl - ktemp
                 u = n + 1
                 
@@ -318,23 +319,23 @@ def order_stat_P_k(n     : int,
 def order_stat_P_c(n     : int, 
                    k     : int, 
                    P     : float,           # 0 < P < 1
-                   bound : str = '2-sided', # '1-sided upper', '1-sided lower', or '2-sided'
+                   bound : StatBound = StatBound.TWOSIDED, # '1-sided upper', '1-sided lower', or '2-sided'
                    ) -> float:
     # Order Statistic Percentile, find c
     order_stat_var_check(n=n, p=P, k=k)
 
     (iPl, iP, iPu) = get_iP(n, P)    
-    if bound == '2-sided':
+    if bound == StatBound.TWOSIDED:
         l = iPl - k  # we won't be using assymmetrical order stats
         u = iPu + k 
-    elif bound == '1-sided upper':
+    elif bound == StatBound.ONESIDED_UPPER:
         l = 0
         u = iPu + k
-    elif bound == '1-sided lower':
+    elif bound == StatBound.ONESIDED_LOWER:
         l = iPl - k
         u = n + 1
     else:
-        raise ValueError(f"{bound=} must be '1-sided upper', '1-sided lower', or '2-sided'")
+        raise ValueError(f"{bound=} must be {StatBound.ONESIDED_UPPER}, {StatBound.ONESIDED_LOWER}, or {StatBound.TWOSIDED}")
         
     if l < 0 or u > n+1:
         raise ValueError(f'{l=} or {u=} are outside the valid bounds of (0, {n+1}) (check: {iP=}, {k=})') 

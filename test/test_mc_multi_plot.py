@@ -10,7 +10,7 @@ def inline_testing():
     import matplotlib.pyplot as plt
     from Monaco.MCVar import MCInVar
     from Monaco.mc_multi_plot import mc_multi_plot
-    from Monaco.mc_sampling import SampleMethod
+    from Monaco.MCEnums import SampleMethod
 
     plt.close('all')
     

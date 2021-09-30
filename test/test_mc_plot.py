@@ -10,7 +10,7 @@ def inline_testing():
     from scipy.stats import randint, norm
     from Monaco.MCVar import MCInVar, MCOutVar
     from Monaco.mc_plot import mc_plot, mc_plot_hist, mc_plot_cdf, mc_plot_cov_corr, mc_plot_integration_convergence, mc_plot_integration_error
-    from Monaco.mc_sampling import SampleMethod
+    from Monaco.MCEnums import SampleMethod
 
     generator = np.random.RandomState(74494861)
     invarseeds = generator.randint(0, 2**31-1, size=10)

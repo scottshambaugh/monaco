@@ -4,7 +4,8 @@ import numpy as np
 from scipy.stats import rv_continuous, rv_discrete, describe
 from Monaco.MCVal import MCInVal, MCOutVal
 from Monaco.MCVarStat import MCVarStat
-from Monaco.mc_sampling import mc_sampling, SampleMethod
+from Monaco.MCEnums import SampleMethod
+from Monaco.mc_sampling import mc_sampling
 from copy import copy
 from typing import Union, Any
 from warnings import warn

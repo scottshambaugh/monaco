@@ -2,10 +2,11 @@
 
 import scipy.stats
 import numpy as np
+from Monaco.MCEnums import StatBound
 
 
-def pct2sig(p     : float,           # 0 < p < 1
-            bound : str = '2-sided', # '1-sided' or '2-sided'
+def pct2sig(p     : float,                          # 0 < p < 1
+            bound : StatBound = StatBound.TWOSIDED, # '1-sided' or '2-sided'
             ) -> float:
     # Converts a percentile to a gaussian sigma value (1-sided), or to the 
     # sigma value for which the range (-sigma, +sigma) bounds that percent of 
@@ -29,7 +30,7 @@ def pct2sig(p     : float,           # 0 < p < 1
 
 
 def sig2pct(sig   : float, 
-            bound : str = '2-sided', # '1-sided' or '2-sided'
+            bound : StatBound = StatBound.TWOSIDED, # '1-sided' or '2-sided'
             ) -> float:
     # Converts a gaussian sigma value to a percentile (1-sided), or to the percent
     # of the normal distribution bounded by (-sigma, +sigma) (2-sided)
