@@ -2,7 +2,7 @@
 
 import pytest
 from Monaco.gaussian_statistics import sig2pct, pct2sig, conf_ellipsoid_sig2pct, conf_ellipsoid_pct2sig
-from MCEnums import StatBound
+from Monaco.MCEnums import StatBound
 
 def test_sig2pct():
     assert sig2pct(sig= 3, bound=StatBound.ONESIDED) == pytest.approx( 0.9986501)
