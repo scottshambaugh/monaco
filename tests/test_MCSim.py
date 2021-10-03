@@ -3,7 +3,7 @@
 import pytest
 from monaco.MCSim import MCSim
 from monaco.MCEnums import MCFunctions, SampleMethod
-from test.mcsim_testing_fcns import dummyfcn
+from tests.mcsim_testing_fcns import dummyfcn
 import numpy as np
 
 seed = 74494861

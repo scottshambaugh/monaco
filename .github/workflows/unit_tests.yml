@@ -10,30 +10,23 @@ on:
       - develop
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Install Python 3
-        uses: actions/setup-python@v1
+      - name: Check out repository
+        uses: actions/checkout@v2
+      
+      - name: Set up python
+        uses: actions/setup-python@v2
         with:
           python-version: 3.9
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
 
-      - name: Cache Poetry virtualenv
-        uses: actions/cache@v1
-        id: cache
-        with:
-          path: ~/.virtualenvs
-          key: poetry-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            poetry-${{ hashFiles('**/poetry.lock') }}
-
-      - name: Install Dependencies using Poetry
+      - name: Install library
         run: poetry install
-        if: steps.cache.outputs.cache-hit != 'true'
 
-      - name: Run pytest
-        run: poetry run pytest 
+      - name: Run tests
+        run: |
+          poetry run python -m pytest
