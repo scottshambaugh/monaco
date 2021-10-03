@@ -1,5 +1,5 @@
 # mcsim_testing_fcns.py
-from Monaco.MCEnums import MCFunctions
+from monaco.MCEnums import MCFunctions
 
 def testing_preprocess(mccase):
     return ([True,])

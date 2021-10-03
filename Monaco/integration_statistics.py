@@ -3,8 +3,8 @@
 import numpy as np
 from scipy.optimize import root_scalar
 from typing import Union
-from Monaco.gaussian_statistics import pct2sig
-from Monaco.MCEnums import SampleMethod
+from monaco.gaussian_statistics import pct2sig
+from monaco.MCEnums import SampleMethod
 
 def integration_error(nums         : list[float],
                       dimension    : int, 

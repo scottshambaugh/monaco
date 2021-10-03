@@ -1,3 +1,3 @@
-## [Monaco](../../) - [Examples](../)
+## [monaco](../../) - [Examples](../)
 
 ### Evidence-Based Scheduling

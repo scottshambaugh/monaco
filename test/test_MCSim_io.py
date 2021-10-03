@@ -1,7 +1,7 @@
 # test_MCSim_io.py
 
 import pytest 
-from Monaco.MCSim import MCSim
+from monaco.MCSim import MCSim
 import dill
 import os
 

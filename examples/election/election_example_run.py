@@ -31,7 +31,7 @@ def election_example_run(states, state_evs, state_dem_pct, state_rep_pct, state_
 '''
 ### Test ###
 if __name__ == '__main__':
-    from Monaco.order_statistics import pct2sig
+    from monaco.order_statistics import pct2sig
     data = pd.read_csv('state_presidential_odds.csv')
     states = data['State'].tolist()
     state_evs = dict(zip(data['State'], data['EV']))

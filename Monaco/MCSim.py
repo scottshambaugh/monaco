@@ -5,10 +5,10 @@ import numpy as np
 import dill
 import pathlib
 from datetime import datetime
-from Monaco.MCCase import MCCase
-from Monaco.MCVar import MCInVar, MCOutVar
-from Monaco.MCEnums import MCFunctions, SampleMethod
-from Monaco.helper_functions import get_iterable, slice_by_index, vprint, vwarn, vwrite, hash_str_repeatable
+from monaco.MCCase import MCCase
+from monaco.MCVar import MCInVar, MCOutVar
+from monaco.MCEnums import MCFunctions, SampleMethod
+from monaco.helper_functions import get_iterable, slice_by_index, vprint, vwarn, vwrite, hash_str_repeatable
 from psutil import cpu_count
 from pathos.pools import ThreadPool as Pool
 from tqdm import tqdm

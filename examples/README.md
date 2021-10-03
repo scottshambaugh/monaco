@@ -1,4 +1,4 @@
-## [Monaco](../) - Examples
+## [monaco](../) - Examples
 
 ### [Early Retirement Investment Portfolio](early_retirement_investment_portfolio/)
 Models an investment portfolio's balance during a retirement drawn-down, and calculates the likelihood of going broke. A good look at using pandas for time series data, generating input variables algorithmically, and using correlation coefficients meaningfully.
@@ -10,7 +10,7 @@ Models probabalistic outcomes for the 2020 US Presidential election, based on st
 TODO. Based on [this](https://www.joelonsoftware.com/2007/10/26/evidence-based-scheduling/).
 
 ### [Integration](integration/)
-Shows best practices for Monte-Carlo integration, to calculate the value of pi from the area of a circle. Please note that Monaco is not particularly well suited for the use case of Monte-Carlo integration, as it requires a good bit of memory overhead to hold its data. This example also shows all the key functions compressed into a single file.
+Shows best practices for Monte-Carlo integration, to calculate the value of pi from the area of a circle. Please note that monaco is not particularly well suited for the use case of Monte-Carlo integration, as it requires a good bit of memory overhead to hold its data. This example also shows all the key functions compressed into a single file.
 
 ### [Pandemic](pandemic/)
 Models the spread of a virus through a scale-free network using an SIR model. A good look at using order statistics to figure out how many cases to run, passing random seeds to a program during preprocessing, and some more complicated postprocessing.

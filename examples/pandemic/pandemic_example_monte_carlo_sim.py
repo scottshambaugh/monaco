@@ -1,8 +1,8 @@
 from scipy.stats import uniform
-from Monaco.MCSim import MCSim
-from Monaco.mc_plot import mc_plot
-from Monaco.mc_multi_plot import mc_multi_plot
-from Monaco.order_statistics import order_stat_TI_n
+from monaco.MCSim import MCSim
+from monaco.mc_plot import mc_plot
+from monaco.mc_multi_plot import mc_multi_plot
+from monaco.order_statistics import order_stat_TI_n
 from math import ceil
 
 

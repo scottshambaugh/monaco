@@ -3,7 +3,7 @@
 import pytest
 from collections.abc import Iterable
 import pandas as pd
-from Monaco.helper_functions import next_power_of_2, hash_str_repeatable, is_num, length, get_iterable, slice_by_index
+from monaco.helper_functions import next_power_of_2, hash_str_repeatable, is_num, length, get_iterable, slice_by_index
 
 @pytest.mark.parametrize("num,ans", [
     (0, 0),

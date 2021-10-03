@@ -2,14 +2,14 @@
 
 import pytest
 import numpy as np
-from Monaco.MCVarStat import MCVarStat
-from Monaco.gaussian_statistics import sig2pct
-from Monaco.MCEnums import SampleMethod, StatBound, VarStat
+from monaco.MCVarStat import MCVarStat
+from monaco.gaussian_statistics import sig2pct
+from monaco.MCEnums import SampleMethod, StatBound, VarStat
 
 @pytest.fixture
 def mcinvar():
     from scipy.stats import norm
-    from Monaco.MCVar import MCInVar
+    from monaco.MCVar import MCInVar
     seed = 74494861
     return MCInVar('norm', ndraws=100000, dist=norm, distkwargs={'loc':0, 'scale':1}, samplemethod=SampleMethod.RANDOM, seed=seed)
 
@@ -36,7 +36,7 @@ def test_mcvarstat_setName(mcinvar):
 v = np.array([-2, -1, 2, 3, 4, 5])
 
 def test_mcoutvarstat_2d():
-    from Monaco.MCVar import MCOutVar
+    from monaco.MCVar import MCOutVar
     outvar = MCOutVar('test', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
     mcoutvarstat1 = MCVarStat(outvar, stattype=VarStat.ORDERSTATTI, statkwargs={'p':0.6, 'c':0.50, 'bound':StatBound.ALL})
     mcoutvarstat2 = MCVarStat(outvar, stattype=VarStat.MIN)
@@ -45,7 +45,7 @@ def test_mcoutvarstat_2d():
     
     
 def test_mcoutvarstat_2d_irregular():
-    from Monaco.MCVar import MCOutVar
+    from monaco.MCVar import MCOutVar
     outvar = MCOutVar('test', [1*v, 2*v, 0*v, -1*v, [0,0]], firstcaseisnom=True)
     mcoutvarstat = MCVarStat(outvar, stattype=VarStat.MIN)
     assert(np.allclose(mcoutvarstat.vals,[-4, -2, -2, -3, -4, -5.]))
@@ -56,7 +56,7 @@ def test_mcoutvarstat_2d_irregular():
 # Can run here or copy into bottom of main file
 def inline_testing():
     from scipy.stats import norm
-    from Monaco.MCVar import MCInVar, MCOutVar
+    from monaco.MCVar import MCInVar, MCOutVar
     seed = 74494861
 
     mcinvar2 = MCInVar('norm', ndraws=100000, dist=norm, distkwargs={'loc':0, 'scale':1}, samplemethod=SampleMethod.RANDOM, seed=seed)

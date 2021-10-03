@@ -2,7 +2,7 @@
 
 import scipy.stats
 import numpy as np
-from Monaco.MCEnums import StatBound
+from monaco.MCEnums import StatBound
 
 
 def pct2sig(p     : float,                          # 0 < p < 1

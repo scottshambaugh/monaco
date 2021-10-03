@@ -1,8 +1,8 @@
 # test_integration_statistics.py
 
 import pytest
-from Monaco.integration_statistics import integration_error, integration_n_from_err, max_variance, max_stdev
-from Monaco.MCEnums import SampleMethod
+from monaco.integration_statistics import integration_error, integration_n_from_err, max_variance, max_stdev
+from monaco.MCEnums import SampleMethod
 
 def test_integration_error():
     assert integration_error([1, 0, 2], conf=0.95, dimension=1, samplemethod=SampleMethod.RANDOM, runningError=False) == pytest.approx(0.4619679)
@@ -29,7 +29,7 @@ def test_max_stdev():
 def inline_testing():
     import numpy as np
     import matplotlib.pyplot as plt
-    from Monaco.mc_sampling import mc_sampling
+    from monaco.mc_sampling import mc_sampling
 
     print(integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.RANDOM, runningError=False))      # Expected: 0.4619679
     print(integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.RANDOM, runningError=True))       # Expected: [0.8001519, 0.5657928, 0.4619679]

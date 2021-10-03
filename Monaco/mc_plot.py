@@ -6,11 +6,11 @@ import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.patches import Ellipse
 from mpl_toolkits.mplot3d import Axes3D
-from Monaco.MCVar import MCVar, MCInVar, MCOutVar
-from Monaco.helper_functions import get_iterable, slice_by_index, length
-from Monaco.gaussian_statistics import conf_ellipsoid_sig2pct
-from Monaco.integration_statistics import integration_error
-from Monaco.MCEnums import SampleMethod
+from monaco.MCVar import MCVar, MCInVar, MCOutVar
+from monaco.helper_functions import get_iterable, slice_by_index, length
+from monaco.gaussian_statistics import conf_ellipsoid_sig2pct
+from monaco.integration_statistics import integration_error
+from monaco.MCEnums import SampleMethod
 from copy import copy
 from typing import Union
 

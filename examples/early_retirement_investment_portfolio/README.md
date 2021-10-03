@@ -1,4 +1,4 @@
-## [Monaco](../../) - [Examples](../)
+## [monaco](../../) - [Examples](../)
 
 ### Early Retirement Investment Portfolio
 This example simulates drawing down a fixed amount of money each year from an 

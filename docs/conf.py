@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Monaco'
+project = 'monaco'
 copyright = '2020, Scott Shambaugh'
 author = 'Scott Shambaugh'
 

@@ -3,10 +3,10 @@
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
-from Monaco.mc_sampling import mc_sampling
-from Monaco.integration_statistics import  integration_args_check
+from monaco.mc_sampling import mc_sampling
+from monaco.integration_statistics import  integration_args_check
 from typing import Union
-from Monaco.gaussian_statistics import pct2sig
+from monaco.gaussian_statistics import pct2sig
 
 n = int(2**19)
 conf = 0.95

@@ -2,10 +2,10 @@
 
 import numpy as np
 from scipy.stats import rv_continuous, rv_discrete, describe
-from Monaco.MCVal import MCInVal, MCOutVal
-from Monaco.MCVarStat import MCVarStat
-from Monaco.MCEnums import SampleMethod
-from Monaco.mc_sampling import mc_sampling
+from monaco.MCVal import MCInVal, MCOutVal
+from monaco.MCVarStat import MCVarStat
+from monaco.MCEnums import SampleMethod
+from monaco.mc_sampling import mc_sampling
 from copy import copy
 from typing import Union, Any
 from warnings import warn

@@ -3,7 +3,7 @@
 import pytest
 import numpy as np
 import pandas as pd
-from Monaco.MCVal import MCInVal, MCOutVal
+from monaco.MCVal import MCInVal, MCOutVal
 
 
 def test_mcinval():

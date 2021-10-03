@@ -1,7 +1,7 @@
 from scipy.stats import uniform
-from Monaco.MCSim import MCSim
-from Monaco.helper_functions import next_power_of_2
-from Monaco.integration_statistics import integration_error, integration_n_from_err, max_stdev
+from monaco.MCSim import MCSim
+from monaco.helper_functions import next_power_of_2
+from monaco.integration_statistics import integration_error, integration_n_from_err, max_stdev
 import numpy as np
 
 # Define our functions
@@ -71,7 +71,7 @@ def integration_example_monte_carlo_sim():
     print(resultsstr)
     
     '''
-    from Monaco.mc_plot import mc_plot, mc_plot_integration_convergence, mc_plot_integration_error
+    from monaco.mc_plot import mc_plot, mc_plot_integration_convergence, mc_plot_integration_error
     import matplotlib.pyplot as plt
     indices_under_curve = [i for i, x in enumerate(sim.mcoutvars['pi_est'].vals) if x]
     fig, ax = mc_plot(sim.mcinvars['x'], sim.mcinvars['y'], highlight_cases=indices_under_curve)

@@ -1,4 +1,4 @@
-## [Monaco](../../) - [Examples](../)
+## [monaco](../../) - [Examples](../)
 
 ### Rocket
 This example simulates the flight of a model rocket, as an example of 

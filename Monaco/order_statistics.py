@@ -3,7 +3,7 @@
 import scipy.stats
 import numpy as np
 from warnings import warn
-from Monaco.MCEnums import StatBound
+from monaco.MCEnums import StatBound
 '''
 Reference:
 Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A Guide for 

@@ -2,8 +2,8 @@
 
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
-from Monaco.mc_plot import mc_plot_hist, mc_plot_2d_scatter
-from Monaco.MCVar import MCVar
+from monaco.mc_plot import mc_plot_hist, mc_plot_2d_scatter
+from monaco.MCVar import MCVar
 from typing import Union
 
 

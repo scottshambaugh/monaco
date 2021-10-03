@@ -4,15 +4,15 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from Monaco.MCVar import MCVar
+    from monaco.MCVar import MCVar
     
 import numpy as np
 from copy import copy
 from statistics import mode
 from scipy.stats.mstats import gmean
-from Monaco.gaussian_statistics import pct2sig, sig2pct
-from Monaco.order_statistics import order_stat_P_k, order_stat_TI_k, get_iP
-from Monaco.MCEnums import StatBound, VarStat, VarStatSide
+from monaco.gaussian_statistics import pct2sig, sig2pct
+from monaco.order_statistics import order_stat_P_k, order_stat_TI_k, get_iP
+from monaco.MCEnums import StatBound, VarStat, VarStatSide
 from typing import Union, Any, Callable
 
 

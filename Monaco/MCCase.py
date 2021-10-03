@@ -1,7 +1,7 @@
 # MCCase.py
 
-from Monaco.MCVar import MCVar
-from Monaco.MCVal import MCOutVal
+from monaco.MCVar import MCVar
+from monaco.MCVal import MCOutVal
 from typing import Union, Any
 import numpy as np
 

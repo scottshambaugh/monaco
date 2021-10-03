@@ -1,12 +1,12 @@
-## [Monaco](../../) - Sampling Methods
+## [monaco](../../) - Sampling Methods
 
 ### Random Sampling Methodology
 
-The way that random samples are drawn for different probability distributions in Monaco is that random numbers are first drawn from a uniform distribution in the range [0, 1]. These represent percentiles, which are then fed into the [inverse cumulative density function](https://en.wikipedia.org/wiki/Quantile_function) of the original probablity distribution to obtain correctly-weighted draws.
+The way that random samples are drawn for different probability distributions in monaco is that random numbers are first drawn from a uniform distribution in the range [0, 1]. These represent percentiles, which are then fed into the [inverse cumulative density function](https://en.wikipedia.org/wiki/Quantile_function) of the original probablity distribution to obtain correctly-weighted draws.
 
 ### Sampling Methods
 
-For drawing percentiles from the underlying uniform distribution, there are several sampling methods implemented in Monaco. See the [scipy.stats.qmc](https://scipy.github.io/devdocs/reference/stats.qmc.html) documentation for more info. 
+For drawing percentiles from the underlying uniform distribution, there are several sampling methods implemented in monaco. See the [scipy.stats.qmc](https://scipy.github.io/devdocs/reference/stats.qmc.html) documentation for more info. 
 
 The first is ```random``` sampling, which uses scipy's pseudorandom number generator as seeded by the program.
 

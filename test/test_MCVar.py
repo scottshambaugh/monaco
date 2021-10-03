@@ -3,8 +3,8 @@
 import pytest
 import numpy as np
 from scipy.stats import rv_discrete
-from Monaco.MCVar import MCInVar, MCOutVar
-from Monaco.MCEnums import SampleMethod
+from monaco.MCVar import MCInVar, MCOutVar
+from monaco.MCEnums import SampleMethod
 
 generator = np.random.RandomState(74494861)
 invarseeds = generator.randint(0, 2**31-1, size=10)

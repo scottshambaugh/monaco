@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from itertools import chain
 from copy import copy, deepcopy
-from Monaco.helper_functions import is_num
+from monaco.helper_functions import is_num
 from typing import Union, Any
 from scipy.stats import rv_discrete, rv_continuous
 from abc import ABC

@@ -5,7 +5,7 @@ from pathos.pools import ThreadPool
 from pathos.pools import ParallelPool
 from pathos.pools import SerialPool
 from multiprocessing import Pool
-from Monaco.helper_functions import timeit
+from monaco.helper_functions import timeit
 
 def slowfcn(n):
     from time import sleep

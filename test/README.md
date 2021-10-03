@@ -1,4 +1,4 @@
-## [Monaco](../) - Test
+## [monaco](../) - Test
 
 Run unit tests starting with "test_" with the ```pytest``` command.
 

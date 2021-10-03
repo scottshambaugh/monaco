@@ -8,9 +8,9 @@ def inline_testing():
     import numpy as np
     from scipy.stats import norm
     import matplotlib.pyplot as plt
-    from Monaco.MCVar import MCInVar
-    from Monaco.mc_multi_plot import mc_multi_plot
-    from Monaco.MCEnums import SampleMethod
+    from monaco.MCVar import MCInVar
+    from monaco.mc_multi_plot import mc_multi_plot
+    from monaco.MCEnums import SampleMethod
 
     plt.close('all')
     

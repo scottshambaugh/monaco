@@ -1,7 +1,7 @@
 from scipy.stats import uniform, rv_discrete
-from Monaco.MCSim import MCSim
-from Monaco.mc_plot import mc_plot
-from Monaco.mc_multi_plot import mc_multi_plot
+from monaco.MCSim import MCSim
+from monaco.mc_plot import mc_plot
+from monaco.mc_multi_plot import mc_multi_plot
 
 from rocket_example_run import rocket_example_run
 from rocket_example_preprocess import rocket_example_preprocess

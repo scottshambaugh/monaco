@@ -1,8 +1,8 @@
 # test_MCCase.py
 
 import pytest
-from Monaco.MCCase import MCCase
-from Monaco.MCVar import MCInVar
+from monaco.MCCase import MCCase
+from monaco.MCVar import MCInVar
 
 @pytest.fixture
 def mccase():
