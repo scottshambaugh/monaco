@@ -2,6 +2,10 @@ __pycache__/
 _build/
 *.py[cod]
 
+# Poetry
+dist/
+poetry.lock
+
 # Pytest
 .hypothesis/
 .pytest_cache/
