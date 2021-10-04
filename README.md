@@ -1,5 +1,6 @@
 # monaco
 ![Unit Tests](https://github.com/scottshambaugh/monaco/actions/workflows/unit_tests.yml/badge.svg)
+![Builds](https://github.com/scottshambaugh/monaco/actions/workflows/builds.yml/badge.svg)
 
 ### Overview
 
