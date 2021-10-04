@@ -20,6 +20,7 @@ psutil = "^5.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.0.0"
+coverage = "^6.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

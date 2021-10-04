@@ -9,6 +9,8 @@ poetry.lock
 # Pytest
 .hypothesis/
 .pytest_cache/
+htmlcov/
+.coverage
 
 # MCSim Results
 *_results/
