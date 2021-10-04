@@ -45,3 +45,4 @@ jobs:
           source .venv/bin/activate
           poetry run coverage run --source=monaco -m pytest
           poetry run coverage report -m
+          poetry run coverage html
