@@ -4,7 +4,6 @@ _build/
 
 # Poetry
 dist/
-poetry.lock
 
 # Pytest
 .hypothesis/
