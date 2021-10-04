@@ -60,20 +60,6 @@ A progress bar in the terminal will show the progress as the results for all cas
 See the [examples](examples/) folder for some examples you can step through or use as templates. Some details and several more features here have been passed over, and this documentation will be fleshed out in the future. Of note, saving and loading results to file, 'nominal' cases, running on remote servers, using order statistics, and additional plotting options will need to be explained.
 
 
-### Future Work:
-* Flesh out READMEs and documentation
-* 2D Scatter Statistics
-* Run on remote server (AWS, Azure, Google Cloud)
-* Get custom distributions working
-* Tornado plots
-* Sensitivity Indices (Sobol's Method)
-* Examples:
-    * Evidence-Based Scheduling?
-* 2D/3D Line statistics?
-* Correlation matrix input?
-* Ability to plot derived data in addition to mcvars?
-
-
 ### License:
 Originally created in 2020 by Scott Shambaugh during Coronavirus quarantine.
 
