@@ -1,9 +1,6 @@
 # monaco
 ![Unit Tests](https://github.com/scottshambaugh/monaco/actions/workflows/unit_tests.yml/badge.svg)
 
-This library is a work-in-progress under heavy development. Not recommended for outside use at this time.     
-Originally created in 2020 by Scott Shambaugh during Coronavirus quarantine.
-
 ### Overview
 
 At the heart of all serious forecasting, whether that be of elections, the spread of pandemics, weather, or the path of a rocket on its way to Mars, is a statistical tool known as the [Monte-Carlo method](https://en.wikipedia.org/wiki/Monte_Carlo_method). The Monte-Carlo method, named for the rolling of the dice at the famous Monte Carlo casino located in Monaco, allows you to quantify uncertainty by introducing randomness to otherwise deterministic processes, and seeing what the range of results is.
@@ -11,15 +8,30 @@ At the heart of all serious forecasting, whether that be of elections, the sprea
 `monaco` is a python library for setting up, running, and analyzing Monte-Carlo simulations. Users can define random input variables drawn using chosen sampling methods from any of SciPy's continuous or discrete distributions (including custom distributions), preprocess and structure that data as needed to feed to their main simulation, run that simulation in parallel anywhere from 1 to millions of times, and postprocess the simulation outputs to obtain meaningful, statistically significant conclusions. Plotting and statistical functions specific to use cases that might be encountered are provided, and repeatability of results is ensured through careful management of random seeds.
 
 <p float="left" align="center">
-<img width="293.08" height="270" src="examples/rocket/rocket_trajectory.png">  
-<img width="384.94" height="270" src="examples/rocket/wind_vs_landing.png">
+<img width="293.08" height="270" src="https://raw.githubusercontent.com/scottshambaugh/monaco/master/examples/rocket/rocket_trajectory.png">  
+<img width="384.94" height="270" src="https://raw.githubusercontent.com/scottshambaugh/monaco/master/examples/rocket/wind_vs_landing.png">
 </p>
+
+### Installation:
+General usage:
+```
+pip install monaco
+```
+
+Installing from source and running tests:
+```
+git clone https://github.com/scottshambaugh/monaco.git
+cd monaco
+pip install poetry
+poetry install
+poetry run coverage run --source=monaco -m pytest && poetry run coverage report -m
+```
 
 ### Basic Architecture:
 At the center of a Monte Carlo simulation is a program which you wish to run with randomized inputs. Around this, monaco's Monte Carlo architecture is structured like a sandwich. At the top, you generate a large number of randomized values for your input variables. These input values are preprocessed into the form that your program expects, your program is run, and at the bottom the results are postprocessed to extract values for select output variables. You can then plot, collect statistics about, or otherwise use all the input and output variables from your sim. The sandwich is sliced vertically into individual cases, which are run in parallel to massively speed up computation.
 
 <p float="left" align="left">
-<img width="480" height="380" src="docs/val_var_case_architecture.png">  
+<img width="480" height="380" src="https://raw.githubusercontent.com/scottshambaugh/monaco/master/docs/val_var_case_architecture.png">  
 </p>
 
 ### Basic Workflow:
@@ -48,79 +60,22 @@ A progress bar in the terminal will show the progress as the results for all cas
 See the [examples](examples/) folder for some examples you can step through or use as templates. Some details and several more features here have been passed over, and this documentation will be fleshed out in the future. Of note, saving and loading results to file, 'nominal' cases, running on remote servers, using order statistics, and additional plotting options will need to be explained.
 
 
-### Directory Structure:
-
-* [build](build/)
-* [examples](examples/)
-    - [early_retirement_investment_portfolio](examples/early_retirement_investment_portfolio/)
-    - [election](examples/election/)
-    - [evidence_based_scheduling](examples/evidence_based_scheduling/) (TODO)
-    - [integration](examples/integration/)
-    - [pandemic](examples/pandemic/)
-    - [rocket](examples/rocket/)
-* [monaco](monaco/)
-* [templates](templates/)
-* [test](test/)
-
-### TODO:
-**Before Release:**
+### Future Work:
 * Flesh out READMEs and documentation
 * 2D Scatter Statistics
-* Run on remote server (AWS)
-
-**Future Work:**
-* Run on remote server (Azure, Google Cloud)
+* Run on remote server (AWS, Azure, Google Cloud)
 * Get custom distributions working
 * Tornado plots
 * Sensitivity Indices (Sobol's Method)
 * Examples:
     * Evidence-Based Scheduling?
 * 2D/3D Line statistics?
-* Make pip installable?
 * Correlation matrix input?
 * Ability to plot derived data in addition to mcvars?
 
-**Done:**
-* ~~Examples:~~
-    * ~~Early Retirement Investment Portfolio~~
-    * ~~Election Modeling~~
-    * ~~Integration~~
-    * ~~Pandemic Modeling~~
-    * ~~Rocket Flight~~
-* ~~Linear trend lines on scatter plots~~
-* ~~Save/load results to file~~
-* ~~3sig / X% / Mean / Min / Max statistics~~
-* ~~Make template files~~
-* ~~Set up directory structure~~
-* ~~Make parallelism repeatable~~
-* ~~Correlation matrix output for scalars~~
-* ~~Put in license~~
-* ~~Map custom discrete distributions to keys that pass to functions~~
-* ~~Rug plots~~
-* ~~Scatter-histogram multiplots~~
-* ~~Automatically split outvars~~
-* ~~Highlight specific case on plot~~
-* ~~Specify axis to plot on~~
-* ~~Seed invars with name hash~~
-* ~~Plot specific cases and highlighted cases~~
-* ~~Order statistics tolerance interval and percentiles~~
-* ~~Get parallelism working fast~~
-* ~~Separate postprocessing from running functions~~
-* ~~Progress bar~~
-* ~~Continue partial results~~
-* ~~Dataframe support~~
-* ~~Plot tolerance intervals as shaded regions~~
-* ~~Get keyboard interrupt working~~
-* ~~Sampling schemes (random, sobol, etc)~~
-* ~~Speed up sampling by not regenerating qmc sequences for each invar~~
-* ~~Break out tests~~
-* ~~Convergence plots~~
-* ~~Parallelize preprocessing~~
-* ~~Integration statistics~~
-
-
 
 ### License:
+Originally created in 2020 by Scott Shambaugh during Coronavirus quarantine.
 
 This software is distributed under [the GPLv3.0 license](LICENSE.md).    
 Please contact Scott Shambaugh for licensing this software for distribution in 
