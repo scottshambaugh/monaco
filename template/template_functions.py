@@ -1,3 +1,5 @@
+# template_functions.py
+
 # This file contains the three functions passed into the fcns dict used by MCSim.
 # It is up to you whether to put all these functions in one file, or break it up
 # into multiple files as the other examples in the examples directory do.

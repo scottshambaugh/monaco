@@ -1,3 +1,5 @@
+# template_monte_carlo_sim.py
+
 from monaco.MCSim import MCSim
 from monaco.mc_plot import mc_plot, mc_plot_cov_corr
 
@@ -18,7 +20,7 @@ fcns ={'preprocess' :template_preprocess,   \
 # If firstcaseisnom is True, then case 0 will be run with the expected value of 
 # each statistical distribution as a 'nominal' run. The total number of cases  
 # will then be ndraws+1
-ndraws = 10
+ndraws = 500
 firstcaseisnom = False
 
 # Setting a known random seed is recommended for repeatability of random draws.
