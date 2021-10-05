@@ -2,7 +2,6 @@
 
 import scipy.stats
 import numpy as np
-from warnings import warn
 from monaco.MCEnums import StatBound
 '''
 Reference:
@@ -52,8 +51,7 @@ def order_stat_TI_n(k     : int,
     maxsteps = 1000 # nmax hard limit of 2^1000
     u = n[1] + 1 - k
     if EPTI(n[1], l, u, p) < c:
-        print(f'n exceeded {nmax=} for P{100*p}/{c*100}. Increase nmax or loosen constraints.')
-        return None
+        raise ValueError(f'n exceeded {nmax=} for P{100*p}/{c*100}. Increase nmax or loosen constraints.')
 
     for i in range(maxsteps):
         step = (n[1]-n[0])/2
@@ -88,7 +86,7 @@ def order_stat_TI_p(n     : int,
     u = n + 1 - k
 
     # use bisection to get n (secant method is unstable due to flat portions of curve)
-    p = [0,1]
+    p = [0.0, 1.0]
     maxsteps = 1000 # p hard tolerance of 2^-1000
     for i in range(maxsteps):
         step = (p[1]-p[0])/2
@@ -120,8 +118,7 @@ def order_stat_TI_k(n     : int,
         raise ValueError(f"{bound=} must be {StatBound.ONESIDED} or {StatBound.TWOSIDED}")
 
     if EPTI(n, l, n, p) < c:
-        warn(f'{n=} is too small to meet {p=} at {c=} for {bound} tolerance interval at any order statistic')
-        return None
+        raise ValueError(f'{n=} is too small to meet {p=} at {c=} for {bound} tolerance interval at any order statistic')
 
     # use bisection to get n (secant method is unstable due to flat portions of curve)
     k = [1,np.ceil(n/2)]
@@ -209,20 +206,17 @@ def order_stat_P_n(k     : int,
         l = iPl - k + 1 # we won't be using assymmetrical order stats
         u = iPu + k - 1
         if l <= 0 or u >= n[1] + 1 or EPYP(n[0], l, u, P) < c:
-            print(f'n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} at {c=}. Increase nmax, raise k, or loosen constraints.')
-            return None
+            raise ValueError(f'n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} at {c=}. Increase nmax, raise k, or loosen constraints.')
     elif bound == StatBound.ONESIDED_UPPER:
         l = 0
         u = iPu + k -1
         if u >= n[1] + 1 or EPYP(n[0], l, u, P) < c:
-            print(f'n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} at {c=}. Increase nmax, raise k, or loosen constraints.')
-            return None
+            raise ValueError(f'n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} at {c=}. Increase nmax, raise k, or loosen constraints.')
     elif bound == StatBound.ONESIDED_LOWER:
         l = iPl - k + 1
         u = n[0] + 1
         if l <= 0 or EPYP(n[0], l, u, P) < c:
-            print(f'n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} at {c=}. Increase nmax, raise k, or loosen constraints.')
-            return None
+            raise ValueError(f'n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} at {c=}. Increase nmax, raise k, or loosen constraints.')
     else:
         raise ValueError(f"{bound=} must be {StatBound.ONESIDED_UPPER}, {StatBound.ONESIDED_LOWER}, or {StatBound.TWOSIDED}")
 
@@ -266,24 +260,21 @@ def order_stat_P_k(n     : int,
         l = iPl - k[1] + 1 # we won't be using assymmetrical order stats
         u = iPu + k[1] - 1
         if l <= 0 or u >= n+1 or EPYP(n, l, u, P) < c:
-            warn(f'{n=} is too small to meet {P=} at {c=} for {bound} percentile confidence interval at any order statistic')
-            return None
+            raise ValueError(f'{n=} is too small to meet {P=} at {c=} for {bound} percentile confidence interval at any order statistic')
 
     elif bound == StatBound.ONESIDED_UPPER:
         k = [1, n + 1 - iPu]
         l = 0
         u = iPu + k[1] - 1
         if u >= n + 1 or EPYP(n, l, u, P) < c:
-            warn(f'{n=} is too small to meet {P=} at {c=} for {bound} percentile confidence interval at any order statistic')
-            return None
+            raise ValueError(f'{n=} is too small to meet {P=} at {c=} for {bound} percentile confidence interval at any order statistic')
 
     elif bound == StatBound.ONESIDED_LOWER:
         k = [1, iPl]
         l = iPl - k[1] + 1
         u = n + 1
         if EPYP(n, l, u, P) < c:
-            warn(f'{n=} is too small to meet {P=} at {c=} for {bound} percentile confidence interval at any order statistic')
-            return None
+            raise ValueError(f'{n=} is too small to meet {P=} at {c=} for {bound} percentile confidence interval at any order statistic')
     else:
         raise ValueError(f"{bound=} must be {StatBound.ONESIDED_UPPER}, {StatBound.ONESIDED_LOWER}, or {StatBound.TWOSIDED}")
 

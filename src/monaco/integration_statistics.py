@@ -2,7 +2,7 @@
 
 import numpy as np
 from scipy.optimize import root_scalar
-from typing import Union
+from typing import Union, Optional
 from monaco.gaussian_statistics import pct2sig
 from monaco.MCEnums import SampleMethod
 
@@ -12,13 +12,13 @@ def integration_error(nums         : list[float],
                       conf         : float            = 0.95,
                       samplemethod : SampleMethod     = SampleMethod.RANDOM, # SampleMethod.RANDOM or SOBOL
                       runningError : bool             = False,
-                      ) -> Union[float, list[float]]:
+                      ) -> np.ndarray:
     
     integration_args_check(error=None, volume=volume, stdev=None, conf=conf, samplemethod=samplemethod, dimension=dimension)
 
     n = len(nums)
     if n == 1:
-        error1sig = volume
+        error1sig = np.array(volume)
     
     elif not runningError:
         stdev = np.std(nums, ddof=1)
@@ -48,18 +48,18 @@ def integration_error(nums         : list[float],
             error1sig_sobol = volume*stdevs*np.log(np.arange(1, n+1))**dimension/np.arange(1, n+1)
             error1sig = np.minimum(error1sig_random, error1sig_sobol)
         
-        error1sig[error1sig == 0] = max(error1sig) # Leading zeros will throw off plots, fill with reasonable dummy data
+        error1sig[error1sig == 0] = np.max(error1sig) # Leading zeros will throw off plots, fill with reasonable dummy data
 
     error = error1sig*pct2sig(conf)
     return error
 
 
 def integration_n_from_err(error        : float,
-                           volume       : float,
                            dimension    : int,
-                           conf         : float            = 0.95,
-                           stdev        : float            = None, # required only for samplemethod=SampleMethod.SOBOL
-                           samplemethod : SampleMethod     = SampleMethod.RANDOM, # SampleMethod.RANDOM or SampleMethod.SOBOL
+                           volume       : float,
+                           stdev        : float,
+                           conf         : float              = 0.95,
+                           samplemethod : SampleMethod       = SampleMethod.RANDOM, # SampleMethod.RANDOM or SampleMethod.SOBOL
                            ) -> int:
     # We generally do not know a-priori what the standard deviation will be, so
     # best practice is to set to the max range of values on the interval, and 
@@ -89,18 +89,18 @@ def integration_n_from_err(error        : float,
     return n
 
 
-def integration_args_check(error        : float,
+def integration_args_check(error        : Optional[float],
                            volume       : float,
-                           stdev        : float, 
+                           stdev        : Optional[float],
                            conf         : float,
                            samplemethod : SampleMethod,
                            dimension    : int,
                           ):
-    if (not error is None) and (error < 0):
+    if (error is not None) and (error < 0):
         raise ValueError(f"{error=} must be positive")
     if volume <= 0:
         raise ValueError(f"{volume=} must be positive")
-    if (not stdev is None) and (stdev < 0):
+    if (stdev is not None) and (stdev < 0):
         raise ValueError(f"{stdev=} must be positive")
     if not 0 < conf < 1:
         raise ValueError(f"{conf=} must be between 0 and 1")

@@ -5,15 +5,15 @@ from monaco.integration_statistics import integration_error, integration_n_from_
 from monaco.MCEnums import SampleMethod
 
 def test_integration_error():
-    assert integration_error([1, 0, 2], conf=0.95, dimension=1, samplemethod=SampleMethod.RANDOM, runningError=False) == pytest.approx(0.4619679)
-    assert integration_error([1, 0, 2], conf=0.95, dimension=1, samplemethod=SampleMethod.RANDOM, runningError=True) == pytest.approx([0.8001519, 0.5657928, 0.4619679])
-    assert integration_error([1, 0, 2], conf=0.95, dimension=1, samplemethod=SampleMethod.SOBOL,  runningError=False) == pytest.approx(0.4619679)
-    assert integration_error([1, 0, 2], conf=0.95, dimension=1, samplemethod=SampleMethod.SOBOL,  runningError=True) == pytest.approx([0.4803176, 0.4803176, 0.4619679])
+    assert integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.RANDOM, runningError=False) == pytest.approx(0.4619679)
+    assert integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.RANDOM, runningError=True) == pytest.approx([0.8001519, 0.5657928, 0.4619679])
+    assert integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.SOBOL,  runningError=False) == pytest.approx(0.4619679)
+    assert integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.SOBOL,  runningError=True) == pytest.approx([0.4803176, 0.4803176, 0.4619679])
 
 
 def test_integration_n_from_err():
-    assert integration_n_from_err(error=0.01, volume=1, dimension=1, stdev=1, conf=0.95, samplemethod=SampleMethod.RANDOM) == 38415
-    assert integration_n_from_err(error=0.01, volume=1, dimension=1, stdev=1, conf=0.95, samplemethod=SampleMethod.SOBOL) == 1424
+    assert integration_n_from_err(error=0.01, dimension=1, volume=1, stdev=1, conf=0.95, samplemethod=SampleMethod.RANDOM) == 38415
+    assert integration_n_from_err(error=0.01, dimension=1, volume=1, stdev=1, conf=0.95, samplemethod=SampleMethod.SOBOL) == 1424
 
 
 def test_max_variance():
@@ -35,8 +35,8 @@ def inline_testing():
     print(integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.RANDOM, runningError=True))       # Expected: [0.8001519, 0.5657928, 0.4619679]
     print(integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.SOBOL,  runningError=False))      # Expected: 0.4619679
     print(integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.SOBOL,  runningError=True))       # Expected: [0.4803176, 0.4803176, 0.4619679]
-    print(integration_n_from_err(error=0.01, volume=1, dimension=1, stdev=1, conf=0.95, samplemethod=SampleMethod.RANDOM)) # Expected: 38415
-    print(integration_n_from_err(error=0.01, volume=1, dimension=1, stdev=1, conf=0.95, samplemethod=SampleMethod.SOBOL))  # Expected: 1424
+    print(integration_n_from_err(error=0.01, dimension=1, volume=1, stdev=1, conf=0.95, samplemethod=SampleMethod.RANDOM)) # Expected: 38415
+    print(integration_n_from_err(error=0.01, dimension=1, volume=1, stdev=1, conf=0.95, samplemethod=SampleMethod.SOBOL))  # Expected: 1424
     print(max_variance(low=0, high=1))  # Expected: 0.25
     print(max_stdev(low=0, high=1))     # Expected: 0.5
     

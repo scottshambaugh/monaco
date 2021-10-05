@@ -53,8 +53,8 @@ def inline_testing():
     mc_plot_cov_corr(np.array([[2, 0.1111, np.nan],[-0.19, -1, np.nan], [np.nan, np.nan, np.nan]]), ['Test1', 'Test2', 'Test3'])
 
     mcinvars['randint2'] = MCInVar(name='randint2', ndraws=1000, dist=randint, distkwargs={'low':0, 'high':2}, samplemethod=SampleMethod.RANDOM, seed=invarseeds[3])
-    mc_plot_integration_convergence(mcinvars['randint2'], volume=1, refval=0.5, conf=0.95, dimension=1)
-    mc_plot_integration_error(mcinvars['randint2'], volume=1, refval=0.5, conf=0.95, dimension=1)
+    mc_plot_integration_convergence(mcinvars['randint2'], volume=1, dimension=1, refval=0.5, conf=0.95)
+    mc_plot_integration_error(mcinvars['randint2'], volume=1, dimension=1, refval=0.5, conf=0.95)
 
 
 if __name__ == '__main__':

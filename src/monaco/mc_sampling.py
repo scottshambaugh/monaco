@@ -5,22 +5,14 @@ import numpy as np
 from functools import lru_cache
 import warnings
 import sys
-from enum import Enum
-
-class SampleMethod(str, Enum):
-    RANDOM          = 'random'
-    SOBOL           = 'sobol'
-    SOBOL_RANDOM    = 'sobol_random'
-    HALTON          = 'halton'
-    HALTON_RANDOM   = 'halton_random'
-    LATIN_HYPERCUBE = 'latin_hypercube'
+from monaco.MCEnums import SampleMethod
 
 
 def mc_sampling(ndraws     : int, 
                 method     : SampleMethod = SampleMethod.SOBOL_RANDOM,
                 ninvar     : int          = None,
                 ninvar_max : int          = None,
-                seed       : int          = np.random.get_state()[1][0],
+                seed       : int          = np.random.get_state(legacy=False)['state']['key'][0],
                 ) -> np.ndarray:
     if ninvar_max is None:
         ninvar_max = ninvar

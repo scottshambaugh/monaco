@@ -3,6 +3,8 @@
 # Somewhat hacky type checking to avoid circular imports:
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
+from monaco.helper_functions import get_iterable
 if TYPE_CHECKING:
     from monaco.MCVar import MCVar
     
@@ -20,8 +22,8 @@ class MCVarStat:
     def __init__(self, 
                  mcvar      : MCVar,  
                  stattype   : str, 
-                 statkwargs : dict[str, Any]   = dict(), 
-                 name       : Union[None, str] = None,
+                 statkwargs : dict[str, Any] = dict(), 
+                 name       : str = None,
                  ):
         '''
         valid stattypes with corresponding statkwargs:
@@ -54,8 +56,8 @@ class MCVarStat:
         self.stattype = stattype
         self.statkwargs = statkwargs
 
-        self.nums = None
-        self.vals = None
+        self.nums : np.ndarray = np.array([])
+        self.vals : Union[list[Any], np.ndarray] = []
         self.name = name
         
         if stattype == VarStat.MAX:
@@ -156,13 +158,14 @@ class MCVarStat:
             self.nums = fcn(self.mcvar.nums)
             self.vals = copy(self.nums)
             if self.mcvar.nummap is not None:
-                self.vals = self.mcvar.nummap[self.nums]
+                self.vals = [self.mcvar.nummap[num] for num in self.nums]
                 
         elif self.mcvar.size[0] == 1:
-            npoints = max(len(x) for x in self.mcvar.nums)
+            nums_iterable = get_iterable(self.mcvar.nums)
+            npoints = max(len(x) for x in nums_iterable)
             self.nums = np.empty(npoints)
             for i in range(npoints):
-                numsatidx = [x[i] for x in self.mcvar.nums if len(x)>i]
+                numsatidx = [x[i] for x in nums_iterable if len(x)>i]
                 self.nums[i] = fcn(numsatidx)
             self.vals = copy(self.nums)
             if self.mcvar.nummap is not None:

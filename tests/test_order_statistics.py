@@ -25,9 +25,8 @@ def test_order_stat_TI_k():
     assert order_stat_TI_k(n=667, p=0.99, c=0.90, bound=StatBound.TWOSIDED) == 2
 
 def test_order_stat_TI_k_warning():
-    with pytest.warns(UserWarning, match='is too small'):
+    with pytest.raises(ValueError, match='is too small'):
         orderstat = order_stat_TI_k(n=20, p=0.99, c=0.90, bound=StatBound.TWOSIDED)
-    assert orderstat is None
 
 # Order Statistic Percentile Functions
 @pytest.mark.parametrize("n,k,P,bound,ans", [
@@ -48,9 +47,8 @@ def test_order_stat_P_k(n,c,P,bound,ans):
     assert order_stat_P_k(n=n, c=c, P=P, bound=bound) == ans
 
 def test_order_stat_P_k_warning():
-    with pytest.warns(UserWarning, match='is too small'):
+    with pytest.raises(ValueError, match='is too small'):
         orderstat = order_stat_P_k(n=10, c=0.999, P=0.05, bound=StatBound.ONESIDED_LOWER)
-    assert orderstat is None
 
 @pytest.mark.parametrize("k,c,P,bound,ans", [
     (10, 0.95  , 0.50, StatBound.TWOSIDED      ,  108), # Ref. Table A.15g (conservative)
@@ -69,7 +67,7 @@ def inline_testing():
     print(order_stat_TI_p(n=667, k=2,    c=0.90, bound=StatBound.TWOSIDED)) # expected: 0.99001
     print(order_stat_TI_c(n=667, k=2,    p=0.99, bound=StatBound.TWOSIDED)) # expected: 0.90047
     print(order_stat_TI_k(n=667, p=0.99, c=0.90, bound=StatBound.TWOSIDED)) # expected: 2
-    print(order_stat_TI_k(n=20,  p=0.99, c=0.90, bound=StatBound.TWOSIDED)) # expected: Warning message, None
+    print(order_stat_TI_k(n=20,  p=0.99, c=0.90, bound=StatBound.TWOSIDED)) # expected: ValueError
     print('P Functions:')
     print(order_stat_P_c(n=1000, k=3,      P=0.01, bound=StatBound.TWOSIDED))       # expected: 0.7367, Table A.15a
     print(order_stat_P_c(n=1000, k=11,     P=0.95, bound=StatBound.ONESIDED_UPPER)) # expected: 0.9566, Table A.16, 39+11=50
@@ -77,7 +75,7 @@ def inline_testing():
     print(order_stat_P_k(n=100,  c=0.95,   P=0.50, bound=StatBound.TWOSIDED))       # expected: 10, Table A.15g
     print(order_stat_P_k(n=100,  c=0.95,   P=0.90, bound=StatBound.ONESIDED_UPPER)) # expected: 5, Table A.16
     print(order_stat_P_k(n=100,  c=0.95,   P=0.10, bound=StatBound.ONESIDED_LOWER)) # expected: 5, Table A.16
-    print(order_stat_P_k(n=10,   c=0.999,  P=0.05, bound=StatBound.ONESIDED_LOWER)) # expected: Warning message, None
+    print(order_stat_P_k(n=10,   c=0.999,  P=0.05, bound=StatBound.ONESIDED_LOWER)) # expected: ValueError
     print(order_stat_P_n(k=10,   c=0.950,  P=0.50, bound=StatBound.TWOSIDED))       # expected: 108, Table A.15g (conservative)
     print(order_stat_P_n(k=11,   c=0.9566, P=0.95, bound=StatBound.ONESIDED_UPPER)) # expected: 1018, Table A.16 (conservative)
     print(order_stat_P_n(k=11,   c=0.9566, P=0.05, bound=StatBound.ONESIDED_LOWER)) # expected: 1018, Table A.16 (conservative)

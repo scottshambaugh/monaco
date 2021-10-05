@@ -4,7 +4,7 @@ import os
 import numpy as np
 import dill
 import pathlib
-from datetime import datetime
+from datetime import datetime, timedelta
 from monaco.MCCase import MCCase
 from monaco.MCVar import MCInVar, MCOutVar
 from monaco.MCEnums import MCFunctions, SampleMethod
@@ -22,13 +22,13 @@ class MCSim:
                  fcns           : dict[MCFunctions, Callable], # fcns is a dict with keys MCFunctions.PREPROCESS, RUN, and POSTPROCESS
                  firstcaseisnom : bool = False, 
                  samplemethod   : SampleMethod = SampleMethod.SOBOL_RANDOM,
-                 seed           : int  = np.random.get_state()[1][0], 
+                 seed           : int  = np.random.get_state(legacy=False)['state']['key'][0], 
                  cores          : int  = cpu_count(logical=False), 
                  verbose        : bool = True,
                  debug          : bool = False,
                  savesimdata    : bool = True,
                  savecasedata   : bool = True,
-                 resultsdir     : Union[None, str, pathlib.Path] = None,
+                 resultsdir     : Union[str, pathlib.Path] = None,
                  ):
         
         self.checkFcnsInput(fcns)
@@ -54,32 +54,33 @@ class MCSim:
             self.resultsdir = self.rootdir / f'{self.name}_results'
         self.filepath = self.resultsdir / f'{self.name}.mcsim'
 
-        self.invarseeds = []
-        self.caseseeds = []
+        self.invarseeds : list[int] = []
+        self.caseseeds  : list[int] = []
         
-        self.inittime = datetime.now()
-        self.starttime = None
-        self.endtime = None
-        self.runtime = None
-        self.casespreprocessed = set()
-        self.casesrun = set()
-        self.casespostprocessed = set()
+        self.inittime  : datetime = datetime.now()
+        self.starttime : datetime = None
+        self.endtime   : datetime = None
+        self.runtime   : timedelta = None
+
+        self.casespreprocessed  : set[int] = set()
+        self.casesrun           : set[int] = set()
+        self.casespostprocessed : set[int] = set()
         
-        self.mcinvars = dict()
-        self.mcoutvars = dict()
-        self.constvals = dict()
-        self.mccases = []
-        self.ninvars = 0
+        self.mcinvars  : dict[str, MCInVar] = dict()
+        self.mcoutvars : dict[str, MCOutVar] = dict()
+        self.constvals : dict[str, Any] = dict()
+        self.mccases : list[MCCase] = []
+        self.ninvars : int = 0
         
         self.corrcoeffs = None
         self.covs = None
         self.covvarlist = None
         
-        self.pbar0 = None
-        self.pbar1 = None
-        self.pbar2 = None
+        self.pbar0 : tqdm = None
+        self.pbar1 : tqdm = None
+        self.pbar2 : tqdm = None
 
-        self.runsimid = None
+        self.runsimid : int = None
 
         self.ncases = ndraws + 1
         self.setFirstCaseNom(firstcaseisnom)
@@ -125,7 +126,7 @@ class MCSim:
                  name       : str, 
                  dist       : Union[rv_discrete, rv_continuous],
                  distkwargs : dict[str, Any], 
-                 nummap     : Union[None, dict[int, Any]] = None,
+                 nummap     : dict[int, Any] = None,
                  ):  
         self.ninvars += 1
         invarseed = (self.seed + hash_str_repeatable(name)) % 2**32  # make seed dependent on var name and not order added
@@ -497,10 +498,10 @@ class MCSim:
                         cases : Union[None, int, list[int], set[int]] = None,
                         ) -> set[int]:
         if cases is None:
-            cases = self.allCases()
+            cases_downselect = self.allCases()
         else:
-            cases = set(get_iterable(cases))
-        return cases
+            cases_downselect = set(get_iterable(cases))
+        return cases_downselect
 
 
     def allCases(self) -> set[int]:

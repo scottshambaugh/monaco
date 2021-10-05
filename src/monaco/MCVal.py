@@ -10,7 +10,7 @@ from scipy.stats import rv_discrete, rv_continuous
 from abc import ABC
 
 ### MCVal Base Class ###
-class MCVal():
+class MCVal(ABC):
     def __init__(self, 
                  name  : str, 
                  ncase : int, 
@@ -20,12 +20,12 @@ class MCVal():
         self.ncase = ncase
         self.isnom = isnom
 
-        self.val = None
-        self.valmap = None
-        self.num = None
-        self.nummap = None
-        self.isscalar = None
-        self.size = None
+        self.val      : Any
+        self.valmap   : dict[Any, int]
+        self.num      : float
+        self.nummap   : dict[int, Any]
+        self.isscalar : bool
+        self.size     : tuple
 
 
 
@@ -37,14 +37,14 @@ class MCInVal(MCVal):
                  pct    : float,
                  num    : float,
                  dist   : Union[rv_discrete, rv_continuous], 
-                 nummap : Union[None, dict[int, Any]] = None, 
+                 nummap : dict[int, Any] = None, 
                  isnom  : bool = False,
                  ):
         
         super().__init__(name=name, ncase=ncase, isnom=isnom)
         self.dist = dist
         self.pct = pct
-        self.num = num        
+        self.num = num
         self.nummap = nummap
         self.isscalar = True
         self.size = (1, 1)
@@ -84,7 +84,7 @@ class MCOutVal(MCVal):
                  name   : str, 
                  ncase  : int, 
                  val    : Any, 
-                 valmap : Union[None, dict[Any, int]] = None, 
+                 valmap : dict[Any, int] = None, 
                  isnom  : bool = False,
                  ):
         super().__init__(name=name, ncase=ncase, isnom=isnom)

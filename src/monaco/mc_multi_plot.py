@@ -3,23 +3,23 @@
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from monaco.mc_plot import mc_plot_hist, mc_plot_2d_scatter
-from monaco.MCVar import MCVar
+from monaco.MCVar import MCInVar, MCOutVar
 from typing import Union
 
 
-def mc_multi_plot(mcvarx   : MCVar, 
-                  mcvary   : MCVar,
+def mc_multi_plot(mcvarx   : Union[MCInVar, MCOutVar], 
+                  mcvary   : Union[MCInVar, MCOutVar],
                   cases           : Union[None, int, list[int], set[int]] = None, # All cases
                   highlight_cases : Union[None, int, list[int], set[int]] = [],   # No cases
                   rug_plot : bool                = True,
                   cov_plot : bool                = True,
                   cov_p    : Union[None, float, list[float], set[float]]  = None,
-                  fig      : Union[None, Figure] = None, 
+                  fig      : Figure              = None, 
                   title    : str                 = '',
                   ):
     # Split larger vars
     if mcvary is None:
-        if mcvarx.size[0] == 2:
+        if isinstance(mcvarx, MCOutVar) and mcvarx.size[0] == 2:
             mcvarx_split = mcvarx.split()
             origname = mcvarx.name
             mcvarx = mcvarx_split[origname + ' [0]']
@@ -37,15 +37,15 @@ def mc_multi_plot(mcvarx   : MCVar,
 
 
 
-def mc_multi_plot_2d_scatter_hist(mcvarx     : MCVar, 
-                                  mcvary     : MCVar,
+def mc_multi_plot_2d_scatter_hist(mcvarx     : Union[MCInVar, MCOutVar], 
+                                  mcvary     : Union[MCInVar, MCOutVar],
                                   cases           : Union[None, int, list[int], set[int]] = None, # All cases
                                   highlight_cases : Union[None, int, list[int], set[int]] = [],   # No cases
                                   rug_plot   : bool                = True,
                                   cov_plot   : bool                = True,
                                   cov_p      : Union[None, float, list[float], set[float]]  = None,
                                   cumulative : bool                = False,
-                                  fig        : Union[None, Figure] = None, 
+                                  fig        : Figure              = None, 
                                   title      : str                 = '',
                                   ):
     if not fig:

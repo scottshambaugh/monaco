@@ -46,8 +46,8 @@ error = 0.01
 conf = 0.95
 stdev = max_stdev(low=0, high=1)
 print(f'Maximum possible standard deviation: {stdev:0.3f}')
-nRandom = integration_n_from_err(error=error, volume=totalArea, stdev=stdev, conf=conf, dimension=dimension, samplemethod='random')
-nSobol  = integration_n_from_err(error=error, volume=totalArea, stdev=stdev, conf=conf, dimension=dimension, samplemethod='sobol')
+nRandom = integration_n_from_err(error=error, dimension=dimension, volume=totalArea, stdev=stdev, conf=conf, samplemethod='random')
+nSobol  = integration_n_from_err(error=error, dimension=dimension, volume=totalArea, stdev=stdev, conf=conf, samplemethod='sobol')
 print(f'Number of samples needed to reach an error ≤ ±{error} at {round(conf*100, 2)}% confidence if using random vs sobol sampling: {nRandom} vs {nSobol}')
 ndraws = next_power_of_2(nSobol)  # The sobol methods need to be a power of 2 for best performance and balance
 print(f'Rounding up to next power of 2: {ndraws} samples')
@@ -64,7 +64,7 @@ def integration_example_monte_carlo_sim():
     sim.runSim()
     
     underCurvePct = sum(sim.mcoutvars['pi_est'].nums)/ndraws # Note that (True,False) vals are automatically valmapped to the nums (1,0)
-    err = integration_error(sim.mcoutvars['pi_est'].nums, volume=totalArea, runningError=False, conf=conf, dimension=dimension, samplemethod=samplemethod)
+    err = integration_error(sim.mcoutvars['pi_est'].nums, dimension=dimension, volume=totalArea, runningError=False, conf=conf, samplemethod=samplemethod)
     stdev = np.std(sim.mcoutvars['pi_est'].nums, ddof=1)
     
     resultsstr = f'π ≈ {underCurvePct*totalArea:0.5f}, n = {ndraws}, {round(conf*100, 2)}% error = ±{err:0.5f}, stdev={stdev:0.3f}'
@@ -78,9 +78,9 @@ def integration_example_monte_carlo_sim():
     ax.axis('equal')
     plt.title(resultsstr)
     
-    fig, ax = mc_plot_integration_convergence(sim.mcoutvars['pi_est'], refval=np.pi, volume=totalArea, conf=0.95, title='Approx. value of π', dimension=dimension, samplemethod=samplemethod)
+    fig, ax = mc_plot_integration_convergence(sim.mcoutvars['pi_est'], dimension=dimension, volume=totalArea, refval=np.pi, conf=0.95, title='Approx. value of π', samplemethod=samplemethod)
     ax.set_ylim((3.10, 3.18))
-    fig, ax = mc_plot_integration_error(sim.mcoutvars['pi_est'], refval=np.pi, volume=totalArea, conf=0.95, title='Approx. error of π', dimension=dimension, samplemethod=samplemethod)
+    fig, ax = mc_plot_integration_error(sim.mcoutvars['pi_est'], dimension=dimension, volume=totalArea, refval=np.pi, conf=0.95, title='Approx. error of π', samplemethod=samplemethod)
     #'''
     
     return sim

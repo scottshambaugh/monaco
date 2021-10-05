@@ -7,6 +7,7 @@ from monaco.mc_sampling import mc_sampling
 from monaco.integration_statistics import  integration_args_check
 from typing import Union
 from monaco.gaussian_statistics import pct2sig
+from monaco.MCEnums import SampleMethod
 
 n = int(2**19)
 conf = 0.95
@@ -22,11 +23,11 @@ def unit_d_sphere_vol(d):
 trueans = unit_d_sphere_vol(d)
 
 def integration_error(nums         : list[float],
-                      volume       : float            = 1,  # By default, returns an unscaled error
-                      conf         : float            = 0.95,
-                      dimension    : Union[None, int] = None, # required only for samplemethod=SampleMethod.SOBOL
-                      samplemethod : SampleMethod     = SampleMethod.RANDOM, # SampleMethod.RANDOM or SampleMethod.SOBOL
-                      runningError : bool             = False,
+                      dimension    : int          = None, # required only for samplemethod=SampleMethod.SOBOL
+                      volume       : float        = 1,  # By default, returns an unscaled error
+                      conf         : float        = 0.95,
+                      samplemethod : SampleMethod = SampleMethod.RANDOM, # SampleMethod.RANDOM or SampleMethod.SOBOL
+                      runningError : bool         = False,
                       ) -> Union[float, list[float]]:
     
     integration_args_check(error=None, volume=volume, stdev=None, conf=conf, samplemethod=samplemethod, dimension=dimension)
@@ -94,8 +95,8 @@ inspheresobol  = np.array([int(x*r*volume_scale < r) for x in distancesobol])
 cummeanrandom = volume*np.cumsum(insphererandom)/np.arange(1 ,n+1)
 cummeansobol  = volume*np.cumsum(inspheresobol) /np.arange(1 ,n+1)
 
-errrandom = integration_error(distancerandom, volume=volume, conf=conf, dimension=d, samplemethod=SampleMethod.RANDOM, runningError=True)
-errsobol  = integration_error(distancesobol,  volume=volume, conf=conf, dimension=d, samplemethod=SampleMethod.SOBOL, runningError=True)
+errrandom = integration_error(distancerandom, dimension=d, volume=volume, conf=conf, samplemethod=SampleMethod.RANDOM, runningError=True)
+errsobol  = integration_error(distancesobol,  dimension=d, volume=volume, conf=conf, samplemethod=SampleMethod.SOBOL, runningError=True)
 
 #'''
 alpha = 0.85

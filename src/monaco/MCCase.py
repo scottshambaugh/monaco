@@ -1,7 +1,9 @@
 # MCCase.py
 
-from monaco.MCVar import MCVar
-from monaco.MCVal import MCOutVal
+from monaco.MCVar import MCOutVar, MCInVar
+from monaco.MCVal import MCOutVal, MCInVal
+from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Union, Any
 import numpy as np
 
@@ -9,36 +11,36 @@ class MCCase():
     def __init__(self, 
                  ncase     : int, 
                  isnom     : bool, 
-                 mcinvars  : dict[str, MCVar], 
+                 mcinvars  : dict[str, MCInVar], 
                  constvals : dict[str, Any] = dict(),
-                 seed      : int = np.random.get_state()[1][0],
+                 seed      : int = np.random.get_state(legacy=False)['state']['key'][0],
                  ):
         
         self.ncase = ncase
         self.isnom = isnom
         self.mcinvars = mcinvars 
         self.constvals = constvals
-        self.mcoutvars = dict()
+        self.mcoutvars : dict[str, MCOutVar] = dict()
         self.seed = seed
         
-        self.starttime = None
-        self.endtime = None
-        self.runtime = None
+        self.starttime : datetime = None
+        self.endtime   : datetime = None
+        self.runtime   : timedelta = None
         
-        self.filepath = None
-        self.runsimid = None
-        self.haspreprocessed = False
-        self.hasrun = False
-        self.haspostprocessed = False
+        self.filepath : Path = None
+        self.runsimid : int = None
+        self.haspreprocessed  : bool = False
+        self.hasrun           : bool = False
+        self.haspostprocessed : bool = False
         
         self.mcinvals = self.getMCInVals()
-        self.mcoutvals = dict()
+        self.mcoutvals : dict[str, MCOutVal] = dict()
         
-        self.siminput = None
-        self.simrawoutput = None
+        self.siminput : tuple[Any] = None
+        self.simrawoutput : tuple[Any] = None
         
 
-    def getMCInVals(self):
+    def getMCInVals(self) -> dict[str, MCInVal]:
         mcvals = dict()
         for mcvar in self.mcinvars.values():
             mcval = mcvar.getVal(self.ncase)
@@ -46,7 +48,7 @@ class MCCase():
         return mcvals
 
 
-    def getMCOutVals(self):
+    def getMCOutVals(self) -> dict[str, MCOutVal]:
         mcvals = dict()
         for mcvar in self.mcoutvars.values():
             mcval = mcvar.getVal(self.ncase)
@@ -58,7 +60,7 @@ class MCCase():
                   name   : str, 
                   val, # unconstrained type
                   split  : bool = True, 
-                  valmap : Union[None, dict[Any, int]] = None
+                  valmap : dict[Any, int] = None
                   ):
         self.mcoutvals[name] = MCOutVal(name=name, ncase=self.ncase, val=val, valmap=valmap, isnom=self.isnom)
         if split:

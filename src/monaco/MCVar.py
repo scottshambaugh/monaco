@@ -25,14 +25,14 @@ class MCVar(ABC):
         
         self.ncases = ndraws + 1
         self.setFirstCaseNom(firstcaseisnom)
-        self.vals = []
-        self.valmap = None
-        self.nums = []
-        self.nummap = None
-        self.pcts = []
-        self.size = None
-        self.isscalar = None
-        self.mcvarstats = []
+        self.vals       : list[Any]
+        self.valmap     : dict[Any, int]
+        self.nums       : list[float]
+        self.nummap     : dict[int, Any]
+        self.pcts       : list[float]
+        self.size       : tuple
+        self.isscalar   : bool
+        self.mcvarstats : list[MCVarStat] = []
         
 
     def setFirstCaseNom(self, 
@@ -53,8 +53,8 @@ class MCVar(ABC):
     
     def addVarStat(self, 
                    stattype   : str, 
-                   statkwargs : dict[str, Any]   = dict(), 
-                   name       : Union[None, str] = None,
+                   statkwargs : dict[str, Any] = dict(), 
+                   name       : str = None,
                    ):
         self.mcvarstats.append(MCVarStat(mcvar=self, stattype=stattype, statkwargs=statkwargs, name=name))
 
@@ -81,13 +81,13 @@ class MCInVar(MCVar):
                  name           : str, 
                  ndraws         : int, 
                  dist           : Union[rv_discrete, rv_continuous], 
-                 distkwargs     : dict                        = dict(),
-                 nummap         : Union[None, dict[int, Any]] = None,
-                 samplemethod   : SampleMethod                = SampleMethod.SOBOL_RANDOM,
-                 ninvar         : int                         = None,
-                 seed           : int                         = np.random.get_state()[1][0], 
-                 firstcaseisnom : bool                        = False,
-                 autodraw       : bool                        = True,
+                 distkwargs     : dict           = dict(),
+                 nummap         : dict[int, Any] = None,
+                 samplemethod   : SampleMethod   = SampleMethod.SOBOL_RANDOM,
+                 ninvar         : int            = None,
+                 seed           : int            = np.random.get_state(legacy=False)['state']['key'][0], 
+                 firstcaseisnom : bool           = False,
+                 autodraw       : bool           = True,
                  ):
         super().__init__(name=name, ndraws=ndraws, firstcaseisnom=firstcaseisnom)
         
@@ -197,9 +197,9 @@ class MCOutVar(MCVar):
     def __init__(self, 
                  name           : str, 
                  vals           : list[Any], 
-                 valmap         : Union[None, dict[Any, int]] = None, 
-                 ndraws         : Union[None, int]            = None, 
-                 firstcaseisnom : bool                        = False,
+                 valmap         : dict[Any, int] = None, 
+                 ndraws         : int            = None, 
+                 firstcaseisnom : bool           = False,
                  ):
         if ndraws is None:
             ndraws = len(vals)
