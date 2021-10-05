@@ -1,4 +1,4 @@
-from scipy.stats import uniform, rv_discrete
+from scipy.stats import uniform, rv_discrete, norm
 from monaco.MCSim import MCSim
 from monaco.mc_plot import mc_plot
 from monaco.mc_multi_plot import mc_multi_plot
@@ -18,6 +18,7 @@ def rocket_example_monte_carlo_sim():
     
     sim.addInVar(name='Wind Azi [deg]', dist=uniform, distkwargs={'loc':0, 'scale':360})
     sim.addInVar(name='Wind Speed [m/s]', dist=uniform, distkwargs={'loc':0, 'scale':2})
+    sim.addInVar(name='Thrust Factor', dist=norm, distkwargs={'loc':1, 'scale':0.1})
     
     para_fail_dist = rv_discrete(name='para_fail_dist', values=([1, 2], [0.8, 0.2]))
     para_fail_nummap = {1:False, 2:True}
@@ -30,6 +31,8 @@ def rocket_example_monte_carlo_sim():
     #print(sim.mcoutvars['Landing Dist [m]'].stats())
     mc_plot(sim.mcoutvars['Time [s]'], sim.mcoutvars['Distance [m]'], highlight_cases=0)
     #mc_plot(sim.mcoutvars['Time [s]'], sim.mcoutvars['|Velocity| [m/s]'], highlight_cases=0)
+    mc_plot(sim.mcoutvars['Time [s]'], sim.mcoutvars['Acceleration [m/s^2] [2]'], highlight_cases=0)
+    #mc_plot(sim.mcoutvars['Time [s]'], sim.mcoutvars['Thrust [N]'], highlight_cases=0)
     #mc_plot(sim.mcoutvars['Landing Dist [m]'], highlight_cases=0)
     #mc_plot(sim.mcoutvars['Landing E [m]'], sim.mcoutvars['Landing N [m]'], highlight_cases=0)
     #mc_plot(sim.mcoutvars['Time [s]'], sim.mcoutvars['Flight Stage'], highlight_cases=0)

@@ -26,13 +26,13 @@ def rocket_example_postprocess(mccase, t, m, flightstage, T, pos, vel, acc):
     mccase.addOutVal('Landing Dist [m]', distance[-1])
     
     quadrant = None
-    if pos[0,-1] > 0 and pos[1,-1] > 0:
+    if pos[0,-1] >= 0 and pos[1,-1] >= 0:
         quadrant = 'I'
-    elif pos[0,-1] < 0 and pos[1,-1] > 0:
+    elif pos[0,-1] <= 0 and pos[1,-1] >= 0:
         quadrant = 'II'
-    elif pos[0,-1] < 0 and pos[1,-1] < 0:
+    elif pos[0,-1] <= 0 and pos[1,-1] <= 0:
         quadrant = 'III'
-    elif pos[0,-1] > 0 and pos[1,-1] < 0:
+    elif pos[0,-1] >= 0 and pos[1,-1] <= 0:
         quadrant = 'IV'
     mccase.addOutVal('Landing Quadrant', quadrant)
-\
+
