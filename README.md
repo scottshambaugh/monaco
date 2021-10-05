@@ -1,7 +1,7 @@
 # monaco
 ![Release](https://img.shields.io/github/v/release/scottshambaugh/monaco?sort=semver)
-![Unit Tests](https://github.com/scottshambaugh/monaco/actions/workflows/unit_tests.yml/badge.svg)
 ![Builds](https://github.com/scottshambaugh/monaco/actions/workflows/builds.yml/badge.svg)
+![Unit Tests](https://github.com/scottshambaugh/monaco/actions/workflows/unit_tests.yml/badge.svg)
 
 ### Overview
 
@@ -29,6 +29,10 @@ poetry install
 poetry run coverage run --source=monaco -m pytest && poetry run coverage report -m
 ```
 
+### Quick Start:
+Copy the two files from the [template directory](https://github.com/scottshambaugh/monaco/tree/master/template), which contains a simple, well commented Monte Carlo simulation of flipping coins.    
+Then, check out the other [examples](https://github.com/scottshambaugh/monaco/tree/master/examples) for inspiration and more in-depth usage of `monaco`'s features.
+
 ### Basic Architecture:
 At the center of a Monte Carlo simulation is a program which you wish to run with randomized inputs. Around this, monaco's Monte Carlo architecture is structured like a sandwich. At the top, you generate a large number of randomized values for your input variables. These input values are preprocessed into the form that your program expects, your program is run, and at the bottom the results are postprocessed to extract values for select output variables. You can then plot, collect statistics about, or otherwise use all the input and output variables from your sim. The sandwich is sliced vertically into individual cases, which are run in parallel to massively speed up computation.
 
@@ -37,8 +41,6 @@ At the center of a Monte Carlo simulation is a program which you wish to run wit
 </p>
 
 ### Basic Workflow:
-It may be more useful to step through the example in the [templates](templates/) directory which is heavily commented, or any of the other [examples](examples/), but the below is a higher-level description of a basic workflow.
-
 To run a Monte Carlo simulation, you must first have a function which you wish to run with randomized inputs. This python function can be a standalone script, a script which sets up and calls additional routines, or a wrapper for code written in other languages. We will call this your `run` function.
 
 The workhorse of the Monte Carlo Simulation which you will run is an `MCSim` object. To instantiate this object, you need to pass it two things: the number of random cases `ncases` which you want to run with, and a dict `fcns` of the handles for three functions which you need to create: `preprocess`, `run`, and `postprocess`. The processing functions will be explained in more detail in a moment. You can also choose [a random sampling method, explained here](docs/sampling_methods.md).
@@ -62,10 +64,10 @@ A progress bar in the terminal will show the progress as the results for all cas
 See the [examples](examples/) folder for some examples you can step through or use as templates. Some details and several more features here have been passed over, and this documentation will be fleshed out in the future. Of note, saving and loading results to file, 'nominal' cases, running on remote servers, using order statistics, and additional plotting options will need to be explained.
 
 
-### License:
+### License / Citation:
 Originally created in 2020 by Scott Shambaugh during Coronavirus quarantine.
 
 This software is distributed under [the GPLv3.0 license](LICENSE.md).    
-Please contact Scott Shambaugh for licensing this software for distribution in 
-proprietary applications.
+Please contact Scott Shambaugh for licensing this software for distribution in proprietary applications.
 
+If you use `monaco` to do research that gets published, please cite [the monaco github page](https://github.com/scottshambaugh/monaco).
