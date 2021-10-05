@@ -2,10 +2,9 @@
 name = "monaco"
 version = "0.1.0"
 description = "A python library for setting up, running, and analyzing Monte-Carlo simulations."
-authors = ["Scott Shambaugh"]
+authors = ["Scott Shambaugh <scott@theshamblog.com>"]
 license = "GPL-3.0-or-later"
 readme = "README.md"
-homepage = "https://github.com/scottshambaugh/monaco/"
 repository = "https://github.com/scottshambaugh/monaco/"
 
 [tool.poetry.dependencies]
