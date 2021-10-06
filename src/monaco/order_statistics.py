@@ -359,6 +359,7 @@ def EPTI(n : int,
     return c
 
 
+
 def get_iP(n : int, 
            P : float, # 0 < P < 1
            ) -> tuple[int, int, int]:
@@ -371,7 +372,14 @@ def get_iP(n : int,
 
 
 
-def order_stat_var_check(n=None, l=None, u=None, p=None, k=None, c=None, nmax=None):
+def order_stat_var_check(n : int = None, 
+                         l : int = None, 
+                         u : int = None, 
+                         p : float = None, 
+                         k : int = None, 
+                         c : float = None, 
+                         nmax : int = None
+                         ) -> None:
     if n is not None and n < 1:
         raise ValueError(f'{n=} must be >= 1')
     if l is not None and l < 0:
@@ -388,4 +396,3 @@ def order_stat_var_check(n=None, l=None, u=None, p=None, k=None, c=None, nmax=No
         raise ValueError(f'{c=} must be in the range 0 < c < 1')
     if nmax is not None and nmax < 1:
         raise ValueError(f'{nmax=} must be >= 1')    
-

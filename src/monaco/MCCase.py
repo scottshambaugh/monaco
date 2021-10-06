@@ -33,10 +33,10 @@ class MCCase():
         self.hasrun           : bool = False
         self.haspostprocessed : bool = False
         
-        self.mcinvals = self.getMCInVals()
+        self.mcinvals  : dict[str, MCInVal]  = self.getMCInVals()
         self.mcoutvals : dict[str, MCOutVal] = dict()
         
-        self.siminput : tuple[Any] = None
+        self.siminput     : tuple[Any] = None
         self.simrawoutput : tuple[Any] = None
         
 
@@ -61,8 +61,7 @@ class MCCase():
                   val, # unconstrained type
                   split  : bool = True, 
                   valmap : dict[Any, int] = None
-                  ):
+                  ) -> None:
         self.mcoutvals[name] = MCOutVal(name=name, ncase=self.ncase, val=val, valmap=valmap, isnom=self.isnom)
         if split:
             self.mcoutvals.update(self.mcoutvals[name].split())
-

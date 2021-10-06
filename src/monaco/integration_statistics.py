@@ -95,7 +95,7 @@ def integration_args_check(error        : Optional[float],
                            conf         : float,
                            samplemethod : SampleMethod,
                            dimension    : int,
-                          ):
+                          ) -> None:
     if (error is not None) and (error < 0):
         raise ValueError(f"{error=} must be positive")
     if volume <= 0:
@@ -122,4 +122,3 @@ def max_stdev(low  : float,
               ) -> float:
     maxstd = np.sqrt(max_variance(high=high, low=low))  # maxstd = (high-low)/2
     return maxstd
-

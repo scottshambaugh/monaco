@@ -2,6 +2,7 @@
 
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
+from matplotlib.axes import Axes
 from monaco.mc_plot import mc_plot_hist, mc_plot_2d_scatter
 from monaco.MCVar import MCInVar, MCOutVar
 from typing import Union
@@ -16,7 +17,7 @@ def mc_multi_plot(mcvarx   : Union[MCInVar, MCOutVar],
                   cov_p    : Union[None, float, list[float], set[float]]  = None,
                   fig      : Figure              = None, 
                   title    : str                 = '',
-                  ):
+                  ) -> tuple[Figure, tuple[Axes, Axes, Axes]]:
     # Split larger vars
     if mcvary is None:
         if isinstance(mcvarx, MCOutVar) and mcvarx.size[0] == 2:
@@ -47,8 +48,8 @@ def mc_multi_plot_2d_scatter_hist(mcvarx     : Union[MCInVar, MCOutVar],
                                   cumulative : bool                = False,
                                   fig        : Figure              = None, 
                                   title      : str                 = '',
-                                  ):
-    if not fig:
+                                  ) -> tuple[Figure, tuple[Axes, Axes, Axes]]:
+    if fig is None:
         fig = plt.figure()
     else:
         plt.figure(fig.num)
@@ -73,5 +74,3 @@ def mc_multi_plot_2d_scatter_hist(mcvarx     : Union[MCInVar, MCOutVar],
     plt.suptitle(title, y=.93)
 
     return fig, (ax1, ax2, ax3)
-    
-

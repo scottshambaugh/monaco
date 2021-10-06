@@ -72,9 +72,9 @@ class MCSim:
         self.mccases : list[MCCase] = []
         self.ninvars : int = 0
         
-        self.corrcoeffs = None
-        self.covs = None
-        self.covvarlist = None
+        self.corrcoeffs : np.ndarray = None
+        self.covs       : np.ndarray = None
+        self.covvarlist : list[str] = None
         
         self.pbar0 : tqdm = None
         self.pbar1 : tqdm = None
@@ -82,7 +82,7 @@ class MCSim:
 
         self.runsimid : int = None
 
-        self.ncases = ndraws + 1
+        self.ncases : int = ndraws + 1
         self.setFirstCaseNom(firstcaseisnom)
         self.setNDraws(self.ndraws) # Will regen runsimid
                 
@@ -101,7 +101,7 @@ class MCSim:
 
     def checkFcnsInput(self,
                        fcns: dict,
-                       ):
+                       ) -> None:
         if set(fcns.keys()) != {MCFunctions.PREPROCESS, MCFunctions.RUN, MCFunctions.POSTPROCESS}:
             raise ValueError(f"MCSim argument {fcns=} must have keys {MCFunctions.PREPROCESS}, {MCFunctions.RUN}, and {MCFunctions.POSTPROCESS}")
         if any(not callable(f) for f in fcns.values()):
@@ -110,7 +110,7 @@ class MCSim:
 
     def setFirstCaseNom(self, 
                         firstcaseisnom : bool,
-                        ):
+                        ) -> None:
         if firstcaseisnom:
            self.firstcaseisnom = True
            self.ncases = self.ndraws + 1
@@ -127,7 +127,7 @@ class MCSim:
                  dist       : Union[rv_discrete, rv_continuous],
                  distkwargs : dict[str, Any], 
                  nummap     : dict[int, Any] = None,
-                 ):  
+                 ) -> None:  
         self.ninvars += 1
         invarseed = (self.seed + hash_str_repeatable(name)) % 2**32  # make seed dependent on var name and not order added
         self.invarseeds.append(invarseed)
@@ -138,13 +138,13 @@ class MCSim:
     def addConstVal(self, 
                     name : str, 
                     val  : Any,
-                    ):  
+                    ) -> None:  
         self.constvals[name] = val
 
 
     def setNDraws(self, 
                   ndraws: int,
-                  ):
+                  ) -> None:
         self.clearResults()
         self.ndraws = ndraws
         self.setFirstCaseNom(self.firstcaseisnom)
@@ -163,13 +163,13 @@ class MCSim:
 
     def runSim(self, 
                cases : Union[None, int, list[int], set[int]] = None,
-               ):
+               ) -> None:
         cases = self.downselectCases(cases=cases)
         vprint(self.verbose, f"Running '{self.name}' Monte Carlo simulation with {len(cases)}/{self.ncases} cases...", flush=True)
         self.runSimWorker(casestogenerate=cases, casestopreprocess=cases, casestorun=cases, casestopostprocess=cases)
 
 
-    def runIncompleteSim(self):
+    def runIncompleteSim(self) -> None:
         casestopreprocess  = self.allCases() - self.casespreprocessed
         casestorun         = self.allCases() - self.casesrun           | casestopreprocess
         casestopostprocess = self.allCases() - self.casespostprocessed | casestopreprocess | casestorun
@@ -187,7 +187,7 @@ class MCSim:
                      casestopreprocess  : Union[None, int, list[int], set[int]],
                      casestorun         : Union[None, int, list[int], set[int]],
                      casestopostprocess : Union[None, int, list[int], set[int]],
-                     ):            
+                     ) -> None:            
         self.starttime = datetime.now()
 
         if casestorun in (None, self.allCases()):
@@ -219,18 +219,18 @@ class MCSim:
             vprint(self.verbose, f"Sim results saved in '{self.filepath}'", flush=True)
 
 
-    def genRunSimID(self):
+    def genRunSimID(self) -> None:
         self.runsimid = self.genID()
 
 
-    def genID(self):
+    def genID(self) -> int:
         uniqueid = (self.seed + hash(self.name) + hash(datetime.now())) % 2**32
         return uniqueid
 
 
     def genCases(self,
                  cases : Union[None, int, list[int], set[int]] = None,
-                 ):
+                 ) -> None:
         vprint(self.verbose, 'Generating cases...', flush=True)
         self.genCaseSeeds()
         
@@ -246,14 +246,14 @@ class MCSim:
         self.mccases.sort(key=lambda mccase: mccase.ncase)
 
     
-    def genCaseSeeds(self):
+    def genCaseSeeds(self) -> None:
         generator = np.random.RandomState(self.seed)
-        self.caseseeds = generator.randint(0, 2**31-1, size=self.ncases)
+        self.caseseeds = list(generator.randint(0, 2**31-1, size=self.ncases))
 
 
     def preProcessCases(self, 
                         cases : Union[None, int, list[int], set[int]],
-                        ):
+                        ) -> None:
         cases = self.downselectCases(cases=cases)
         
         if self.verbose:
@@ -283,7 +283,7 @@ class MCSim:
 
     def preProcessCase(self, 
                        mccase : MCCase,
-                       ):
+                       ) -> MCCase:
         try:
             mccase.siminput = self.fcns[MCFunctions.PREPROCESS](mccase)
             self.casespreprocessed.add(mccase.ncase)
@@ -295,7 +295,7 @@ class MCSim:
             else:
                 vwarn(self.verbose, f'\nPreprocessing case {mccase.ncase} failed')
             
-        if not (self.pbar0 is None):
+        if self.pbar0 is not None:
             self.pbar0.update(1)
             
         return mccase
@@ -303,7 +303,8 @@ class MCSim:
 
     def runCases(self, 
                  cases            : Union[None, int, list[int], set[int]],
-                 calledfromrunsim : bool = False):
+                 calledfromrunsim : bool = False,
+                 ) -> None:
         cases = self.downselectCases(cases=cases)
         
         if not calledfromrunsim:
@@ -339,7 +340,7 @@ class MCSim:
 
     def runCase(self, 
                 mccase : MCCase,
-                ):
+                ) -> None:
         try:
             mccase.starttime = datetime.now()
             mccase.simrawoutput = self.fcns[MCFunctions.RUN](*get_sequence(mccase.siminput))
@@ -362,13 +363,13 @@ class MCSim:
                 raise
             vwrite(self.verbose, f'\nRunning case {mccase.ncase} failed')
         
-        if not (self.pbar1 is None):
+        if self.pbar1 is not None:
             self.pbar1.update(1)
 
 
     def postProcessCases(self, 
                          cases : Union[None, int, list[int], set[int]],
-                         ):
+                         ) -> None:
         cases = self.downselectCases(cases=cases)
         
         if self.verbose:
@@ -398,7 +399,7 @@ class MCSim:
 
     def postProcessCase(self, 
                         mccase : MCCase,
-                        ):
+                        ) -> None:
         try:
             self.fcns[MCFunctions.POSTPROCESS](mccase, *get_sequence(mccase.simrawoutput))
             self.casespostprocessed.add(mccase.ncase)
@@ -410,18 +411,18 @@ class MCSim:
             else:
                 vwrite(self.verbose, f'\nPostprocessing case {mccase.ncase} failed')
             
-        if not (self.pbar2 is None):
+        if self.pbar2 is not None:
             self.pbar2.update(1)
             
             
-    def genOutVars(self):
+    def genOutVars(self) -> None:
         for varname in self.mccases[0].mcoutvals.keys():
             vals = []
             for i in range(self.ncases):
                 vals.append(self.mccases[i].mcoutvals[varname].val)
 
             if self.mccases[0].mcoutvals[varname].valmapsource == 'auto':
-                uniquevals = set()
+                uniquevals : set[Any] = set()
                 valmap = None
                 for i in range(self.ncases):
                     if self.mccases[i].mcoutvals[varname].valmap is None:
@@ -440,7 +441,7 @@ class MCSim:
                 self.mccases[i].mcoutvars[varname] = self.mcoutvars[varname]
 
 
-    def genCovarianceMatrix(self):
+    def genCovarianceMatrix(self) -> None:
         self.covvarlist = []
         allnums = []
         for var in self.mcinvars.keys():
@@ -460,17 +461,17 @@ class MCSim:
                                      "This may happen if this variable does not vary, or if an infinite value was drawn.")
 
 
-    def corr(self):
+    def corr(self) -> tuple[np.ndarray, list[str]]:
         self.genCovarianceMatrix()
         return self.corrcoeffs, self.covvarlist
 
 
-    def cov(self):
+    def cov(self) -> tuple[np.ndarray, list[str]]:
         self.genCovarianceMatrix()
         return self.covs, self.covvarlist
 
 
-    def clearResults(self):
+    def clearResults(self) -> None:
         self.mccases = []
         self.mcoutvars = dict()
         self.casespreprocessed = set()
@@ -484,7 +485,7 @@ class MCSim:
         self.runsimid = self.genID()
 
 
-    def reset(self):
+    def reset(self) -> None:
         self.clearResults()
         self.mcinvars = dict()
         self.constvals = dict()
@@ -509,7 +510,7 @@ class MCSim:
         return allCases
 
 
-    def saveSimToFile(self):
+    def saveSimToFile(self) -> None:
         if self.savesimdata:
             self.filepath.unlink(missing_ok = True)
             self.filepath.touch()
@@ -517,7 +518,7 @@ class MCSim:
                 dill.dump(self, file, protocol=dill.HIGHEST_PROTOCOL)
 
 
-    def loadCases(self):
+    def loadCases(self) -> None:
         vprint(self.verbose, f"{self.filepath} indicates {len(self.casesrun)}/{self.ncases} cases were run, attempting to load raw case data from disk...", end='\n', flush=True)
         self.mccases = []
         casesloaded = set()
@@ -547,7 +548,7 @@ class MCSim:
                             if case in self.casespostprocessed:
                                 casesnotpostprocessed.remove(case)
                     except Exception: 
-                        vwarn(f'Unknown error loading {filepath.name}')
+                        vwarn(self.verbose, f'Unknown error loading {filepath.name}')
             except FileNotFoundError:
                 vwarn(self.verbose, f'{filepath.name} expected but not found')
             pbar.update(1)
@@ -584,10 +585,11 @@ class MCSim:
                 filenames.remove(f'{self.name}_{case}.mccase')
             except Exception:
                 pass
+
         return filenames
 
 
-    def removeExtraResultsFiles(self):
+    def removeExtraResultsFiles(self) -> None:
         extrafiles = self.findExtraResultsFiles()
         for file in extrafiles:
             filepath = self.resultsdir / file

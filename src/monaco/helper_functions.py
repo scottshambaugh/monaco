@@ -5,7 +5,7 @@ from operator import itemgetter
 from tqdm import tqdm
 import numpy as np
 import pandas as pd
-from typing import Callable, Union, Any
+from typing import Callable, Any
 from time import time
 from functools import wraps
 from hashlib import sha512
@@ -65,16 +65,16 @@ def slice_by_index(sequence : Sequence, indices) -> list:
     return list(items)
 
 
-def vprint(verbose, *args, **kwargs):
+def vprint(verbose : bool, *args, **kwargs) -> None:
     if verbose:
         print(*args, **kwargs)
 
 
-def warn_short_format(message, category, filename, lineno, file=None, line=None):
+def warn_short_format(message, category, filename, lineno, file=None, line=None) -> str:
     return f'{category.__name__}: {message}\n'
 
 
-def vwarn(verbose : bool, *args, **kwargs):
+def vwarn(verbose : bool, *args, **kwargs) -> None:
     if verbose:
         warn_default_format = warnings.formatwarning
         warnings.formatwarning = warn_short_format # type: ignore
@@ -82,7 +82,7 @@ def vwarn(verbose : bool, *args, **kwargs):
         warnings.formatwarning = warn_default_format
 
 
-def vwrite(verbose : bool, *args, **kwargs):
+def vwrite(verbose : bool, *args, **kwargs) -> None:
     if verbose:
         tqdm.write(*args, **kwargs)
 

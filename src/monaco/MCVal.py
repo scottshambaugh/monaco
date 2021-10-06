@@ -21,9 +21,9 @@ class MCVal(ABC):
         self.isnom = isnom
 
         self.val      : Any
-        self.valmap   : dict[Any, int]
+        self.valmap   : dict
         self.num      : float
-        self.nummap   : dict[int, Any]
+        self.nummap   : dict
         self.isscalar : bool
         self.size     : tuple
 
@@ -53,7 +53,7 @@ class MCInVal(MCVal):
         self.genValMap()
 
 
-    def mapNum(self):
+    def mapNum(self) -> None:
         if self.nummap is None:
             self.val = self.num
         elif self.isscalar:
@@ -70,7 +70,7 @@ class MCInVal(MCVal):
             self.val = val
 
 
-    def genValMap(self):
+    def genValMap(self) -> None:
         if self.nummap is None:
             self.valmap = None
         else:
@@ -102,12 +102,12 @@ class MCOutVal(MCVal):
         self.genNumMap()
 
 
-    def convertPandas(self):
+    def convertPandas(self) -> None:
         if isinstance(self.val, pd.Series) or isinstance(self.val, pd.Index):
             self.val = self.val.values
 
 
-    def genSize(self):
+    def genSize(self) -> None:
         if isinstance(self.val,(list, tuple, np.ndarray)):
             self.isscalar = False
             if isinstance(self.val[0],(list, tuple, np.ndarray)):
@@ -119,7 +119,7 @@ class MCOutVal(MCVal):
             self.size = (1, 1)
 
 
-    def extractValMap(self):
+    def extractValMap(self) -> None:
         if self.isscalar:
             if isinstance(self.val, bool):
                 self.valmap = {True:1, False:0}
@@ -138,7 +138,7 @@ class MCOutVal(MCVal):
                     self.valmap = {str(key):idx for idx, key in enumerate(sorted(set(self.val)))}
 
                 
-    def mapVal(self):
+    def mapVal(self) -> None:
         if self.valmap is None:
             self.num = self.val
         elif self.isscalar:
@@ -155,19 +155,17 @@ class MCOutVal(MCVal):
             self.num = num
 
 
-    def genNumMap(self):
+    def genNumMap(self) -> None:
         if self.valmap is None:
             self.nummap = None
         else:
             self.nummap = {num:val for val, num in self.valmap.items()}
 
 
-    def split(self):
+    def split(self) -> dict[str, 'MCOutVal']:
         mcvals = dict()
         if self.size[0] > 1:
             for i in range(self.size[0]):
                 name = self.name + f' [{i}]'
                 mcvals[name] = MCOutVal(name=name, ncase=self.ncase, val=self.val[i], valmap=self.valmap, isnom=self.isnom)
         return mcvals
-
-

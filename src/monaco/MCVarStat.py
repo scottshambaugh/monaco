@@ -86,37 +86,37 @@ class MCVarStat:
                                       f"{VarStat.SIGMAP}, {VarStat.GAUSSIANP}, {VarStat.ORDERSTATTI}, {VarStat.ORDERSTATP}"]))
 
 
-    def genStatsMax(self):
+    def genStatsMax(self) -> None:
         self.setName('Max')
         self.genStatsFunction(fcn=np.max)
 
 
-    def genStatsMin(self):
+    def genStatsMin(self) -> None:
         self.setName('Min')
         self.genStatsFunction(fcn=np.min)
 
 
-    def genStatsMedian(self):
+    def genStatsMedian(self) -> None:
         self.setName('Median')
         self.genStatsFunction(fcn=np.median)
 
 
-    def genStatsMean(self):
+    def genStatsMean(self) -> None:
         self.setName('Mean')
         self.genStatsFunction(fcn=np.mean)
 
 
-    def genStatsGeoMean(self):
+    def genStatsGeoMean(self) -> None:
         self.setName('Geometric Mean')
         self.genStatsFunction(fcn=gmean)
 
 
-    def genStatsMode(self):
+    def genStatsMode(self) -> None:
         self.setName('Mode')
         self.genStatsFunction(fcn=mode)
 
 
-    def genStatsSigmaP(self):
+    def genStatsSigmaP(self) -> None:
         if 'sig' not in self.statkwargs:
             raise ValueError(f'{self.stattype} requires the kwarg ''sig''')
         if 'bound' not in self.statkwargs:
@@ -130,7 +130,7 @@ class MCVarStat:
         self.genStatsFunction(self.sigmaP)
 
 
-    def genStatsGaussianP(self):
+    def genStatsGaussianP(self) -> None:
         if 'p' not in self.statkwargs:
             raise ValueError(f'{self.stattype} requires the kwarg ''p''')
         if 'bound' not in self.statkwargs:
@@ -146,14 +146,14 @@ class MCVarStat:
 
     def sigmaP(self, 
                x, # TODO: explicit typing here
-               ):
+               ) -> float:
         std = np.std(x)
         return np.mean(x) + self.sig*std
 
 
     def genStatsFunction(self, 
                          fcn : Callable,
-                         ):
+                         ) -> None:
         if self.mcvar.isscalar:
             self.nums = fcn(self.mcvar.nums)
             self.vals = copy(self.nums)
@@ -177,7 +177,7 @@ class MCVarStat:
             pass
 
 
-    def genStatsOrderStatTI(self):
+    def genStatsOrderStatTI(self) -> None:
         self.checkOrderStatsKWArgs()
       
         if self.bound == StatBound.ONESIDED and self.p >= 0.5:
@@ -244,7 +244,7 @@ class MCVarStat:
             pass
 
 
-    def genStatsOrderStatP(self):
+    def genStatsOrderStatP(self) -> None:
         self.checkOrderStatsKWArgs()
       
         bound = self.bound
@@ -311,7 +311,7 @@ class MCVarStat:
             pass
 
 
-    def checkOrderStatsKWArgs(self):
+    def checkOrderStatsKWArgs(self) -> None:
         if 'p' not in self.statkwargs:
             raise ValueError(f'{self.stattype} requires the kwarg ''p''')
         else:
@@ -328,6 +328,6 @@ class MCVarStat:
 
     def setName(self, 
                 name : str,
-                ):
+                ) -> None:
         if self.name is None:
             self.name = name

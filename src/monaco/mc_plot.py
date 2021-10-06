@@ -3,6 +3,7 @@
 import numpy as np
 from scipy.stats import rv_continuous, rv_discrete, chi2, mode
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib.patches import Ellipse
 from mpl_toolkits.mplot3d import Axes3D
@@ -12,7 +13,7 @@ from monaco.gaussian_statistics import conf_ellipsoid_sig2pct
 from monaco.integration_statistics import integration_error
 from monaco.MCEnums import SampleMethod
 from copy import copy
-from typing import Union, Iterable, Optional
+from typing import Union, Sequence, Optional
 
 
 # If cases or highlight_cases are None, will plot all. Set to [] to plot none.
@@ -26,7 +27,7 @@ def mc_plot(mcvarx   : Union[MCInVar, MCOutVar],
             cov_p    : Union[float, list[float], set[float]]  = None,
             ax       : Optional[Axes]     = None, 
             title    : str                = '',
-            ):
+            ) -> tuple[Figure, Axes]:
     
     # Split larger vars
     if mcvary is None and mcvarz is None:
@@ -103,7 +104,7 @@ def mc_plot_hist(mcvar       : Union[MCInVar, MCOutVar],
                  rug_plot    : bool              = True,
                  ax          : Optional[Axes]    = None, 
                  title       : str               = '',
-                 ):
+                 ) -> tuple[Figure, Axes]:
 
     fig, ax = manage_axis(ax, is3d=False)
 
@@ -118,7 +119,7 @@ def mc_plot_hist(mcvar       : Union[MCInVar, MCOutVar],
         # Continuous distribution
         if isinstance(mcvar.dist, rv_continuous):
             plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=True, cumulative=cumulative, orientation=orientation, histtype='bar', facecolor='k', alpha=0.5)
-            lim = get_hist_lim(orientation, ax)
+            lim = get_hist_lim(ax, orientation)
             x = np.arange(lim[0], lim[1], (lim[1] - lim[0])/100)
             dist = mcvar.dist(**mcvar.distkwargs)
             if cumulative:
@@ -133,7 +134,7 @@ def mc_plot_hist(mcvar       : Union[MCInVar, MCOutVar],
         # Discrete distribution
         elif isinstance(mcvar.dist, rv_discrete):
             plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False, orientation=orientation, cumulative=cumulative, histtype='bar', facecolor='k', alpha=0.5)
-            lim = get_hist_lim(orientation, ax)
+            lim = get_hist_lim(ax, orientation)
             x = np.concatenate(([lim[0]], bins, [lim[1]]))
             dist = mcvar.dist(**mcvar.distkwargs)
             if cumulative:
@@ -204,7 +205,7 @@ def mc_plot_cdf(mcvar       : Union[MCInVar, MCOutVar],
                 rug_plot    : bool              = True,
                 ax          : Optional[Axes]    = None, 
                 title       : str               = '',
-                ):
+                ) -> tuple[Figure, Axes]:
     return mc_plot_hist(mcvar=mcvar, highlight_cases=highlight_cases, cumulative=True, orientation=orientation, rug_plot=rug_plot, ax=ax, title=title)
 
 
@@ -218,7 +219,7 @@ def mc_plot_2d_scatter(mcvarx   : Union[MCInVar, MCOutVar],
                        cov_p    : Union[None, float, list[float], set[float]]  = None,
                        ax       : Optional[Axes]     = None, 
                        title    : str                = '',
-                       ):
+                       ) -> tuple[Figure, Axes]:
     fig, ax = manage_axis(ax, is3d=False)
 
     cases_sequence = get_cases(mcvarx.ncases, cases)
@@ -256,7 +257,7 @@ def mc_plot_2d_line(mcvarx : Union[MCInVar, MCOutVar],
                     highlight_cases : Union[None, int, list[int], set[int]] = [],   # No cases
                     ax     : Optional[Axes]    = None, 
                     title  : str               = '',
-                    ):
+                    ) -> tuple[Figure, Axes]:
     fig, ax = manage_axis(ax, is3d=False)
     
     cases_sequence = get_cases(mcvarx.ncases, cases)
@@ -292,7 +293,7 @@ def mc_plot_3d_scatter(mcvarx : Union[MCInVar, MCOutVar],
                        highlight_cases : Union[None, int, list[int], set[int]] = [],   # No cases
                        ax     : Optional[Axes]    = None, 
                        title  : str               = '',
-                       ):
+                       ) -> tuple[Figure, Axes]:
     fig, ax = manage_axis(ax, is3d=True)
     
     cases_sequence = get_cases(mcvarx.ncases, cases)
@@ -322,7 +323,7 @@ def mc_plot_3d_line(mcvarx : Union[MCInVar, MCOutVar],
                     highlight_cases : Union[None, int, list[int], set[int]] = [],   # No cases
                     ax     : Optional[Axes]    = None, 
                     title  : str               = '',
-                    ):
+                    ) -> tuple[Figure, Axes]:
     fig, ax = manage_axis(ax, is3d=True)
     
     cases_sequence = get_cases(mcvarx.ncases, cases)
@@ -347,7 +348,7 @@ def mc_plot_cov_corr(matrix    : np.ndarray,
                      varnames  : list[str],
                      ax        : Optional[Axes]    = None, 
                      title     : str               = '',
-                     ):
+                     ) -> tuple[Figure, Axes]:
     fig, ax = manage_axis(ax, is3d=False)
     scale = np.nanmax(np.abs(matrix)) # for a correlation matrix this will always be 1 from diagonal
     im = ax.imshow(matrix, cmap="RdBu", vmin=-scale, vmax=scale)
@@ -383,7 +384,6 @@ def mc_plot_cov_corr(matrix    : np.ndarray,
     return fig, ax
 
 
-
 def mc_plot_integration_convergence(mcoutvar     : MCOutVar,
                                     dimension    : int,
                                     volume       : float,
@@ -392,10 +392,10 @@ def mc_plot_integration_convergence(mcoutvar     : MCOutVar,
                                     samplemethod : SampleMethod      = SampleMethod.RANDOM, # SampleMethod.RANDOM or SampleMethod.SOBOL
                                     ax           : Optional[Axes]    = None, 
                                     title        : str               = '',
-                                    ):
+                                    ) -> tuple[Figure, Axes]:
     fig, ax = manage_axis(ax, is3d=False)
 
-    if not refval is None:
+    if refval is not None:
         ax.axhline(refval, color='k')
 
     cummean = volume*np.cumsum(mcoutvar.nums)/np.arange(1, mcoutvar.ncases+1)
@@ -411,7 +411,6 @@ def mc_plot_integration_convergence(mcoutvar     : MCOutVar,
     return fig, ax
 
 
-
 def mc_plot_integration_error(mcoutvar     : MCOutVar,
                               dimension    : int,
                               volume       : float,
@@ -420,7 +419,7 @@ def mc_plot_integration_error(mcoutvar     : MCOutVar,
                               samplemethod : SampleMethod   = SampleMethod.RANDOM, # SampleMethod.RANDOM or SampleMethod.SOBOL
                               ax           : Optional[Axes] = None, 
                               title        : str            = '',
-                              ):
+                              ) -> tuple[Figure, Axes]:
     fig, ax = manage_axis(ax, is3d=False)
 
     cummean = volume*np.cumsum(mcoutvar.nums)/np.arange(1, mcoutvar.ncases+1)
@@ -438,7 +437,7 @@ def mc_plot_integration_error(mcoutvar     : MCOutVar,
 
 def manage_axis(ax   : Optional[Axes], 
                 is3d : bool = False,
-                ):
+                ) -> tuple[Figure, Axes]:
     if ax is not None:
         fig = ax.figure
     else:
@@ -456,7 +455,7 @@ def apply_category_labels(ax : Axes,
                           mcvarx : Union[MCInVar, MCOutVar] = None, 
                           mcvary : Union[MCInVar, MCOutVar] = None, 
                           mcvarz : Union[MCInVar, MCOutVar] = None,
-                          ):
+                          ) -> None:
     # Wrapped in try statements in case some categories aren't printable
     if mcvarx is not None and mcvarx.nummap is not None:
         try:
@@ -479,9 +478,9 @@ def apply_category_labels(ax : Axes,
 
 
 
-def get_hist_lim(orientation : str,  # 'vertical' or 'horizontal' , 
-                 ax          : Axes, 
-                 ):
+def get_hist_lim(ax          : Axes, 
+                 orientation : str,  # 'vertical' or 'horizontal' , 
+                 ) -> tuple[float, float]:
     if orientation == 'vertical':
         lim = ax.get_xlim()
     elif orientation == 'horizontal':
@@ -490,10 +489,10 @@ def get_hist_lim(orientation : str,  # 'vertical' or 'horizontal' ,
 
 
 
-def plot_rug_marks(ax          : Optional[Axes],
+def plot_rug_marks(ax          : Axes,
                    orientation : str, # 'vertical' or 'horizontal' 
                    nums        : Union[list[int], list[float]]
-                   ):
+                   ) -> None:
     if ax is None:
         return
     
@@ -508,11 +507,11 @@ def plot_rug_marks(ax          : Optional[Axes],
 
 
 
-def plot_2d_cov_ellipse(ax     : Optional[Axes],
+def plot_2d_cov_ellipse(ax     : Axes,
                         mcvarx : Union[MCInVar, MCOutVar], 
                         mcvary : Union[MCInVar, MCOutVar], 
                         p      : float,
-                        ):
+                        ) -> None:
     if ax is None:
         return
     
@@ -541,7 +540,7 @@ def plot_2d_cov_ellipse(ax     : Optional[Axes],
 
 def get_cases(ncases : int, 
               cases  : Union[None, int, list[int], set[int]],
-              ) -> Iterable[int]:
+              ) -> Sequence[int]:
     if cases is None:
         cases = list(range(ncases))
     cases_sequence = get_sequence(cases)
