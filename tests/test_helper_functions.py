@@ -3,7 +3,7 @@
 import pytest
 from collections.abc import Iterable
 import pandas as pd
-from monaco.helper_functions import next_power_of_2, hash_str_repeatable, is_num, length, get_iterable, slice_by_index
+from monaco.helper_functions import next_power_of_2, hash_str_repeatable, is_num, length, get_sequence, slice_by_index
 
 @pytest.mark.parametrize("num,ans", [
     (0, 0),
@@ -53,8 +53,8 @@ df = pd.DataFrame({'vals1': range(nvals), 'vals2': range(nvals)}, index = dates)
     (          df, True),
     ( df['vals1'], True),
 ])
-def test_get_iterable(val,ans):
-    assert isinstance(get_iterable(val), Iterable) == ans
+def test_get_sequence(val,ans):
+    assert isinstance(get_sequence(val), Iterable) == ans
 
 
 data = [0, 1, 2, 3, 4, 5, 6, 7, 8]
@@ -85,7 +85,7 @@ def inline_testing():
     nvals = 3
     dates = pd.date_range(start='2020-01-01', periods=nvals, freq='YS')
     df = pd.DataFrame({'vals1': range(nvals), 'vals2': range(nvals)}, index = dates)
-    print([isinstance(get_iterable(x), Iterable) for x in (None, 0, (0,1), df, df['vals1'])])  # Expected: [True, True, True, True, True]
+    print([isinstance(get_sequence(x), Iterable) for x in (None, 0, (0,1), df, df['vals1'])])  # Expected: [True, True, True, True, True]
     
     data = [0, 1, 2, 3, 4, 5, 6, 7, 8]
     print(slice_by_index(data, []))      # Expected: []

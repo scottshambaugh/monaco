@@ -7,7 +7,7 @@ from matplotlib.axes import Axes
 from matplotlib.patches import Ellipse
 from mpl_toolkits.mplot3d import Axes3D
 from monaco.MCVar import MCInVar, MCOutVar
-from monaco.helper_functions import get_iterable, slice_by_index, length
+from monaco.helper_functions import get_sequence, slice_by_index, length
 from monaco.gaussian_statistics import conf_ellipsoid_sig2pct
 from monaco.integration_statistics import integration_error
 from monaco.MCEnums import SampleMethod
@@ -108,7 +108,7 @@ def mc_plot_hist(mcvar       : Union[MCInVar, MCOutVar],
     fig, ax = manage_axis(ax, is3d=False)
 
     # Histogram generation
-    highlight_cases_iterable = get_cases(mcvar.ncases, highlight_cases)
+    highlight_cases_sequence = get_cases(mcvar.ncases, highlight_cases)
     counts, bins = np.histogram(mcvar.nums, bins='auto')
     binwidth = mode(np.diff(bins))[0]
     bins = np.concatenate((bins - binwidth/2, bins[-1] + binwidth/2))
@@ -163,10 +163,10 @@ def mc_plot_hist(mcvar       : Union[MCInVar, MCOutVar],
 
     # Highlight cases and MCVarStats
     if orientation == 'vertical':
-        for i in highlight_cases_iterable:
+        for i in highlight_cases_sequence:
             plt.plot([mcvar.nums[i], mcvar.nums[i]], [ylim[0], ylim[0]+(ylim[1]-ylim[0])*0.20], linestyle='-', linewidth=1, color='red')
         for mcvarstat in mcvar.mcvarstats:
-            nums = get_iterable(mcvarstat.nums)
+            nums = get_sequence(mcvarstat.nums)
             if length(nums) == 1:
                 plt.plot([nums[0],nums[0]], ylim, linestyle='-', color='blue')
             elif length(nums) == 3:
@@ -178,10 +178,10 @@ def mc_plot_hist(mcvar       : Union[MCInVar, MCOutVar],
         apply_category_labels(ax, mcvarx=mcvar)
         
     elif orientation == 'horizontal':
-        for i in highlight_cases_iterable:
+        for i in highlight_cases_sequence:
             plt.plot([xlim[0], xlim[0]+(xlim[1]-xlim[0])*0.20], [mcvar.nums[i], mcvar.nums[i]], linestyle='-', linewidth=1, color='red')
         for mcvarstat in mcvar.mcvarstats:
-            nums = get_iterable(mcvarstat.nums)
+            nums = get_sequence(mcvarstat.nums)
             if length(nums) == 1:
                 plt.plot(xlim, [nums[0],nums[0]], linestyle='-', color='blue')
             elif length(nums) == 3:
@@ -221,23 +221,23 @@ def mc_plot_2d_scatter(mcvarx   : Union[MCInVar, MCOutVar],
                        ):
     fig, ax = manage_axis(ax, is3d=False)
 
-    cases_iterable = get_cases(mcvarx.ncases, cases)
-    highlight_cases_iterable = get_cases(mcvarx.ncases, highlight_cases)
-    reg_cases = set(cases_iterable) - set(highlight_cases_iterable)
+    cases_sequence = get_cases(mcvarx.ncases, cases)
+    highlight_cases_sequence = get_cases(mcvarx.ncases, highlight_cases)
+    reg_cases = set(cases_sequence) - set(highlight_cases_sequence)
     if reg_cases:
         plt.scatter(slice_by_index(mcvarx.nums, reg_cases), slice_by_index(mcvary.nums, reg_cases), edgecolors=None, c='k', alpha=0.4)
-    if highlight_cases_iterable:
-        plt.scatter(slice_by_index(mcvarx.nums, highlight_cases_iterable), slice_by_index(mcvary.nums, highlight_cases_iterable), edgecolors=None, c='r', alpha=1)
+    if highlight_cases_sequence:
+        plt.scatter(slice_by_index(mcvarx.nums, highlight_cases_sequence), slice_by_index(mcvary.nums, highlight_cases_sequence), edgecolors=None, c='r', alpha=1)
 
     if cov_plot:
         if cov_p is None:
             cov_p = conf_ellipsoid_sig2pct(3.0, df=2); # 3-sigma for 2D gaussian
-        cov_p_iterable = get_iterable(cov_p)
-        for p in cov_p_iterable:
+        cov_p_sequence = get_sequence(cov_p)
+        for p in cov_p_sequence:
             plot_2d_cov_ellipse(ax=ax, mcvarx=mcvarx, mcvary=mcvary, p=p)
 
     if rug_plot:
-        all_cases = set(cases_iterable) | set(highlight_cases_iterable)
+        all_cases = set(cases_sequence) | set(highlight_cases_sequence)
         plot_rug_marks(ax, orientation='vertical', nums=slice_by_index(mcvarx.nums, all_cases))
         plot_rug_marks(ax, orientation='horizontal', nums=slice_by_index(mcvary.nums, all_cases))
 
@@ -259,12 +259,12 @@ def mc_plot_2d_line(mcvarx : Union[MCInVar, MCOutVar],
                     ):
     fig, ax = manage_axis(ax, is3d=False)
     
-    cases_iterable = get_cases(mcvarx.ncases, cases)
-    highlight_cases_iterable = get_cases(mcvarx.ncases, highlight_cases)
-    reg_cases = set(cases_iterable) - set(highlight_cases_iterable)
+    cases_sequence = get_cases(mcvarx.ncases, cases)
+    highlight_cases_sequence = get_cases(mcvarx.ncases, highlight_cases)
+    reg_cases = set(cases_sequence) - set(highlight_cases_sequence)
     for i in reg_cases:
         plt.plot(mcvarx.nums[i], mcvary.nums[i], linestyle='-', color='black', alpha=0.2)
-    for i in highlight_cases_iterable:
+    for i in highlight_cases_sequence:
         plt.plot(mcvarx.nums[i], mcvary.nums[i], linestyle='-', color='red', alpha=1)     
 
     for mcvarstat in mcvary.mcvarstats:
@@ -295,15 +295,15 @@ def mc_plot_3d_scatter(mcvarx : Union[MCInVar, MCOutVar],
                        ):
     fig, ax = manage_axis(ax, is3d=True)
     
-    cases_iterable = get_cases(mcvarx.ncases, cases)
-    highlight_cases_iterable = get_cases(mcvarx.ncases, highlight_cases)
-    reg_cases = set(cases_iterable) - set(highlight_cases_iterable)
+    cases_sequence = get_cases(mcvarx.ncases, cases)
+    highlight_cases_sequence = get_cases(mcvarx.ncases, highlight_cases)
+    reg_cases = set(cases_sequence) - set(highlight_cases_sequence)
     if reg_cases:
         ax.scatter(slice_by_index(mcvarx.nums, reg_cases), slice_by_index(mcvary.nums, reg_cases), \
                    slice_by_index(mcvarz.nums, reg_cases), edgecolors=None, c='k', alpha=0.4)
-    if highlight_cases_iterable:
-        ax.scatter(slice_by_index(mcvarx.nums, highlight_cases_iterable), slice_by_index(mcvary.nums, highlight_cases_iterable), \
-                   slice_by_index(mcvarz.nums, highlight_cases_iterable), edgecolors=None, c='r', alpha=1)
+    if highlight_cases_sequence:
+        ax.scatter(slice_by_index(mcvarx.nums, highlight_cases_sequence), slice_by_index(mcvary.nums, highlight_cases_sequence), \
+                   slice_by_index(mcvarz.nums, highlight_cases_sequence), edgecolors=None, c='r', alpha=1)
 
     ax.set_xlabel(mcvarx.name)
     ax.set_ylabel(mcvary.name)
@@ -325,12 +325,12 @@ def mc_plot_3d_line(mcvarx : Union[MCInVar, MCOutVar],
                     ):
     fig, ax = manage_axis(ax, is3d=True)
     
-    cases_iterable = get_cases(mcvarx.ncases, cases)
-    highlight_cases_iterable = get_cases(mcvarx.ncases, highlight_cases)
-    reg_cases = set(cases_iterable) - set(highlight_cases_iterable)
+    cases_sequence = get_cases(mcvarx.ncases, cases)
+    highlight_cases_sequence = get_cases(mcvarx.ncases, highlight_cases)
+    reg_cases = set(cases_sequence) - set(highlight_cases_sequence)
     for i in reg_cases:
         ax.plot(mcvarx.nums[i], mcvary.nums[i], mcvarz.nums[i], linestyle='-', color='black', alpha=0.3)
-    for i in highlight_cases_iterable:
+    for i in highlight_cases_sequence:
         ax.plot(mcvarx.nums[i], mcvary.nums[i], mcvarz.nums[i], linestyle='-', color='red', alpha=1)
         
     ax.set_xlabel(mcvarx.name)
@@ -544,6 +544,6 @@ def get_cases(ncases : int,
               ) -> Iterable[int]:
     if cases is None:
         cases = list(range(ncases))
-    cases_iterable = get_iterable(cases)
-    return cases_iterable
+    cases_sequence = get_sequence(cases)
+    return cases_sequence
         

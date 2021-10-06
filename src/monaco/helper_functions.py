@@ -44,7 +44,7 @@ def length(x : Any) -> int:
         return None
 
 
-def get_iterable(x : Any) -> Sequence:
+def get_sequence(x : Any) -> Sequence:
     if x is None:
         return tuple()
     elif isinstance(x, pd.DataFrame):
@@ -56,11 +56,11 @@ def get_iterable(x : Any) -> Sequence:
 
 
 def slice_by_index(sequence : Sequence, indices) -> list:
-    indices_iterable = get_iterable(indices)
-    if not sequence or not indices_iterable:
+    indices_sequence = get_sequence(indices)
+    if not sequence or not indices_sequence:
         return []
-    items = itemgetter(*indices_iterable)(sequence)
-    if len(indices_iterable) == 1:
+    items = itemgetter(*indices_sequence)(sequence)
+    if len(indices_sequence) == 1:
         return [items]
     return list(items)
 

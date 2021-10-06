@@ -4,7 +4,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from monaco.helper_functions import get_iterable
+from monaco.helper_functions import get_sequence
 if TYPE_CHECKING:
     from monaco.MCVar import MCVar
     
@@ -161,11 +161,11 @@ class MCVarStat:
                 self.vals = [self.mcvar.nummap[num] for num in self.nums]
                 
         elif self.mcvar.size[0] == 1:
-            nums_iterable = get_iterable(self.mcvar.nums)
-            npoints = max(len(x) for x in nums_iterable)
+            nums_sequence = get_sequence(self.mcvar.nums)
+            npoints = max(len(x) for x in nums_sequence)
             self.nums = np.empty(npoints)
             for i in range(npoints):
-                numsatidx = [x[i] for x in nums_iterable if len(x)>i]
+                numsatidx = [x[i] for x in nums_sequence if len(x)>i]
                 self.nums[i] = fcn(numsatidx)
             self.vals = copy(self.nums)
             if self.mcvar.nummap is not None:
@@ -331,4 +331,3 @@ class MCVarStat:
                 ):
         if self.name is None:
             self.name = name
-
