@@ -27,9 +27,9 @@ class MCVar(ABC):
         self.ncases = ndraws + 1
         self.setFirstCaseNom(firstcaseisnom)
         self.vals       : list[Any]
-        self.valmap     : dict[Any, int]
+        self.valmap     : dict
         self.nums       : list[float]
-        self.nummap     : dict[int, Any]
+        self.nummap     : dict
         self.pcts       : list[float]
         self.size       : tuple
         self.isscalar   : bool
@@ -82,13 +82,13 @@ class MCInVar(MCVar):
                  name           : str, 
                  ndraws         : int, 
                  dist           : Union[rv_discrete, rv_continuous], 
-                 distkwargs     : dict           = dict(),
-                 nummap         : dict[int, Any] = None,
-                 samplemethod   : SampleMethod   = SampleMethod.SOBOL_RANDOM,
-                 ninvar         : int            = None,
-                 seed           : int            = np.random.get_state(legacy=False)['state']['key'][0], 
-                 firstcaseisnom : bool           = False,
-                 autodraw       : bool           = True,
+                 distkwargs     : dict         = dict(),
+                 nummap         : dict         = None,
+                 samplemethod   : SampleMethod = SampleMethod.SOBOL_RANDOM,
+                 ninvar         : int          = None,
+                 seed           : int          = np.random.get_state(legacy=False)['state']['key'][0], 
+                 firstcaseisnom : bool         = False,
+                 autodraw       : bool         = True,
                  ):
         super().__init__(name=name, ndraws=ndraws, firstcaseisnom=firstcaseisnom)
         
@@ -112,12 +112,6 @@ class MCInVar(MCVar):
         if self.nummap is not None:
             for i in range(self.ncases):
                 self.vals[i] = self.nummap[self.nums[i]]
-            
-    
-    # TODO: Fix
-    def genNumMap(self) -> None:
-        if self.nummap is None:
-            self.nummap = {val:num for num, val in self.nummap.items()}
 
 
     def genValMap(self) -> None:
@@ -199,9 +193,9 @@ class MCOutVar(MCVar):
     def __init__(self, 
                  name           : str, 
                  vals           : list[Any], 
-                 valmap         : dict[Any, int] = None, 
-                 ndraws         : int            = None, 
-                 firstcaseisnom : bool           = False,
+                 valmap         : dict = None, 
+                 ndraws         : int  = None, 
+                 firstcaseisnom : bool = False,
                  ):
         if ndraws is None:
             ndraws = len(vals)
@@ -238,7 +232,7 @@ class MCOutVar(MCVar):
                 for i in range(self.ncases):
                     uniquevals.update(self.getVal(i).valmap.keys())
                 self.valmap = dict()
-                for i, val in enumerate(uniquevals):
+                for i, val in enumerate(sorted(uniquevals)):
                     self.valmap[val] = i
             else:
                 self.valmap = Val0.valmap
@@ -266,10 +260,10 @@ class MCOutVar(MCVar):
         return val
         
     
-    def getNom(self) -> Any:
+    def getNom(self) -> MCOutVal:
         val = None
         if self.firstcaseisnom:
-            val = self.vals[0]            
+            val = MCOutVal(name=self.name, ncase=0, val=self.vals[0], valmap=self.valmap, isnom=True)
         return val
     
     

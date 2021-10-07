@@ -56,7 +56,12 @@ def test_mcoutvar():
     outvar = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
     assert outvar.getVal(1).val == 0
     assert outvar.stats().mean == pytest.approx(1.25)
+    assert outvar.getNom().val == 1
 
+def test_mcoutvar_extractValMap():
+    outvar = MCOutVar('test', ['a', 'b', 'c', 'b'], firstcaseisnom=True)
+    assert outvar.valmap == {'a':0, 'b':1, 'c':2}
+    
 @pytest.fixture
 def mcoutvars_split():
     mcoutvars = dict()
@@ -105,11 +110,14 @@ def inline_testing():
     mcoutvars['test'] = MCOutVar('test', [1, 0, 2, 2], firstcaseisnom=True)
     print(mcoutvars['test'].getVal(1).val) # expected: 0
     print(mcoutvars['test'].stats()) # expected: DescribeResult(nobs=4, minmax=(0, 2), mean=1.25, variance=0.9166666666666666, skewness=-0.49338220021815865, kurtosis=-1.371900826446281)
-    
+    print(mcoutvars['test'].getNom().val) # expected: 1
+    mcoutvars['test2'] = MCOutVar('test2', ['a', 'b', 'c', 'b'], firstcaseisnom=True)
+    print(mcoutvars['test2'].valmap) # expected: {'a':0, 'b':1, 'c':2}
+
     v = np.array([[1,1],[2,2],[3,3]])
-    mcoutvars['test2'] = MCOutVar('test2', [v, v, v, v, v])
-    mcoutvars['test2'].addVarStat(stattype='orderstatTI', statkwargs={'p':0.33, 'c':0.50, 'bound':'1-sided'})
-    mcoutvars.update(mcoutvars['test2'].split())
+    mcoutvars['test3'] = MCOutVar('test3', [v, v, v, v, v])
+    mcoutvars['test3'].addVarStat(stattype='orderstatTI', statkwargs={'p':0.33, 'c':0.50, 'bound':'1-sided'})
+    mcoutvars.update(mcoutvars['test3'].split())
     print(mcoutvars['test2 [0]'].nums) # expected: [array([1, 1]), array([1, 1]), array([1, 1]), array([1, 1]), array([1, 1])]
     print(mcoutvars['test2 [0]'].mcvarstats[0].vals) # expected: [1. 1.]
 
