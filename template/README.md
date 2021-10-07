@@ -24,7 +24,7 @@ sim.mcinvars['flipper'].__dict__
   * What is the histogram of the sum of all 5 dice?
 
 <p float="left" align="left">
-<img width="480" height="380" src="https://raw.githubusercontent.com/scottshambaugh/monaco/master/docs/val_var_case_architecture.png">  
+<img width="500" height="400" src="https://raw.githubusercontent.com/scottshambaugh/monaco/master/docs/val_var_case_architecture.png">  
 </p>
 
 ### Next Steps
