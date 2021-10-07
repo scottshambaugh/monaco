@@ -10,6 +10,10 @@ def test_mcinval():
     from scipy.stats import norm
     inval = MCInVal(name='test', ncase=1, pct=0.5, num=0, dist=norm, isnom=True)
     assert inval.val == 0
+    
+    inval = MCInVal(name='test', ncase=1, pct=0.5, num=0, nummap={0:'a'}, dist=norm, isnom=True)
+    assert inval.val == 'a'
+
 
 
 @pytest.fixture
@@ -55,28 +59,30 @@ def inline_testing():
     from scipy.stats import norm
     a = MCInVal(name='TestA', ncase=1, pct=0.5, num=0, dist=norm, isnom=True)
     print(a.val) # expected: 0
-    b = MCOutVal(name='TestB', ncase=1, val=[[0,0],[0,0],[0,0]], isnom=True)
-    print(b.size) # expected: (3, 2)
-    print(b.val) # expected: [[0, 0], [0, 0], [0, 0]]
-    bsplit = b.split()
-    print(bsplit['TestB [0]'].val) # expected: [0, 0]
-    c = MCOutVal(name='TestC', ncase=1, val=[['a','a'],['b','b'],['a','b']], isnom=True)
-    print(c.valmap) # expected: {'a': 0, 'b': 1}
-    print(c.num) # expected: [[0, 0], [1, 1], [0, 1]]
-    d = MCOutVal(name='TestD', ncase=1, val=[True, False], valmap={True:2, False:1})
-    print(d.val) # expected: [True, False]
-    print(d.num) # expected: [2, 1]
-    e = MCOutVal(name='TestE', ncase=1, val=[True, False])
+    b = MCInVal(name='TestB', ncase=1, pct=0.5, num=0, nummap={0:'a'}, dist=norm, isnom=True)
+    print(b.val) # expected: a
+    c = MCOutVal(name='TestC', ncase=1, val=[[0,0],[0,0],[0,0]], isnom=True)
+    print(c.size) # expected: (3, 2)
+    print(c.val) # expected: [[0, 0], [0, 0], [0, 0]]
+    csplit = c.split()
+    print(csplit['TestC [0]'].val) # expected: [0, 0]
+    d = MCOutVal(name='TestD', ncase=1, val=[['a','a'],['b','b'],['a','b']], isnom=True)
+    print(d.valmap) # expected: {'a': 0, 'b': 1}
+    print(d.num) # expected: [[0, 0], [1, 1], [0, 1]]
+    e = MCOutVal(name='TestE', ncase=1, val=[True, False], valmap={True:2, False:1})
     print(e.val) # expected: [True, False]
-    print(e.num) # expected: [1, 0]
+    print(e.num) # expected: [2, 1]
+    f = MCOutVal(name='TestF', ncase=1, val=[True, False])
+    print(f.val) # expected: [True, False]
+    print(f.num) # expected: [1, 0]
     
     nvals = 3
     dates = pd.date_range(start='2020-01-01', periods=nvals, freq='YS')
     df = pd.DataFrame({'vals1': range(nvals), 'vals2': range(nvals)}, index = dates)
-    f = MCOutVal(name='TestF', ncase=1, val=df['vals1'], isnom=True)
-    print(f.num) # expected: [0 1 2]
-    g = MCOutVal(name='TestG', ncase=1, val=df.index, isnom=True)
-    print(g.val) # expected: ['2020-01-01T00:00:00.000000000' '2021-01-01T00:00:00.000000000' '2022-01-01T00:00:00.000000000']
+    g = MCOutVal(name='TestG', ncase=1, val=df['vals1'], isnom=True)
+    print(g.num) # expected: [0 1 2]
+    h = MCOutVal(name='TestH', ncase=1, val=df.index, isnom=True)
+    print(h.val) # expected: ['2020-01-01T00:00:00.000000000' '2021-01-01T00:00:00.000000000' '2022-01-01T00:00:00.000000000']
 
 
 if __name__ == '__main__':

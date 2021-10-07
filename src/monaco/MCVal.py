@@ -37,7 +37,7 @@ class MCInVal(MCVal):
                  pct    : float,
                  num    : float,
                  dist   : Union[rv_discrete, rv_continuous], 
-                 nummap : dict[int, Any] = None, 
+                 nummap : dict = None, 
                  isnom  : bool = False,
                  ):
         
@@ -56,18 +56,8 @@ class MCInVal(MCVal):
     def mapNum(self) -> None:
         if self.nummap is None:
             self.val = self.num
-        elif self.isscalar:
-            self.val = self.nummap[self.num]
         else:
-            val = copy(self.num)
-            if self.size[0] == 1:
-                for i in range(self.num[1]):
-                        val[i] = self.nummap[self.num[i]]
-            else:
-                for i in range(self.size[0]):
-                    for j in range(self.size[1]):
-                        val[i][j] = self.nummap[self.num[i][j]]
-            self.val = val
+            self.val = self.nummap[self.num]
 
 
     def genValMap(self) -> None:
@@ -84,7 +74,7 @@ class MCOutVal(MCVal):
                  name   : str, 
                  ncase  : int, 
                  val    : Any, 
-                 valmap : dict[Any, int] = None, 
+                 valmap : dict = None, 
                  isnom  : bool = False,
                  ):
         super().__init__(name=name, ncase=ncase, isnom=isnom)
@@ -126,16 +116,16 @@ class MCOutVal(MCVal):
             elif not is_num(self.val):
                 self.valmap = {str(self.val):0}
         else:
-            if self.size[0] > 1:
-                if all(isinstance(x, bool) for x in chain(*self.val)):
-                    self.valmap = {True:1, False:0}                  
-                elif not all(is_num(x) for x in chain(*self.val)):
-                    self.valmap = {str(key):idx for idx, key in enumerate(sorted(set(chain(*self.val))))}
-            else:
+            if self.size[0] == 1:
                 if not all(is_num(x) for x in self.val):
                     self.valmap = {True:1, False:0}
                 elif not all(is_num(x) for x in self.val):
                     self.valmap = {str(key):idx for idx, key in enumerate(sorted(set(self.val)))}
+            else:
+                if all(isinstance(x, bool) for x in chain(*self.val)):
+                    self.valmap = {True:1, False:0}                  
+                elif not all(is_num(x) for x in chain(*self.val)):
+                    self.valmap = {str(key):idx for idx, key in enumerate(sorted(set(chain(*self.val))))}
 
                 
     def mapVal(self) -> None:
