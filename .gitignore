@@ -2,6 +2,9 @@ __pycache__/
 _build/
 *.py[cod]
 
+# Local configs
+mypy.ini
+
 # Poetry
 dist/
 

@@ -201,7 +201,7 @@ class MCVarStat:
             if self.side == VarStatSide.LOW:
                 sortednums.reverse()
             if self.side in (VarStatSide.HIGH, VarStatSide.LOW):
-                self.nums = sortednums[-self.k]
+                self.nums = np.array(sortednums[-self.k])
                 if self.mcvar.nummap is not None:
                     self.vals = self.mcvar.nummap[self.nums]
             elif self.side == VarStatSide.BOTH:
@@ -216,14 +216,14 @@ class MCVarStat:
                 self.vals = copy(self.nums)
                 
         elif self.mcvar.size[0] == 1:
-            npoints = max(len(x) for x in self.mcvar.nums)
+            npoints = max(len(get_sequence(x)) for x in self.mcvar.nums)
             self.nums = np.empty(npoints)
             if self.side == VarStatSide.BOTH:
                 self.nums = np.empty((npoints, 2))
             elif self.side == VarStatSide.ALL:
                 self.nums = np.empty((npoints, 3))
             for i in range(npoints):
-                numsatidx = [x[i] for x in self.mcvar.nums if len(x)>i]
+                numsatidx = [get_sequence(x)[i] for x in self.mcvar.nums if len(get_sequence(x))>i]
                 sortednums = sorted(numsatidx)
                 if self.side == VarStatSide.LOW:
                     sortednums.reverse()
@@ -261,11 +261,11 @@ class MCVarStat:
         if self.mcvar.isscalar:
             sortednums = sorted(self.mcvar.nums)
             if self.bound == StatBound.ONESIDED_LOWER:
-                self.nums = sortednums[iPl - self.k]
+                self.nums = np.array(sortednums[iPl - self.k])
             elif self.bound == StatBound.ONESIDED_UPPER:
-                self.nums = sortednums[iPu + self.k]
+                self.nums = np.array(sortednums[iPu + self.k])
             elif self.bound == StatBound.NEAREST:
-                self.nums = sortednums[iP]
+                self.nums = np.array(sortednums[iP])
             if self.bound in (StatBound.ONESIDED_LOWER, StatBound.ONESIDED_UPPER, StatBound.NEAREST):
                 if self.mcvar.nummap is not None:
                     self.vals = self.mcvar.nummap[self.nums]
@@ -281,14 +281,14 @@ class MCVarStat:
                 self.vals = copy(self.nums)
 
         elif self.mcvar.size[0] == 1:
-            npoints = max(len(x) for x in self.mcvar.nums)
+            npoints = max(len(get_sequence(x)) for x in self.mcvar.nums)
             self.nums = np.empty(npoints)
             if self.bound == StatBound.TWOSIDED:
                 self.nums = np.empty((npoints, 2))
             elif self.bound == StatBound.ALL:
                 self.nums = np.empty((npoints, 3))
             for i in range(npoints):
-                numsatidx = [x[i] for x in self.mcvar.nums if len(x)>i]
+                numsatidx = [get_sequence(x)[i] for x in self.mcvar.nums if len(get_sequence(x))>i]
                 sortednums = sorted(numsatidx)
                 if self.bound == StatBound.ONESIDED_LOWER:
                     self.nums[i] = sortednums[iPl - self.k]
