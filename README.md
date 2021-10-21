@@ -66,9 +66,6 @@ See the [examples](examples/) folder for some examples you can step through or u
 
 
 ### License / Citation:
-Originally created in 2020 by Scott Shambaugh during Coronavirus quarantine.
-
-This software is distributed under [the GPLv3.0 license](LICENSE.md).    
-Please contact Scott Shambaugh for licensing this software for distribution in proprietary applications.
+Copyright 2020-2021 Scott Shambaugh, distributed under [the GPLv3.0 (or later) license](LICENSE.md).    
 
 If you use `monaco` to do research that gets published, please cite [the monaco github page](https://github.com/scottshambaugh/monaco).
