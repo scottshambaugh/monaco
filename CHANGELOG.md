@@ -18,12 +18,15 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+### Removed    
+
+## [0.1.1] - 2021-10-20
+### Changed
 * Documentation updates
 * Better type consistency
 * Testing on more platforms
-
-### Removed    
+* Small bugfixes
 
 ## [0.1.0] - 2021-10-04
 ### Added
- - Initial release!
+* Initial release!
