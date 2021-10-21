@@ -67,7 +67,8 @@ def mc_plot(mcvarx   : Union[MCInVar, MCOutVar],
             mcvary = copy(mcvarx)
             mcvarx = copy(mcvarx) # don't overwrite the underlying object
             mcvarx.name = 'Simulation Steps'
-            mcvarx.nums = [*range(mcvary.size[1])]
+            steps = [*range(mcvary.size[1])]
+            mcvarx.nums = [steps for _ in range(mcvarx.ncases)]
             mcvarx.nummap = None
             fig, ax = mc_plot_2d_line(mcvarx=mcvarx, mcvary=mcvary, highlight_cases=highlight_cases, ax=ax, title=title)
 
@@ -406,7 +407,7 @@ def mc_plot_integration_convergence(mcoutvar     : MCOutVar,
     
     ax.set_xlabel('Sample #')
     ax.set_ylabel(f'Convergence of {mcoutvar.name} Integral')
-    ax.set_title(title)
+    plt.title(title)
 
     return fig, ax
 
