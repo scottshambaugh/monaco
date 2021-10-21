@@ -21,12 +21,12 @@ def sim():
 
 def test_mcsim_dist_draws(sim):
     assert sim.mccases[0].mcinvals['Var1'].val == pytest.approx(3)
-    assert sim.mccases[1].mcinvals['Var2'].val == pytest.approx(9.0195133)
+    assert sim.mccases[1].mcinvals['Var2'].val == pytest.approx(9.98228884)
 
 def test_mcsim_corr_cov(sim):
     # We convert to numpy arrays because pytest.approx doesn't work on nested lists
-    assert np.array(sim.corr()[0]) == pytest.approx(np.array([[ 1., -0.07565637], [-0.07565637,  1.]]))
-    assert np.array(sim.cov()[0]) == pytest.approx(np.array([[ 2.27009901, -0.43928375], [-0.43928375, 14.85095717]]))
+    assert np.array(sim.corr()[0]) == pytest.approx(np.array([[ 1., 0.06495995], [0.06495995,  1.]]))
+    assert np.array(sim.cov()[0]) == pytest.approx(np.array([[ 1.91643564,  0.37543008], [0.37543008, 17.42900278]]))
 
 
 ### Inline Testing ###
@@ -47,9 +47,9 @@ def inline_testing():
     print(sim2.mcinvars['Var1'].name)           # expected: Var1
     print(sim2.mccases[0].mcinvals['Var1'].val) # expected: 3.0
     print(sim2.mcinvars['Var2'].name)           # expected: Var2
-    print(sim2.mccases[1].mcinvals['Var2'].val) # expected: 9.019513324531903
-    print(sim2.corr())                          # expected: (array([[ 1., -0.07565637], [-0.07565637,  1.]]), ['Var1', 'Var2'])
-    print(sim2.cov())                           # expected: (array([[ 2.27009901, -0.43928375], [-0.43928375, 14.85095717]]), ['Var1', 'Var2'])
+    print(sim2.mccases[1].mcinvals['Var2'].val) # expected: 9.982288846037726
+    print(sim2.corr())                          # expected: (array([[ 1., 0.06495995], [0.06495995,  1.]]), ['Var1', 'Var2'])
+    print(sim2.cov())                           # expected: (array([[ 1.91643564,  0.37543008], [0.37543008, 17.42900278]]), ['Var1', 'Var2'])
     print(MCFunctions.PREPROCESS == 'preprocess')
 
 if __name__ == '__main__':

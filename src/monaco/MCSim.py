@@ -127,12 +127,14 @@ class MCSim:
                  dist       : Union[rv_discrete, rv_continuous],
                  distkwargs : dict[str, Any], 
                  nummap     : dict[int, Any] = None,
+                 seed       : int = None,
                  ) -> None:  
         self.ninvars += 1
-        invarseed = (self.seed + hash_str_repeatable(name)) % 2**32  # make seed dependent on var name and not order added
-        self.invarseeds.append(invarseed)
+        if seed is None:
+            seed = (self.seed + self.ninvars) % 2**32  # seed is dependent order added
+        self.invarseeds.append(seed)
         self.mcinvars[name] = MCInVar(name=name, dist=dist, distkwargs=distkwargs, ndraws=self.ndraws, nummap=nummap, \
-                                      samplemethod=self.samplemethod, ninvar=self.ninvars, seed=invarseed, firstcaseisnom=self.firstcaseisnom, autodraw=False)
+                                      samplemethod=self.samplemethod, ninvar=self.ninvars, seed=seed, firstcaseisnom=self.firstcaseisnom, autodraw=False)
 
 
     def addConstVal(self, 
