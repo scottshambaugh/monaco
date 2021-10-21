@@ -1,7 +1,7 @@
 # monaco
 ![Release](https://img.shields.io/github/v/release/scottshambaugh/monaco?sort=semver)
 ![Builds](https://github.com/scottshambaugh/monaco/actions/workflows/builds.yml/badge.svg)
-![Tests](https://github.com/scottshambaugh/monaco/actions/workflows/unit_tests.yml/badge.svg)
+![Tests](https://github.com/scottshambaugh/monaco/actions/workflows/tests.yml/badge.svg)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/monaco)
 
 ### Overview
