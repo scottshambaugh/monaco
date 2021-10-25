@@ -39,7 +39,7 @@ def pandemic_example_monte_carlo_sim():
     # import matplotlib.pyplot as plt
     mc_plot(sim.mcoutvars['Timestep'], sim.mcoutvars['Proportion Infected'], highlight_cases=0)
     # plt.savefig('cum_infections_vs_time.png')
-    mc_multi_plot(sim.mcinvars['Probability of Infection'], sim.mcoutvars['Herd Immunity Threshold'], cov_plot=False, highlight_cases=0)
+    mc_multi_plot([sim.mcinvars['Probability of Infection'], sim.mcoutvars['Herd Immunity Threshold']], cov_plot=False, highlight_cases=0)
     # plt.savefig('p_infection_vs_herd_immunity.png')
     
     return sim

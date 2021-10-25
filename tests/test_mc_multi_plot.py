@@ -20,8 +20,10 @@ def inline_testing():
     mcinvars = dict()
     mcinvars['norm1'] = MCInVar('norm1', ndraws=1000, dist=norm, distkwargs={'loc':1, 'scale':5}, seed=invarseeds[0], samplemethod=SampleMethod.RANDOM)
     mcinvars['norm2'] = MCInVar('norm2', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4}, seed=invarseeds[1], samplemethod=SampleMethod.RANDOM)
+    mcinvars['norm3'] = MCInVar('norm3', ndraws=1000, dist=norm, distkwargs={'loc':5, 'scale':2}, seed=invarseeds[3], samplemethod=SampleMethod.RANDOM)
     
-    mc_multi_plot(mcinvars['norm1'], mcinvars['norm2'], highlight_cases=range(10,30), rug_plot=True, cov_plot=True, cov_p=0.95, title='test')  # MCPlot2DScatter
+    mc_multi_plot([mcinvars['norm1'], mcinvars['norm2']], highlight_cases=range(10,30), rug_plot=True, cov_plot=True, cov_p=0.95, title='test')  # MCPlot2DScatter
+    mc_multi_plot([mcinvars['norm1'], mcinvars['norm2'], mcinvars['norm3']], highlight_cases=range(10,30), rug_plot=True, cov_plot=True, cov_p=0.95, title='test')  # MCPlot2DScatter
 
 if __name__ == '__main__':
     inline_testing()
