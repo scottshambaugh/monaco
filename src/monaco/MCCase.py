@@ -12,13 +12,15 @@ class MCCase():
                  ncase     : int, 
                  isnom     : bool, 
                  mcinvars  : dict[str, MCInVar], 
-                 constvals : dict[str, Any] = dict(),
+                 constvals : dict[str, Any] = None,
                  seed      : int = np.random.get_state(legacy=False)['state']['key'][0],
                  ):
         
         self.ncase = ncase
         self.isnom = isnom
-        self.mcinvars = mcinvars 
+        self.mcinvars = mcinvars
+        if constvals is None:
+            constvals = dict()
         self.constvals = constvals
         self.mcoutvars : dict[str, MCOutVar] = dict()
         self.seed = seed

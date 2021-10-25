@@ -22,7 +22,7 @@ class MCVarStat:
     def __init__(self, 
                  mcvar      : MCVar,  
                  stattype   : str, 
-                 statkwargs : dict[str, Any] = dict(), 
+                 statkwargs : dict[str, Any] = None, 
                  name       : str = None,
                  ):
         '''
@@ -54,6 +54,8 @@ class MCVarStat:
 
         self.mcvar = mcvar
         self.stattype = stattype
+        if statkwargs is None:
+            statkwargs = dict()
         self.statkwargs = statkwargs
 
         self.nums : np.ndarray = np.array([])

@@ -54,9 +54,11 @@ class MCVar(ABC):
     
     def addVarStat(self, 
                    stattype   : str, 
-                   statkwargs : dict[str, Any] = dict(), 
+                   statkwargs : dict[str, Any] = None, 
                    name       : str = None,
                    ) -> None:
+        if statkwargs is None:
+            statkwargs = dict()
         self.mcvarstats.append(MCVarStat(mcvar=self, stattype=stattype, statkwargs=statkwargs, name=name))
 
 
@@ -82,7 +84,7 @@ class MCInVar(MCVar):
                  name           : str, 
                  ndraws         : int, 
                  dist           : Union[rv_discrete, rv_continuous], 
-                 distkwargs     : dict         = dict(),
+                 distkwargs     : dict         = None,
                  nummap         : dict         = None,
                  samplemethod   : SampleMethod = SampleMethod.SOBOL_RANDOM,
                  ninvar         : int          = None,
@@ -92,7 +94,9 @@ class MCInVar(MCVar):
                  ):
         super().__init__(name=name, ndraws=ndraws, firstcaseisnom=firstcaseisnom)
         
-        self.dist = dist  
+        self.dist = dist
+        if distkwargs is None:
+            distkwargs = dict()
         self.distkwargs = distkwargs
         self.samplemethod = samplemethod
         self.ninvar = ninvar 
