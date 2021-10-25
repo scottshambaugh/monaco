@@ -37,7 +37,7 @@ v = np.array([-2, -1, 2, 3, 4, 5])
 
 def test_mcoutvarstat_2d():
     from monaco.MCVar import MCOutVar
-    outvar = MCOutVar('test', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
+    outvar = MCOutVar('test', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseismean=True)
     mcoutvarstat1 = MCVarStat(outvar, stattype=VarStat.ORDERSTATTI, statkwargs={'p':0.6, 'c':0.50, 'bound':StatBound.ALL})
     mcoutvarstat2 = MCVarStat(outvar, stattype=VarStat.MIN)
     assert(np.allclose(mcoutvarstat1.vals, [[-4, -2, 4], [-2, -1, 2], [-4, -2, 4], [-6, -3, 6], [-8, -4, 8], [-10, -5, 10]]))
@@ -46,7 +46,7 @@ def test_mcoutvarstat_2d():
     
 def test_mcoutvarstat_2d_irregular():
     from monaco.MCVar import MCOutVar
-    outvar = MCOutVar('test', [1*v, 2*v, 0*v, -1*v, [0,0]], firstcaseisnom=True)
+    outvar = MCOutVar('test', [1*v, 2*v, 0*v, -1*v, [0,0]], firstcaseismean=True)
     mcoutvarstat = MCVarStat(outvar, stattype=VarStat.MIN)
     assert(np.allclose(mcoutvarstat.vals,[-4, -2, -2, -3, -4, -5.]))
 
@@ -76,10 +76,10 @@ def inline_testing():
     print(mcinvarstat5.vals) # expected: -3.361594957953134e-05
     
     v = np.array([-2, -1, 2, 3, 4, 5])
-    var2 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseisnom=True)
+    var2 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseismean=True)
     mcoutvarstat1 = MCVarStat(var2, stattype=VarStat.ORDERSTATTI, statkwargs={'p':0.6, 'c':0.50, 'bound':StatBound.ALL})
     mcoutvarstat2 = MCVarStat(var2, stattype=VarStat.MIN)
-    var3 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, [0,0]], firstcaseisnom=True)
+    var3 = MCOutVar('testy', [1*v, 2*v, 0*v, -1*v, [0,0]], firstcaseismean=True)
     mcoutvarstat3 = MCVarStat(var3, stattype=VarStat.MIN)
     print(mcoutvarstat1.name) # expected: 2-sided P60.0/50.0% Confidence Interval
     print(mcoutvarstat1.vals) # expected: [[ -4.  -2.   4.] [ -2.  -1.   2.] [ -4.  -2.   4.] [ -6.  -3.   6.] [ -8.  -4.   8.] [-10.  -5.  10.]]

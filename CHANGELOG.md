@@ -17,7 +17,10 @@
 
 ## [Unreleased]
 ### Added    
+* Added mc_multi_plot_2d_scatter_grid()
 ### Changed    
+* `import monaco` now imports all modules
+* The 'nom' case is now referred to as the 'mean' case to be more precise
 ### Removed    
 
 ## [0.1.1] - 2021-10-20

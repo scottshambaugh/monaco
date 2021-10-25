@@ -16,16 +16,16 @@ from abc import ABC, abstractmethod
 ### MCVar Base Class ###
 class MCVar(ABC):
     def __init__(self, 
-                 name           : str, 
-                 ndraws         : int, 
-                 firstcaseisnom : bool,
+                 name            : str, 
+                 ndraws          : int, 
+                 firstcaseismean : bool,
                  ):
         self.name = name 
         self.ndraws = ndraws 
-        self.firstcaseisnom = firstcaseisnom
+        self.firstcaseismean = firstcaseismean
         
         self.ncases = ndraws + 1
-        self.setFirstCaseNom(firstcaseisnom)
+        self.setFirstCaseMean(firstcaseismean)
         self.vals       : list[Any]
         self.valmap     : dict
         self.nums       : list[float]
@@ -36,14 +36,14 @@ class MCVar(ABC):
         self.mcvarstats : list[MCVarStat] = []
         
 
-    def setFirstCaseNom(self, 
-                        firstcaseisnom : bool,
-                        ) -> None:
-        if firstcaseisnom:
-           self.firstcaseisnom = True
+    def setFirstCaseMean(self, 
+                         firstcaseismean : bool,
+                         ) -> None:
+        if firstcaseismean:
+           self.firstcaseismean = True
            self.ncases = self.ndraws + 1
         else:
-           self.firstcaseisnom = False
+           self.firstcaseismean = False
            self.ncases = self.ndraws
 
 
@@ -73,7 +73,7 @@ class MCVar(ABC):
         pass
 
     @abstractmethod
-    def getNom(self) -> Any:
+    def getMean(self) -> Any:
         pass
 
 
@@ -81,18 +81,18 @@ class MCVar(ABC):
 ### MCInVar Class ###
 class MCInVar(MCVar):
     def __init__(self, 
-                 name           : str, 
-                 ndraws         : int, 
-                 dist           : Union[rv_discrete, rv_continuous], 
-                 distkwargs     : dict         = None,
-                 nummap         : dict         = None,
-                 samplemethod   : SampleMethod = SampleMethod.SOBOL_RANDOM,
-                 ninvar         : int          = None,
-                 seed           : int          = np.random.get_state(legacy=False)['state']['key'][0], 
-                 firstcaseisnom : bool         = False,
-                 autodraw       : bool         = True,
+                 name            : str, 
+                 ndraws          : int, 
+                 dist            : Union[rv_discrete, rv_continuous], 
+                 distkwargs      : dict         = None,
+                 nummap          : dict         = None,
+                 samplemethod    : SampleMethod = SampleMethod.SOBOL_RANDOM,
+                 ninvar          : int          = None,
+                 seed            : int          = np.random.get_state(legacy=False)['state']['key'][0], 
+                 firstcaseismean : bool         = False,
+                 autodraw        : bool         = True,
                  ):
-        super().__init__(name=name, ndraws=ndraws, firstcaseisnom=firstcaseisnom)
+        super().__init__(name=name, ndraws=ndraws, firstcaseismean=firstcaseismean)
         
         self.dist = dist
         if distkwargs is None:
@@ -129,7 +129,7 @@ class MCInVar(MCVar):
                   ndraws : int,
                   ) -> None:
         self.ndraws = ndraws
-        self.setFirstCaseNom(self.firstcaseisnom)
+        self.setFirstCaseMean(self.firstcaseismean)
         
         
     def draw(self, 
@@ -139,9 +139,9 @@ class MCInVar(MCVar):
         self.nums = []
         dist = self.dist(**self.distkwargs)
 
-        if self.firstcaseisnom:
+        if self.firstcaseismean:
             self.ncases = self.ndraws + 1
-            nom_num = self.getNom()
+            nom_num = self.getMean()
             self.nums.append(nom_num)
             self.pcts.append(dist.cdf(nom_num))
             
@@ -163,15 +163,15 @@ class MCInVar(MCVar):
     def getVal(self,
                ncase : int,
                ) -> MCInVal:
-        isnom = False
-        if (ncase == 0) and self.firstcaseisnom:
-            isnom = True
+        ismean = False
+        if (ncase == 0) and self.firstcaseismean:
+            ismean = True
 
-        val = MCInVal(name=self.name, ncase=ncase, pct=self.pcts[ncase], num=self.nums[ncase], dist=self.dist, nummap=self.nummap, isnom=isnom)
+        val = MCInVal(name=self.name, ncase=ncase, pct=self.pcts[ncase], num=self.nums[ncase], dist=self.dist, nummap=self.nummap, ismean=ismean)
         return val
 
 
-    def getNom(self) -> float:
+    def getMean(self) -> float:
         dist = self.dist(**self.distkwargs)
         ev = dist.expect()
         
@@ -195,18 +195,18 @@ class MCInVar(MCVar):
 ### MCOutVar Class ###
 class MCOutVar(MCVar):
     def __init__(self, 
-                 name           : str, 
-                 vals           : list[Any], 
-                 valmap         : dict = None, 
-                 ndraws         : int  = None, 
-                 firstcaseisnom : bool = False,
+                 name            : str, 
+                 vals            : list[Any], 
+                 valmap          : dict = None, 
+                 ndraws          : int  = None, 
+                 firstcaseismean : bool = False,
                  ):
         if ndraws is None:
             ndraws = len(vals)
-            if firstcaseisnom:
+            if firstcaseismean:
                 ndraws = ndraws - 1
         
-        super().__init__(name=name, ndraws=ndraws, firstcaseisnom=firstcaseisnom)
+        super().__init__(name=name, ndraws=ndraws, firstcaseismean=firstcaseismean)
         self.vals = vals
         self.valmap = valmap
         if valmap is None:
@@ -256,18 +256,18 @@ class MCOutVar(MCVar):
 
 
     def getVal(self, ncase : int) -> MCOutVal:
-        isnom = False
-        if (ncase == 0) and self.firstcaseisnom:
-            isnom = True
+        ismean = False
+        if (ncase == 0) and self.firstcaseismean:
+            ismean = True
             
-        val = MCOutVal(name=self.name, ncase=ncase, val=self.vals[ncase], valmap=self.valmap, isnom=isnom)
+        val = MCOutVal(name=self.name, ncase=ncase, val=self.vals[ncase], valmap=self.valmap, ismean=ismean)
         return val
         
     
-    def getNom(self) -> MCOutVal:
+    def getMean(self) -> MCOutVal:
         val = None
-        if self.firstcaseisnom:
-            val = MCOutVal(name=self.name, ncase=0, val=self.vals[0], valmap=self.valmap, isnom=True)
+        if self.firstcaseismean:
+            val = MCOutVal(name=self.name, ncase=0, val=self.vals[0], valmap=self.valmap, ismean=True)
         return val
     
     
@@ -280,7 +280,7 @@ class MCOutVar(MCVar):
                 for j in range(self.ncases):
                     vals.append(self.vals[j][i])
                 mcvars[name] = MCOutVar(name=name, vals=vals, ndraws=self.ndraws, \
-                                        valmap=self.valmap, firstcaseisnom=self.firstcaseisnom)
+                                        valmap=self.valmap, firstcaseismean=self.firstcaseismean)
                 for mcvarstat in self.mcvarstats:
                     mcvars[name].addVarStat(stattype=mcvarstat.stattype, statkwargs=mcvarstat.statkwargs, name=mcvarstat.name)
         return mcvars

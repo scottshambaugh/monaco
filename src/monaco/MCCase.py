@@ -10,14 +10,14 @@ import numpy as np
 class MCCase():
     def __init__(self, 
                  ncase     : int, 
-                 isnom     : bool, 
+                 ismean     : bool, 
                  mcinvars  : dict[str, MCInVar], 
                  constvals : dict[str, Any] = None,
                  seed      : int = np.random.get_state(legacy=False)['state']['key'][0],
                  ):
         
         self.ncase = ncase
-        self.isnom = isnom
+        self.ismean = ismean
         self.mcinvars = mcinvars
         if constvals is None:
             constvals = dict()
@@ -64,6 +64,6 @@ class MCCase():
                   split  : bool = True, 
                   valmap : dict[Any, int] = None
                   ) -> None:
-        self.mcoutvals[name] = MCOutVal(name=name, ncase=self.ncase, val=val, valmap=valmap, isnom=self.isnom)
+        self.mcoutvals[name] = MCOutVal(name=name, ncase=self.ncase, val=val, valmap=valmap, ismean=self.ismean)
         if split:
             self.mcoutvals.update(self.mcoutvals[name].split())

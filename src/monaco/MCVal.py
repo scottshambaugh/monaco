@@ -14,11 +14,11 @@ class MCVal(ABC):
     def __init__(self, 
                  name  : str, 
                  ncase : int, 
-                 isnom : bool,
+                 ismean : bool,
                  ):
         self.name = name
         self.ncase = ncase
-        self.isnom = isnom
+        self.ismean = ismean
 
         self.val      : Any
         self.valmap   : dict
@@ -38,10 +38,10 @@ class MCInVal(MCVal):
                  num    : float,
                  dist   : Union[rv_discrete, rv_continuous], 
                  nummap : dict = None, 
-                 isnom  : bool = False,
+                 ismean : bool = False,
                  ):
         
-        super().__init__(name=name, ncase=ncase, isnom=isnom)
+        super().__init__(name=name, ncase=ncase, ismean=ismean)
         self.dist = dist
         self.pct = pct
         self.num = num
@@ -75,9 +75,9 @@ class MCOutVal(MCVal):
                  ncase  : int, 
                  val    : Any, 
                  valmap : dict = None, 
-                 isnom  : bool = False,
+                 ismean : bool = False,
                  ):
-        super().__init__(name=name, ncase=ncase, isnom=isnom)
+        super().__init__(name=name, ncase=ncase, ismean=ismean)
         self.val = val
         self.valmap = valmap
         self.convertPandas()
@@ -157,5 +157,5 @@ class MCOutVal(MCVal):
         if self.size[0] > 1:
             for i in range(self.size[0]):
                 name = self.name + f' [{i}]'
-                mcvals[name] = MCOutVal(name=name, ncase=self.ncase, val=self.val[i], valmap=self.valmap, isnom=self.isnom)
+                mcvals[name] = MCOutVal(name=name, ncase=self.ncase, val=self.val[i], valmap=self.valmap, ismean=self.ismean)
         return mcvals

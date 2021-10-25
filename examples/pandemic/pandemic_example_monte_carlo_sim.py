@@ -23,7 +23,7 @@ seed=12362398
 
 def pandemic_example_monte_carlo_sim():
 
-    sim = MCSim(name='pandemic', ndraws=ndraws, fcns=fcns, firstcaseisnom=True, seed=seed, cores=4, verbose=True, debug=False)
+    sim = MCSim(name='pandemic', ndraws=ndraws, fcns=fcns, firstcaseismean=True, seed=seed, cores=4, verbose=True, debug=False)
     
     sim.addInVar(name='Probability of Infection', dist=uniform, distkwargs={'loc':0.28, 'scale':0.04})
     

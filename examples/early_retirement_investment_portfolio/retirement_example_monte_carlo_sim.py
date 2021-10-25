@@ -16,7 +16,7 @@ seed=12362397
 
 def retirement_example_monte_carlo_sim():
 
-    sim = MCSim(name='retirement', ndraws=ndraws, fcns=fcns, firstcaseisnom=True, samplemethod='sobol_random', seed=seed, cores=4, savecasedata=False, verbose=True, debug=True)
+    sim = MCSim(name='retirement', ndraws=ndraws, fcns=fcns, firstcaseismean=True, samplemethod='sobol_random', seed=seed, cores=4, savecasedata=False, verbose=True, debug=True)
     
     sp500_mean = 0.114
     sp500_stdev = 0.197

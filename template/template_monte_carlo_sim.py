@@ -17,11 +17,11 @@ fcns ={'preprocess' :template_preprocess,   \
        'postprocess':template_postprocess}
 
 # Set the number of random draws you wish to make.
-# If firstcaseisnom is True, then case 0 will be run with the expected value of 
+# If firstcaseismean is True, then case 0 will be run with the expected value of 
 # each statistical distribution as a 'nominal' run. The total number of cases  
 # will then be ndraws+1
 ndraws = 500
-firstcaseisnom = False
+firstcaseismean = False
 
 # Setting a known random seed is recommended for repeatability of random draws.
 seed=12362398
@@ -44,7 +44,7 @@ savesimdata = True
 
 def template_monte_carlo_sim():
     # We first initialize the sim with a name of our choosing
-    sim = MCSim(name='Coin Flip', ndraws=ndraws, fcns=fcns, firstcaseisnom=firstcaseisnom, seed=seed, cores=cores, savecasedata=savecasedata, savesimdata=savesimdata, verbose=True, debug=False)
+    sim = MCSim(name='Coin Flip', ndraws=ndraws, fcns=fcns, firstcaseismean=firstcaseismean, seed=seed, cores=cores, savecasedata=savecasedata, savesimdata=savesimdata, verbose=True, debug=False)
     
     # We now add input variables, with their associated distributions
     # Out first variable will be the person flipping a coin - Sam and Alex will 

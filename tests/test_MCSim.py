@@ -12,7 +12,7 @@ seed = 74494861
 def sim():
     from scipy.stats import norm, randint
     fcns = {MCFunctions.PREPROCESS:dummyfcn, MCFunctions.RUN:dummyfcn, MCFunctions.POSTPROCESS:dummyfcn}
-    sim = MCSim(name='Sim', ndraws=100, fcns=fcns, firstcaseisnom=True, verbose=False, samplemethod=SampleMethod.RANDOM, seed=seed, debug=True, cores=1)
+    sim = MCSim(name='Sim', ndraws=100, fcns=fcns, firstcaseismean=True, verbose=False, samplemethod=SampleMethod.RANDOM, seed=seed, debug=True, cores=1)
     sim.addInVar(name='Var1', dist=randint, distkwargs={'low':1, 'high':6})
     sim.addInVar(name='Var2', dist=norm, distkwargs={'loc':10, 'scale':4})
     sim.drawVars()
@@ -38,7 +38,7 @@ def inline_testing():
     from scipy.stats import norm, randint
     seed = 74494861
     fcns2 = {MCFunctions.PREPROCESS:dummyfcn2, MCFunctions.RUN:dummyfcn2, MCFunctions.POSTPROCESS:dummyfcn2}
-    sim2 = MCSim(name='Sim2', ndraws=100, fcns=fcns2, firstcaseisnom=True, samplemethod=SampleMethod.RANDOM, seed=seed, debug=True, cores=1)
+    sim2 = MCSim(name='Sim2', ndraws=100, fcns=fcns2, firstcaseismean=True, samplemethod=SampleMethod.RANDOM, seed=seed, debug=True, cores=1)
     sim2.addInVar(name='Var1', dist=randint, distkwargs={'low':1, 'high':6})
     sim2.addInVar(name='Var2', dist=norm, distkwargs={'loc':10, 'scale':4})
     sim2.drawVars()
