@@ -12,13 +12,13 @@ from abc import ABC
 ### MCVal Base Class ###
 class MCVal(ABC):
     def __init__(self, 
-                 name  : str, 
-                 ncase : int, 
-                 ismean : bool,
+                 name     : str, 
+                 ncase    : int, 
+                 ismedian : bool,
                  ):
         self.name = name
         self.ncase = ncase
-        self.ismean = ismean
+        self.ismedian = ismedian
 
         self.val      : Any
         self.valmap   : dict
@@ -32,16 +32,16 @@ class MCVal(ABC):
 ### MCInVal Class ###
 class MCInVal(MCVal):
     def __init__(self, 
-                 name   : str, 
-                 ncase  : int, 
-                 pct    : float,
-                 num    : float,
-                 dist   : Union[rv_discrete, rv_continuous], 
-                 nummap : dict = None, 
-                 ismean : bool = False,
+                 name     : str, 
+                 ncase    : int, 
+                 pct      : float,
+                 num      : float,
+                 dist     : Union[rv_discrete, rv_continuous], 
+                 nummap   : dict = None, 
+                 ismedian : bool = False,
                  ):
         
-        super().__init__(name=name, ncase=ncase, ismean=ismean)
+        super().__init__(name=name, ncase=ncase, ismedian=ismedian)
         self.dist = dist
         self.pct = pct
         self.num = num
@@ -71,13 +71,13 @@ class MCInVal(MCVal):
 ### MCOutVal Class ###
 class MCOutVal(MCVal):
     def __init__(self, 
-                 name   : str, 
-                 ncase  : int, 
-                 val    : Any, 
-                 valmap : dict = None, 
-                 ismean : bool = False,
+                 name     : str, 
+                 ncase    : int, 
+                 val      : Any, 
+                 valmap   : dict = None, 
+                 ismedian : bool = False,
                  ):
-        super().__init__(name=name, ncase=ncase, ismean=ismean)
+        super().__init__(name=name, ncase=ncase, ismedian=ismedian)
         self.val = val
         self.valmap = valmap
         self.convertPandas()
@@ -157,5 +157,5 @@ class MCOutVal(MCVal):
         if self.size[0] > 1:
             for i in range(self.size[0]):
                 name = self.name + f' [{i}]'
-                mcvals[name] = MCOutVal(name=name, ncase=self.ncase, val=self.val[i], valmap=self.valmap, ismean=self.ismean)
+                mcvals[name] = MCOutVal(name=name, ncase=self.ncase, val=self.val[i], valmap=self.valmap, ismedian=self.ismedian)
         return mcvals

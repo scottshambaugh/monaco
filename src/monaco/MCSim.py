@@ -17,18 +17,18 @@ from scipy.stats import rv_continuous, rv_discrete
 
 class MCSim:
     def __init__(self, 
-                 name            : str, 
-                 ndraws          : int, 
-                 fcns            : dict[MCFunctions, Callable], # fcns is a dict with keys MCFunctions.PREPROCESS, RUN, and POSTPROCESS
-                 firstcaseismean : bool = False, 
-                 samplemethod    : SampleMethod = SampleMethod.SOBOL_RANDOM,
-                 seed            : int  = np.random.get_state(legacy=False)['state']['key'][0], 
-                 cores           : int  = cpu_count(logical=False), 
-                 verbose         : bool = True,
-                 debug           : bool = False,
-                 savesimdata     : bool = True,
-                 savecasedata    : bool = True,
-                 resultsdir      : Union[str, pathlib.Path] = None,
+                 name              : str, 
+                 ndraws            : int, 
+                 fcns              : dict[MCFunctions, Callable], # fcns is a dict with keys MCFunctions.PREPROCESS, RUN, and POSTPROCESS
+                 firstcaseismedian : bool = False, 
+                 samplemethod      : SampleMethod = SampleMethod.SOBOL_RANDOM,
+                 seed              : int  = np.random.get_state(legacy=False)['state']['key'][0], 
+                 cores             : int  = cpu_count(logical=False), 
+                 verbose           : bool = True,
+                 debug             : bool = False,
+                 savesimdata       : bool = True,
+                 savecasedata      : bool = True,
+                 resultsdir        : Union[str, pathlib.Path] = None,
                  ):
         
         self.checkFcnsInput(fcns)
@@ -38,7 +38,7 @@ class MCSim:
         self.debug = debug
         self.ndraws = ndraws
         self.fcns = fcns
-        self.firstcaseismean = firstcaseismean
+        self.firstcaseismedian = firstcaseismedian
         self.samplemethod = samplemethod
         self.seed = seed
         self.cores = cores
@@ -83,7 +83,7 @@ class MCSim:
         self.runsimid : int = None
 
         self.ncases : int = ndraws + 1
-        self.setFirstCaseMean(firstcaseismean)
+        self.setFirstCaseMedian(firstcaseismedian)
         self.setNDraws(self.ndraws) # Will regen runsimid
                 
 
@@ -108,18 +108,18 @@ class MCSim:
             raise ValueError(f"MCSim argument {fcns=} must contain functions as values")
                 
 
-    def setFirstCaseMean(self, 
-                         firstcaseismean : bool,
+    def setFirstCaseMedian(self, 
+                         firstcaseismedian : bool,
                          ) -> None:
-        if firstcaseismean:
-           self.firstcaseismean = True
+        if firstcaseismedian:
+           self.firstcaseismedian = True
            self.ncases = self.ndraws + 1
         else:
-           self.firstcaseismean = False
+           self.firstcaseismedian = False
            self.ncases = self.ndraws
         if self.mcinvars != dict():
             for mcvar in self.mcinvars.values():
-                mcvar.setFirstCaseMean(firstcaseismean)
+                mcvar.setFirstCaseMedian(firstcaseismedian)
 
 
     def addInVar(self, 
@@ -134,7 +134,7 @@ class MCSim:
             seed = (self.seed + self.ninvars) % 2**32  # seed is dependent order added
         self.invarseeds.append(seed)
         self.mcinvars[name] = MCInVar(name=name, dist=dist, distkwargs=distkwargs, ndraws=self.ndraws, nummap=nummap, \
-                                      samplemethod=self.samplemethod, ninvar=self.ninvars, seed=seed, firstcaseismean=self.firstcaseismean, autodraw=False)
+                                      samplemethod=self.samplemethod, ninvar=self.ninvars, seed=seed, firstcaseismedian=self.firstcaseismedian, autodraw=False)
 
 
     def addConstVal(self, 
@@ -149,7 +149,7 @@ class MCSim:
                   ) -> None:
         self.clearResults()
         self.ndraws = ndraws
-        self.setFirstCaseMean(self.firstcaseismean)
+        self.setFirstCaseMedian(self.firstcaseismedian)
         for mcinvar in self.mcinvars.values():
             mcinvar.setNDraws(ndraws)
         if self.mcinvars != dict():
@@ -241,10 +241,10 @@ class MCSim:
             
         cases = self.downselectCases(cases)
         for case in cases:
-            ismean = False
-            if self.firstcaseismean and case == 0:
-                ismean = True
-            self.mccases.append(MCCase(ncase=case, ismean=ismean, mcinvars=self.mcinvars, constvals=self.constvals, seed=int(self.caseseeds[case])))
+            ismedian = False
+            if self.firstcaseismedian and case == 0:
+                ismedian = True
+            self.mccases.append(MCCase(ncase=case, ismedian=ismedian, mcinvars=self.mcinvars, constvals=self.constvals, seed=int(self.caseseeds[case])))
         self.mccases.sort(key=lambda mccase: mccase.ncase)
 
     
@@ -438,7 +438,7 @@ class MCSim:
             else:
                 valmap = self.mccases[0].mcoutvals[varname].valmap
 
-            self.mcoutvars[varname] = MCOutVar(name=varname, vals=vals, valmap=valmap, ndraws=self.ndraws, firstcaseismean=self.firstcaseismean)
+            self.mcoutvars[varname] = MCOutVar(name=varname, vals=vals, valmap=valmap, ndraws=self.ndraws, firstcaseismedian=self.firstcaseismedian)
             for i in range(self.ncases):
                 self.mccases[i].mcoutvars[varname] = self.mcoutvars[varname]
 

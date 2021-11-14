@@ -31,9 +31,9 @@ totalArea = (xrange[1] - xrange[0])*(yrange[1] - yrange[0])
 dimension = 2
 
 # Integration best practices:
-savecasedata = False      # File I/O will crush performance, so recommended not to save case data
-samplemethod = 'sobol'    # Use SOBOL over SOBOL_RANDOM for a speedup, since all our dists are uniform
-firstcaseismean = False    # Since we want a power of 2, we should not run a 'nominal' case which would add 1
+savecasedata = False       # File I/O will crush performance, so recommended not to save case data
+samplemethod = 'sobol'     # Use SOBOL over SOBOL_RANDOM for a speedup, since all our dists are uniform
+firstcaseismedian = False  # Since we want a power of 2, we should not run a 'median' case which would add 1
 
 # Maximum Error bound:
 # Sobol sampling will give much faster convergence than random.
@@ -56,7 +56,7 @@ seed=123639
 
 def integration_example_monte_carlo_sim():
 
-    sim = MCSim(name='integration', ndraws=ndraws, fcns=fcns, firstcaseismean=firstcaseismean, samplemethod=samplemethod, seed=seed, cores=4, savecasedata=savecasedata, savesimdata=False, verbose=True, debug=True)
+    sim = MCSim(name='integration', ndraws=ndraws, fcns=fcns, firstcaseismedian=firstcaseismedian, samplemethod=samplemethod, seed=seed, cores=4, savecasedata=savecasedata, savesimdata=False, verbose=True, debug=True)
     
     sim.addInVar(name='x', dist=uniform, distkwargs={'loc':xrange[0], 'scale':(xrange[1] - xrange[0])}) # -1 <= x <= 1
     sim.addInVar(name='y', dist=uniform, distkwargs={'loc':yrange[0], 'scale':(yrange[1] - yrange[0])}) # -1 <= y <= 1

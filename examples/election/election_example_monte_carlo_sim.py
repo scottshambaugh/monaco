@@ -17,7 +17,7 @@ ndraws = 1000
 seed=12362397
 
 def election_example_monte_carlo_sim():
-    sim = MCSim(name='election', ndraws=ndraws, fcns=fcns, firstcaseismean=False, seed=seed, cores=4, samplemethod='random', savecasedata=False, verbose=True, debug=False)
+    sim = MCSim(name='election', ndraws=ndraws, fcns=fcns, firstcaseismedian=False, seed=seed, cores=4, samplemethod='random', savecasedata=False, verbose=True, debug=False)
     
     df = pd.read_csv('state_presidential_odds.csv')
     states = df['State'].tolist()

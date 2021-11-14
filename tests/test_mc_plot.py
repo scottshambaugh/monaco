@@ -24,7 +24,7 @@ def inline_testing():
     mcinvars['norm'].addVarStat(stattype='orderstatP', statkwargs={'p':0.5, 'c':0.9999, 'bound':'all'})
     mcinvars['norm2'] = MCInVar(name='norm2', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4}, samplemethod=SampleMethod.RANDOM, seed=invarseeds[2])
     mcoutvars = dict()
-    mcoutvars['test'] = MCOutVar(name='test', vals=[1, 0, 2, 2], firstcaseismean=True)
+    mcoutvars['test'] = MCOutVar(name='test', vals=[1, 0, 2, 2], firstcaseismedian=True)
     
     f, (ax1, ax2) = plt.subplots(2, 1)
     mc_plot_hist(mcinvars['randint'], ax=ax1, orientation='horizontal')       # mc_plot_hist
@@ -38,9 +38,9 @@ def inline_testing():
     mc_plot(mcinvars['randint'], mcinvars['norm'], mcinvars['norm2'], cases=[], highlight_cases=range(10,30))  # mc_plot_3d_scatter
     
     v = np.array([-2, -1, 2, 3, 4, 5])
-    var1 = MCOutVar(name='testx', vals=[v, v, v, v, v], firstcaseismean=True)
-    var2 = MCOutVar(name='testy', vals=[1*v, 2*v, 0*v, -1*v, -2*v], firstcaseismean=True)
-    var3 = MCOutVar(name='testz', vals=[1*v, 2*v, 0*v, -1*v, -2*v], firstcaseismean=True)
+    var1 = MCOutVar(name='testx', vals=[v, v, v, v, v], firstcaseismedian=True)
+    var2 = MCOutVar(name='testy', vals=[1*v, 2*v, 0*v, -1*v, -2*v], firstcaseismedian=True)
+    var3 = MCOutVar(name='testz', vals=[1*v, 2*v, 0*v, -1*v, -2*v], firstcaseismedian=True)
     var2.addVarStat(stattype='sigmaP', statkwargs={'sig':3})
     var2.addVarStat(stattype='sigmaP', statkwargs={'sig':-3})
     var2.addVarStat(stattype='orderstatTI', statkwargs={'p':0.6, 'c':0.50, 'bound':'2-sided'})

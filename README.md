@@ -62,7 +62,7 @@ A progress bar in the terminal will show the progress as the results for all cas
 
 3) Calculate correlations between input and output variables. This shows the linear sensitivity of the output variables to the change in input variables, and can also be plotted.
 
-See the [examples](examples/) folder for some examples you can step through or use as templates. Some details and several more features here have been passed over, and this documentation will be fleshed out in the future. Of note, saving and loading results to file, 'nominal' cases, running on remote servers, using order statistics, and additional plotting options will need to be explained.
+See the [examples](examples/) folder for some examples you can step through or use as templates. Some details and several more features here have been passed over, and this documentation will be fleshed out in the future. Of note, saving and loading results to file, 'median' cases, running on remote servers, using order statistics, and additional plotting options will need to be explained.
 
 
 ### License / Citation:

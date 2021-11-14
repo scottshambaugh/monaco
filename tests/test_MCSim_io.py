@@ -12,7 +12,7 @@ seed=12362398
 
 @pytest.fixture
 def mcsim(tmp_path):
-    mcsim = MCSim(name='mcsim_io_test', ndraws=ndraws, fcns=fcns(), firstcaseismean=False, seed=seed, cores=2, verbose=True, resultsdir=tmp_path)
+    mcsim = MCSim(name='mcsim_io_test', ndraws=ndraws, fcns=fcns(), firstcaseismedian=False, seed=seed, cores=2, verbose=True, resultsdir=tmp_path)
     mcsim.runSim()
     return mcsim
 
@@ -84,7 +84,7 @@ def test_mcsim_remove_extra_files(mcsim_with_extra_files):
 
 ### Inline Testing ###
 def mcsim_io_test_example_sim(resultsdir):
-    sim = MCSim(name='mcsim_io_test', ndraws=ndraws, fcns=fcns(), firstcaseismean=False, seed=seed, cores=2, verbose=True, resultsdir=resultsdir, debug=False)
+    sim = MCSim(name='mcsim_io_test', ndraws=ndraws, fcns=fcns(), firstcaseismedian=False, seed=seed, cores=2, verbose=True, resultsdir=resultsdir, debug=False)
     sim.runSim()
     
     results_dir = sim.resultsdir

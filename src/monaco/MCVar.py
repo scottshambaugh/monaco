@@ -16,16 +16,16 @@ from abc import ABC, abstractmethod
 ### MCVar Base Class ###
 class MCVar(ABC):
     def __init__(self, 
-                 name            : str, 
-                 ndraws          : int, 
-                 firstcaseismean : bool,
+                 name              : str, 
+                 ndraws            : int, 
+                 firstcaseismedian : bool,
                  ):
         self.name = name 
         self.ndraws = ndraws 
-        self.firstcaseismean = firstcaseismean
+        self.firstcaseismedian = firstcaseismedian
         
         self.ncases = ndraws + 1
-        self.setFirstCaseMean(firstcaseismean)
+        self.setFirstCaseMedian(firstcaseismedian)
         self.vals       : list[Any]
         self.valmap     : dict
         self.nums       : list[float]
@@ -36,14 +36,14 @@ class MCVar(ABC):
         self.mcvarstats : list[MCVarStat] = []
         
 
-    def setFirstCaseMean(self, 
-                         firstcaseismean : bool,
-                         ) -> None:
-        if firstcaseismean:
-           self.firstcaseismean = True
+    def setFirstCaseMedian(self, 
+                           firstcaseismedian : bool,
+                           ) -> None:
+        if firstcaseismedian:
+           self.firstcaseismedian = True
            self.ncases = self.ndraws + 1
         else:
-           self.firstcaseismean = False
+           self.firstcaseismedian = False
            self.ncases = self.ndraws
 
 
@@ -73,7 +73,7 @@ class MCVar(ABC):
         pass
 
     @abstractmethod
-    def getMean(self) -> Any:
+    def getMedian(self) -> Any:
         pass
 
 
@@ -81,18 +81,18 @@ class MCVar(ABC):
 ### MCInVar Class ###
 class MCInVar(MCVar):
     def __init__(self, 
-                 name            : str, 
-                 ndraws          : int, 
-                 dist            : Union[rv_discrete, rv_continuous], 
-                 distkwargs      : dict         = None,
-                 nummap          : dict         = None,
-                 samplemethod    : SampleMethod = SampleMethod.SOBOL_RANDOM,
-                 ninvar          : int          = None,
-                 seed            : int          = np.random.get_state(legacy=False)['state']['key'][0], 
-                 firstcaseismean : bool         = False,
-                 autodraw        : bool         = True,
+                 name              : str, 
+                 ndraws            : int, 
+                 dist              : Union[rv_discrete, rv_continuous], 
+                 distkwargs        : dict         = None,
+                 nummap            : dict         = None,
+                 samplemethod      : SampleMethod = SampleMethod.SOBOL_RANDOM,
+                 ninvar            : int          = None,
+                 seed              : int          = np.random.get_state(legacy=False)['state']['key'][0], 
+                 firstcaseismedian : bool         = False,
+                 autodraw          : bool         = True,
                  ):
-        super().__init__(name=name, ndraws=ndraws, firstcaseismean=firstcaseismean)
+        super().__init__(name=name, ndraws=ndraws, firstcaseismedian=firstcaseismedian)
         
         self.dist = dist
         if distkwargs is None:
@@ -129,7 +129,7 @@ class MCInVar(MCVar):
                   ndraws : int,
                   ) -> None:
         self.ndraws = ndraws
-        self.setFirstCaseMean(self.firstcaseismean)
+        self.setFirstCaseMedian(self.firstcaseismedian)
         
         
     def draw(self, 
@@ -139,11 +139,10 @@ class MCInVar(MCVar):
         self.nums = []
         dist = self.dist(**self.distkwargs)
 
-        if self.firstcaseismean:
+        if self.firstcaseismedian:
             self.ncases = self.ndraws + 1
-            nom_num = self.getMean()
-            self.nums.append(nom_num)
-            self.pcts.append(dist.cdf(nom_num))
+            self.pcts.append(0.5)
+            self.nums.append(self.getMedian())
             
         pcts = mc_sampling(ndraws=self.ndraws, method=self.samplemethod, ninvar=self.ninvar, ninvar_max=ninvar_max, seed=self.seed)
         self.pcts.extend(pcts)
@@ -163,12 +162,18 @@ class MCInVar(MCVar):
     def getVal(self,
                ncase : int,
                ) -> MCInVal:
-        ismean = False
-        if (ncase == 0) and self.firstcaseismean:
-            ismean = True
+        ismedian = False
+        if (ncase == 0) and self.firstcaseismedian:
+            ismedian = True
 
-        val = MCInVal(name=self.name, ncase=ncase, pct=self.pcts[ncase], num=self.nums[ncase], dist=self.dist, nummap=self.nummap, ismean=ismean)
+        val = MCInVal(name=self.name, ncase=ncase, pct=self.pcts[ncase], num=self.nums[ncase], dist=self.dist, nummap=self.nummap, ismedian=ismedian)
         return val
+
+
+    def getMedian(self) -> float:
+        dist = self.dist(**self.distkwargs)
+        median = dist.ppf(0.5)
+        return median
 
 
     def getMean(self) -> float:
@@ -195,18 +200,18 @@ class MCInVar(MCVar):
 ### MCOutVar Class ###
 class MCOutVar(MCVar):
     def __init__(self, 
-                 name            : str, 
-                 vals            : list[Any], 
-                 valmap          : dict = None, 
-                 ndraws          : int  = None, 
-                 firstcaseismean : bool = False,
+                 name              : str, 
+                 vals              : list[Any], 
+                 valmap            : dict = None, 
+                 ndraws            : int  = None, 
+                 firstcaseismedian : bool = False,
                  ):
         if ndraws is None:
             ndraws = len(vals)
-            if firstcaseismean:
+            if firstcaseismedian:
                 ndraws = ndraws - 1
         
-        super().__init__(name=name, ndraws=ndraws, firstcaseismean=firstcaseismean)
+        super().__init__(name=name, ndraws=ndraws, firstcaseismedian=firstcaseismedian)
         self.vals = vals
         self.valmap = valmap
         if valmap is None:
@@ -256,18 +261,18 @@ class MCOutVar(MCVar):
 
 
     def getVal(self, ncase : int) -> MCOutVal:
-        ismean = False
-        if (ncase == 0) and self.firstcaseismean:
-            ismean = True
+        ismedian = False
+        if (ncase == 0) and self.firstcaseismedian:
+            ismedian = True
             
-        val = MCOutVal(name=self.name, ncase=ncase, val=self.vals[ncase], valmap=self.valmap, ismean=ismean)
+        val = MCOutVal(name=self.name, ncase=ncase, val=self.vals[ncase], valmap=self.valmap, ismedian=ismedian)
         return val
         
     
-    def getMean(self) -> MCOutVal:
+    def getMedian(self) -> MCOutVal:
         val = None
-        if self.firstcaseismean:
-            val = MCOutVal(name=self.name, ncase=0, val=self.vals[0], valmap=self.valmap, ismean=True)
+        if self.firstcaseismedian:
+            val = MCOutVal(name=self.name, ncase=0, val=self.vals[0], valmap=self.valmap, ismedian=True)
         return val
     
     
@@ -280,7 +285,7 @@ class MCOutVar(MCVar):
                 for j in range(self.ncases):
                     vals.append(self.vals[j][i])
                 mcvars[name] = MCOutVar(name=name, vals=vals, ndraws=self.ndraws, \
-                                        valmap=self.valmap, firstcaseismean=self.firstcaseismean)
+                                        valmap=self.valmap, firstcaseismedian=self.firstcaseismedian)
                 for mcvarstat in self.mcvarstats:
                     mcvars[name].addVarStat(stattype=mcvarstat.stattype, statkwargs=mcvarstat.statkwargs, name=mcvarstat.name)
         return mcvars

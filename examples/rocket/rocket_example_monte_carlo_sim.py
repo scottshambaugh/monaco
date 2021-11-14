@@ -14,7 +14,7 @@ ndraws = 50
 seed=12362398
 
 def rocket_example_monte_carlo_sim():
-    sim = MCSim(name='Rocket', ndraws=ndraws, fcns=fcns, firstcaseismean=True, seed=seed, cores=1, verbose=True, debug=False)
+    sim = MCSim(name='Rocket', ndraws=ndraws, fcns=fcns, firstcaseismedian=True, seed=seed, cores=1, verbose=True, debug=False)
     
     sim.addInVar(name='Wind Azi [deg]', dist=uniform, distkwargs={'loc':0, 'scale':360})
     sim.addInVar(name='Wind Speed [m/s]', dist=uniform, distkwargs={'loc':0, 'scale':2})
