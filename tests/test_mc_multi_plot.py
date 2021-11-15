@@ -2,9 +2,8 @@
 
 #import pytest
 
-### Inline Testing ###
-# Can run here or copy into bottom of main file
-def inline_testing():
+### Plot Testing ###
+def plot_testing():
     import numpy as np
     from scipy.stats import norm
     import matplotlib.pyplot as plt
@@ -26,4 +25,4 @@ def inline_testing():
     mc_multi_plot([mcinvars['norm1'], mcinvars['norm2'], mcinvars['norm3']], highlight_cases=range(10,30), rug_plot=True, cov_plot=True, cov_p=0.95, title='test')  # MCPlot2DScatter
 
 if __name__ == '__main__':
-    inline_testing()
+    plot_testing()

@@ -25,9 +25,8 @@ def test_mcsampling_error():
         mc_sampling(ndraws=512, method=SampleMethod.SOBOL, ninvar=None, ninvar_max=None, seed=seeds[0])
 
 
-### Inline Testing ###
-# Can run here or copy into bottom of main file
-def inline_testing():
+### Plot Testing ###
+def plot_testing():
     def plot_sampling_test(ndraws, method, seeds, genplot=True):
         import matplotlib.pyplot as plt
         import scipy.stats
@@ -90,4 +89,4 @@ def inline_testing():
     #print(cached_pcts.cache_info())  # Can only check caching when run in main file
 
 if __name__ == '__main__':
-    inline_testing()
+    plot_testing()

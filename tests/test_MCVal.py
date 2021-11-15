@@ -51,39 +51,3 @@ def test_mcoutval_dataframe():
     
     mcoutval2 = MCOutVal(name='test2', ncase=1, val=df.index, ismedian=True)
     assert mcoutval2.val[0] == np.datetime64('2020-01-01T00:00:00.000000000')
-
-
-### Inline Testing ###
-# Can run here or copy into bottom of main file
-def inline_testing():
-    from scipy.stats import norm
-    a = MCInVal(name='TestA', ncase=1, pct=0.5, num=0, dist=norm, ismedian=True)
-    print(a.val) # expected: 0
-    b = MCInVal(name='TestB', ncase=1, pct=0.5, num=0, nummap={0:'a'}, dist=norm, ismedian=True)
-    print(b.val) # expected: a
-    c = MCOutVal(name='TestC', ncase=1, val=[[0,0],[0,0],[0,0]], ismedian=True)
-    print(c.size) # expected: (3, 2)
-    print(c.val) # expected: [[0, 0], [0, 0], [0, 0]]
-    csplit = c.split()
-    print(csplit['TestC [0]'].val) # expected: [0, 0]
-    d = MCOutVal(name='TestD', ncase=1, val=[['a','a'],['b','b'],['a','b']], ismedian=True)
-    print(d.valmap) # expected: {'a': 0, 'b': 1}
-    print(d.num) # expected: [[0, 0], [1, 1], [0, 1]]
-    e = MCOutVal(name='TestE', ncase=1, val=[True, False], valmap={True:2, False:1})
-    print(e.val) # expected: [True, False]
-    print(e.num) # expected: [2, 1]
-    f = MCOutVal(name='TestF', ncase=1, val=[True, False])
-    print(f.val) # expected: [True, False]
-    print(f.num) # expected: [1, 0]
-    
-    nvals = 3
-    dates = pd.date_range(start='2020-01-01', periods=nvals, freq='YS')
-    df = pd.DataFrame({'vals1': range(nvals), 'vals2': range(nvals)}, index = dates)
-    g = MCOutVal(name='TestG', ncase=1, val=df['vals1'], ismedian=True)
-    print(g.num) # expected: [0 1 2]
-    h = MCOutVal(name='TestH', ncase=1, val=df.index, ismedian=True)
-    print(h.val) # expected: ['2020-01-01T00:00:00.000000000' '2021-01-01T00:00:00.000000000' '2022-01-01T00:00:00.000000000']
-
-
-if __name__ == '__main__':
-    inline_testing()

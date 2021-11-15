@@ -2,9 +2,8 @@
 
 # import pytest
 
-### Inline Testing ###
-# Can run here or copy into bottom of main file
-def inline_testing():
+### Plot Testing ###
+def plot_testing():
     import numpy as np
     import matplotlib.pyplot as plt
     from scipy.stats import randint, norm
@@ -46,9 +45,9 @@ def inline_testing():
     var2.addVarStat(stattype='orderstatTI', statkwargs={'p':0.6, 'c':0.50, 'bound':'2-sided'})
     var2.addVarStat(stattype='mean')
     
-    mc_plot(var2, highlight_cases=None)        # mc_plot_2d_line
-    mc_plot(var1, var2, highlight_cases=[0,1]) # mc_plot_2d_line
-    mc_plot(var1, var2, var3, highlight_cases) # mc_plot_3d_line
+    mc_plot(var2, highlight_cases=None)             # mc_plot_2d_line
+    mc_plot(var1, var2, highlight_cases=[0,1])      # mc_plot_2d_line
+    mc_plot(var1, var2, var3, highlight_cases=[0,]) # mc_plot_3d_line
     
     mc_plot_cov_corr(np.array([[2, 0.1111, np.nan],[-0.19, -1, np.nan], [np.nan, np.nan, np.nan]]), ['Test1', 'Test2', 'Test3'])
 
@@ -58,4 +57,4 @@ def inline_testing():
 
 
 if __name__ == '__main__':
-    inline_testing()
+    plot_testing()

@@ -134,21 +134,3 @@ def mcsim_io_test_example_sim(resultsdir):
         pass
 
     return sim
-
-def inline_testing():
-    #'''
-    import shutil
-    resultsdir = 'mcsim_io_test'
-    if os.path.isdir(resultsdir):
-        shutil.rmtree(resultsdir)
-    sim = mcsim_io_test_example_sim(resultsdir)
-    #'''
-    '''
-    import tempfile
-    with tempfile.TemporaryDirectory() as resultsdir:
-        sim = mcsim_io_test_example_sim(resultsdir)
-    #'''
-    return sim
-
-if __name__ == '__main__':
-    sim = inline_testing()

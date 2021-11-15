@@ -24,22 +24,12 @@ def test_max_stdev():
     assert max_stdev(low=0, high=1) == pytest.approx(0.5)
 
 
-### Inline Testing ###
-# Can run here or copy into bottom of main file
-def inline_testing():
+### Plot Testing ###
+def plot_testing():
     import numpy as np
     import matplotlib.pyplot as plt
     from monaco.mc_sampling import mc_sampling
-
-    print(integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.RANDOM, runningError=False))      # Expected: 0.4619679
-    print(integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.RANDOM, runningError=True))       # Expected: [0.8001519, 0.5657928, 0.4619679]
-    print(integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.SOBOL,  runningError=False))      # Expected: 0.4619679
-    print(integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.SOBOL,  runningError=True))       # Expected: [0.4803176, 0.4803176, 0.4619679]
-    print(integration_n_from_err(error=0.01, dimension=1, volume=1, stdev=1, conf=0.95, samplemethod=SampleMethod.RANDOM)) # Expected: 38415
-    print(integration_n_from_err(error=0.01, dimension=1, volume=1, stdev=1, conf=0.95, samplemethod=SampleMethod.SOBOL))  # Expected: 1424
-    print(max_variance(low=0, high=1))  # Expected: 0.25
-    print(max_stdev(low=0, high=1))     # Expected: 0.5
-    
+   
     n = int(2**15)
     conf = 0.95
     seed = 25106011
@@ -75,4 +65,4 @@ def inline_testing():
     plt.legend([h3, h1, h4, h2], ['Random Error Bound', 'Random True Error', 'Sobol Error Bound', 'Sobol True Error'])
 
 if __name__ == '__main__':
-    inline_testing()
+    plot_testing()
