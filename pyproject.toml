@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "monaco"
 version = "0.1.1"
-description = "A python library for setting up, running, and analyzing Monte-Carlo simulations to conduct uncertainty and sensitivity analysis."
+description = "Quantify uncertainty and sentitivities in your computer models with an industry-grade Monte-Carlo simulation framework."
 authors = ["Scott Shambaugh <scott@theshamblog.com>"]
 license = "GPL-3.0-or-later"
 readme = "README.md"
