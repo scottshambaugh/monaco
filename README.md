@@ -7,7 +7,7 @@
 ![Tests](https://github.com/scottshambaugh/monaco/actions/workflows/tests.yml/badge.svg)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/monaco)
 
-Quantify uncertainty and sentitivities in your computer models with industry-grade Monte-Carlo simulations.
+Quantify uncertainty and sensitivities in your computer models with industry-grade Monte-Carlo simulations.
 
 ### Overview
 
