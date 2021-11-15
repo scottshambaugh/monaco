@@ -1,11 +1,13 @@
 <p float="left" align="left">
 <img width="570" height="150" src="https://raw.githubusercontent.com/scottshambaugh/monaco/main/docs/monaco_logo.png">  
 </p>
+
 ![Release](https://img.shields.io/github/v/release/scottshambaugh/monaco?sort=semver)
 ![Builds](https://github.com/scottshambaugh/monaco/actions/workflows/builds.yml/badge.svg)
 ![Tests](https://github.com/scottshambaugh/monaco/actions/workflows/tests.yml/badge.svg)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/monaco)
-Quantify uncertainty and sentitivities in your computer models with an industry-grade Monte-Carlo simulation framework.
+
+Quantify uncertainty and sentitivities in your computer models with an industry-grade Monte-Carlo simulations.
 
 ### Overview
 
