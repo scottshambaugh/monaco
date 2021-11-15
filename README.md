@@ -1,5 +1,5 @@
 <p float="left" align="left">
-<img width="570" height="150" src="https://raw.githubusercontent.com/scottshambaugh/monaco/master/docs/monaco_logo.png">  
+<img width="570" height="150" src="https://raw.githubusercontent.com/scottshambaugh/monaco/main/docs/monaco_logo.png">  
 </p>
 ![Release](https://img.shields.io/github/v/release/scottshambaugh/monaco?sort=semver)
 ![Builds](https://github.com/scottshambaugh/monaco/actions/workflows/builds.yml/badge.svg)
@@ -14,8 +14,8 @@ At the heart of all serious forecasting, whether that be of elections, the sprea
 `monaco` is a python library for setting up, running, and analyzing Monte-Carlo simulations. Users can define random input variables drawn using chosen sampling methods from any of SciPy's continuous or discrete distributions (including custom distributions), preprocess and structure that data as needed to feed to their main simulation, run that simulation in parallel anywhere from 1 to millions of times, and postprocess the simulation outputs to obtain meaningful, statistically significant conclusions. Plotting and statistical functions specific to use cases that might be encountered are provided, and repeatability of results is ensured through careful management of random seeds.
 
 <p float="left" align="center">
-<img width="293.08" height="270" src="https://raw.githubusercontent.com/scottshambaugh/monaco/master/examples/rocket/rocket_trajectory.png">  
-<img width="384.94" height="270" src="https://raw.githubusercontent.com/scottshambaugh/monaco/master/examples/rocket/wind_vs_landing.png">
+<img width="293.08" height="270" src="https://raw.githubusercontent.com/scottshambaugh/monaco/main/examples/rocket/rocket_trajectory.png">  
+<img width="384.94" height="270" src="https://raw.githubusercontent.com/scottshambaugh/monaco/main/examples/rocket/wind_vs_landing.png">
 </p>
 
 ### Installation:
@@ -41,7 +41,7 @@ Then, check out the other [examples](https://github.com/scottshambaugh/monaco/tr
 At the center of a Monte Carlo simulation is a program which you wish to run with randomized inputs. Around this, monaco's Monte Carlo architecture is structured like a sandwich. At the top, you generate a large number of randomized values for your input variables. These input values are preprocessed into the form that your program expects, your program is run, and at the bottom the results are postprocessed to extract values for select output variables. You can then plot, collect statistics about, or otherwise use all the input and output variables from your sim. The sandwich is sliced vertically into individual cases, which are run in parallel to massively speed up computation.
 
 <p float="left" align="left">
-<img width="500" height="400" src="https://raw.githubusercontent.com/scottshambaugh/monaco/master/docs/val_var_case_architecture.png">  
+<img width="500" height="400" src="https://raw.githubusercontent.com/scottshambaugh/monaco/main/docs/val_var_case_architecture.png">  
 </p>
 
 ### Basic Workflow:
