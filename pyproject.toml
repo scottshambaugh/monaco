@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "monaco"
 version = "0.1.1"
-description = "Quantify uncertainty and sensitivities in your computer models with industry-grade Monte-Carlo simulations."
+description = "Quantify uncertainty and sensitivities in your computer models with an industry-grade Monte-Carlo framework."
 authors = ["Scott Shambaugh <scott@theshamblog.com>"]
 license = "GPL-3.0-or-later"
 readme = "README.md"
