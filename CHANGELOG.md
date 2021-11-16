@@ -5,9 +5,12 @@
 - 2D Scatter Statistics
 - Run on remote server (AWS, Azure, Google Cloud)
 - Get custom distributions working
+- Polynomial approximations
 - Tornado plots
 - Sensitivity Indices (Sobol's Method)
 - Get working in jupyter notebooks
+- Color plots by 3rd variable
+- Strict typing
 - Example: Evidence-Based Scheduling?
 - 2D/3D Line statistics?
 - Correlation matrix input?
@@ -17,13 +20,19 @@
 
 ## [Unreleased]
 ### Added    
+### Changed    
+### Removed    
+
+## [0.1.2] - 2021-11-15
+### Added    
+* Project logo
 * Added mc_multi_plot_2d_scatter_grid()
 * Python 3.10 support
-### Changed    
+### Changed
 * `import monaco` now imports all modules
 * The 'nom' case is changed to the 'median' case
 ### Removed    
-
+* No more inline tests
 ## [0.1.1] - 2021-10-20
 ### Changed
 * Documentation updates
