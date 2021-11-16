@@ -1,9 +1,10 @@
 # Changelog
 
 ## Future Work
+### Definitely
 - Set up readthedocs.io documentation
 - 2D Scatter Statistics
-- Run on remote server (AWS, Azure, Google Cloud)
+- Run on remote server (AWS, etc)
 - Get custom distributions working
 - Polynomial approximations
 - Tornado plots
@@ -11,10 +12,12 @@
 - Get working in jupyter notebooks
 - Color plots by 3rd variable
 - Strict typing
-- Example: Evidence-Based Scheduling?
-- 2D/3D Line statistics?
-- Correlation matrix input?
-- Ability to plot derived data in addition to mcvars?
+- Bootstrap statistics
+### Maybe
+- Example: Evidence-Based Scheduling
+- 2D/3D Line statistics
+- Correlation matrix input
+- Ability to plot derived data in addition to mcvars
 
 ----
 
