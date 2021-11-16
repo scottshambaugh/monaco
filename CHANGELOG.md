@@ -18,6 +18,7 @@
 ## [Unreleased]
 ### Added    
 * Added mc_multi_plot_2d_scatter_grid()
+* Python 3.10 support
 ### Changed    
 * `import monaco` now imports all modules
 * The 'nom' case is changed to the 'median' case
