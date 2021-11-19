@@ -4,6 +4,7 @@
 ### Definitely
 - Set up readthedocs.io documentation
 - 2D Scatter Statistics
+- Migrate to dask as parallel processing backend
 - Run on remote server (AWS, etc)
 - Get custom distributions working
 - Polynomial approximations
@@ -23,6 +24,7 @@
 
 ## [Unreleased]
 ### Added    
+* Analysis process diagram
 ### Changed    
 ### Removed    
 
