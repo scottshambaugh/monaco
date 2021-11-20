@@ -19,6 +19,8 @@
 - 2D/3D Line statistics
 - Correlation matrix input
 - Ability to plot derived data in addition to mcvars
+- Star Sampling
+- Variogram Sensitivity Analysis
 
 ----
 

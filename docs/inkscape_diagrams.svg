@@ -126,8 +126,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.7"
-     inkscape:cx="1410.7143"
-     inkscape:cy="1095"
+     inkscape:cx="1350.7143"
+     inkscape:cy="1120.7143"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -184,7 +184,8 @@
        x="14.493596"
        y="-873.24384"
        inkscape:export-xdpi="191.76808"
-       inkscape:export-ydpi="191.76808" />
+       inkscape:export-ydpi="191.76808"
+       inkscape:export-filename="C:\Users\Scott\Documents\Documents\Coding\monaco\docs\val_var_case_architecture.png" />
     <rect
        style="fill:#000000;fill-opacity:1;stroke:#010104;stroke-width:3.09075;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
        id="rect100601-1"
@@ -1387,24 +1388,24 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:30px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.750001"
-       x="1292.3979"
+       x="1414.5146"
        y="-236.24319"
        id="text18009"><tspan
          sodipodi:role="line"
          id="tspan18007"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Calibri;-inkscape-font-specification:Calibri;stroke-width:0.750001"
-         x="1292.3979"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Calibri;-inkscape-font-specification:Calibri;text-align:center;text-anchor:middle;stroke-width:0.750001"
+         x="1414.5146"
          y="-236.24319">Uncertainty Analysis</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:30px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.750001"
-       x="1302.7544"
+       x="1415.9648"
        y="-78.492027"
        id="text18009-1"><tspan
          sodipodi:role="line"
          id="tspan18007-7"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Calibri;-inkscape-font-specification:Calibri;stroke-width:0.750001"
-         x="1302.7544"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Calibri;-inkscape-font-specification:Calibri;text-align:center;text-anchor:middle;stroke-width:0.750001"
+         x="1415.9648"
          y="-78.492027">Sensitivity Analysis</tspan></text>
     <text
        xml:space="preserve"
@@ -1425,24 +1426,24 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:30px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.750001"
-       x="896.93787"
+       x="1012.1332"
        y="-242.24312"
        id="text43840"><tspan
          sodipodi:role="line"
          id="tspan43838"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Calibri;-inkscape-font-specification:Calibri;stroke-width:0.750001"
-         x="896.93787"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Calibri;-inkscape-font-specification:Calibri;text-align:center;text-anchor:middle;stroke-width:0.750001"
+         x="1012.1332"
          y="-242.24312">Randomized Inputs</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:30px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.750001"
-       x="965.04578"
+       x="1013.2025"
        y="40.621754"
        id="text43840-2"><tspan
          sodipodi:role="line"
          id="tspan43838-6"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Calibri;-inkscape-font-specification:Calibri;stroke-width:0.750001"
-         x="965.04578"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Calibri;-inkscape-font-specification:Calibri;text-align:center;text-anchor:middle;stroke-width:0.750001"
+         x="1013.2025"
          y="40.621754">Outputs</tspan></text>
     <text
        xml:space="preserve"
