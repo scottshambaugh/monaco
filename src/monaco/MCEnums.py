@@ -3,6 +3,9 @@
 from enum import Enum
 
 class SampleMethod(str, Enum):
+    """
+    Enum for the possible Monte-Carlo sampling methods.
+    """
     RANDOM          = 'random'
     SOBOL           = 'sobol'
     SOBOL_RANDOM    = 'sobol_random'
@@ -12,12 +15,19 @@ class SampleMethod(str, Enum):
 
 
 class MCFunctions(str, Enum):
+    """
+    Enum for the three required user functions.
+    """
     PREPROCESS  = 'preprocess'
     RUN         = 'run'
     POSTPROCESS = 'postprocess'
 
 
 class StatBound(str, Enum):
+    """
+    Enum for possible statistical bounds. Note that not all of these may be
+    valid for a given statistical function.
+    """
     NEAREST        = 'nearest'
     BOTH           = 'both'
     ALL            = 'all'
@@ -28,6 +38,9 @@ class StatBound(str, Enum):
 
 
 class VarStat(str, Enum):
+    """
+    Enum for the variable statistics functions.
+    """
     MAX         = 'max'
     MIN         = 'min'
     MEDIAN      = 'median'
@@ -41,6 +54,10 @@ class VarStat(str, Enum):
 
 
 class VarStatSide(str, Enum):
+    """
+    Enum for the variable statistics 'side' (see documentation for each varstat
+    function).
+    """
     HIGH = 'high'
     LOW  = 'low'
     BOTH = 'both'

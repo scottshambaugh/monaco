@@ -27,7 +27,7 @@ def integration_error(nums         : list[float],
                       volume       : float        = 1,  # By default, returns an unscaled error
                       conf         : float        = 0.95,
                       samplemethod : SampleMethod = SampleMethod.RANDOM, # SampleMethod.RANDOM or SampleMethod.SOBOL
-                      runningError : bool         = False,
+                      runningerror : bool         = False,
                       ) -> Union[float, list[float]]:
     
     integration_args_check(error=None, volume=volume, stdev=None, conf=conf, samplemethod=samplemethod, dimension=dimension)
@@ -36,7 +36,7 @@ def integration_error(nums         : list[float],
     if n == 1:
         error1sig = volume
     
-    elif not runningError:
+    elif not runningerror:
         stdev = np.std(nums, ddof=1)
         if samplemethod == SampleMethod.RANDOM:
             error1sig = volume*stdev/np.sqrt(n)
@@ -95,8 +95,8 @@ inspheresobol  = np.array([int(x*r*volume_scale < r) for x in distancesobol])
 cummeanrandom = volume*np.cumsum(insphererandom)/np.arange(1 ,n+1)
 cummeansobol  = volume*np.cumsum(inspheresobol) /np.arange(1 ,n+1)
 
-errrandom = integration_error(distancerandom, dimension=d, volume=volume, conf=conf, samplemethod=SampleMethod.RANDOM, runningError=True)
-errsobol  = integration_error(distancesobol,  dimension=d, volume=volume, conf=conf, samplemethod=SampleMethod.SOBOL, runningError=True)
+errrandom = integration_error(distancerandom, dimension=d, volume=volume, conf=conf, samplemethod=SampleMethod.RANDOM, runningerror=True)
+errsobol  = integration_error(distancesobol,  dimension=d, volume=volume, conf=conf, samplemethod=SampleMethod.SOBOL, runningerror=True)
 
 #'''
 alpha = 0.85
@@ -124,5 +124,3 @@ plt.xlabel('Sample #')
 plt.legend([h3, h1, h4, h2], ['Random Error Bound', 'Random True Error', 'Sobol Error Bound', 'Sobol True Error'])
 plt.title(f'Monte Carlo Integration of {d}D Unit Sphere')
 #'''
-
-

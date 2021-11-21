@@ -36,7 +36,7 @@ git clone https://github.com/scottshambaugh/monaco.git
 cd monaco
 pip install poetry
 poetry install
-poetry run coverage run --source=monaco -m pytest && poetry run coverage report -m
+poetry run coverage run --source=monaco -m pytest && poetry run coverage report -m && poetry run mypy src
 ```
 
 ### Quick Start:

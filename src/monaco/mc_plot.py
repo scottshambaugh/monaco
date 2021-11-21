@@ -400,7 +400,7 @@ def mc_plot_integration_convergence(mcoutvar     : MCOutVar,
         ax.axhline(refval, color='k')
 
     cummean = volume*np.cumsum(mcoutvar.nums)/np.arange(1, mcoutvar.ncases+1)
-    err = integration_error(nums=mcoutvar.nums, dimension=dimension, volume=volume, conf=conf, samplemethod=samplemethod, runningError=True)
+    err = integration_error(nums=mcoutvar.nums, dimension=dimension, volume=volume, conf=conf, samplemethod=samplemethod, runningerror=True)
     ax.plot(cummean,'r')
     ax.plot(cummean+err, 'b')
     ax.plot(cummean-err, 'b')
@@ -424,7 +424,7 @@ def mc_plot_integration_error(mcoutvar     : MCOutVar,
     fig, ax = manage_axis(ax, is3d=False)
 
     cummean = volume*np.cumsum(mcoutvar.nums)/np.arange(1, mcoutvar.ncases+1)
-    err = integration_error(nums=mcoutvar.nums, dimension=dimension, volume=volume, conf=conf, samplemethod=samplemethod, runningError=True)
+    err = integration_error(nums=mcoutvar.nums, dimension=dimension, volume=volume, conf=conf, samplemethod=samplemethod, runningerror=True)
     ax.loglog(err, 'b')
     ax.plot(np.abs(cummean - refval), 'r')
     

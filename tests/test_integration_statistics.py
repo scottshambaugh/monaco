@@ -5,10 +5,10 @@ from monaco.integration_statistics import integration_error, integration_n_from_
 from monaco.MCEnums import SampleMethod
 
 def test_integration_error():
-    assert integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.RANDOM, runningError=False) == pytest.approx(0.4619679)
-    assert integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.RANDOM, runningError=True) == pytest.approx([0.8001519, 0.5657928, 0.4619679])
-    assert integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.SOBOL,  runningError=False) == pytest.approx(0.4619679)
-    assert integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.SOBOL,  runningError=True) == pytest.approx([0.4803176, 0.4803176, 0.4619679])
+    assert integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.RANDOM, runningerror=False) == pytest.approx(0.4619679)
+    assert integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.RANDOM, runningerror=True) == pytest.approx([0.8001519, 0.5657928, 0.4619679])
+    assert integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.SOBOL,  runningerror=False) == pytest.approx(0.4619679)
+    assert integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.SOBOL,  runningerror=True) == pytest.approx([0.4803176, 0.4803176, 0.4619679])
 
 
 def test_integration_n_from_err():
@@ -39,8 +39,8 @@ def plot_testing():
     
     cummean1 = np.cumsum(x1)/np.arange(1 ,n+1)
     cummean2 = np.cumsum(x2)/np.arange(1 ,n+1)
-    err1 = integration_error(x1, dimension=1, volume=1, conf=conf, samplemethod=SampleMethod.RANDOM, runningError=True)
-    err2 = integration_error(x2, dimension=1, volume=1, conf=conf, samplemethod=SampleMethod.SOBOL, runningError=True)
+    err1 = integration_error(x1, dimension=1, volume=1, conf=conf, samplemethod=SampleMethod.RANDOM, runningerror=True)
+    err2 = integration_error(x2, dimension=1, volume=1, conf=conf, samplemethod=SampleMethod.SOBOL, runningerror=True)
     alpha = 0.85
     plt.figure()
     plt.hlines(midpoint, 0, n, 'k')

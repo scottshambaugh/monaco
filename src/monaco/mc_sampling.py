@@ -14,6 +14,29 @@ def mc_sampling(ndraws     : int,
                 ninvar_max : int          = None,
                 seed       : int          = np.random.get_state(legacy=False)['state']['key'][0],
                 ) -> np.ndarray:
+    """
+    Draws random samples according to the specified method. 
+
+    Parameters
+    ----------
+    ndraws : int
+        The number of samples to draw.
+    method : monaco.MCEnums.SampleMethod
+        The sample method to use.
+    ninvar : int
+        For all but the 'random' method, must define which number input
+        variable is being sampled, ninvar >= 1. The 'sobol' and 
+        'sobol_random' methods must have ninvar <= 21201
+    ninvar_max : int
+        The total number of invars, ninvar_max >= ninvar. Used for caching.
+    seed : int
+        The random seed. Not used in 'sobol' or 'halton' methods.
+    
+    Returns
+    -------
+    pcts : numpy.ndarray
+        The random samples. Each sample is 0 <= pct <= 1.
+    """
     if ninvar_max is None:
         ninvar_max = ninvar
 
@@ -49,6 +72,29 @@ def cached_pcts(ndraws     : int,
                 scramble   : bool, 
                 seed       : int,
                 ) -> np.ndarray:
+    """
+    Wrapper function to cache the qmc draws so that we don't repeat calculation
+    of lower numbered invars for the higher numbered invars. 
+
+    Parameters
+    ----------
+    ndraws : int
+        The number of samples to draw.
+    method : monaco.MCEnums.SampleMethod
+        The sample method to use.
+    ninvar_max : int
+        The total number of invars.
+    scramble : bool
+        Whether to scramble the sobol or halton points. Should only be True if
+        method is in {'sobol_random', 'halton_random'}
+    seed : int
+        The random seed. Not used in 'sobol' or 'halton' methods.
+    
+    Returns
+    -------
+    all_pcts : numpy.ndarray
+        The random samples. Each sample is 0 <= pct <= 1.
+    """
     if method in (SampleMethod.SOBOL, SampleMethod.SOBOL_RANDOM):
         sampler = scipy.stats.qmc.Sobol(d=ninvar_max, scramble=scramble, seed=seed)
     elif method in (SampleMethod.HALTON, SampleMethod.HALTON_RANDOM):
@@ -64,4 +110,3 @@ def cached_pcts(ndraws     : int,
     all_pcts = np.array(points)
     
     return all_pcts
-
