@@ -19,7 +19,7 @@ bound=StatBound.ONESIDED
     (VarStat.ORDERSTATTI, {'p':sig2pct( 3, bound=bound), 'c':0.50, 'bound':bound}        ,  3.0060487),
     (VarStat.ORDERSTATP , {'p':sig2pct( 3, bound=bound), 'c':0.50, 'bound':StatBound.ALL}, [2.9965785, 3.0069887, 3.0209262]),
     (VarStat.GAUSSIANP  , {'p':sig2pct(-3, bound=bound), 'bound':bound}                  , -3.0021598),
-    (VarStat.SIGMAP     , {'sig':3, 'bound':bound}                                       ,  3.0020925),
+    (VarStat.SIGMA      , {'sig':3, 'bound':bound}                                       ,  3.0020925),
     (VarStat.MEAN       , dict()                                                         , -3.361e-05),
 ])
 def test_mcinvarstat(stattype,statkwargs,vals, mcinvar):

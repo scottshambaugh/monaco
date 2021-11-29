@@ -40,8 +40,8 @@ def plot_testing():
     var1 = MCOutVar(name='testx', vals=[v, v, v, v, v], firstcaseismedian=True)
     var2 = MCOutVar(name='testy', vals=[1*v, 2*v, 0*v, -1*v, -2*v], firstcaseismedian=True)
     var3 = MCOutVar(name='testz', vals=[1*v, 2*v, 0*v, -1*v, -2*v], firstcaseismedian=True)
-    var2.addVarStat(stattype='sigmaP', statkwargs={'sig':3})
-    var2.addVarStat(stattype='sigmaP', statkwargs={'sig':-3})
+    var2.addVarStat(stattype='sigma', statkwargs={'sig':3})
+    var2.addVarStat(stattype='sigma', statkwargs={'sig':-3})
     var2.addVarStat(stattype='orderstatTI', statkwargs={'p':0.6, 'c':0.50, 'bound':'2-sided'})
     var2.addVarStat(stattype='mean')
     

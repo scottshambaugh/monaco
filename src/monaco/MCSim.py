@@ -16,10 +16,98 @@ from typing import Callable, Union, Any
 from scipy.stats import rv_continuous, rv_discrete
 
 class MCSim:
-    def __init__(self, 
+    """
+    The main Monte-Carlo Simulation object. 
+
+    Init Parameters
+    ---------------
+    name : str
+        The name for the simulation.
+    ndraws : int
+        The number of random draws to perform.
+    fcns : dict[monaco.MCEnums.MCFunctions, Callable]
+        fcns is a dict with keys MCFunctions.PREPROCESS, RUN, and POSTPROCESS.
+        These point to user-defined functions with certain input and output
+        structures, please see the documentation on how to construct these
+        functions.
+    firstcaseismedian : bool (default: False)
+        Whether the first case represents the median value.
+    samplemethod : monaco.MCEnums.SampleMethod (default: 'sobol_random')
+        The random sampling method to use.
+    seed : int (default: new random number)
+        The random number to seed the simulation.
+    cores : int (default: psutil.cpu_count(logical=False))
+        The number of cores to use for running the simulation. Defaults to the
+        number of physical cores on the machine.
+    verbose : bool (default: True)
+        Whether to print out warning and status messages.
+    debug : bool (default: False)
+        If False, cases that fail while running will be skipped over. If True,
+        cases that fail will raise an exception.
+    savesimdata : bool (default: True)
+        Whether to save the simulation data to disk as a *.mcsim file.
+    savecasedata : bool (default: True)
+        Whether to save the full output data for each case to disk as *.mccase
+        files.
+    resultsdir : {str, pathlib.Path}
+        The directory to save simulation and case data to. If None, then this
+        defaults to a directory named '`name`_results'.
+    
+    Other Parameters
+    ----------------
+    rootdir : pathlib.Path
+        The directory the simulation was run in.
+    filepath : pathlib.Path
+        The filepath to the simulation *.mcsim datafile.
+    invarseeds : list[int]
+        The random seeds for each of the input variables.
+    caseseeds : list[int]
+        The random seeds for each of the cases.
+    inittime : datetime.datetime
+        The timestamp when this simulation object was created.
+    starttime : datetime.datetime
+        The timestamp when the simulation began running.
+    endtime : datetime.datetime
+        The timestamp when the simulation stopped running.
+    runtime : datetime.timedelta
+        The length of time it took the simulation to run.
+    casespreprocessed : set[int]
+        The cases which were sucessfully preprocessed.
+    casesrun : set[int]
+        The cases which were sucessfully run.
+    casespostprocessed : set[int]
+        The cases which were sucessfully postprocessed.
+    mcinvars : dict[str, monaco.MCVar.MCInVar]
+        The Monte-Carlo Input Variables.
+    mcoutvars : dict[str, monaco.MCVar.MCOutVar]
+        The Monte-Carlo Output Variables.
+    constvals : dict[str, Any]
+        The constant values to pass to each of the cases.
+    mccases : list[monaco.MCCase.MCCase]
+        The Monte-Carlo Cases.
+    ninvars : int
+        The number of input variables.
+    corrcoeffs : numpy.ndarray
+        The correlation coefficients between all of the scalar variables.
+    covs : numpy.ndarray
+        The covariance matrix between all of the scalar variables.
+    covvarlist : list[str]
+        The names of all the scalar variables.
+    pbar0 : tqdm.tqdm
+        Handle for the preprocessing progress bar.
+    pbar1 : tqdm.tqdm
+        Handle for the running progress bar.
+    pbar2 : tqdm.tqdm
+        Handle for the postprocessing progress bar.
+    runsimid : int
+        The unique ID for a particular run of this simulation.
+    ncases : int
+        The number of cases.
+    """
+    def __init__(self,
                  name              : str, 
                  ndraws            : int, 
-                 fcns              : dict[MCFunctions, Callable], # fcns is a dict with keys MCFunctions.PREPROCESS, RUN, and POSTPROCESS
+                 fcns              : dict[MCFunctions, Callable],
                  firstcaseismedian : bool = False, 
                  samplemethod      : SampleMethod = SampleMethod.SOBOL_RANDOM,
                  seed              : int  = np.random.get_state(legacy=False)['state']['key'][0], 
@@ -52,7 +140,8 @@ class MCSim:
             self.resultsdir = resultsdir
         else:
             self.resultsdir = self.rootdir / f'{self.name}_results'
-        self.filepath = self.resultsdir / f'{self.name}.mcsim'
+        if self.savesimdata:
+            self.filepath = self.resultsdir / f'{self.name}.mcsim'
 
         self.invarseeds : list[int] = []
         self.caseseeds  : list[int] = []
@@ -88,12 +177,14 @@ class MCSim:
                 
 
     def __getstate__(self):
+        """Function for pickling self to save to file."""
         state = self.__dict__.copy()
         state['mccases'] = []  # don't save mccase data when pickling self
         return state
 
 
-    def __setstate__(self, state):
+    def __setstate__(self,state):
+        """Function to unpickle self when loading from file."""
         self.__dict__.update(state)
         if self.savecasedata:
             self.loadCases()
@@ -102,15 +193,32 @@ class MCSim:
     def checkFcnsInput(self,
                        fcns: dict,
                        ) -> None:
+        """
+        Check the `fcns` input dictionary for correctness.
+
+        Parameters
+        ----------
+        fcns : dict[monaco.MCEnums.MCFunctions, Callable]
+            fcns must be a dict with keys MCFunctions.PREPROCESS, RUN, and
+            POSTPROCESS, which point to special user-defined functions.
+        """
         if set(fcns.keys()) != {MCFunctions.PREPROCESS, MCFunctions.RUN, MCFunctions.POSTPROCESS}:
             raise ValueError(f"MCSim argument {fcns=} must have keys {MCFunctions.PREPROCESS}, {MCFunctions.RUN}, and {MCFunctions.POSTPROCESS}")
         if any(not callable(f) for f in fcns.values()):
             raise ValueError(f"MCSim argument {fcns=} must contain functions as values")
                 
 
-    def setFirstCaseMedian(self, 
-                         firstcaseismedian : bool,
-                         ) -> None:
+    def setFirstCaseMedian(self,
+                           firstcaseismedian : bool,
+                           ) -> None:
+        """
+        Make the first case represent the median expected case or not.
+
+        Parameters
+        ----------
+        firstcaseismedian : bool
+            Whether to make the first case the median case.
+        """
         if firstcaseismedian:
            self.firstcaseismedian = True
            self.ncases = self.ndraws + 1
@@ -122,31 +230,66 @@ class MCSim:
                 mcvar.setFirstCaseMedian(firstcaseismedian)
 
 
-    def addInVar(self, 
-                 name       : str, 
+    def addInVar(self,
+                 name       : str,
                  dist       : Union[rv_discrete, rv_continuous],
-                 distkwargs : dict[str, Any], 
+                 distkwargs : dict[str, Any],
                  nummap     : dict[int, Any] = None,
                  seed       : int = None,
-                 ) -> None:  
+                 ) -> None:
+        """
+        Add an input variable to the simulation.
+
+        Parameters
+        ----------
+        name : str
+            The name of this variable.
+        dist : {scipy.stats.rv_discrete, scipy.stats.rv_continuous}
+            The statistical distribution to draw from.
+        distkwargs : dict
+            The keyword argument pairs for the statistical distribution function.
+        nummap : dict[int, Any]
+            A dictionary mapping numbers to nonnumeric values.
+        seed : int
+            The random seed for this variable. If None, a seed will be assigned
+            based on the order added.
+        """
         self.ninvars += 1
         if seed is None:
-            seed = (self.seed + self.ninvars) % 2**32  # seed is dependent order added
+            seed = (self.seed + self.ninvars) % 2**32  # seed is dependent on the order added
         self.invarseeds.append(seed)
         self.mcinvars[name] = MCInVar(name=name, dist=dist, distkwargs=distkwargs, ndraws=self.ndraws, nummap=nummap, \
                                       samplemethod=self.samplemethod, ninvar=self.ninvars, seed=seed, firstcaseismedian=self.firstcaseismedian, autodraw=False)
 
 
-    def addConstVal(self, 
-                    name : str, 
+    def addConstVal(self,
+                    name : str,
                     val  : Any,
-                    ) -> None:  
+                    ) -> None:
+        """
+        Add a constant value for all the cases to use.
+
+        Parameters
+        ----------
+        name : str
+            Name for this value.
+        val : Any
+            The constant value.
+        """
         self.constvals[name] = val
 
 
-    def setNDraws(self, 
+    def setNDraws(self,
                   ndraws: int,
                   ) -> None:
+        """
+        Set the number of random draws to perform. Will clear the results.
+
+        Parameters
+        ----------
+        ndraws : int
+            The number of random draws to perform.
+        """
         self.clearResults()
         self.ndraws = ndraws
         self.setFirstCaseMedian(self.firstcaseismedian)
@@ -157,21 +300,34 @@ class MCSim:
 
 
     def drawVars(self):
+        """Draw the random values for all the input variables."""
         if self.ninvars > 0:
             vprint(self.verbose, f"Drawing random samples for {self.ninvars} input variables via the '{self.samplemethod}' method...", flush=True)
         for mcinvar in self.mcinvars.values():
             mcinvar.draw(ninvar_max=self.ninvars)
 
 
-    def runSim(self, 
+    def runSim(self,
                cases : Union[None, int, list[int], set[int]] = None,
                ) -> None:
+        """
+        Run the full simulation.
+
+        Parameters
+        ----------
+        cases : Typing TODO
+            The cases to run. If None, then all cases are run.
+        """
         cases = self.downselectCases(cases=cases)
         vprint(self.verbose, f"Running '{self.name}' Monte Carlo simulation with {len(cases)}/{self.ncases} cases...", flush=True)
         self.runSimWorker(casestogenerate=cases, casestopreprocess=cases, casestorun=cases, casestopostprocess=cases)
 
 
     def runIncompleteSim(self) -> None:
+        """
+        Run the full sim, but only the cases which previously failed to
+        preprocess, run, or postprocess.
+        """
         casestopreprocess  = self.allCases() - self.casespreprocessed
         casestorun         = self.allCases() - self.casesrun           | casestopreprocess
         casestopostprocess = self.allCases() - self.casespostprocessed | casestopreprocess | casestorun
@@ -184,12 +340,27 @@ class MCSim:
         self.runSimWorker(casestogenerate=casestogenerate, casestopreprocess=casestopreprocess, casestorun=casestorun, casestopostprocess=casestopostprocess)
 
 
-    def runSimWorker(self, 
+    def runSimWorker(self,
                      casestogenerate    : Union[None, int, list[int], set[int]],
                      casestopreprocess  : Union[None, int, list[int], set[int]],
                      casestorun         : Union[None, int, list[int], set[int]],
                      casestopostprocess : Union[None, int, list[int], set[int]],
-                     ) -> None:            
+                     ) -> None:
+        """
+        The worker function to run the full sim.
+
+        Parameters
+        ----------
+        casestogenerate : Typing TODO
+            The cases to generate. If None, then all cases are generated.
+        casestopreprocess : Typing TODO
+            The cases to preprocess. If None, then all cases are preprocessed.
+        casestorun : Typing TODO
+            The cases to run. If None, then all cases are run.
+        casestopostprocess : Typing TODO
+            The cases to postprocess. If None, then all cases are
+            postprocessed.
+        """
         self.starttime = datetime.now()
 
         if casestorun in (None, self.allCases()):
@@ -222,17 +393,35 @@ class MCSim:
 
 
     def genRunSimID(self) -> None:
+        """Regenerate the unique ID for this simulation run."""
         self.runsimid = self.genID()
 
 
     def genID(self) -> int:
-        uniqueid = (self.seed + hash(self.name) + hash(datetime.now())) % 2**32
+        """
+        Generate a unique ID based on the simulation seed, name, and current
+        timestamp.
+
+        Returns
+        -------
+        uniqueid : int
+            A unique ID.
+        """
+        uniqueid = (self.seed + hash_str_repeatable(self.name) + hash(datetime.now())) % 2**32
         return uniqueid
 
 
     def genCases(self,
                  cases : Union[None, int, list[int], set[int]] = None,
                  ) -> None:
+        """
+        Generate all the Monte-Carlo case objects.
+
+        Parameters
+        ----------
+        cases : Typing TODO
+            The cases to generate. If None, then all cases are generated.
+        """
         vprint(self.verbose, 'Generating cases...', flush=True)
         self.genCaseSeeds()
         
@@ -249,13 +438,22 @@ class MCSim:
 
     
     def genCaseSeeds(self) -> None:
+        """Generate the random seeds for each of the random cases."""
         generator = np.random.RandomState(self.seed)
         self.caseseeds = list(generator.randint(0, 2**31-1, size=self.ncases))
 
 
-    def preProcessCases(self, 
+    def preProcessCases(self,
                         cases : Union[None, int, list[int], set[int]],
                         ) -> None:
+        """
+        Preprocess all the Monte-Carlo cases.
+
+        Parameters
+        ----------
+        cases : Typing TODO
+            The cases to preprocess. If None, then all cases are preprocessed.
+        """
         cases = self.downselectCases(cases=cases)
         
         if self.verbose:
@@ -283,9 +481,22 @@ class MCSim:
             self.pbar0 = None
 
 
-    def preProcessCase(self, 
+    def preProcessCase(self,
                        mccase : MCCase,
                        ) -> MCCase:
+        """
+        Preprocess a single Monte-Carlo case.
+
+        Parameters
+        ----------
+        mccase : monaco.MCCase.MCCase
+            The case to preprocess.
+        
+        Returns
+        -------
+        mccase : monaco.MCCase.MCCase
+            The same case, preprocessed.
+        """
         try:
             mccase.siminput = self.fcns[MCFunctions.PREPROCESS](mccase)
             self.casespreprocessed.add(mccase.ncase)
@@ -303,10 +514,21 @@ class MCSim:
         return mccase
 
 
-    def runCases(self, 
+    def runCases(self,
                  cases            : Union[None, int, list[int], set[int]],
                  calledfromrunsim : bool = False,
                  ) -> None:
+        """
+        Run all the Monte-Carlo cases.
+
+        Parameters
+        ----------
+        cases : Typing TODO
+            The cases to run. If None, then all cases are run.
+        calledfromrunsim : bool (default: False)
+            Whether this was called from self.runSim(). If False, a new ID for
+            this simulation run is generated.
+        """
         cases = self.downselectCases(cases=cases)
         
         if not calledfromrunsim:
@@ -340,9 +562,22 @@ class MCSim:
             vprint(self.verbose, f"\nRaw case results saved in '{self.resultsdir}'", end='', flush=True)
 
 
-    def runCase(self, 
+    def runCase(self,
                 mccase : MCCase,
                 ) -> None:
+        """
+        Run a single Monte-Carlo case.
+
+        Parameters
+        ----------
+        mccase : monaco.MCCase.MCCase
+            The case to run.
+        
+        Returns
+        -------
+        mccase : monaco.MCCase.MCCase
+            The same case, ran.
+        """
         try:
             mccase.starttime = datetime.now()
             mccase.simrawoutput = self.fcns[MCFunctions.RUN](*get_sequence(mccase.siminput))
@@ -369,9 +604,18 @@ class MCSim:
             self.pbar1.update(1)
 
 
-    def postProcessCases(self, 
+    def postProcessCases(self,
                          cases : Union[None, int, list[int], set[int]],
                          ) -> None:
+        """
+        Postprocess all the Monte-Carlo cases.
+
+        Parameters
+        ----------
+        cases : Typing TODO
+            The cases to postprocess. If None, then all cases are
+            postprocessed.
+        """
         cases = self.downselectCases(cases=cases)
         
         if self.verbose:
@@ -399,9 +643,22 @@ class MCSim:
             self.pbar2 = None
 
 
-    def postProcessCase(self, 
+    def postProcessCase(self,
                         mccase : MCCase,
                         ) -> None:
+        """
+        Postprocess a single Monte-Carlo case.
+
+        Parameters
+        ----------
+        mccase : monaco.MCCase.MCCase
+            The case to postprocess.
+        
+        Returns
+        -------
+        mccase : monaco.MCCase.MCCase
+            The same case, postprocessed.
+        """
         try:
             self.fcns[MCFunctions.POSTPROCESS](mccase, *get_sequence(mccase.simrawoutput))
             self.casespostprocessed.add(mccase.ncase)
@@ -418,6 +675,7 @@ class MCSim:
             
             
     def genOutVars(self) -> None:
+        """Generate the output variables."""
         for varname in self.mccases[0].mcoutvals.keys():
             vals = []
             for i in range(self.ncases):
@@ -444,6 +702,10 @@ class MCSim:
 
 
     def genCovarianceMatrix(self) -> None:
+        """
+        Generate the covariance matrix and correlation coefficients between all
+        the scalar variables.
+        """
         self.covvarlist = []
         allnums = []
         for var in self.mcinvars.keys():
@@ -464,16 +726,37 @@ class MCSim:
 
 
     def corr(self) -> tuple[np.ndarray, list[str]]:
+        """
+        Generate a correlation matrix between all the scalar variables.
+
+        Returns
+        -------
+        (corcoeffs, covvarlist) : (numpy.ndarray, list[str])
+            corrcoeffs is a correlation matrix between all the scalar input
+            and output variables.
+            covvarlist is a list of all the scalar input and output variables.
+        """
         self.genCovarianceMatrix()
         return self.corrcoeffs, self.covvarlist
 
 
     def cov(self) -> tuple[np.ndarray, list[str]]:
+        """
+        Generate a covariance matrix between all the scalar variables.
+
+        Returns
+        -------
+        (covs, covvarlist) : (numpy.ndarray, list[str])
+            covs is a covariance matrix between all the scalar input and
+            output variables.
+            covvarlist is a list of all the scalar input and output variables.
+        """
         self.genCovarianceMatrix()
         return self.covs, self.covvarlist
 
 
     def clearResults(self) -> None:
+        """Clear all the simulation results."""
         self.mccases = []
         self.mcoutvars = dict()
         self.casespreprocessed = set()
@@ -488,6 +771,7 @@ class MCSim:
 
 
     def reset(self) -> None:
+        """Completely reset the simulation to the default object state."""
         self.clearResults()
         self.mcinvars = dict()
         self.constvals = dict()
@@ -497,9 +781,22 @@ class MCSim:
         self.starttime = None
 
 
-    def downselectCases(self, 
+    def downselectCases(self,
                         cases : Union[None, int, list[int], set[int]] = None,
                         ) -> set[int]:
+        """
+        Convert the `cases` input to a set of all the target cases.
+
+        Parameters
+        ----------
+        cases : Typing TODO
+            The cases to downselect. If None, returns all cases.
+        
+        Returns
+        -------
+        cases_downselect : set[int]
+            A set of all the cases to use.
+        """
         if cases is None:
             cases_downselect = self.allCases()
         else:
@@ -508,19 +805,29 @@ class MCSim:
 
 
     def allCases(self) -> set[int]:
+        """
+        Get a set of the indices for all the cases.
+
+        Returns
+        -------
+        allCases : set[int]
+            A set of all the case numbers.
+        """
         allCases = set(range(self.ncases))
         return allCases
 
 
     def saveSimToFile(self) -> None:
+        """Save the simulation to a *.mcsim file"""
         if self.savesimdata:
             self.filepath.unlink(missing_ok = True)
             self.filepath.touch()
             with open(self.filepath,'wb') as file:
-                dill.dump(self, file, protocol=dill.HIGHEST_PROTOCOL)
+                dill.dump(self,file, protocol=dill.HIGHEST_PROTOCOL)
 
 
     def loadCases(self) -> None:
+        """Load the data for cases from file."""
         vprint(self.verbose, f"{self.filepath} indicates {len(self.casesrun)}/{self.ncases} cases were run, attempting to load raw case data from disk...", end='\n', flush=True)
         self.mccases = []
         casesloaded = set()
@@ -576,6 +883,15 @@ class MCSim:
         
 
     def findExtraResultsFiles(self):
+        """
+        Find *.mcsim and *.mccase files that we don't expect to see in the
+        results directory.
+
+        Returns
+        -------
+        filenames : set[pathlib.Path]
+            The extra files.
+        """
         files = set(self.resultsdir.glob('**/*.mcsim')) | set(self.resultsdir.glob('**/*.mccase'))
         filenames = set(file.name for file in files)
         try:
@@ -592,6 +908,10 @@ class MCSim:
 
 
     def removeExtraResultsFiles(self) -> None:
+        """
+        Delete all unexpected *.mcsim and *.mccase files in the results
+        directory.
+        """
         extrafiles = self.findExtraResultsFiles()
         for file in extrafiles:
             filepath = self.resultsdir / file

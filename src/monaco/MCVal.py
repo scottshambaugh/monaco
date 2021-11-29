@@ -11,7 +11,19 @@ from abc import ABC
 
 ### MCVal Base Class ###
 class MCVal(ABC):
-    def __init__(self, 
+    """
+    Abstract base class to hold the data for a Monte-Carlo value. 
+
+    Init Parameters
+    ---------------
+    name : str
+        The name of this value.
+    ncase : int
+        The number of the case for this value.
+    ismedian : bool
+        Whether this case represents the median case.
+    """
+    def __init__(self,
                  name     : str, 
                  ncase    : int, 
                  ismedian : bool,
@@ -31,7 +43,40 @@ class MCVal(ABC):
 
 ### MCInVal Class ###
 class MCInVal(MCVal):
-    def __init__(self, 
+    """
+    A Monte-Carlo input value. 
+
+    Init Parameters
+    ---------------
+    name : str
+        The name of this value.
+    ncase : int
+        The number of the case for this value.
+    pct : float
+        The percentile of the value draw.
+    num : float
+        The number corresponding to the statistical percentile draw.
+    dist : Union[scipy.stats.rv_discrete, scipy.stats.rv_continuous]
+        The statistical distribution that `num` was drawn from.
+    nummap : dict (default: None)
+        A dictionary mapping numbers to nonnumeric values.
+    ismedian : bool (default: False)
+        Whether this case represents the median case,
+    
+    Other Parameters
+    ----------------
+    val : Any
+        The value corresponding to the drawn number. If `nummap` is None, then
+        this is equal to `num`.
+    isscalar : bool
+        Whether the value is scalar.
+    size : tuple[int]
+        The size of the value.
+    valmap : dict
+        A dictionary mapping nonnumeric values to numbers (the inverse of
+        `nummap`).
+    """
+    def __init__(self,
                  name     : str, 
                  ncase    : int, 
                  pct      : float,
@@ -54,6 +99,9 @@ class MCInVal(MCVal):
 
 
     def mapNum(self) -> None:
+        """
+        Generate `val` based on the drawn number and the nummap.
+        """
         if self.nummap is None:
             self.val = self.num
         else:
@@ -61,6 +109,9 @@ class MCInVal(MCVal):
 
 
     def genValMap(self) -> None:
+        """
+        Generate the valmap based on the nummap.
+        """
         if self.nummap is None:
             self.valmap = None
         else:
@@ -70,7 +121,38 @@ class MCInVal(MCVal):
 
 ### MCOutVal Class ###
 class MCOutVal(MCVal):
-    def __init__(self, 
+    """
+    A Monte-Carlo output value. 
+
+    Init Parameters
+    ---------------
+    name : str
+        The name of this value.
+    ncase : int
+        The number of the case for this value.
+    val : float
+        The output value.
+    valmap : dict (default: None)
+        A dictionary mapping nonnumeric values to numbers.
+    ismedian : bool (default: False)
+        Whether this case represents the median case,
+    
+    Other Parameters
+    ----------------
+    num : Any
+        A number corresponding to the output value. If `valmap` is None and val
+        is nonnumeric, then will be an integer as assigned by extractValMap().
+    valmapsource : str
+        Either 'assigned' or 'auto' based on whether a valmap was passed in.
+    isscalar : bool
+        Whether the value is scalar.
+    size : tuple[int]
+        The size of the value.
+    nummap : dict
+        A dictionary mapping numbers to nonnumeric values (the inverse of
+        `valmap`).
+    """
+    def __init__(self,
                  name     : str, 
                  ncase    : int, 
                  val      : Any, 
@@ -93,11 +175,18 @@ class MCOutVal(MCVal):
 
 
     def convertPandas(self) -> None:
+        """
+        If the output value is a pandas dataseries or index, convert it to a
+        format we understand.
+        """
         if isinstance(self.val, pd.Series) or isinstance(self.val, pd.Index):
             self.val = self.val.values
 
 
     def genSize(self) -> None:
+        """
+        Calculate the size of the output value, and whether it is a scalar.
+        """
         if isinstance(self.val,(list, tuple, np.ndarray)):
             self.isscalar = False
             if isinstance(self.val[0],(list, tuple, np.ndarray)):
@@ -110,6 +199,9 @@ class MCOutVal(MCVal):
 
 
     def extractValMap(self) -> None:
+        """
+        Parse the output value and extract a valmap.
+        """
         if self.isscalar:
             if isinstance(self.val, bool):
                 self.valmap = {True:1, False:0}
@@ -129,6 +221,9 @@ class MCOutVal(MCVal):
 
                 
     def mapVal(self) -> None:
+        """
+        Map the output value to a number or array of numbers.
+        """
         if self.valmap is None:
             self.num = self.val
         elif self.isscalar:
@@ -146,13 +241,24 @@ class MCOutVal(MCVal):
 
 
     def genNumMap(self) -> None:
+        """
+        Invert the valmap to get a nummap.
+        """
         if self.valmap is None:
             self.nummap = None
         else:
             self.nummap = {num:val for val, num in self.valmap.items()}
 
 
-    def split(self) -> dict[str, 'MCOutVal']:
+    def split(self) -> dict[str, 'MCOutVal']:  # Quotes in typing to avoid import error
+        """
+        Split a multidimentional output value along its outermost dimension,
+        and generate individual MCOutVal objects for each index.
+
+        Returns
+        -------
+        mcvals : dict[str : monaco.MCVal.MCOutVal]
+        """
         mcvals = dict()
         if self.size[0] > 1:
             for i in range(self.size[0]):

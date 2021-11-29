@@ -47,7 +47,7 @@ class VarStat(str, Enum):
     MEAN        = 'mean'
     GEOMEAN     = 'geomean'
     MODE        = 'mode'
-    SIGMAP      = 'sigmaP'
+    SIGMA       = 'sigma'
     GAUSSIANP   = 'gaussianP'
     ORDERSTATTI = 'orderstatTI'
     ORDERSTATP  = 'orderstatP'

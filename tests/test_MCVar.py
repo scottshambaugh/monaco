@@ -53,10 +53,10 @@ def test_mcinvar_getVal(mcinvar_custom_dist):
     assert mcinvar_custom_dist.getVal(0).val == 5
 
 def test_mcinvar_getMean(mcinvar_lognorm_random):
-    assert pytest.approx(mcinvar_lognorm_random.getMean(), lognorm_mu + lognorm_sigma**2 / 2)
+    assert pytest.approx(mcinvar_lognorm_random.getDistMean(), lognorm_mu + lognorm_sigma**2 / 2)
 
 def test_mcinvar_getMedian(mcinvar_lognorm_random):
-    assert pytest.approx(mcinvar_lognorm_random.getMedian(), lognorm_mu)
+    assert pytest.approx(mcinvar_lognorm_random.getDistMedian(), lognorm_mu)
 
 def test_mcinvar_nummap():
     invar = MCInVar('map', ndraws=10, dist=custom_dist, distkwargs=dict(), ninvar=1, nummap={1:'a',5:'e',6:'f'}, samplemethod=SampleMethod.RANDOM, seed=invarseeds[3], firstcaseismedian=False)
@@ -68,7 +68,7 @@ def test_mcoutvar():
     outvar = MCOutVar('test', [1, 0, 2, 2], firstcaseismedian=True)
     assert outvar.getVal(1).val == 0
     assert outvar.stats().mean == pytest.approx(1.25)
-    assert outvar.getMedian().val == 1
+    assert outvar.getMedianVal().val == 1
 
 def test_mcoutvar_extractValMap():
     outvar = MCOutVar('test', ['a', 'b', 'c', 'b'], firstcaseismedian=True)

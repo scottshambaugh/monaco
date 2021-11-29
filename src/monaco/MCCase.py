@@ -52,7 +52,7 @@ class MCCase():
     simrawoutput : tuple[Any]
         The non-postprocessed outputs from the run function for this case.
     """
-    def __init__(self, 
+    def __init__(self,
                  ncase     : int, 
                  ismedian  : bool, 
                  mcinvars  : dict[str, MCInVar], 
@@ -118,7 +118,7 @@ class MCCase():
         return mcvals
     
     
-    def addOutVal(self, 
+    def addOutVal(self,
                   name   : str, 
                   val    : Any,
                   split  : bool = True, 

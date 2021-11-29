@@ -3,8 +3,6 @@
 # Somewhat hacky type checking to avoid circular imports:
 from __future__ import annotations
 from typing import TYPE_CHECKING
-
-from monaco.helper_functions import get_sequence
 if TYPE_CHECKING:
     from monaco.MCVar import MCVar
     
@@ -12,6 +10,7 @@ import numpy as np
 from copy import copy
 from statistics import mode
 from scipy.stats.mstats import gmean
+from monaco.helper_functions import get_sequence
 from monaco.gaussian_statistics import pct2sig, sig2pct
 from monaco.order_statistics import order_stat_P_k, order_stat_TI_k, get_iP
 from monaco.MCEnums import StatBound, VarStat, VarStatSide
@@ -19,39 +18,60 @@ from typing import Union, Any, Callable
 
 
 class MCVarStat:
-    def __init__(self, 
+    """
+    A variable statistic for a Monte-Carlo variable.
+
+    Input Parameters
+    ----------------
+    mcvar : monaco.MCVar.MCVar
+        The variable to generate statistics for.
+    stattype : monaco.MCEnums.VarStat
+        The type of variable statistic to generate.
+    statkwargs : dict[str:Any]
+        The keyword arguments for the variable statistic.
+    name : str
+        The name of this variable statistic.
+
+    Other Parameters
+    ----------------
+    nums : numpy.array
+        The output of the variable statistic function applied to `mcvar.nums`
+    vals : list[Any]
+        The values for the `nums` as determined by `mcvar.nummap`
+
+    Valid stattypes with their statkwargs 
+    -------------------------------------
+        max
+        min
+        median
+        mean
+        geomean
+        mode
+        sigma(sig, bound)
+            sig     -inf < sig < inf        Sigma Value
+            bound   '1-sided', '2-sided'    Bound (default 2-sided)
+        gaussianP(p, bound)
+            p       0 < p < 1               Percentile
+            bound   '1-sided', '2-sided'    Bound (default 2-sided)
+        orderstatTI(p, c, bound)
+            p       0 <= p <= 1             Percentage
+            c       0 < c < 1               Confidence (default 0.95)
+            bound   '1-sided', '2-sided',   Bound (default 2-sided)
+                    'all'
+        orderstatP(p, c, bound)
+            p       0 <= p <= 1             Percentile
+            c       0 < c < 1               Confidence (default 0.95)
+            bound   '1-sided lower', 'all', Bound (default 2-sided)
+                    '1-sided upper', 
+                    '2-sided', 'nearest', 
+    """
+    def __init__(self,
                  mcvar      : MCVar,  
-                 stattype   : str, 
+                 stattype   : VarStat, 
                  statkwargs : dict[str, Any] = None, 
                  name       : str = None,
                  ):
-        '''
-        valid stattypes with corresponding statkwargs:
-            max
-            min
-            median
-            mean
-            geomean
-            mode
-            sigmaP(sig, bound)
-                sig     -inf < sig < inf        Sigma Value
-                bound   '1-sided', '2-sided'    Bound (default 2-sided)
-            gaussianP(p, bound)
-                p       0 < p < 1               Percentile
-                bound   '1-sided', '2-sided'    Bound (default 2-sided)
-            orderstatTI(p, c, bound)
-                p       0 <= p <= 1             Percentage
-                c       0 < c < 1               Confidence (default 0.95)
-                bound   '1-sided', '2-sided',   Bound (default 2-sided)
-                        'all'
-            orderstatP(p, c, bound)
-                p       0 <= p <= 1             Percentile
-                c       0 < c < 1               Confidence (default 0.95)
-                bound   '1-sided lower', 'all', Bound (default 2-sided)
-                        '1-sided upper', 
-                        '2-sided', 'nearest', 
-        '''
-
+        
         self.mcvar = mcvar
         self.stattype = stattype
         if statkwargs is None:
@@ -74,8 +94,8 @@ class MCVarStat:
             self.genStatsGeoMean()
         elif stattype == VarStat.MODE:
             self.genStatsMode()
-        elif stattype == VarStat.SIGMAP:
-            self.genStatsSigmaP()
+        elif stattype == VarStat.SIGMA:
+            self.genStatsSigma()
         elif stattype == VarStat.GAUSSIANP:
             self.genStatsGaussianP()
         elif stattype == VarStat.ORDERSTATTI:
@@ -85,40 +105,49 @@ class MCVarStat:
         else:
             raise ValueError("".join([f"{self.stattype=} must be one of the following: ",
                                       f"{VarStat.MAX}, {VarStat.MIN}, {VarStat.MEDIAN}, {VarStat.MEAN}, {VarStat.GEOMEAN}, {VarStat.MODE},",
-                                      f"{VarStat.SIGMAP}, {VarStat.GAUSSIANP}, {VarStat.ORDERSTATTI}, {VarStat.ORDERSTATP}"]))
+                                      f"{VarStat.SIGMA}, {VarStat.GAUSSIANP}, {VarStat.ORDERSTATTI}, {VarStat.ORDERSTATP}"]))
 
 
     def genStatsMax(self) -> None:
+        """Get the max value of the variable."""
         self.setName('Max')
         self.genStatsFunction(fcn=np.max)
 
 
     def genStatsMin(self) -> None:
+        """Get the min value of the variable."""
         self.setName('Min')
         self.genStatsFunction(fcn=np.min)
 
 
     def genStatsMedian(self) -> None:
+        """Get the median value of the variable."""
         self.setName('Median')
         self.genStatsFunction(fcn=np.median)
 
 
     def genStatsMean(self) -> None:
+        """Get the mean value of the variable."""
         self.setName('Mean')
         self.genStatsFunction(fcn=np.mean)
 
 
     def genStatsGeoMean(self) -> None:
+        """Get the geometric mean value of the variable."""
         self.setName('Geometric Mean')
         self.genStatsFunction(fcn=gmean)
 
 
     def genStatsMode(self) -> None:
+        """Get the modal value of the variable."""
         self.setName('Mode')
         self.genStatsFunction(fcn=mode)
 
 
-    def genStatsSigmaP(self) -> None:
+    def genStatsSigma(self) -> None:
+        """
+        Get the value of the variable at the inputted sigma value, assuming
+        a gaussian distribution."""
         if 'sig' not in self.statkwargs:
             raise ValueError(f'{self.stattype} requires the kwarg ''sig''')
         if 'bound' not in self.statkwargs:
@@ -129,10 +158,14 @@ class MCVarStat:
         self.sig = self.statkwargs['sig']
         self.p = sig2pct(self.sig, bound=self.bound)
         self.setName(f'{self.sig} Sigma')
-        self.genStatsFunction(self.sigmaP)
+        self.genStatsFunction(self.sigma)
 
 
     def genStatsGaussianP(self) -> None:
+        """
+        Get the value of the variable at the inputted percentile value,
+        assuming a gaussian distribution.
+        """
         if 'p' not in self.statkwargs:
             raise ValueError(f'{self.stattype} requires the kwarg ''p''')
         if 'bound' not in self.statkwargs:
@@ -143,21 +176,43 @@ class MCVarStat:
         self.p = self.statkwargs['p']
         self.sig = pct2sig(self.p, bound=self.bound)
         self.setName(f'Guassian {self.p*100}%')
-        self.genStatsFunction(self.sigmaP)
+        self.genStatsFunction(self.sigma)
 
 
-    def sigmaP(self, 
+    def sigma(self,
                x, # TODO: explicit typing here
                ) -> float:
+        """
+        Calculate the sigma value of a normally distributed list of numbers.
+
+        Parameters
+        ----------
+        x : TODO typing
+            The numbers to calculate the sigma value for.
+        """
         std = np.std(x)
         return np.mean(x) + self.sig*std
 
 
-    def genStatsFunction(self, 
-                         fcn : Callable,
+    def genStatsFunction(self,
+                         fcn       : Callable,
+                         fcnkwargs : dict[str, Any] = None,
                          ) -> None:
+        """
+        A wrapper function to generate statistics via a generic function.
+
+        Parameters
+        ----------
+        fcn : Callable
+            The function used to generate the desired statistics.
+        fcnkwargs : dict[str, Any]
+            The keyword arguments for the function.
+        """
+        if fcnkwargs is None:
+            fcnkwargs = dict()
+        
         if self.mcvar.isscalar:
-            self.nums = fcn(self.mcvar.nums)
+            self.nums = fcn(self.mcvar.nums, **fcnkwargs)
             self.vals = copy(self.nums)
             if self.mcvar.nummap is not None:
                 self.vals = [self.mcvar.nummap[num] for num in self.nums]
@@ -168,7 +223,7 @@ class MCVarStat:
             self.nums = np.empty(npoints)
             for i in range(npoints):
                 numsatidx = [x[i] for x in nums_sequence if len(x)>i]
-                self.nums[i] = fcn(numsatidx)
+                self.nums[i] = fcn(numsatidx, **fcnkwargs)
             self.vals = copy(self.nums)
             if self.mcvar.nummap is not None:
                 self.vals = np.array([[self.mcvar.nummap[x] for x in y] for y in self.nums])
@@ -180,6 +235,7 @@ class MCVarStat:
 
 
     def genStatsOrderStatTI(self) -> None:
+        """Get the order statistic tolerance interval value of the variable."""
         self.checkOrderStatsKWArgs()
       
         if self.bound == StatBound.ONESIDED and self.p >= 0.5:
@@ -247,6 +303,7 @@ class MCVarStat:
 
 
     def genStatsOrderStatP(self) -> None:
+        """Get the order statistic percentile value of the variable."""
         self.checkOrderStatsKWArgs()
       
         bound = self.bound
@@ -314,6 +371,7 @@ class MCVarStat:
 
 
     def checkOrderStatsKWArgs(self) -> None:
+        """Check the order statistic keyword arguments."""
         if 'p' not in self.statkwargs:
             raise ValueError(f'{self.stattype} requires the kwarg ''p''')
         else:
@@ -328,8 +386,16 @@ class MCVarStat:
             self.bound = self.statkwargs['bound']
 
 
-    def setName(self, 
+    def setName(self,
                 name : str,
                 ) -> None:
+        """
+        Set the name for this variable statistic.
+        
+        Parameters
+        ----------
+        name : str
+            The new name.
+        """
         if self.name is None:
             self.name = name
