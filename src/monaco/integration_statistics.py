@@ -34,7 +34,7 @@ def integration_error(nums         : list[float],
         and should be 0.5 < conf < 1.
     samplemethod : monaco.MCEnums.SampleMethod
         Monte Carlo sample method. Either 'random' (default and bounding), or
-        'sobol'.
+        'sobol'. If using a different sample method, use 'random' here.
     runningerror : bool
         If False, returns a point estimate. If True, returns an array
         containing the running error over all of the integration estimates.
@@ -125,7 +125,7 @@ def integration_n_from_err(error        : float,
         and should be 0.5 < conf < 1.
     samplemethod : monaco.MCEnums.SampleMethod
         Monte Carlo sample method. Either 'random' (default and bounding), or
-        'sobol'.
+        'sobol'. If using a different sample method, use 'random' here.
     
     Returns
     -------

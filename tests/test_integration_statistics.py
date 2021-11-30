@@ -1,7 +1,8 @@
 # test_integration_statistics.py
 
 import pytest
-from monaco.integration_statistics import integration_error, integration_n_from_err, max_variance, max_stdev
+from monaco.gaussian_statistics import pct2sig
+from monaco.integration_statistics import integration_error, integration_n_from_err, integration_args_check, max_variance, max_stdev
 from monaco.MCEnums import SampleMethod
 
 def test_integration_error():
@@ -9,11 +10,26 @@ def test_integration_error():
     assert integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.RANDOM, runningerror=True) == pytest.approx([0.8001519, 0.5657928, 0.4619679])
     assert integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.SOBOL,  runningerror=False) == pytest.approx(0.4619679)
     assert integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.SOBOL,  runningerror=True) == pytest.approx([0.4803176, 0.4803176, 0.4619679])
+    assert integration_error([1,],      dimension=1, conf=0.95, samplemethod=SampleMethod.SOBOL,  runningerror=True) == pytest.approx(pct2sig(0.95))
 
 
 def test_integration_n_from_err():
     assert integration_n_from_err(error=0.01, dimension=1, volume=1, stdev=1, conf=0.95, samplemethod=SampleMethod.RANDOM) == 38415
     assert integration_n_from_err(error=0.01, dimension=1, volume=1, stdev=1, conf=0.95, samplemethod=SampleMethod.SOBOL) == 1424
+
+
+@pytest.mark.parametrize("error,dimension,volume,stdev,conf,samplemethod", [
+    (  -1, 1, 1.0,  0.5, 0.5, SampleMethod.RANDOM),
+    (None, 0, 1.0,  0.5, 0.5, SampleMethod.RANDOM),
+    (None, 1, 0.0,  0.5, 0.5, SampleMethod.RANDOM),
+    (None, 1, 1.0, -0.5, 0.5, SampleMethod.RANDOM),
+    (None, 1, 1.0,  0.5, 0,   SampleMethod.RANDOM),
+    (None, 1, 1.0,  0.5, 1,   SampleMethod.RANDOM),
+    (None, 1, 1.0,  0.5, 0.5, None),
+])
+def test_integration_args_check(error, dimension, volume, stdev, conf, samplemethod):
+    with pytest.raises(ValueError):
+        integration_args_check(error=error, dimension=dimension, volume=volume, stdev=stdev, conf=conf, samplemethod=samplemethod)
 
 
 def test_max_variance():
