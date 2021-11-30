@@ -33,7 +33,7 @@ def pct2sig(p     : float,
         if p >= 0.5:
             sig = scipy.stats.norm.ppf(1-(1-p)/2)
         else:
-            sig = scipy.stats.norm.ppf(p/2)
+            sig = -scipy.stats.norm.ppf(p/2)
     elif bound == StatBound.ONESIDED:
         sig = scipy.stats.norm.ppf(p)
     else:
