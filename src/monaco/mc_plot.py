@@ -11,9 +11,9 @@ from monaco.MCVar import MCInVar, MCOutVar
 from monaco.helper_functions import get_tuple, slice_by_index, length, empty_list
 from monaco.gaussian_statistics import conf_ellipsoid_sig2pct
 from monaco.integration_statistics import integration_error
-from monaco.MCEnums import SampleMethod
+from monaco.MCEnums import SampleMethod, PlotOrientation
 from copy import copy
-from typing import Union, Sequence, Optional
+from typing import Union, Optional
 
 
 # If cases or highlight_cases are None, will plot all. Set to [] to plot none.
@@ -133,11 +133,11 @@ def mc_plot(mcvarx   : Union[MCInVar, MCOutVar],
 
 def mc_plot_hist(mcvar       : Union[MCInVar, MCOutVar], 
                  highlight_cases : Union[None, int, list[int], set[int]] = empty_list(),
-                 cumulative  : bool           = False,
-                 orientation : str            = 'vertical',
-                 rug_plot    : bool           = True,
-                 ax          : Optional[Axes] = None, 
-                 title       : str            = '',
+                 cumulative  : bool            = False,
+                 orientation : PlotOrientation = PlotOrientation.VERTICAL,
+                 rug_plot    : bool            = True,
+                 ax          : Optional[Axes]  = None, 
+                 title       : str             = '',
                  ) -> tuple[Figure, Axes]:
     """
     Plot a histogram of a single variable.
@@ -150,7 +150,7 @@ def mc_plot_hist(mcvar       : Union[MCInVar, MCOutVar],
         The cases to highlight. If [], then no cases are highlighted.
     cumulative : bool (default: False)
         Whether to plot the histograms as cumulative distribution functions.
-    orientation : str (default: 'vertical')
+    orientation : monaco.MCEnums.PlotOrientation (default: 'vertical')
         The orientation of the histogram. Either 'vertical' or 'horizontal'.
     rug_plot : bool (default: True)
         Whether to plot rug marks.
@@ -185,9 +185,9 @@ def mc_plot_hist(mcvar       : Union[MCInVar, MCOutVar],
                 ydata = dist.cdf(x)
             else:
                 ydata = dist.pdf(x)
-            if orientation == 'vertical':
+            if orientation == PlotOrientation.VERTICAL:
                 plt.plot(x, ydata, color='k', alpha=0.9)
-            elif orientation == 'horizontal':
+            elif orientation == PlotOrientation.HORIZONTAL:
                 plt.plot(ydata, x, color='k', alpha=0.9)            
         
         # Discrete distribution
@@ -202,9 +202,9 @@ def mc_plot_hist(mcvar       : Union[MCInVar, MCOutVar],
             else:
                 xdata = x[1:]
                 ydata = np.diff(dist.cdf(x)) # manual pdf
-            if orientation == 'vertical':
+            if orientation == PlotOrientation.VERTICAL:
                 plt.step(xdata, ydata, color='k', alpha=0.9, where='post')
-            elif orientation == 'horizontal':
+            elif orientation == PlotOrientation.HORIZONTAL:
                 plt.step(ydata, xdata, color='k', alpha=0.9, where='post') 
         
     elif isinstance(mcvar, MCOutVar): 
@@ -222,7 +222,7 @@ def mc_plot_hist(mcvar       : Union[MCInVar, MCOutVar],
     ylim = ax.get_ylim()
 
     # Highlight cases and MCVarStats
-    if orientation == 'vertical':
+    if orientation == PlotOrientation.VERTICAL:
         for i in highlight_cases_tuple:
             plt.plot([mcvar.nums[i], mcvar.nums[i]], [ylim[0], ylim[0]+(ylim[1]-ylim[0])*0.20], linestyle='-', linewidth=1, color='red')
         for mcvarstat in mcvar.mcvarstats:
@@ -237,7 +237,7 @@ def mc_plot_hist(mcvar       : Union[MCInVar, MCOutVar],
         plt.ylabel(ylabeltext)
         apply_category_labels(ax, mcvarx=mcvar)
         
-    elif orientation == 'horizontal':
+    elif orientation == PlotOrientation.HORIZONTAL:
         for i in highlight_cases_tuple:
             plt.plot([xlim[0], xlim[0]+(xlim[1]-xlim[0])*0.20], [mcvar.nums[i], mcvar.nums[i]], linestyle='-', linewidth=1, color='red')
         for mcvarstat in mcvar.mcvarstats:
@@ -260,10 +260,10 @@ def mc_plot_hist(mcvar       : Union[MCInVar, MCOutVar],
 
 def mc_plot_cdf(mcvar       : Union[MCInVar, MCOutVar], 
                 highlight_cases : Union[None, int, list[int], set[int]] = empty_list(),
-                orientation : str            = 'vertical',
-                rug_plot    : bool           = True,
-                ax          : Optional[Axes] = None, 
-                title       : str            = '',
+                orientation : PlotOrientation = PlotOrientation.VERTICAL,
+                rug_plot    : bool            = True,
+                ax          : Optional[Axes]  = None, 
+                title       : str             = '',
                 ) -> tuple[Figure, Axes]:
     """
     Plot a cumulative distribution of a single variable.
@@ -274,7 +274,7 @@ def mc_plot_cdf(mcvar       : Union[MCInVar, MCOutVar],
         The variable to plot.
     highlight_cases : Typing TODO (default: [])
         The cases to highlight. If [], then no cases are highlighted.
-    orientation : str (default: 'vertical')
+    orientation : monaco.MCEnums.PlotOrientation (default: 'vertical')
         The orientation of the histogram. Either 'vertical' or 'horizontal'.
     rug_plot : bool (default: True)
         Whether to plot rug marks.
@@ -353,8 +353,8 @@ def mc_plot_2d_scatter(mcvarx   : Union[MCInVar, MCOutVar],
 
     if rug_plot:
         all_cases = set(cases_tuple) | set(highlight_cases_tuple)
-        plot_rug_marks(ax, orientation='vertical', nums=slice_by_index(mcvarx.nums, all_cases))
-        plot_rug_marks(ax, orientation='horizontal', nums=slice_by_index(mcvary.nums, all_cases))
+        plot_rug_marks(ax, orientation=PlotOrientation.VERTICAL, nums=slice_by_index(mcvarx.nums, all_cases))
+        plot_rug_marks(ax, orientation=PlotOrientation.HORIZONTAL, nums=slice_by_index(mcvary.nums, all_cases))
 
     plt.xlabel(mcvarx.name)
     plt.ylabel(mcvary.name)
@@ -780,7 +780,7 @@ def apply_category_labels(ax : Axes,
 
 
 def get_hist_lim(ax          : Axes,
-                 orientation : str,
+                 orientation : PlotOrientation,
                  ) -> tuple[float, float]:
     """
     Get the axis limits for a histogram.
@@ -789,7 +789,7 @@ def get_hist_lim(ax          : Axes,
     ----------
     ax : matplotlib.axes.Axes
         The target axis.
-    orientation : str
+    orientation : PlotOrientation
         The orientation of the histogram plot, either 'vertical' or
         'horizontal'.
     
@@ -798,16 +798,16 @@ def get_hist_lim(ax          : Axes,
     lim : (float, float)
         Returns the (low, high) limits of the axis.
     """
-    if orientation == 'vertical':
+    if orientation == PlotOrientation.VERTICAL:
         lim = ax.get_xlim()
-    elif orientation == 'horizontal':
+    elif orientation == PlotOrientation.HORIZONTAL:
         lim = ax.get_ylim()
     return lim
 
 
 
 def plot_rug_marks(ax          : Axes,
-                   orientation : str, 
+                   orientation : PlotOrientation, 
                    nums        : list[float]
                    ) -> None:
     """
@@ -817,7 +817,7 @@ def plot_rug_marks(ax          : Axes,
     ----------
     ax : matplotlib.axes.Axes
         The target axis.
-    orientation : str
+    orientation : PlotOrientation
         The orientation of the plot, either 'vertical' or 'horizontal'.
     nums : list[float]
         The numbers to plot the rug marks at.
@@ -827,10 +827,10 @@ def plot_rug_marks(ax          : Axes,
     
     xlim = ax.get_xlim()
     ylim = ax.get_ylim()
-    if orientation == 'vertical':
+    if orientation == PlotOrientation.VERTICAL:
         for num in nums:
             plt.plot([num,num], [ylim[0], ylim[0] + 0.02*(ylim[1]-ylim[0])], color='black', linewidth=0.5, alpha=0.5)
-    elif orientation == 'horizontal':
+    elif orientation == PlotOrientation.HORIZONTAL:
         for num in nums:
             plt.plot([xlim[0], xlim[0] + 0.02*(xlim[1]-xlim[0])], [num,num], color='black', linewidth=0.5, alpha=0.5)
 

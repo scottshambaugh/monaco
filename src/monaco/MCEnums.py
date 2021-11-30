@@ -62,4 +62,11 @@ class VarStatSide(str, Enum):
     LOW  = 'low'
     BOTH = 'both'
     ALL  = 'all'
-    
+
+
+class PlotOrientation(str, Enum):
+    """
+    Enum for the plotting functions orientation.
+    """
+    VERTICAL   = 'vertical'
+    HORIZONTAL = 'horizontal'

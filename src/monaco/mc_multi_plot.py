@@ -5,6 +5,7 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from monaco.mc_plot import mc_plot_hist, mc_plot_2d_scatter
 from monaco.MCVar import MCInVar, MCOutVar
+from monaco.MCEnums import PlotOrientation
 from monaco.helper_functions import empty_list
 from typing import Union, Optional
 
@@ -130,7 +131,7 @@ def mc_multi_plot_2d_scatter_hist(mcvarx     : Union[MCInVar, MCOutVar],
     ax3 = fig.add_subplot(gs[0:3, 1:4], sharex=ax1, sharey=ax2)
 
     mc_plot_hist(mcvarx, highlight_cases=highlight_cases, rug_plot=False, ax=ax1, title='', cumulative=cumulative)
-    mc_plot_hist(mcvary, highlight_cases=highlight_cases, rug_plot=False, ax=ax2, title='', cumulative=cumulative, orientation='horizontal')
+    mc_plot_hist(mcvary, highlight_cases=highlight_cases, rug_plot=False, ax=ax2, title='', cumulative=cumulative, orientation=PlotOrientation.HORIZONTAL)
     mc_plot_2d_scatter(mcvarx, mcvary, cases=cases, highlight_cases=highlight_cases, rug_plot=rug_plot, cov_plot=cov_plot, cov_p=cov_p, ax=ax3, title='')
     
     ax1.set_ylabel('')
