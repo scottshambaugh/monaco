@@ -28,6 +28,7 @@
 ### Added    
 * Analysis process diagram
 * Docstrings for all classes and functions, roughly follows the [numpy docstrings convention](https://numpydoc.readthedocs.io/en/latest/format.html)
+* More unit tests
 ### Changed    
 ### Removed    
 

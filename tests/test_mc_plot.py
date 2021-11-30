@@ -1,6 +1,17 @@
 # test_mc_plot.py
 
-# import pytest
+import pytest
+from monaco.mc_plot import get_cases
+
+@pytest.mark.parametrize("ncases, cases, ans", [
+    (3,   None, (0, 1, 2)),
+    (3,      1, (1,)),
+    (3, (1, 2), (1, 2)),
+    (3,     [], ()),
+])
+def test_get_cases(ncases, cases, ans):
+    assert get_cases(ncases=ncases, cases=cases) == pytest.approx(ans)
+
 
 ### Plot Testing ###
 def plot_testing():

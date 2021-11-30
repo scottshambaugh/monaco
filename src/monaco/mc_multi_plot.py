@@ -13,11 +13,11 @@ from typing import Union, Optional
 def mc_multi_plot(mcvars   : list[Union[MCInVar, MCOutVar]],
                   cases           : Union[None, int, list[int], set[int]] = None,
                   highlight_cases : Union[None, int, list[int], set[int]] = empty_list(),
-                  rug_plot : bool                = True,
-                  cov_plot : bool                = True,
+                  rug_plot : bool   = True,
+                  cov_plot : bool   = True,
                   cov_p    : Union[None, float, list[float], set[float]] = None,
-                  fig      : Figure              = None, 
-                  title    : str                 = '',
+                  fig      : Figure = None, 
+                  title    : str    = '',
                   ) -> tuple[Figure, tuple[Axes]]:
     """
     Umbrella function to make more complex plots of Monte-Carlo variables. 
