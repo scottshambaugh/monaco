@@ -70,7 +70,7 @@ def is_num(val : Any) -> bool:
     else:
         try:
             float(val)
-        except ValueError:
+        except (ValueError, TypeError):
             return False
         else:
             return True

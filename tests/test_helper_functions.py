@@ -22,6 +22,7 @@ def test_hash_str_repeatable():
     (   0, True),
     ( 1.0, True),
     ( '1', False),
+    ([1,], False),
 ])
 def test_is_num(val,ans):
     assert is_num(val) == ans
