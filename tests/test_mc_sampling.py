@@ -16,13 +16,19 @@ seeds = generator.randint(0, 2**31-1, size=10)
     (SampleMethod.HALTON_RANDOM,   2, seeds[4], 0.9198435),
     (SampleMethod.LATIN_HYPERCUBE, 2, seeds[5], 0.3522243),
 ])
-def test_mcsampling(method, ninvar, seed, ans):
+def test_mc_sampling(method, ninvar, seed, ans):
     pcts = mc_sampling(ndraws=512, method=method, ninvar=ninvar, ninvar_max=None, seed=seed)
     assert pcts[0] == pytest.approx(ans)
 
-def test_mcsampling_error():
+
+@pytest.mark.parametrize("method,ninvar,seed", [
+    (SampleMethod.SOBOL,  None, seeds[0]),
+    (              None,     2, seeds[0]),
+    (SampleMethod.SOBOL, 25000, seeds[0]),
+])
+def test_mc_sampling_errors(method, ninvar, seed):
     with pytest.raises(ValueError):
-        mc_sampling(ndraws=512, method=SampleMethod.SOBOL, ninvar=None, ninvar_max=None, seed=seeds[0])
+        mc_sampling(ndraws=512, method=method, ninvar=ninvar, ninvar_max=None, seed=seed)
 
 
 ### Plot Testing ###
