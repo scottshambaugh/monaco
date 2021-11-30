@@ -222,3 +222,16 @@ def timeit(fcn : Callable):
         print(f'"{fcn.__name__}" took {(t1 - t0)*1000 : .3f} ms to execute.\n')
         return output
     return timed
+
+
+def empty_list():
+    """
+    Sentinel for default arguments being an empty list.
+
+    Returns
+    -------
+    empty_list : list
+        An empty list.
+    """
+    empty_list = []
+    return empty_list

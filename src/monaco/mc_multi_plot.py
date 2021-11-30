@@ -5,12 +5,13 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from monaco.mc_plot import mc_plot_hist, mc_plot_2d_scatter
 from monaco.MCVar import MCInVar, MCOutVar
+from monaco.helper_functions import empty_list
 from typing import Union, Optional
 
 
 def mc_multi_plot(mcvars   : list[Union[MCInVar, MCOutVar]],
                   cases           : Union[None, int, list[int], set[int]] = None, # All cases
-                  highlight_cases : Union[None, int, list[int], set[int]] = [],   # No cases
+                  highlight_cases : Union[None, int, list[int], set[int]] = empty_list(), # No cases
                   rug_plot : bool                = True,
                   cov_plot : bool                = True,
                   cov_p    : Union[None, float, list[float], set[float]]  = None,
@@ -48,7 +49,7 @@ def mc_multi_plot(mcvars   : list[Union[MCInVar, MCOutVar]],
 def mc_multi_plot_2d_scatter_hist(mcvarx     : Union[MCInVar, MCOutVar], 
                                   mcvary     : Union[MCInVar, MCOutVar],
                                   cases           : Union[None, int, list[int], set[int]] = None, # All cases
-                                  highlight_cases : Union[None, int, list[int], set[int]] = [],   # No cases
+                                  highlight_cases : Union[None, int, list[int], set[int]] = empty_list(), # No cases
                                   rug_plot   : bool                = True,
                                   cov_plot   : bool                = True,
                                   cov_p      : Union[None, float, list[float], set[float]]  = None,
@@ -82,7 +83,7 @@ def mc_multi_plot_2d_scatter_hist(mcvarx     : Union[MCInVar, MCOutVar],
 
 def mc_multi_plot_2d_scatter_grid(mcvars     : list[Union[MCInVar, MCOutVar]], 
                                   cases           : Union[None, int, list[int], set[int]] = None, # All cases
-                                  highlight_cases : Union[None, int, list[int], set[int]] = [],   # No cases
+                                  highlight_cases : Union[None, int, list[int], set[int]] = empty_list(), # No cases
                                   rug_plot   : bool                = True,
                                   cov_plot   : bool                = True,
                                   cov_p      : Union[None, float, list[float], set[float]]  = None,

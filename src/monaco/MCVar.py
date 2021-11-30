@@ -7,6 +7,7 @@ from monaco.MCVal import MCVal, MCInVal, MCOutVal
 from monaco.MCVarStat import MCVarStat
 from monaco.MCEnums import SampleMethod, VarStat
 from monaco.mc_sampling import mc_sampling
+from monaco.helper_functions import empty_list
 from copy import copy
 from typing import Union, Any
 from warnings import warn
@@ -45,7 +46,7 @@ class MCVar(ABC):
         self.pcts       : list[float]
         self.size       : tuple
         self.isscalar   : bool
-        self.mcvarstats : list[MCVarStat] = []
+        self.mcvarstats : list[MCVarStat] = empty_list()
         
 
     def setFirstCaseMedian(self,

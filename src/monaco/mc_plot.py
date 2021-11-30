@@ -8,7 +8,7 @@ from matplotlib.axes import Axes
 from matplotlib.patches import Ellipse
 from mpl_toolkits.mplot3d import Axes3D
 from monaco.MCVar import MCInVar, MCOutVar
-from monaco.helper_functions import get_sequence, slice_by_index, length
+from monaco.helper_functions import get_sequence, slice_by_index, length, empty_list
 from monaco.gaussian_statistics import conf_ellipsoid_sig2pct
 from monaco.integration_statistics import integration_error
 from monaco.MCEnums import SampleMethod
@@ -21,7 +21,7 @@ def mc_plot(mcvarx   : Union[MCInVar, MCOutVar],
             mcvary   : Union[MCInVar, MCOutVar] = None, 
             mcvarz   : Union[MCInVar, MCOutVar] = None, 
             cases           : Union[None, int, list[int], set[int]] = None, # All cases 
-            highlight_cases : Union[None, int, list[int], set[int]] = [],   # No cases 
+            highlight_cases : Union[None, int, list[int], set[int]] = empty_list(), # No cases 
             rug_plot : bool               = False, 
             cov_plot : bool               = False,
             cov_p    : Union[float, list[float], set[float]]  = None,
@@ -99,7 +99,7 @@ def mc_plot(mcvarx   : Union[MCInVar, MCOutVar],
 
 
 def mc_plot_hist(mcvar       : Union[MCInVar, MCOutVar], 
-                 highlight_cases : Union[None, int, list[int], set[int]] = [], # No cases
+                 highlight_cases : Union[None, int, list[int], set[int]] = empty_list(), # No cases
                  cumulative  : bool              = False,
                  orientation : str               = 'vertical', # 'vertical' or 'horizontal'
                  rug_plot    : bool              = True,
@@ -201,7 +201,7 @@ def mc_plot_hist(mcvar       : Union[MCInVar, MCOutVar],
 
 
 def mc_plot_cdf(mcvar       : Union[MCInVar, MCOutVar], 
-                highlight_cases : Union[None, int, list[int], set[int]] = [], # No cases
+                highlight_cases : Union[None, int, list[int], set[int]] = empty_list(), # No cases
                 orientation : str               = 'vertical', # 'vertical' or 'horizontal'
                 rug_plot    : bool              = True,
                 ax          : Optional[Axes]    = None, 
@@ -214,7 +214,7 @@ def mc_plot_cdf(mcvar       : Union[MCInVar, MCOutVar],
 def mc_plot_2d_scatter(mcvarx   : Union[MCInVar, MCOutVar], 
                        mcvary   : Union[MCInVar, MCOutVar], 
                        cases           : Union[None, int, list[int], set[int]] = None,  # All cases 
-                       highlight_cases : Union[None, int, list[int], set[int]] = [],    # No cases
+                       highlight_cases : Union[None, int, list[int], set[int]] = empty_list(),    # No cases
                        rug_plot : bool               = False,
                        cov_plot : bool               = False,
                        cov_p    : Union[None, float, list[float], set[float]]  = None,
@@ -255,7 +255,7 @@ def mc_plot_2d_scatter(mcvarx   : Union[MCInVar, MCOutVar],
 def mc_plot_2d_line(mcvarx : Union[MCInVar, MCOutVar], 
                     mcvary : Union[MCInVar, MCOutVar], 
                     cases           : Union[None, int, list[int], set[int]] = None, # All cases 
-                    highlight_cases : Union[None, int, list[int], set[int]] = [],   # No cases
+                    highlight_cases : Union[None, int, list[int], set[int]] = empty_list(), # No cases
                     ax     : Optional[Axes]    = None, 
                     title  : str               = '',
                     ) -> tuple[Figure, Axes]:
@@ -291,7 +291,7 @@ def mc_plot_3d_scatter(mcvarx : Union[MCInVar, MCOutVar],
                        mcvary : Union[MCInVar, MCOutVar], 
                        mcvarz : Union[MCInVar, MCOutVar], 
                        cases           : Union[None, int, list[int], set[int]] = None, # All cases 
-                       highlight_cases : Union[None, int, list[int], set[int]] = [],   # No cases
+                       highlight_cases : Union[None, int, list[int], set[int]] = empty_list(), # No cases
                        ax     : Optional[Axes]    = None, 
                        title  : str               = '',
                        ) -> tuple[Figure, Axes]:
@@ -321,7 +321,7 @@ def mc_plot_3d_line(mcvarx : Union[MCInVar, MCOutVar],
                     mcvary : Union[MCInVar, MCOutVar], 
                     mcvarz : Union[MCInVar, MCOutVar], 
                     cases           : Union[None, int, list[int], set[int]] = None, # All cases 
-                    highlight_cases : Union[None, int, list[int], set[int]] = [],   # No cases
+                    highlight_cases : Union[None, int, list[int], set[int]] = empty_list(), # No cases
                     ax     : Optional[Axes]    = None, 
                     title  : str               = '',
                     ) -> tuple[Figure, Axes]:
