@@ -10,15 +10,43 @@ from typing import Union, Optional
 
 
 def mc_multi_plot(mcvars   : list[Union[MCInVar, MCOutVar]],
-                  cases           : Union[None, int, list[int], set[int]] = None, # All cases
-                  highlight_cases : Union[None, int, list[int], set[int]] = empty_list(), # No cases
+                  cases           : Union[None, int, list[int], set[int]] = None,
+                  highlight_cases : Union[None, int, list[int], set[int]] = empty_list(),
                   rug_plot : bool                = True,
                   cov_plot : bool                = True,
-                  cov_p    : Union[None, float, list[float], set[float]]  = None,
+                  cov_p    : Union[None, float, list[float], set[float]] = None,
                   fig      : Figure              = None, 
                   title    : str                 = '',
-                  ) -> tuple[Figure, tuple[Axes, Axes, Axes]]:
+                  ) -> tuple[Figure, tuple[Axes]]:
+    """
+    Umbrella function to make more complex plots of Monte-Carlo variables. 
+
+    Parameters
+    ----------
+    mcvars : list[{monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}]
+        The variables to plot.
+    cases : Typing TODO (default: None)
+        The cases to plot. If None, then all cases are plotted.
+    highlight_cases : Typing TODO (default: [])
+        The cases to highlight. If [], then no cases are highlighted.
+    rug_plot : bool (default: True)
+        Whether to plot rug marks.
+    cov_plot : bool (default: False)
+        Whether to plot a covariance ellipse at a certain gaussian percentile
+        level.
+    cov_p : Typing TODO (default: None)
+        The gaussian percentiles for the covariance plot.
+    fig : matplotlib.figure.Figure (default: None)
+        The figure handle to plot in. If None, a new figure is created.
+    title : str (default: '')
+        The figure title.
     
+    Returns
+    -------
+        (fig, axes) : (matplotlib.figure.Figure, (matplotlib.axes.Axes,))
+            fig is the figure handle for the plot.
+            axes is a tuple of the axes handles for the plots.
+    """
     # Split larger vars
     if len(mcvars) == 1:
         if isinstance(mcvars[0], MCOutVar) and mcvars[0].size[0] == 2:
@@ -48,15 +76,52 @@ def mc_multi_plot(mcvars   : list[Union[MCInVar, MCOutVar]],
 
 def mc_multi_plot_2d_scatter_hist(mcvarx     : Union[MCInVar, MCOutVar], 
                                   mcvary     : Union[MCInVar, MCOutVar],
-                                  cases           : Union[None, int, list[int], set[int]] = None, # All cases
-                                  highlight_cases : Union[None, int, list[int], set[int]] = empty_list(), # No cases
-                                  rug_plot   : bool                = True,
-                                  cov_plot   : bool                = True,
-                                  cov_p      : Union[None, float, list[float], set[float]]  = None,
-                                  cumulative : bool                = False,
-                                  fig        : Figure              = None, 
-                                  title      : str                 = '',
+                                  cases           : Union[None, int, list[int], set[int]] = None,
+                                  highlight_cases : Union[None, int, list[int], set[int]] = empty_list(),
+                                  rug_plot   : bool   = True,
+                                  cov_plot   : bool   = True,
+                                  cov_p      : Union[None, float, list[float], set[float]] = None,
+                                  cumulative : bool   = False,
+                                  fig        : Figure = None, 
+                                  title      : str    = '',
                                   ) -> tuple[Figure, tuple[Axes, Axes, Axes]]:
+    """
+    Plot two variables against each other with a central scatterplot and two
+    histograms along the x and y axes.
+
+    Parameters
+    ----------
+    mcvarx : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
+        The x variable to plot.
+    mcvary : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
+        The y variable to plot.
+    cases : Typing TODO (default: None)
+        The cases to plot. If None, then all cases are plotted.
+    highlight_cases : Typing TODO (default: [])
+        The cases to highlight. If [], then no cases are highlighted.
+    rug_plot : bool (default: True)
+        Whether to plot rug marks.
+    cov_plot : bool (default: False)
+        Whether to plot a covariance ellipse at a certain gaussian percentile
+        level.
+    cov_p : Typing TODO (default: None)
+        The gaussian percentiles for the covariance plot.
+    cumulative : bool (default: False)
+        Whether to plot the histograms as cumulative distribution functions.
+    fig : matplotlib.figure.Figure (default: None)
+        The figure handle to plot in. If None, a new figure is created.
+    title : str (default: '')
+        The figure title.
+    
+    Returns
+    -------
+        (fig, (ax1, ax2, ax3)) : (matplotlib.figure.Figure, 
+                                 (matplotlib.axes.Axes, matplotlib.axes.Axes,
+                                  matplotlib.axes.Axes))
+            fig is the figure handle for the plot.
+            (ax1, ax2, ax3) are the axes handles for the central, y-axis, and
+            x-axis plots, respectively.
+    """
     fig = handle_fig(fig)
     
     gs = fig.add_gridspec(4, 4)
@@ -82,15 +147,49 @@ def mc_multi_plot_2d_scatter_hist(mcvarx     : Union[MCInVar, MCOutVar],
 
 
 def mc_multi_plot_2d_scatter_grid(mcvars     : list[Union[MCInVar, MCOutVar]], 
-                                  cases           : Union[None, int, list[int], set[int]] = None, # All cases
-                                  highlight_cases : Union[None, int, list[int], set[int]] = empty_list(), # No cases
-                                  rug_plot   : bool                = True,
-                                  cov_plot   : bool                = True,
-                                  cov_p      : Union[None, float, list[float], set[float]]  = None,
-                                  cumulative : bool                = False,
-                                  fig        : Figure              = None, 
-                                  title      : str                 = '',
-                                  ) -> tuple[Figure, tuple[Axes, Axes, Axes]]:
+                                  cases           : Union[None, int, list[int], set[int]] = None,
+                                  highlight_cases : Union[None, int, list[int], set[int]] = empty_list(),
+                                  rug_plot   : bool   = True,
+                                  cov_plot   : bool   = True,
+                                  cov_p      : Union[None, float, list[float], set[float]] = None,
+                                  cumulative : bool   = False,
+                                  fig        : Figure = None, 
+                                  title      : str    = '',
+                                  ) -> tuple[Figure, tuple[Axes]]:
+    """
+    Plot multiple variables against each other in a grid. The off-diagonal grid
+    locations show scatterplots of the two corresponding variables. The
+    plots along the diagonal show histograms for the corresponding variables. 
+
+    Parameters
+    ----------
+    mcvars : list[{monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}]
+        The variables to plot.
+    cases : Typing TODO (default: None)
+        The cases to plot. If None, then all cases are plotted.
+    highlight_cases : Typing TODO (default: [])
+        The cases to highlight. If [], then no cases are highlighted.
+    rug_plot : bool (default: True)
+        Whether to plot rug marks.
+    cov_plot : bool (default: False)
+        Whether to plot a covariance ellipse at a certain gaussian percentile
+        level.
+    cov_p : Typing TODO (default: None)
+        The gaussian percentiles for the covariance plot.
+    cumulative : bool (default: False)
+        Whether to plot the histograms as cumulative distribution functions.
+    fig : matplotlib.figure.Figure (default: None)
+        The figure handle to plot in. If None, a new figure is created.
+    title : str (default: '')
+        The figure title.
+    
+    Returns
+    -------
+        (fig, axes) : (matplotlib.figure.Figure, (matplotlib.axes.Axes,))
+            fig is the figure handle for the plot.
+            axes is a tuple of the axes handles for the plots, starting from
+            the top-left corner and working left-to-right, then top-to-bottom.
+    """
     fig = handle_fig(fig)
     
     nvars = len(mcvars)
@@ -119,6 +218,20 @@ def mc_multi_plot_2d_scatter_grid(mcvars     : list[Union[MCInVar, MCOutVar]],
 
 
 def handle_fig(fig : Optional[Figure]) -> Figure:
+    """
+    Set the target figure, either by making a new figure or setting active an
+    existing one.
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        The target figure. If None, a new figure is created.
+    
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        The active figure.
+    """
     if fig is None:
         fig = plt.figure()
     else:

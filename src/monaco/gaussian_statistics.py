@@ -113,11 +113,10 @@ def conf_ellipsoid_sig2pct(sig : float,
                            df  : int,
                            ) -> float:
     """
-    Converts a percentile to a sigma value which bounds a df-dimensional 
-    gaussian distribution, used in generating confidence ellipsoids. Note
-    that in the 1-D case, scipy.stats.chi2.cdf(sig**2, df=1) is 
-    equivalent to sig2pct(sig > 0, bound='2-sided)
-                  = 1-(1-scipy.stats.norm.cdf(sig))*2
+    Converts a sigma value which bounds a df-dimensional gaussian distribution,
+    to a percentil used in generating confidence ellipsoids. Note that in the
+    1-D case, scipy.stats.chi2.cdf(sig**2, df=1) is equivalent to 
+    sig2pct(sig > 0, bound='2-sided) == 1-(1-scipy.stats.norm.cdf(sig))*2
     
     Parameters
     ----------

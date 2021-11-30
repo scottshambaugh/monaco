@@ -567,7 +567,7 @@ def order_stat_var_check(n : int = None,
                          nmax : int = None
                          ) -> None:
     """
-    Check the validity of the inputs to the order statistic functions..
+    Check the validity of the inputs to the order statistic functions.
     """
     if n is not None and n < 1:
         raise ValueError(f'{n=} must be >= 1')

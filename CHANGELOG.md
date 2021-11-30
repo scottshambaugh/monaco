@@ -31,6 +31,7 @@
 ### Changed    
 ### Removed    
 
+
 ## [0.1.2] - 2021-11-15
 ### Added    
 * Project logo
@@ -41,6 +42,7 @@
 * The 'nom' case is changed to the 'median' case
 ### Removed    
 * No more inline tests
+
 ## [0.1.1] - 2021-10-20
 ### Changed
 * Documentation updates
