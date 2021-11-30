@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from monaco.MCCase import MCCase
 from monaco.MCVar import MCInVar, MCOutVar
 from monaco.MCEnums import MCFunctions, SampleMethod
-from monaco.helper_functions import get_sequence, slice_by_index, vprint, vwarn, vwrite, hash_str_repeatable
+from monaco.helper_functions import get_tuple, slice_by_index, vprint, vwarn, vwrite, hash_str_repeatable
 from psutil import cpu_count
 from pathos.pools import ThreadPool as Pool
 from tqdm import tqdm
@@ -580,7 +580,7 @@ class MCSim:
         """
         try:
             mccase.starttime = datetime.now()
-            mccase.simrawoutput = self.fcns[MCFunctions.RUN](*get_sequence(mccase.siminput))
+            mccase.simrawoutput = self.fcns[MCFunctions.RUN](*get_tuple(mccase.siminput))
             mccase.endtime = datetime.now()
             mccase.runtime = mccase.endtime - mccase.starttime
             mccase.runsimid = self.runsimid
@@ -660,7 +660,7 @@ class MCSim:
             The same case, postprocessed.
         """
         try:
-            self.fcns[MCFunctions.POSTPROCESS](mccase, *get_sequence(mccase.simrawoutput))
+            self.fcns[MCFunctions.POSTPROCESS](mccase, *get_tuple(mccase.simrawoutput))
             self.casespostprocessed.add(mccase.ncase)
             mccase.haspostprocessed = True
             
@@ -800,7 +800,7 @@ class MCSim:
         if cases is None:
             cases_downselect = self.allCases()
         else:
-            cases_downselect = set(get_sequence(cases))
+            cases_downselect = set(get_tuple(cases))
         return cases_downselect
 
 

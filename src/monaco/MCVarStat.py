@@ -10,7 +10,7 @@ import numpy as np
 from copy import copy
 from statistics import mode
 from scipy.stats.mstats import gmean
-from monaco.helper_functions import get_sequence
+from monaco.helper_functions import get_tuple
 from monaco.gaussian_statistics import pct2sig, sig2pct
 from monaco.order_statistics import order_stat_P_k, order_stat_TI_k, get_iP
 from monaco.MCEnums import StatBound, VarStat, VarStatSide
@@ -218,11 +218,11 @@ class MCVarStat:
                 self.vals = [self.mcvar.nummap[num] for num in self.nums]
                 
         elif self.mcvar.size[0] == 1:
-            nums_sequence = get_sequence(self.mcvar.nums)
-            npoints = max(len(x) for x in nums_sequence)
+            nums_tuple = get_tuple(self.mcvar.nums)
+            npoints = max(len(x) for x in nums_tuple)
             self.nums = np.empty(npoints)
             for i in range(npoints):
-                numsatidx = [x[i] for x in nums_sequence if len(x)>i]
+                numsatidx = [x[i] for x in nums_tuple if len(x)>i]
                 self.nums[i] = fcn(numsatidx, **fcnkwargs)
             self.vals = copy(self.nums)
             if self.mcvar.nummap is not None:
@@ -274,14 +274,14 @@ class MCVarStat:
                 self.vals = copy(self.nums)
                 
         elif self.mcvar.size[0] == 1:
-            npoints = max(len(get_sequence(x)) for x in self.mcvar.nums)
+            npoints = max(len(get_tuple(x)) for x in self.mcvar.nums)
             self.nums = np.empty(npoints)
             if self.side == VarStatSide.BOTH:
                 self.nums = np.empty((npoints, 2))
             elif self.side == VarStatSide.ALL:
                 self.nums = np.empty((npoints, 3))
             for i in range(npoints):
-                numsatidx = [get_sequence(x)[i] for x in self.mcvar.nums if len(get_sequence(x))>i]
+                numsatidx = [get_tuple(x)[i] for x in self.mcvar.nums if len(get_tuple(x))>i]
                 sortednums = sorted(numsatidx)
                 if self.side == VarStatSide.LOW:
                     sortednums.reverse()
@@ -340,14 +340,14 @@ class MCVarStat:
                 self.vals = copy(self.nums)
 
         elif self.mcvar.size[0] == 1:
-            npoints = max(len(get_sequence(x)) for x in self.mcvar.nums)
+            npoints = max(len(get_tuple(x)) for x in self.mcvar.nums)
             self.nums = np.empty(npoints)
             if self.bound == StatBound.TWOSIDED:
                 self.nums = np.empty((npoints, 2))
             elif self.bound == StatBound.ALL:
                 self.nums = np.empty((npoints, 3))
             for i in range(npoints):
-                numsatidx = [get_sequence(x)[i] for x in self.mcvar.nums if len(get_sequence(x))>i]
+                numsatidx = [get_tuple(x)[i] for x in self.mcvar.nums if len(get_tuple(x))>i]
                 sortednums = sorted(numsatidx)
                 if self.bound == StatBound.ONESIDED_LOWER:
                     self.nums[i] = sortednums[iPl - self.k]

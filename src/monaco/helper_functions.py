@@ -98,7 +98,7 @@ def length(x : Any) -> int:
         return None
 
 
-def get_sequence(x : Any) -> tuple:
+def get_tuple(x : Any) -> tuple:
     """
     Converts the input to an iterable tuple.
     
@@ -141,11 +141,11 @@ def slice_by_index(sequence : Sequence,
         A list representing the values of the input sequence at the specified
         indices.
     """
-    indices_sequence = get_sequence(indices)
-    if sequence is None or indices_sequence == tuple():
+    indices_tuple = get_tuple(indices)
+    if sequence is None or indices_tuple == tuple():
         return []
-    items = itemgetter(*indices_sequence)(sequence)
-    if len(indices_sequence) == 1:
+    items = itemgetter(*indices_tuple)(sequence)
+    if len(indices_tuple) == 1:
         return [items]
     return list(items)
 

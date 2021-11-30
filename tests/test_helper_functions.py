@@ -3,7 +3,7 @@
 import pytest
 from collections.abc import Iterable
 import pandas as pd
-from monaco.helper_functions import next_power_of_2, hash_str_repeatable, is_num, length, get_sequence, slice_by_index
+from monaco.helper_functions import next_power_of_2, hash_str_repeatable, is_num, length, get_tuple, slice_by_index
 
 @pytest.mark.parametrize("num,ans", [
     (0, 0),
@@ -53,8 +53,8 @@ df = pd.DataFrame({'vals1': range(nvals), 'vals2': range(nvals)}, index = dates)
     (          df, True),
     ( df['vals1'], True),
 ])
-def test_get_sequence(val,ans):
-    assert isinstance(get_sequence(val), Iterable) == ans
+def test_get_tuple(val,ans):
+    assert isinstance(get_tuple(val), Iterable) == ans
 
 
 data = [0, 1, 2, 3, 4, 5, 6, 7, 8]
