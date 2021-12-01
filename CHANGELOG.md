@@ -25,12 +25,19 @@
 
 ## [Unreleased]
 ### Added    
-* Analysis process diagram
-* Docstrings for all classes and functions, roughly follows the [numpy docstrings convention](https://numpydoc.readthedocs.io/en/latest/format.html)
-* More unit tests
 ### Changed    
 ### Removed    
 
+
+## [0.2.0] - 2021-11-30
+### Added    
+* Documentation is now [up on readthedocs](https://monaco.readthedocs.io/en/latest/)!
+* Docstrings for all classes and functions, roughly follows the [numpy docstrings convention](https://numpydoc.readthedocs.io/en/latest/format.html)
+* Analysis process diagram
+* More unit tests
+### Changed    
+* Documentation and images were moved around.
+### Removed    
 
 ## [0.1.2] - 2021-11-15
 ### Added    
