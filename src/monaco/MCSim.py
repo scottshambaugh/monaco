@@ -893,7 +893,7 @@ class MCSim:
         filenames : set[pathlib.Path]
             The extra files.
         """
-        files = set(self.resultsdir.glob('**/.mcsim')) | set(self.resultsdir.glob('**/.mccase'))
+        files = set(self.resultsdir.glob('**/*.mcsim')) | set(self.resultsdir.glob('**/*.mccase'))
         filenames = set(file.name for file in files)
         try:
             filenames.remove(f'{self.name}.mcsim')
