@@ -29,6 +29,12 @@ psutil = "^5.0.0"
 pytest = "^6.0.0"
 coverage = "^6.0"
 mypy = "^0.800"
+sphinx = "^4.2"
+sphinx_rtd_theme = "^1.0"
+myst-parser = ">=0.15"
+
+[tool.poetry.extras]
+docs = ["sphinx", "sphinx_rtd_theme"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

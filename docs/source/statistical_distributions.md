@@ -1,8 +1,8 @@
-## [monaco](../../) - Statistical Distributions
+# Statistical Distributions
 
 This page contains a list of common probability distributions that you may want to use to disperse your inputs in a Monte-Carlo analysis. For an overview of common distributions and how they are related, start with this excellent blog post: *[Common Probability Distributions: The Data Scientist’s Crib Sheet](https://medium.com/@srowen/common-probability-distributions-347e6b945ce4)*. 
 
-### Usage
+## Usage
 
     # After having initialized your MCSim object as 'sim', 
     # create a continuous uniform random variable between 1 and 5
@@ -10,7 +10,7 @@ This page contains a list of common probability distributions that you may want 
     sim.addInVar(name='var1', dist=uniform, distkwargs={'loc':1, 'scale':4})
 
 
-### Continuous Distributions:
+## Continuous Distributions
 
 **Uniform Distribution** [[SciPy Ref](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.uniform.html), [Wikipedia](https://en.wikipedia.org/wiki/Continuous_uniform_distribution)]:     
 ```uniform(loc, scale)```, where ```loc``` is the lower bound and ```scale``` is size of the range, such that the distribution returns ```x``` from the inclusive range ```[loc, loc + scale]```.
@@ -24,7 +24,8 @@ This page contains a list of common probability distributions that you may want 
 **Exponential Distribution** [[SciPy Ref](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.expon.html), [Wikipedia](https://en.wikipedia.org/wiki/Exponential_distribution)]:     
 ```expon(scale = 1/lambda)```, where ```lambda``` is the expected rate parameter for the associated poisson process. The returned range of ```x``` is unbounded. Think of a call center which receives an average of ```lambda``` calls per minute, and this is the odds of ```x``` minutes passing between subsequent calls.
 
-### Discrete Distributions:
+## Discrete Distributions
+
 **Random Integers in Range** [[SciPy Ref](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.randint.html), [Wikipedia](https://en.wikipedia.org/wiki/Discrete_uniform_distribution)]:     
 ```randint(low, high)```, where ```low``` and ```high``` are the lower and upper bounds of the integer range. Also known as a *discrete* uniform distribution. Returns ```k``` in ```{low, ..., high - 1}```.
 
