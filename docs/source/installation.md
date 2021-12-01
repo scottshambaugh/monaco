@@ -25,6 +25,7 @@ poetry run mypy src
 
 ## Building Docs
 
+Docs will automatically [build](https://readthedocs.org/projects/monaco/) when the `main` branch is updated.
 ```
 cd docs
 poetry run make clean && poetry run make html

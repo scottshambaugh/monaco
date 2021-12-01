@@ -2,7 +2,6 @@
 
 ## Future Work
 ### Definitely
-- Set up readthedocs.io documentation
 - 2D Scatter Statistics
 - Migrate to dask as parallel processing backend
 - Run on remote server (AWS, etc)

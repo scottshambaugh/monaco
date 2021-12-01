@@ -36,7 +36,7 @@ After working through the template exercises, check out the other [examples](htt
 ### Documentation / API Reference
 [Read the docs here.](https://monaco.readthedocs.io/en/latest/)
 
-Documentation is being built up. Currently there is a complete API reference, more detailed installation instructions, an overview of the basic architecture and basic workflow, and some details on statistical distributions and sampling methods. 
+Documentation is being built up. Currently there is a complete [API reference](https://monaco.readthedocs.io/en/latest/api_reference.html), more detailed [installation, test, and publishing](https://monaco.readthedocs.io/en/latest/installation.html) instructions, an overview of the [basic architecture](https://monaco.readthedocs.io/en/latest/basic_architecture.html) and [basic workflow](https://monaco.readthedocs.io/en/latest/basic_workflow.html), and some details on [statistical distributions](https://monaco.readthedocs.io/en/latest/statistical_distributions.html) and [sampling methods](https://monaco.readthedocs.io/en/latest/sampling_methods.html). 
 
 ### License / Citation
 Copyright 2020-2021 Scott Shambaugh, distributed under [the GPLv3.0 (or later) license](LICENSE.md).    

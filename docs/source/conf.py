@@ -33,7 +33,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.linkcode",
     "sphinx_rtd_theme",
-    "myst_parser"
+    "myst_parser",
 ]
 
 source_suffix = {
