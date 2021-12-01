@@ -4,7 +4,7 @@ from monaco.MCVar import MCOutVar, MCInVar
 from monaco.MCVal import MCOutVal, MCInVal
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Union, Any
+from typing import Any
 import numpy as np
 
 class MCCase():

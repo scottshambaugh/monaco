@@ -7,15 +7,15 @@ from monaco.mc_plot import mc_plot_hist, mc_plot_2d_scatter
 from monaco.MCVar import MCInVar, MCOutVar
 from monaco.MCEnums import PlotOrientation
 from monaco.helper_functions import empty_list
-from typing import Union, Optional
+from typing import Union, Optional, Iterable
 
 
 def mc_multi_plot(mcvars   : list[Union[MCInVar, MCOutVar]],
-                  cases           : Union[None, int, list[int], set[int]] = None,
-                  highlight_cases : Union[None, int, list[int], set[int]] = empty_list(),
+                  cases           : Union[None, int, Iterable[int]] = None,
+                  highlight_cases : Union[None, int, Iterable[int]] = empty_list(),
                   rug_plot : bool   = True,
                   cov_plot : bool   = True,
-                  cov_p    : Union[None, float, list[float], set[float]] = None,
+                  cov_p    : Union[None, float, Iterable[float]] = None,
                   fig      : Figure = None, 
                   title    : str    = '',
                   ) -> tuple[Figure, tuple[Axes]]:
@@ -26,16 +26,16 @@ def mc_multi_plot(mcvars   : list[Union[MCInVar, MCOutVar]],
     ----------
     mcvars : list[{monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}]
         The variables to plot.
-    cases : Typing TODO (default: None)
+    cases : {None, int, Iterable[int]} (default: None)
         The cases to plot. If None, then all cases are plotted.
-    highlight_cases : Typing TODO (default: [])
+    highlight_cases : {None, int, Iterable[int]} (default: [])
         The cases to highlight. If [], then no cases are highlighted.
     rug_plot : bool (default: True)
         Whether to plot rug marks.
     cov_plot : bool (default: False)
         Whether to plot a covariance ellipse at a certain gaussian percentile
         level.
-    cov_p : Typing TODO (default: None)
+    cov_p : {None, float, Iterable[float]} (default: None)
         The gaussian percentiles for the covariance plot.
     fig : matplotlib.figure.Figure (default: None)
         The figure handle to plot in. If None, a new figure is created.
@@ -77,11 +77,11 @@ def mc_multi_plot(mcvars   : list[Union[MCInVar, MCOutVar]],
 
 def mc_multi_plot_2d_scatter_hist(mcvarx     : Union[MCInVar, MCOutVar], 
                                   mcvary     : Union[MCInVar, MCOutVar],
-                                  cases           : Union[None, int, list[int], set[int]] = None,
-                                  highlight_cases : Union[None, int, list[int], set[int]] = empty_list(),
+                                  cases           : Union[None, int, Iterable[int]] = None,
+                                  highlight_cases : Union[None, int, Iterable[int]] = empty_list(),
                                   rug_plot   : bool   = True,
                                   cov_plot   : bool   = True,
-                                  cov_p      : Union[None, float, list[float], set[float]] = None,
+                                  cov_p      : Union[None, float, Iterable[float]] = None,
                                   cumulative : bool   = False,
                                   fig        : Figure = None, 
                                   title      : str    = '',
@@ -96,16 +96,16 @@ def mc_multi_plot_2d_scatter_hist(mcvarx     : Union[MCInVar, MCOutVar],
         The x variable to plot.
     mcvary : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
         The y variable to plot.
-    cases : Typing TODO (default: None)
+    cases : {None, int, Iterable[int]} (default: None)
         The cases to plot. If None, then all cases are plotted.
-    highlight_cases : Typing TODO (default: [])
+    highlight_cases : {None, int, Iterable[int]} (default: [])
         The cases to highlight. If [], then no cases are highlighted.
     rug_plot : bool (default: True)
         Whether to plot rug marks.
     cov_plot : bool (default: False)
         Whether to plot a covariance ellipse at a certain gaussian percentile
         level.
-    cov_p : Typing TODO (default: None)
+    cov_p : {None, float, Iterable[float]} (default: None)
         The gaussian percentiles for the covariance plot.
     cumulative : bool (default: False)
         Whether to plot the histograms as cumulative distribution functions.
@@ -148,11 +148,11 @@ def mc_multi_plot_2d_scatter_hist(mcvarx     : Union[MCInVar, MCOutVar],
 
 
 def mc_multi_plot_2d_scatter_grid(mcvars     : list[Union[MCInVar, MCOutVar]], 
-                                  cases           : Union[None, int, list[int], set[int]] = None,
-                                  highlight_cases : Union[None, int, list[int], set[int]] = empty_list(),
+                                  cases           : Union[None, int, Iterable[int]] = None,
+                                  highlight_cases : Union[None, int, Iterable[int]] = empty_list(),
                                   rug_plot   : bool   = True,
                                   cov_plot   : bool   = True,
-                                  cov_p      : Union[None, float, list[float], set[float]] = None,
+                                  cov_p      : Union[None, float, Iterable[float]] = None,
                                   cumulative : bool   = False,
                                   fig        : Figure = None, 
                                   title      : str    = '',
@@ -166,16 +166,16 @@ def mc_multi_plot_2d_scatter_grid(mcvars     : list[Union[MCInVar, MCOutVar]],
     ----------
     mcvars : list[{monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}]
         The variables to plot.
-    cases : Typing TODO (default: None)
+    cases : {None, int, Iterable[int]} (default: None)
         The cases to plot. If None, then all cases are plotted.
-    highlight_cases : Typing TODO (default: [])
+    highlight_cases : {None, int, Iterable[int]} (default: [])
         The cases to highlight. If [], then no cases are highlighted.
     rug_plot : bool (default: True)
         Whether to plot rug marks.
     cov_plot : bool (default: False)
         Whether to plot a covariance ellipse at a certain gaussian percentile
         level.
-    cov_p : Typing TODO (default: None)
+    cov_p : {None, float, Iterable[float]} (default: None)
         The gaussian percentiles for the covariance plot.
     cumulative : bool (default: False)
         Whether to plot the histograms as cumulative distribution functions.

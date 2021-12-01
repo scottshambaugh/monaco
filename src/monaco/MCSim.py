@@ -12,7 +12,7 @@ from monaco.helper_functions import get_tuple, slice_by_index, vprint, vwarn, vw
 from psutil import cpu_count
 from pathos.pools import ThreadPool as Pool
 from tqdm import tqdm
-from typing import Callable, Union, Any
+from typing import Callable, Union, Any, Iterable
 from scipy.stats import rv_continuous, rv_discrete
 
 class MCSim:
@@ -308,19 +308,20 @@ class MCSim:
 
 
     def runSim(self,
-               cases : Union[None, int, list[int], set[int]] = None,
+               cases : Union[None, int, Iterable[int]] = None,
                ) -> None:
         """
         Run the full simulation.
 
         Parameters
         ----------
-        cases : Typing TODO
+        cases : {None, int, Iterable[int]}
             The cases to run. If None, then all cases are run.
         """
-        cases = self.downselectCases(cases=cases)
-        vprint(self.verbose, f"Running '{self.name}' Monte Carlo simulation with {len(cases)}/{self.ncases} cases...", flush=True)
-        self.runSimWorker(casestogenerate=cases, casestopreprocess=cases, casestorun=cases, casestopostprocess=cases)
+        cases_downselect = self.downselectCases(cases=cases)
+        vprint(self.verbose, f"Running '{self.name}' Monte Carlo simulation with {len(cases_downselect)}/{self.ncases} cases...", flush=True)
+        self.runSimWorker(casestogenerate=cases_downselect, casestopreprocess=cases_downselect,
+                          casestorun=cases_downselect, casestopostprocess=cases_downselect)
 
 
     def runIncompleteSim(self) -> None:
@@ -341,23 +342,23 @@ class MCSim:
 
 
     def runSimWorker(self,
-                     casestogenerate    : Union[None, int, list[int], set[int]],
-                     casestopreprocess  : Union[None, int, list[int], set[int]],
-                     casestorun         : Union[None, int, list[int], set[int]],
-                     casestopostprocess : Union[None, int, list[int], set[int]],
+                     casestogenerate    : Union[None, int, Iterable[int]],
+                     casestopreprocess  : Union[None, int, Iterable[int]],
+                     casestorun         : Union[None, int, Iterable[int]],
+                     casestopostprocess : Union[None, int, Iterable[int]],
                      ) -> None:
         """
         The worker function to run the full sim.
 
         Parameters
         ----------
-        casestogenerate : Typing TODO
+        casestogenerate : {None, int, Iterable[int]}
             The cases to generate. If None, then all cases are generated.
-        casestopreprocess : Typing TODO
+        casestopreprocess : {None, int, Iterable[int]}
             The cases to preprocess. If None, then all cases are preprocessed.
-        casestorun : Typing TODO
+        casestorun : {None, int, Iterable[int]}
             The cases to run. If None, then all cases are run.
-        casestopostprocess : Typing TODO
+        casestopostprocess : {None, int, Iterable[int]}
             The cases to postprocess. If None, then all cases are
             postprocessed.
         """
@@ -412,14 +413,14 @@ class MCSim:
 
 
     def genCases(self,
-                 cases : Union[None, int, list[int], set[int]] = None,
+                 cases : Union[None, int, Iterable[int]] = None,
                  ) -> None:
         """
         Generate all the Monte-Carlo case objects.
 
         Parameters
         ----------
-        cases : Typing TODO
+        cases : {None, int, Iterable[int]}
             The cases to generate. If None, then all cases are generated.
         """
         vprint(self.verbose, 'Generating cases...', flush=True)
@@ -428,8 +429,8 @@ class MCSim:
         if cases is None:
             self.mccases = []    
             
-        cases = self.downselectCases(cases)
-        for case in cases:
+        cases_downselect = self.downselectCases(cases)
+        for case in cases_downselect:
             ismedian = False
             if self.firstcaseismedian and case == 0:
                 ismedian = True
@@ -444,29 +445,29 @@ class MCSim:
 
 
     def preProcessCases(self,
-                        cases : Union[None, int, list[int], set[int]],
+                        cases : Union[None, int, Iterable[int]],
                         ) -> None:
         """
         Preprocess all the Monte-Carlo cases.
 
         Parameters
         ----------
-        cases : Typing TODO
+        cases : {None, int, Iterable[int]}
             The cases to preprocess. If None, then all cases are preprocessed.
         """
-        cases = self.downselectCases(cases=cases)
+        cases_downselect = self.downselectCases(cases=cases)
         
         if self.verbose:
-            self.pbar0 = tqdm(total=len(cases), desc='Preprocessing cases', unit=' cases', position=0)
+            self.pbar0 = tqdm(total=len(cases_downselect), desc='Preprocessing cases', unit=' cases', position=0)
 
         if self.cores == 1:
-            for case in cases:
+            for case in cases_downselect:
                  self.preProcessCase(mccase=self.mccases[case])
 
         else:
             p = Pool(self.cores)
             try:
-                mccases = p.imap(self.preProcessCase, slice_by_index(self.mccases, cases))
+                mccases = p.imap(self.preProcessCase, slice_by_index(self.mccases, cases_downselect))
                 mccases = list(mccases)
                 p.terminate()
                 p.restart()
@@ -515,7 +516,7 @@ class MCSim:
 
 
     def runCases(self,
-                 cases            : Union[None, int, list[int], set[int]],
+                 cases            : Union[None, int, Iterable[int]],
                  calledfromrunsim : bool = False,
                  ) -> None:
         """
@@ -523,28 +524,28 @@ class MCSim:
 
         Parameters
         ----------
-        cases : Typing TODO
+        cases : {None, int, Iterable[int]}
             The cases to run. If None, then all cases are run.
         calledfromrunsim : bool (default: False)
             Whether this was called from self.runSim(). If False, a new ID for
             this simulation run is generated.
         """
-        cases = self.downselectCases(cases=cases)
+        cases_downselect = self.downselectCases(cases=cases)
         
         if not calledfromrunsim:
             self.runsimid = self.genID()
             
         if self.verbose:
-            self.pbar1 = tqdm(total=len(cases), desc='Running cases', unit=' cases', position=0)
+            self.pbar1 = tqdm(total=len(cases_downselect), desc='Running cases', unit=' cases', position=0)
 
         if self.cores == 1:
-            for case in cases:
+            for case in cases_downselect:
                 self.runCase(mccase=self.mccases[case])
 
         else:
             p = Pool(self.cores)
             try:
-                casesrun = p.imap(self.runCase, slice_by_index(self.mccases, cases))
+                casesrun = p.imap(self.runCase, slice_by_index(self.mccases, cases_downselect))
                 casesrun = list(casesrun) # dummy function to ensure we wait for imap to finish
                 p.terminate()
                 p.restart()
@@ -605,30 +606,30 @@ class MCSim:
 
 
     def postProcessCases(self,
-                         cases : Union[None, int, list[int], set[int]],
+                         cases : Union[None, int, Iterable[int]],
                          ) -> None:
         """
         Postprocess all the Monte-Carlo cases.
 
         Parameters
         ----------
-        cases : Typing TODO
+        cases : {None, int, Iterable[int]}
             The cases to postprocess. If None, then all cases are
             postprocessed.
         """
-        cases = self.downselectCases(cases=cases)
+        cases_downselect = self.downselectCases(cases=cases)
         
         if self.verbose:
-            self.pbar2 = tqdm(total=len(cases), desc='Postprocessing cases', unit=' cases', position=0)
+            self.pbar2 = tqdm(total=len(cases_downselect), desc='Postprocessing cases', unit=' cases', position=0)
 
         if self.cores == 1:
-            for case in cases:
+            for case in cases_downselect:
                 self.postProcessCase(mccase=self.mccases[case])
 
         else:
             p = Pool(self.cores)
             try:
-                casespostprocessed = p.imap(self.postProcessCase, slice_by_index(self.mccases, cases))
+                casespostprocessed = p.imap(self.postProcessCase, slice_by_index(self.mccases, cases_downselect))
                 casespostprocessed = list(casespostprocessed) # dummy function to ensure we wait for imap to finish
                 p.terminate()
                 p.restart()
@@ -782,14 +783,14 @@ class MCSim:
 
 
     def downselectCases(self,
-                        cases : Union[None, int, list[int], set[int]] = None,
+                        cases : Union[None, int, Iterable[int]] = None,
                         ) -> set[int]:
         """
         Convert the `cases` input to a set of all the target cases.
 
         Parameters
         ----------
-        cases : Typing TODO
+        cases : {None, int, Iterable[int]}
             The cases to downselect. If None, returns all cases.
         
         Returns
