@@ -2,6 +2,11 @@ __pycache__/
 _build/
 *.py[cod]
 
+# Sphinx docs
+build/
+_static/
+_templates/
+
 # Local configs
 mypy.ini
 
@@ -13,6 +18,9 @@ dist/
 .pytest_cache/
 htmlcov/
 .coverage
+
+# VSCode
+.vscode/
 
 # MCSim Results
 *_results/
