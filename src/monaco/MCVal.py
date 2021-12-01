@@ -14,8 +14,8 @@ class MCVal(ABC):
     """
     Abstract base class to hold the data for a Monte-Carlo value. 
 
-    Init Parameters
-    ---------------
+    Parameters
+    ----------
     name : str
         The name of this value.
     ncase : int
@@ -46,8 +46,8 @@ class MCInVal(MCVal):
     """
     A Monte-Carlo input value. 
 
-    Init Parameters
-    ---------------
+    Parameters
+    ----------
     name : str
         The name of this value.
     ncase : int
@@ -58,13 +58,13 @@ class MCInVal(MCVal):
         The number corresponding to the statistical percentile draw.
     dist : Union[scipy.stats.rv_discrete, scipy.stats.rv_continuous]
         The statistical distribution that `num` was drawn from.
-    nummap : dict (default: None)
+    nummap : dict, default: None
         A dictionary mapping numbers to nonnumeric values.
-    ismedian : bool (default: False)
+    ismedian : bool, default: False
         Whether this case represents the median case,
     
-    Other Parameters
-    ----------------
+    Attributes
+    ----------
     val : Any
         The value corresponding to the drawn number. If `nummap` is None, then
         this is equal to `num`.
@@ -124,21 +124,21 @@ class MCOutVal(MCVal):
     """
     A Monte-Carlo output value. 
 
-    Init Parameters
-    ---------------
+    Parameters
+    ----------
     name : str
         The name of this value.
     ncase : int
         The number of the case for this value.
     val : float
         The output value.
-    valmap : dict (default: None)
+    valmap : dict, default: None
         A dictionary mapping nonnumeric values to numbers.
-    ismedian : bool (default: False)
+    ismedian : bool, default: False
         Whether this case represents the median case,
     
-    Other Parameters
-    ----------------
+    Attributes
+    ----------
     num : Any
         A number corresponding to the output value. If `valmap` is None and val
         is nonnumeric, then will be an integer as assigned by extractValMap().

@@ -11,8 +11,8 @@ class MCCase():
     """
     Object to hold all the data for a single Monte-Carlo case. 
 
-    Init Parameters
-    ---------------
+    Parameters
+    ----------
     ncase : int
         The number of this case.
     ismedian : bool
@@ -25,8 +25,8 @@ class MCCase():
         The random seed to pass to the run function for this case. Not used in
         as part of any Monte-Carlo sampling.
     
-    Other Parameters
-    ----------------
+    Attributes
+    ----------
     starttime : datetime.datetime
         Timestamp for when this case started running.
     endtime : datetime.datetime

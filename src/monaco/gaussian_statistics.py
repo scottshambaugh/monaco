@@ -81,8 +81,8 @@ def conf_ellipsoid_pct2sig(p  : float,
     Converts a percentile to a sigma value which bounds a df-dimensional 
     gaussian distribution, used in generating confidence ellipsoids. Note
     that in the 1-D case, np.sqrt(scipy.stats.chi2.ppf(p, df=1)) is 
-    equivalent to pct2sig(p >= 0.5, bound = '2-sided') 
-                  = scipy.stats.norm.ppf(1-(1-p)/2)
+    equivalent to pct2sig(p >= 0.5, bound = '2-sided') ==
+    scipy.stats.norm.ppf(1-(1-p)/2)
     
     Parameters
     ----------

@@ -151,7 +151,7 @@ def slice_by_index(sequence : Sequence,
 
 def vprint(verbose : bool, *args, **kwargs) -> None:
     """
-    Print only if verbose == True.
+    Print only if verbose is True.
     
     Parameters
     ----------
@@ -173,7 +173,7 @@ def warn_short_format(message, category, filename, lineno, file=None, line=None)
 
 def vwarn(verbose : bool, *args, **kwargs) -> None:
     """
-    Warn only if verbose == True.
+    Warn only if verbose is True.
     
     Parameters
     ----------
@@ -191,7 +191,7 @@ def vwarn(verbose : bool, *args, **kwargs) -> None:
 
 def vwrite(verbose : bool, *args, **kwargs) -> None:
     """
-    Perform a tqdm.write() only if verbose == True.
+    Perform a tqdm.write() only if verbose is True.
     
     Parameters
     ----------

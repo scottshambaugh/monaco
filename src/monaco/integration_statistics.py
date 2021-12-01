@@ -43,7 +43,7 @@ def integration_error(nums         : list[float],
     -------
     error : {float, np.ndarray}
         Either a point estimate of the error if runningerror == False, or an
-        array of the running error if runningerror == True.
+        array of the running error if runningerror is True.
     """
     integration_args_check(error=None, dimension=dimension, volume=volume, stdev=None, conf=conf, samplemethod=samplemethod)
 

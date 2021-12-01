@@ -19,8 +19,8 @@ class MCVar(ABC):
     """
     Abstract base class to hold the data for a Monte-Carlo variable. 
 
-    Init Parameters
-    ---------------
+    Parameters
+    ----------
     name : str
         The name of this value.
     ndraws : int
@@ -123,8 +123,8 @@ class MCInVar(MCVar):
     """
     A Monte-Carlo input variable. 
 
-    Init Parameters
-    ---------------
+    Parameters
+    ----------
     name : str
         The name of this variable.
     ndraws : int
@@ -136,19 +136,19 @@ class MCInVar(MCVar):
     nummap : dict
         A dictionary mapping numbers to nonnumeric values (the inverse of
         `valmap`).
-    samplemethod : monaco.MCEnums.SampleMethod (default: 'sobol_random')
+    samplemethod : monaco.MCEnums.SampleMethod, default: 'sobol_random'
         The random sampling method to use.
     ninvar : int
         The number of the input variable this is.
-    seed : int (default: a new random seed)
+    seed : int, default: np.random.get_state(legacy=False)['state']['key'][0]
         The random seed for drawing this variable.
-    firstcaseismedian : bool (default: False)
+    firstcaseismedian : bool, default: False
         Whether the first case represents the median case.
-    autodraw : bool (default: True)
+    autodraw : bool, default: True
         Whether to draw the random values when this variable is created.
 
-    Other Parameters
-    ----------------
+    Attributes
+    ----------
     isscalar : bool
         Whether this is a scalar variable. Alway True for an input variable.
     size : tuple[int]
@@ -341,21 +341,21 @@ class MCOutVar(MCVar):
     """
     A Monte-Carlo output variable. 
 
-    Init Parameters
-    ---------------
+    Parameters
+    ----------
     name : str
         The name of this value.
     vals : list[Any]
         The values returned from the simulation.
-    valmap : dict (default: None)
+    valmap : dict, default: None
         A dictionary mapping nonnumeric values to numbers.
     ndraws : int
         The number of random draws.
-    firstcaseismedian : bool (default: False)
+    firstcaseismedian : bool, default: False
         Whether the first case represents the median case.
 
-    Other Parameters
-    ----------------
+    Attributes
+    ----------
     isscalar : bool
         Whether this is a scalar variable. Alway True for an input variable.
     size : tuple[int]

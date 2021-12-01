@@ -3,11 +3,6 @@
 import scipy.stats
 import numpy as np
 from monaco.MCEnums import StatBound
-"""
-Reference:
-Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A Guide for 
-    Practitioners." Germany, Wiley, 1991.
-"""
 
 
 def order_stat_TI_n(k     : int, 
@@ -20,6 +15,8 @@ def order_stat_TI_n(k     : int,
     For an Order Statistic Tolerance Interval, find the minimum n from k, p,
     and c
 
+    Notes
+    -----
     This function returns the number of cases n necessary to say that the true
     result of a measurement x will be bounded by the k'th order statistic with
     a probability p and confidence c. Variables l and u below indicate lower
@@ -36,8 +33,7 @@ def order_stat_TI_n(k     : int,
     bound='2-sided', then n = 668, and we can say that the true measurement lies
     between sorted(x)[1] and sorted(x)[-2] with P99/90.
     
-    See chapter 5 of Reference at the top of this file for statistical
-    background.
+    See chapter 5 of Reference [1]_ for statistical background.
 
     Parameters
     ----------
@@ -47,15 +43,20 @@ def order_stat_TI_n(k     : int,
         The percent covered by the tolerance interval.
     c : float (0 < c < 1)
         The confidence of the interval bound.
-    nmax : int (default: 1e7)
+    nmax : int, default: 1e7
         The maximum number of draws. Hard limit of 2**1000.
-    bound : monaco.MCEnums.StatBound (default: '2-sided')
+    bound : monaco.MCEnums.StatBound, default: '2-sided'
         The statistical bound, either '1-sided' or '2-sided'.
     
     Returns
     -------
     n : int
         The number of samples necessary to meet the constraints.
+    
+    References
+    ----------
+    .. [1] Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A
+       Guide for Practitioners." Germany, Wiley, 1991.
     """
     order_stat_var_check(p=p, k=k, c=c, nmax=nmax)
     
@@ -106,9 +107,9 @@ def order_stat_TI_p(n     : int,
         The k'th order statistic.
     c : float (0 < c < 1)
         The confidence of the interval bound.
-    ptol : float (default: 1e-9)
+    ptol : float, default: 1e-9
         The absolute tolerance on determining p.
-    bound : monaco.MCEnums.StatBound (default: '2-sided')
+    bound : monaco.MCEnums.StatBound, default: '2-sided'
         The statistical bound, either '1-sided' or '2-sided'.
     
     Returns
@@ -161,7 +162,7 @@ def order_stat_TI_k(n     : int,
         The percent covered by the tolerance interval.
     c : float (0 < c < 1)
         The confidence of the interval bound.
-    bound : monaco.MCEnums.StatBound (default: '2-sided')
+    bound : monaco.MCEnums.StatBound, default: '2-sided'
         The statistical bound, either '1-sided' or '2-sided'.
     
     Returns
@@ -221,7 +222,7 @@ def order_stat_TI_c(n     : int,
         The k'th order statistic.
     p : float (0 < p < 1)
         The percent covered by the tolerance interval.
-    bound : monaco.MCEnums.StatBound (default: '2-sided')
+    bound : monaco.MCEnums.StatBound, default: '2-sided'
         The statistical bound, either '1-sided' or '2-sided'.
     
     Returns
@@ -254,6 +255,8 @@ def order_stat_P_n(k     : int,
     """
     Order Statistic Percentile, find minimum n from k, P, and c.
 
+    Notes
+    -----
     This function returns the number of cases n necessary to say that the true 
     Pth percentile located at or between indices iPl and iPu of a measurement x
     will be bounded by the k'th order statistic with confidence c. 
@@ -263,16 +266,15 @@ def order_stat_P_n(k     : int,
         n = order_stat_P_n(k=5, P=0.50, c=0.90, bound='2-sided') = 38
         iPl = np.floor(P*(n + 1)) = 19
         iPu = np.ceil(P*(n + 1)) = 20
-    The 19-5 = 14th and 20+5= 25th values of x when sorted from low to high, 
-    or [sorted(x)[13], sorted(x)[24]] will bound the 50th percentile with 90%
-    confidence. 
+    The 19-5 = 14th and 20+5= 25th values of x when sorted from low to high, or
+    [sorted(x)[13], sorted(x)[24]] will bound the 50th percentile with 90%
+    confidence.
     
     '2-sided' gives the upper and lower bounds. '1-sided lower' and 
     '1-sided upper' give the respective lower or upper bound of the Pth 
     percentile over the entire rest of the distribution. 
     
-    See chapter 5 of Reference at the top of this file for statistical 
-    background.
+    See chapter 5 of Reference [1]_ for statistical background.
 
     Parameters
     ----------
@@ -282,15 +284,20 @@ def order_stat_P_n(k     : int,
         The target percentile.
     c : float (0 < c < 1)
         The confidence of the interval bound.
-    nmax : int (default: 1e7)
+    nmax : int, default: 1e7
         The maximum number of draws. Hard limit of 2**1000.
-    bound : monaco.MCEnums.StatBound (default: '2-sided')
+    bound : monaco.MCEnums.StatBound, default: '2-sided'
         The statistical bound, '1-sided upper', '1-sided lower', or '2-sided'.
     
     Returns
     -------
     n : int
         The number of samples necessary to meet the constraints.
+
+    References
+    ----------
+    .. [1] Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A
+       Guide for Practitioners." Germany, Wiley, 1991.
     """
     order_stat_var_check(p=P, k=k, c=c, nmax=nmax)
     
@@ -360,9 +367,9 @@ def order_stat_P_k(n     : int,
         The target percentile.
     c : float (0 < c < 1)
         The confidence of the interval bound.
-    ptol : float (default: 1e-9)
+    ptol : float, default: 1e-9
         The absolute tolerance on determining p.
-    bound : monaco.MCEnums.StatBound (default: '2-sided')
+    bound : monaco.MCEnums.StatBound, default: '2-sided'
         The statistical bound, '1-sided upper', '1-sided lower', or '2-sided'.
     
     Returns
@@ -441,7 +448,7 @@ def order_stat_P_c(n     : int,
         The k'th order statistic.
     P : float (0 < P < 1)
         The target percentile.
-    bound : monaco.MCEnums.StatBound (default: '2-sided')
+    bound : monaco.MCEnums.StatBound, default: '2-sided'
         The statistical bound, '1-sided upper', '1-sided lower', or '2-sided'.
     
     Returns

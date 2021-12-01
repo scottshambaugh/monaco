@@ -19,8 +19,8 @@ class MCSim:
     """
     The main Monte-Carlo Simulation object. 
 
-    Init Parameters
-    ---------------
+    Parameters
+    ----------
     name : str
         The name for the simulation.
     ndraws : int
@@ -30,35 +30,35 @@ class MCSim:
         These point to user-defined functions with certain input and output
         structures, please see the documentation on how to construct these
         functions.
-    firstcaseismedian : bool (default: False)
+    firstcaseismedian : bool, default: False
         Whether the first case represents the median value.
-    samplemethod : monaco.MCEnums.SampleMethod (default: 'sobol_random')
+    samplemethod : monaco.MCEnums.SampleMethod, default: 'sobol_random'
         The random sampling method to use.
-    seed : int (default: new random number)
+    seed : int, default: np.random.get_state(legacy=False)['state']['key'][0]
         The random number to seed the simulation.
-    cores : int (default: psutil.cpu_count(logical=False))
+    cores : int, default: psutil.cpu_count(logical=False)
         The number of cores to use for running the simulation. Defaults to the
         number of physical cores on the machine.
-    verbose : bool (default: True)
+    verbose : bool, default: True
         Whether to print out warning and status messages.
-    debug : bool (default: False)
+    debug : bool, default: False
         If False, cases that fail while running will be skipped over. If True,
         cases that fail will raise an exception.
-    savesimdata : bool (default: True)
-        Whether to save the simulation data to disk as a *.mcsim file.
-    savecasedata : bool (default: True)
-        Whether to save the full output data for each case to disk as *.mccase
+    savesimdata : bool, default: True
+        Whether to save the simulation data to disk as a .mcsim file.
+    savecasedata : bool, default: True
+        Whether to save the full output data for each case to disk as .mccase
         files.
     resultsdir : {str, pathlib.Path}
         The directory to save simulation and case data to. If None, then this
         defaults to a directory named '`name`_results'.
     
-    Other Parameters
-    ----------------
+    Attributes
+    ----------
     rootdir : pathlib.Path
         The directory the simulation was run in.
     filepath : pathlib.Path
-        The filepath to the simulation *.mcsim datafile.
+        The filepath to the simulation .mcsim datafile.
     invarseeds : list[int]
         The random seeds for each of the input variables.
     caseseeds : list[int]
@@ -526,7 +526,7 @@ class MCSim:
         ----------
         cases : {None, int, Iterable[int]}
             The cases to run. If None, then all cases are run.
-        calledfromrunsim : bool (default: False)
+        calledfromrunsim : bool, default: False
             Whether this was called from self.runSim(). If False, a new ID for
             this simulation run is generated.
         """
@@ -819,7 +819,7 @@ class MCSim:
 
 
     def saveSimToFile(self) -> None:
-        """Save the simulation to a *.mcsim file"""
+        """Save the simulation to a .mcsim file"""
         if self.savesimdata:
             self.filepath.unlink(missing_ok = True)
             self.filepath.touch()
@@ -885,7 +885,7 @@ class MCSim:
 
     def findExtraResultsFiles(self):
         """
-        Find *.mcsim and *.mccase files that we don't expect to see in the
+        Find .mcsim and .mccase files that we don't expect to see in the
         results directory.
 
         Returns
@@ -893,7 +893,7 @@ class MCSim:
         filenames : set[pathlib.Path]
             The extra files.
         """
-        files = set(self.resultsdir.glob('**/*.mcsim')) | set(self.resultsdir.glob('**/*.mccase'))
+        files = set(self.resultsdir.glob('**/.mcsim')) | set(self.resultsdir.glob('**/.mccase'))
         filenames = set(file.name for file in files)
         try:
             filenames.remove(f'{self.name}.mcsim')
@@ -910,7 +910,7 @@ class MCSim:
 
     def removeExtraResultsFiles(self) -> None:
         """
-        Delete all unexpected *.mcsim and *.mccase files in the results
+        Delete all unexpected .mcsim and .mccase files in the results
         directory.
         """
         extrafiles = self.findExtraResultsFiles()

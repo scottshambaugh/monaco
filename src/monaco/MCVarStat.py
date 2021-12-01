@@ -21,8 +21,8 @@ class MCVarStat:
     """
     A variable statistic for a Monte-Carlo variable.
 
-    Input Parameters
-    ----------------
+    Parameters
+    ----------
     mcvar : monaco.MCVar.MCVar
         The variable to generate statistics for.
     stattype : monaco.MCEnums.VarStat
@@ -32,8 +32,8 @@ class MCVarStat:
     name : str
         The name of this variable statistic.
 
-    Other Parameters
-    ----------------
+    Attributes
+    ----------
     nums : numpy.array
         The output of the variable statistic function applied to `mcvar.nums`
     vals : list[Any]

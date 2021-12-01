@@ -26,20 +26,20 @@ def mc_multi_plot(mcvars   : list[Union[MCInVar, MCOutVar]],
     ----------
     mcvars : list[{monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}]
         The variables to plot.
-    cases : {None, int, Iterable[int]} (default: None)
+    cases : {None, int, Iterable[int]}, default: None
         The cases to plot. If None, then all cases are plotted.
-    highlight_cases : {None, int, Iterable[int]} (default: [])
+    highlight_cases : {None, int, Iterable[int]}, default: []
         The cases to highlight. If [], then no cases are highlighted.
-    rug_plot : bool (default: True)
+    rug_plot : bool, default: True
         Whether to plot rug marks.
-    cov_plot : bool (default: False)
+    cov_plot : bool, default: False
         Whether to plot a covariance ellipse at a certain gaussian percentile
         level.
-    cov_p : {None, float, Iterable[float]} (default: None)
+    cov_p : {None, float, Iterable[float]}, default: None
         The gaussian percentiles for the covariance plot.
-    fig : matplotlib.figure.Figure (default: None)
+    fig : matplotlib.figure.Figure, default: None
         The figure handle to plot in. If None, a new figure is created.
-    title : str (default: '')
+    title : str, default: ''
         The figure title.
     
     Returns
@@ -96,22 +96,22 @@ def mc_multi_plot_2d_scatter_hist(mcvarx     : Union[MCInVar, MCOutVar],
         The x variable to plot.
     mcvary : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
         The y variable to plot.
-    cases : {None, int, Iterable[int]} (default: None)
+    cases : {None, int, Iterable[int]}, default: None
         The cases to plot. If None, then all cases are plotted.
-    highlight_cases : {None, int, Iterable[int]} (default: [])
+    highlight_cases : {None, int, Iterable[int]}, default: []
         The cases to highlight. If [], then no cases are highlighted.
-    rug_plot : bool (default: True)
+    rug_plot : bool, default: True
         Whether to plot rug marks.
-    cov_plot : bool (default: False)
+    cov_plot : bool, default: False
         Whether to plot a covariance ellipse at a certain gaussian percentile
         level.
-    cov_p : {None, float, Iterable[float]} (default: None)
+    cov_p : {None, float, Iterable[float]}, default: None
         The gaussian percentiles for the covariance plot.
-    cumulative : bool (default: False)
+    cumulative : bool, default: False
         Whether to plot the histograms as cumulative distribution functions.
-    fig : matplotlib.figure.Figure (default: None)
+    fig : matplotlib.figure.Figure, default: None
         The figure handle to plot in. If None, a new figure is created.
-    title : str (default: '')
+    title : str, default: ''
         The figure title.
     
     Returns
@@ -166,22 +166,22 @@ def mc_multi_plot_2d_scatter_grid(mcvars     : list[Union[MCInVar, MCOutVar]],
     ----------
     mcvars : list[{monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}]
         The variables to plot.
-    cases : {None, int, Iterable[int]} (default: None)
+    cases : {None, int, Iterable[int]}, default: None
         The cases to plot. If None, then all cases are plotted.
-    highlight_cases : {None, int, Iterable[int]} (default: [])
+    highlight_cases : {None, int, Iterable[int]}, default: []
         The cases to highlight. If [], then no cases are highlighted.
-    rug_plot : bool (default: True)
+    rug_plot : bool, default: True
         Whether to plot rug marks.
-    cov_plot : bool (default: False)
+    cov_plot : bool, default: False
         Whether to plot a covariance ellipse at a certain gaussian percentile
         level.
-    cov_p : {None, float, Iterable[float]} (default: None)
+    cov_p : {None, float, Iterable[float]}, default: None
         The gaussian percentiles for the covariance plot.
-    cumulative : bool (default: False)
+    cumulative : bool, default: False
         Whether to plot the histograms as cumulative distribution functions.
-    fig : matplotlib.figure.Figure (default: None)
+    fig : matplotlib.figure.Figure, default: None
         The figure handle to plot in. If None, a new figure is created.
-    title : str (default: '')
+    title : str, default: ''
         The figure title.
     
     Returns

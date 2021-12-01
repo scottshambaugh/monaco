@@ -36,24 +36,24 @@ def mc_plot(mcvarx   : Union[MCInVar, MCOutVar],
     ----------
     mcvarx : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
         The x variable to plot.
-    mcvary : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar} (default: None)
+    mcvary : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}, default: None
         The y variable to plot.
-    mcvarz : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar} (default: None)
+    mcvarz : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}, default: None
         The z variable to plot.
-    cases : {None, int, Iterable[int]} (default: None)
+    cases : {None, int, Iterable[int]}, default: None
         The cases to plot. If None, then all cases are plotted.
-    highlight_cases : {None, int, Iterable[int]} (default: [])
+    highlight_cases : {None, int, Iterable[int]}, default: []
         The cases to highlight. If [], then no cases are highlighted.
-    rug_plot : bool (default: True)
+    rug_plot : bool, default: True
         Whether to plot rug marks.
-    cov_plot : bool (default: False)
+    cov_plot : bool, default: False
         Whether to plot a covariance ellipse at a certain gaussian percentile
         level.
-    cov_p : {None, float, Iterable[float]} (default: None)
+    cov_p : {None, float, Iterable[float]}, default: None
         The gaussian percentiles for the covariance plot.
-    ax : matplotlib.axes.Axes (default: None)
+    ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
-    title : str (default: '')
+    title : str, default: ''
         The figure title.
     
     Returns
@@ -146,17 +146,17 @@ def mc_plot_hist(mcvar       : Union[MCInVar, MCOutVar],
     ----------
     mcvar : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
         The variable to plot.
-    highlight_cases : {None, int, Iterable[int]} (default: [])
+    highlight_cases : {None, int, Iterable[int]}, default: []
         The cases to highlight. If [], then no cases are highlighted.
-    cumulative : bool (default: False)
+    cumulative : bool, default: False
         Whether to plot the histograms as cumulative distribution functions.
-    orientation : monaco.MCEnums.PlotOrientation (default: 'vertical')
+    orientation : monaco.MCEnums.PlotOrientation, default: 'vertical'
         The orientation of the histogram. Either 'vertical' or 'horizontal'.
-    rug_plot : bool (default: True)
+    rug_plot : bool, default: True
         Whether to plot rug marks.
-    ax : matplotlib.axes.Axes (default: None)
+    ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
-    title : str (default: '')
+    title : str, default: ''
         The figure title.
     
     Returns
@@ -272,15 +272,15 @@ def mc_plot_cdf(mcvar       : Union[MCInVar, MCOutVar],
     ----------
     mcvar : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
         The variable to plot.
-    highlight_cases : {None, int, Iterable[int]} (default: [])
+    highlight_cases : {None, int, Iterable[int]}, default: []
         The cases to highlight. If [], then no cases are highlighted.
-    orientation : monaco.MCEnums.PlotOrientation (default: 'vertical')
+    orientation : monaco.MCEnums.PlotOrientation, default: 'vertical'
         The orientation of the histogram. Either 'vertical' or 'horizontal'.
-    rug_plot : bool (default: True)
+    rug_plot : bool, default: True
         Whether to plot rug marks.
-    ax : matplotlib.axes.Axes (default: None)
+    ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
-    title : str (default: '')
+    title : str, default: ''
         The figure title.
     
     Returns
@@ -312,20 +312,20 @@ def mc_plot_2d_scatter(mcvarx   : Union[MCInVar, MCOutVar],
         The x variable to plot.
     mcvary : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
         The y variable to plot.
-    cases : {None, int, Iterable[int]} (default: None)
+    cases : {None, int, Iterable[int]}, default: None
         The cases to plot. If None, then all cases are highlighted.
-    highlight_cases : {None, int, Iterable[int]} (default: [])
+    highlight_cases : {None, int, Iterable[int]}, default: []
         The cases to highlight. If [], then no cases are highlighted.
-    rug_plot : bool (default: True)
+    rug_plot : bool, default: True
         Whether to plot rug marks.
-    cov_plot : bool (default: False)
+    cov_plot : bool, default: False
         Whether to plot a covariance ellipse at a certain gaussian percentile
         level.
-    cov_p : {None, float, Iterable[float]} (default: None)
+    cov_p : {None, float, Iterable[float]}, default: None
         The gaussian percentiles for the covariance plot.
-    ax : matplotlib.axes.Axes (default: None)
+    ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
-    title : str (default: '')
+    title : str, default: ''
         The figure title.
     
     Returns
@@ -381,13 +381,13 @@ def mc_plot_2d_line(mcvarx : Union[MCInVar, MCOutVar],
         The x variable to plot.
     mcvary : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
         The y variable to plot.
-    cases : {None, int, Iterable[int]} (default: None)
+    cases : {None, int, Iterable[int]}, default: None
         The cases to plot. If None, then all cases are highlighted.
-    highlight_cases : {None, int, Iterable[int]} (default: [])
+    highlight_cases : {None, int, Iterable[int]}, default: []
         The cases to highlight. If [], then no cases are highlighted.
-    ax : matplotlib.axes.Axes (default: None)
+    ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
-    title : str (default: '')
+    title : str, default: ''
         The figure title.
     
     Returns
@@ -442,13 +442,13 @@ def mc_plot_3d_scatter(mcvarx : Union[MCInVar, MCOutVar],
         The y variable to plot.
     mcvarz : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
         The z variable to plot.
-    cases : {None, int, Iterable[int]} (default: None)
+    cases : {None, int, Iterable[int]}, default: None
         The cases to plot. If None, then all cases are highlighted.
-    highlight_cases : {None, int, Iterable[int]} (default: [])
+    highlight_cases : {None, int, Iterable[int]}, default: []
         The cases to highlight. If [], then no cases are highlighted.
-    ax : matplotlib.axes.Axes (default: None)
+    ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
-    title : str (default: '')
+    title : str, default: ''
         The figure title.
     
     Returns
@@ -498,13 +498,13 @@ def mc_plot_3d_line(mcvarx : Union[MCInVar, MCOutVar],
         The y variable to plot.
     mcvarz : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
         The z variable to plot.
-    cases : {None, int, Iterable[int]} (default: None)
+    cases : {None, int, Iterable[int]}, default: None
         The cases to plot. If None, then all cases are highlighted.
-    highlight_cases : {None, int, Iterable[int]} (default: [])
+    highlight_cases : {None, int, Iterable[int]}, default: []
         The cases to highlight. If [], then no cases are highlighted.
-    ax : matplotlib.axes.Axes (default: None)
+    ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
-    title : str (default: '')
+    title : str, default: ''
         The figure title.
     
     Returns
@@ -547,9 +547,9 @@ def mc_plot_cov_corr(matrix    : np.ndarray,
         The covariance or correlation matrix.
     varnames : list[str]
         A list of the variable names.
-    ax : matplotlib.axes.Axes (default: None)
+    ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
-    title : str (default: '')
+    title : str, default: ''
         The figure title.
     
     Returns
@@ -615,15 +615,15 @@ def mc_plot_integration_convergence(mcoutvar     : MCOutVar,
         The number of dimensions over which the integration was performed.
     volume : float
         The total integration volume.
-    refval : float (default: None)
+    refval : float, default: None
         If known a-priori, the reference value for the integration.
-    conf : float (default: 0.95)
+    conf : float, default: 0.95
         The confidence level for the error estimate. 0.95 corresponds to 95%.
     samplemethod : monaco.MCEnums.SampleMethod
         The sample method used for integration. Either 'random' or 'sobol'.
-    ax : matplotlib.axes.Axes (default: None)
+    ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
-    title : str (default: '')
+    title : str, default: ''
         The figure title.
     
     Returns
@@ -675,13 +675,13 @@ def mc_plot_integration_error(mcoutvar     : MCOutVar,
         The total integration volume.
     refval : float
         The reference value for the integration.
-    conf : float (default: 0.95)
+    conf : float, default: 0.95
         The confidence level for the error estimate. 0.95 corresponds to 95%.
     samplemethod : monaco.MCEnums.SampleMethod
         The sample method used for integration. Either 'random' or 'sobol'.
-    ax : matplotlib.axes.Axes (default: None)
+    ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
-    title : str (default: '')
+    title : str, default: ''
         The figure title.
     
     Returns
@@ -716,7 +716,7 @@ def manage_axis(ax   : Optional[Axes],
     ----------
     ax : matplotlib.axes.Axes
         The target axis. If None, a new figure is created.
-    is3d : bool (default: False)
+    is3d : bool, default: False
         If creating a new figure, whether the plot is a 3D plot.
     
     Returns
@@ -750,11 +750,11 @@ def apply_category_labels(ax : Axes,
     ----------
     ax : matplotlib.axes.Axes
         The target axis.
-    mcvarx : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar} (default: None)
+    mcvarx : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}, default: None
         The x variable.
-    mcvary : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar} (default: None)
+    mcvary : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}, default: None
         The y variable.
-    mcvarz : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar} (default: None)
+    mcvarz : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}, default: None
         The z variable.
     """
     # Wrapped in try statements in case some categories aren't printable
