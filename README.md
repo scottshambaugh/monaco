@@ -30,7 +30,7 @@ First, install `monaco` using `pip`:
 ```
 pip install monaco
 ```
-Then, copy the two files from the [template directory](https://github.com/scottshambaugh/monaco/tree/main/template), which contains a simple, well commented Monte Carlo simulation of flipping coins. That link also contains some exercises for you to do, to help you familiarize yourself with how `monaco` is structured.     
+Then, copy the two files from the [template directory](https://github.com/scottshambaugh/monaco/main/template), which contains a simple, well commented Monte Carlo simulation of flipping coins. That link also contains some exercises for you to do, to help you familiarize yourself with how `monaco` is structured.     
 After working through the template exercises, check out the other [examples](https://github.com/scottshambaugh/monaco/tree/main/examples) for inspiration and more in-depth usage of `monaco`'s features.
 
 ### Documentation / API Reference

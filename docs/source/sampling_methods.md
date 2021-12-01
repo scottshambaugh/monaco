@@ -33,23 +33,23 @@ What sampling method should you use? ```sobol_random``` has been shown in litera
 For integration, random sampling will converge at a big O rate of <img src="https://render.githubusercontent.com/render/math?math=O(\frac{1}{\sqrt{n}})">, while sobol sampling over *d* dimensions will eventually converge at the faster <img src="https://render.githubusercontent.com/render/math?math=O(\frac{\log(n)^d}{n})">. However, the *n* required to reach this convergence rate grows superexponentially with *d*, and for integrals larger than 3 dimensions sobol sampling will generally perform no better than random. So, if *d ≥ 4*, it is recommended to use random sampling for the speedup. Here are the error plots for a 2-D integral of the unit circle (which converges to π).
 
 <p float="left" align="center">
-<img width="440" height="300" src="https://raw.githubusercontent.com/scottshambaugh/monaco/tree/main/docs/images/random_vs_sobol_convergence.png">
-<img width="440" height="300" src="https://raw.githubusercontent.com/scottshambaugh/monaco/tree/main/docs/images/random_vs_sobol_error.png">
+<img width="440" height="300" src="https://raw.githubusercontent.com/scottshambaugh/monaco/main/docs/images/random_vs_sobol_convergence.png">
+<img width="440" height="300" src="https://raw.githubusercontent.com/scottshambaugh/monaco/main/docs/images/random_vs_sobol_error.png">
 </p>
 
 ### Comparison Plots
 <p float="left" align="center">
-<img width="768" height="240" src="https://raw.githubusercontent.com/scottshambaugh/monaco/tree/main/docs/images/random_sampling.png">  
+<img width="768" height="240" src="https://raw.githubusercontent.com/scottshambaugh/monaco/main/docs/images/random_sampling.png">  
 </br>
-<img width="768" height="240" src="https://raw.githubusercontent.com/scottshambaugh/monaco/tree/main/docs/images/sobol_sampling.png">
+<img width="768" height="240" src="https://raw.githubusercontent.com/scottshambaugh/monaco/main/docs/images/sobol_sampling.png">
 </br>
-<img width="768" height="240" src="https://raw.githubusercontent.com/scottshambaugh/monaco/tree/main/docs/images/sobol_random_sampling.png">
+<img width="768" height="240" src="https://raw.githubusercontent.com/scottshambaugh/monaco/main/docs/images/sobol_random_sampling.png">
 </br>
-<img width="768" height="240" src="https://raw.githubusercontent.com/scottshambaugh/monaco/tree/main/docs/images/halton_sampling.png">
+<img width="768" height="240" src="https://raw.githubusercontent.com/scottshambaugh/monaco/main/docs/images/halton_sampling.png">
 </br>
-<img width="768" height="240" src="https://raw.githubusercontent.com/scottshambaugh/monaco/tree/main/docs/images/halton_random_sampling.png">
+<img width="768" height="240" src="https://raw.githubusercontent.com/scottshambaugh/monaco/main/docs/images/halton_random_sampling.png">
 </br>
-<img width="768" height="240" src="https://raw.githubusercontent.com/scottshambaugh/monaco/tree/main/docs/images/latin_hypercube_sampling.png">
+<img width="768" height="240" src="https://raw.githubusercontent.com/scottshambaugh/monaco/main/docs/images/latin_hypercube_sampling.png">
 </p>
 
 ### Further Reading
