@@ -8,11 +8,13 @@ import os
 from tests.mcsim_testing_fcns import fcns
 
 ndraws = 16
-seed=12362398
+seed = 12362398
 
 @pytest.fixture
 def mcsim(tmp_path):
-    mcsim = MCSim(name='mcsim_io_test', ndraws=ndraws, fcns=fcns(), firstcaseismedian=False, seed=seed, cores=2, verbose=True, resultsdir=tmp_path)
+    mcsim = MCSim(name='mcsim_io_test', ndraws=ndraws, fcns=fcns(),
+                  firstcaseismedian=False, seed=seed, cores=2, verbose=True,
+                  resultsdir=tmp_path)
     mcsim.runSim()
     return mcsim
 
@@ -28,7 +30,7 @@ def mcsim_without_1_2(mcsim):
 
 @pytest.fixture
 def mcsim_with_extra_files(mcsim):
-    for filename in ('dummyfile.mcsim', 'dummyfile.mccase','dummyfile.txt'):
+    for filename in ('dummyfile.mcsim', 'dummyfile.mccase', 'dummyfile.txt'):
         with open(mcsim.resultsdir / filename, 'wb'):
             pass
     return mcsim
@@ -45,18 +47,20 @@ def test_mcsim_load_partial(mcsim_without_1_2):
 
 def test_mcsim_run_partial(mcsim_without_1_2):
     (mcsim, log) = mcsim_without_1_2
-    mcsim.runSim([1,2])
+    mcsim.runSim([1, 2])
     assert mcsim.casesrun == set(range(ndraws))
     assert mcsim.casespostprocessed == set(range(ndraws))
 
 
 def test_mcsim_load_stale(mcsim_without_1_2):
     (mcsim, log) = mcsim_without_1_2
-    mcsim.runSim([1,2])
+    mcsim.runSim([1, 2])
     with open(mcsim.resultsdir / 'mcsim_io_test.mcsim', 'rb') as file:
         with pytest.warns(UserWarning) as log:
             dill.load(file)
-            assert 'The following cases were loaded but may be stale: [0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]' in log[-1].message.args[0]
+            expectedwarning = 'The following cases were loaded but may be stale: ' + \
+                              '[0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]'
+            assert expectedwarning in log[-1].message.args[0]
 
 
 def test_mcsim_run_incomplete(mcsim_without_1_2):
@@ -68,7 +72,9 @@ def test_mcsim_run_incomplete(mcsim_without_1_2):
 
 def test_mcsim_find_extra_files(mcsim_with_extra_files):
     with open(mcsim_with_extra_files.resultsdir / 'mcsim_io_test.mcsim', 'rb') as file:
-        expectedwarning = "The following extra .mcsim and .mccase files were found in the results directory, run removeExtraResultsFiles() to clean them up: [dummyfile.mccase, dummyfile.mcsim]"
+        expectedwarning = 'The following extra .mcsim and .mccase files were found in the ' + \
+                          'results directory, run removeExtraResultsFiles() to clean them up: ' + \
+                          '[dummyfile.mccase, dummyfile.mcsim]'
         with pytest.warns(UserWarning) as log:
             dill.load(file)
             assert expectedwarning in log[0].message.args[0]
@@ -84,7 +90,9 @@ def test_mcsim_remove_extra_files(mcsim_with_extra_files):
 
 ### Inline Testing ###
 def mcsim_io_test_example_sim(resultsdir):
-    sim = MCSim(name='mcsim_io_test', ndraws=ndraws, fcns=fcns(), firstcaseismedian=False, seed=seed, cores=2, verbose=True, resultsdir=resultsdir, debug=False)
+    sim = MCSim(name='mcsim_io_test', ndraws=ndraws, fcns=fcns(),
+                firstcaseismedian=False, seed=seed, cores=2, verbose=True,
+                resultsdir=resultsdir, debug=False)
     sim.runSim()
 
     results_dir = sim.resultsdir
@@ -93,24 +101,30 @@ def mcsim_io_test_example_sim(resultsdir):
     os.remove(results_dir / 'mcsim_io_test_1.mccase')
     os.remove(results_dir / 'mcsim_io_test_2.mccase')
     with open(results_dir / 'mcsim_io_test.mcsim', 'rb') as file:
-        sim = dill.load(file)  # Expected: 14/16 cases loaded from disk,
-                               #           UserWarning: The following cases were not loaded: [1, 2],
-                               #           UserWarning: The following cases have not been postprocessed: [1, 2]
+        sim = dill.load(file)
+        # Expected: 14/16 cases loaded from disk,
+        #           UserWarning: The following cases were not loaded: [1, 2],
+        #           UserWarning: The following cases have not been postprocessed: [1, 2]
 
     print('\n -------- 2 \n', flush=True)
-    sim.runSim([1,2])          # Expected: 2/2 case run
+    sim.runSim([1, 2])  # Expected: 2/2 case run
 
     print('\n -------- 3 \n', flush=True)
     os.remove(results_dir / 'mcsim_io_test_1.mccase')
     os.remove(results_dir / 'mcsim_io_test_2.mccase')
     with open(results_dir / 'mcsim_io_test.mcsim', 'rb') as file:
-        sim = dill.load(file)  # Expected: 14/16 cases loaded,
-                               #           UserWarning: The following cases were not loaded: [1, 2],
-                               #           UserWarning: The following cases have not been postprocessed: [1, 2]
-                               #           UserWarning: The following cases were loaded but may be stale: [0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+        sim = dill.load(file)
+        # Expected: 14/16 cases loaded,
+        #           UserWarning: The following cases were not loaded: [1, 2],
+        #           UserWarning: The following cases have not been postprocessed:
+        #                        [1, 2]
+        #           UserWarning: The following cases were loaded but may be stale:
+        #                        [0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
 
     print('\n -------- 4 \n', flush=True)
-    sim.runIncompleteSim()     # Expected: Resuming incomplete 'mcsim_io_test' Monte Carlo simulation with 2/16 cases remaining to run, and 2/16 cases remaining to post process...
+    sim.runIncompleteSim()
+    # Expected: Resuming incomplete 'mcsim_io_test' Monte Carlo simulation with
+    #           2/16 cases remaining to run, and 2/16 cases remaining to post process...
 
     print('\n -------- 5 \n', flush=True)
     sim.runSim()
@@ -122,7 +136,10 @@ def mcsim_io_test_example_sim(resultsdir):
         pass
 
     with open(results_dir / 'mcsim_io_test.mcsim', 'rb') as file:
-        sim = dill.load(file)  # Expected: UserWarning: The following extra .mcsim and .mccase files were found in the results directory, run removeExtraResultsFiles() to clean them up: ['dummyfile.mcsim', 'dummyfile.mccase']
+        sim = dill.load(file)
+        # Expected: UserWarning: The following extra .mcsim and .mccase files
+        #           were found in the results directory, run removeExtraResultsFiles()
+        #           to clean them up: [dummyfile.mcsim, dummyfile.mccase]
     sim.removeExtraResultsFiles()
 
     print('\n -------- 6 \n', flush=True)
@@ -130,7 +147,7 @@ def mcsim_io_test_example_sim(resultsdir):
         sim = dill.load(file)  # Expected: Data for 16/16 cases loaded from disk
     try:
         os.remove(results_dir / 'dummyfile.txt')
-    except:
+    except Exception:
         pass
 
     return sim

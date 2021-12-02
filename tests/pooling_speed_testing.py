@@ -12,7 +12,7 @@ def slowfcn(n):
     sleep(1.0)
 
 @timeit
-def test(n,p):
+def test(n, p):
     (p.map(slowfcn, range(n)))
 
 @timeit
@@ -32,15 +32,15 @@ def main():
     print('For Loop')
     forloop(nloops)
     print('ThreadPool')
-    test(nloops,tpool)
+    test(nloops, tpool)
     print('ParallelPool')
-    test(nloops,parapool)
+    test(nloops, parapool)
     print('SerialPool')
-    test(nloops,spool)
+    test(nloops, spool)
     print('Pool')
-    test(nloops,pool)
+    test(nloops, pool)
     print('ProcessPool')
-    test(nloops,ppool)
+    test(nloops, ppool)
 
 
 if __name__ == '__main__':

@@ -1,13 +1,15 @@
 # test_order_statistics.py
 
 import pytest
-from monaco.order_statistics import order_stat_TI_n, order_stat_TI_k, order_stat_TI_c, order_stat_TI_p
-from monaco.order_statistics import order_stat_P_n, order_stat_P_k, order_stat_P_c
+from monaco.order_statistics import (order_stat_TI_n, order_stat_TI_k,
+                                     order_stat_TI_c, order_stat_TI_p,
+                                     order_stat_P_n, order_stat_P_k,
+                                     order_stat_P_c)
 from monaco.MCEnums import StatBound
 
 '''
 Reference:
-Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A Guide for 
+Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A Guide for
     Practitioners." Germany, Wiley, 1991.
 '''
 
@@ -26,34 +28,34 @@ def test_order_stat_TI_k():
 
 def test_order_stat_TI_k_warning():
     with pytest.raises(ValueError, match='is too small'):
-        orderstat = order_stat_TI_k(n=20, p=0.99, c=0.90, bound=StatBound.TWOSIDED)
+        _ = order_stat_TI_k(n=20, p=0.99, c=0.90, bound=StatBound.TWOSIDED)
 
 # Order Statistic Percentile Functions
-@pytest.mark.parametrize("n,k,P,bound,ans", [
-    (1000,  3, 0.01, StatBound.TWOSIDED      , 0.7366882), # Ref. Table A.15a
-    (1000, 11, 0.95, StatBound.ONESIDED_UPPER, 0.9566518), # Ref. Table A.16, 39+11=50
-    (1000, 11, 0.05, StatBound.ONESIDED_LOWER, 0.9566518), # Ref. Table A.16, 39+11=50
+@pytest.mark.parametrize("n, k, P, bound, ans", [
+    (1000,  3, 0.01, StatBound.TWOSIDED      , 0.7366882),  # Ref. Table A.15a
+    (1000, 11, 0.95, StatBound.ONESIDED_UPPER, 0.9566518),  # Ref. Table A.16, 39+11=50
+    (1000, 11, 0.05, StatBound.ONESIDED_LOWER, 0.9566518),  # Ref. Table A.16, 39+11=50
 ])
-def test_order_stat_P_c(n,k,P,bound,ans):
+def test_order_stat_P_c(n, k, P, bound, ans):
     assert order_stat_P_c(n=n, k=k, P=P, bound=bound) == pytest.approx(ans)
 
 
-@pytest.mark.parametrize("n,c,P,bound,ans", [
-    (100, 0.95 , 0.50, StatBound.TWOSIDED      , 10), # Ref. Table A.15g
-    (100, 0.95 , 0.90, StatBound.ONESIDED_UPPER,  5), # Ref. Table A.16
-    (100, 0.95 , 0.10, StatBound.ONESIDED_LOWER,  5), # Ref. Table A.16
+@pytest.mark.parametrize("n, c, P, bound, ans", [
+    (100, 0.95 , 0.50, StatBound.TWOSIDED      , 10),  # Ref. Table A.15g
+    (100, 0.95 , 0.90, StatBound.ONESIDED_UPPER,  5),  # Ref. Table A.16
+    (100, 0.95 , 0.10, StatBound.ONESIDED_LOWER,  5),  # Ref. Table A.16
 ])
-def test_order_stat_P_k(n,c,P,bound,ans):
+def test_order_stat_P_k(n, c, P, bound, ans):
     assert order_stat_P_k(n=n, c=c, P=P, bound=bound) == ans
 
 def test_order_stat_P_k_warning():
     with pytest.raises(ValueError, match='is too small'):
-        orderstat = order_stat_P_k(n=10, c=0.999, P=0.05, bound=StatBound.ONESIDED_LOWER)
+        order_stat_P_k(n=10, c=0.999, P=0.05, bound=StatBound.ONESIDED_LOWER)
 
-@pytest.mark.parametrize("k,c,P,bound,ans", [
-    (10, 0.95  , 0.50, StatBound.TWOSIDED      ,  108), # Ref. Table A.15g (conservative)
-    (11, 0.9566, 0.95, StatBound.ONESIDED_UPPER, 1018), # Ref. Table A.16 (conservative)
-    (11, 0.9566, 0.05, StatBound.ONESIDED_LOWER, 1018), # Ref. Table A.16 (conservative)
+@pytest.mark.parametrize("k, c, P, bound, ans", [
+    (10, 0.95  , 0.50, StatBound.TWOSIDED      ,  108),  # Ref. Table A.15g (conservative)
+    (11, 0.9566, 0.95, StatBound.ONESIDED_UPPER, 1018),  # Ref. Table A.16 (conservative)
+    (11, 0.9566, 0.05, StatBound.ONESIDED_LOWER, 1018),  # Ref. Table A.16 (conservative)
 ])
-def test_order_stat_P_n(k,c,P,bound,ans):
+def test_order_stat_P_n(k, c, P, bound, ans):
     assert order_stat_P_n(k=k, c=c, P=P, bound=bound) == pytest.approx(ans)

@@ -18,25 +18,36 @@ lognorm_sigma, lognorm_mu = 1, 2
 @pytest.fixture
 def mcinvar_norm_random():
     from scipy.stats import norm
-    return MCInVar('norm', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4}, seed=invarseeds[1], samplemethod=SampleMethod.RANDOM, firstcaseismedian=False)
+    return MCInVar('norm', ndraws=1000,
+                   dist=norm, distkwargs={'loc': 10, 'scale': 4},
+                   seed=invarseeds[1], samplemethod=SampleMethod.RANDOM,
+                   firstcaseismedian=False)
 
 @pytest.fixture
 def mcinvar_lognorm_random():
     from scipy.stats import lognorm
-    return MCInVar('lognorm', ndraws=1000, dist=lognorm, distkwargs={'s':lognorm_sigma, 'scale':np.exp(lognorm_mu)}, seed=invarseeds[1], samplemethod=SampleMethod.RANDOM, firstcaseismedian=False)
+    return MCInVar('lognorm', ndraws=1000,
+                   dist=lognorm, distkwargs={'s': lognorm_sigma, 'scale': np.exp(lognorm_mu)},
+                   seed=invarseeds[1], samplemethod=SampleMethod.RANDOM,
+                   firstcaseismedian=False)
 
 @pytest.fixture
 def mcinvar_custom_dist():
-    return MCInVar('custom', ndraws=1000, dist=custom_dist, distkwargs=dict(), ninvar=1, samplemethod=SampleMethod.RANDOM, seed=invarseeds[2], firstcaseismedian=False)
+    return MCInVar('custom', ndraws=1000, dist=custom_dist, distkwargs=dict(),
+                   ninvar=1, samplemethod=SampleMethod.RANDOM, seed=invarseeds[2],
+                   firstcaseismedian=False)
 
 def test_mcinvar_norm_sobol_warning():
     from scipy.stats import norm
     with pytest.warns(UserWarning, match='Infinite value'):
-        MCInVar('norm', ndraws=1000, dist=norm, distkwargs={'loc':10, 'scale':4}, seed=invarseeds[1], samplemethod=SampleMethod.SOBOL, ninvar=1, firstcaseismedian=False)
+        MCInVar('norm', ndraws=1000, dist=norm, distkwargs={'loc': 10, 'scale': 4},
+                ninvar=1, samplemethod=SampleMethod.SOBOL, seed=invarseeds[1],
+                firstcaseismedian=False)
 
 def test_mcinvar_discrete():
     from scipy.stats import randint
-    invar = MCInVar('randint', ndraws=1000, dist=randint, distkwargs={'low':1, 'high':5}, seed=invarseeds[0], samplemethod=SampleMethod.RANDOM)
+    invar = MCInVar('randint', ndraws=1000, dist=randint, distkwargs={'low': 1, 'high': 5},
+                    seed=invarseeds[0], samplemethod=SampleMethod.RANDOM)
     assert invar.stats().mean == pytest.approx(2.538)
 
 def test_mcinvar_continuous(mcinvar_norm_random):
@@ -44,9 +55,10 @@ def test_mcinvar_continuous(mcinvar_norm_random):
 
 def test_mcinvar_custom(mcinvar_custom_dist):
     assert mcinvar_custom_dist.stats().mean == pytest.approx(4.105)
-    
+
 def test_mcinvar_addvarstat(mcinvar_norm_random):
-    mcinvar_norm_random.addVarStat(stattype='orderstatTI', statkwargs={'p':0.75, 'c':0.95, 'bound':'2-sided'})
+    mcinvar_norm_random.addVarStat(stattype='orderstatTI',
+                                   statkwargs={'p': 0.75, 'c': 0.95, 'bound': '2-sided'})
     assert mcinvar_norm_random.mcvarstats[0].vals == pytest.approx([5.10075, 14.75052273])
 
 def test_mcinvar_getVal(mcinvar_custom_dist):
@@ -59,7 +71,10 @@ def test_mcinvar_getMedian(mcinvar_lognorm_random):
     assert pytest.approx(mcinvar_lognorm_random.getDistMedian(), lognorm_mu)
 
 def test_mcinvar_nummap():
-    invar = MCInVar('map', ndraws=10, dist=custom_dist, distkwargs=dict(), ninvar=1, nummap={1:'a',5:'e',6:'f'}, samplemethod=SampleMethod.RANDOM, seed=invarseeds[3], firstcaseismedian=False)
+    invar = MCInVar('map', ndraws=10, dist=custom_dist, distkwargs=dict(),
+                    ninvar=1, nummap={1: 'a', 5: 'e', 6: 'f'},
+                    samplemethod=SampleMethod.RANDOM, seed=invarseeds[3],
+                    firstcaseismedian=False)
     assert invar.vals == ['f', 'e', 'f', 'f', 'a', 'e', 'e', 'a', 'e', 'e']
 
 
@@ -72,20 +87,23 @@ def test_mcoutvar():
 
 def test_mcoutvar_extractValMap():
     outvar = MCOutVar('test', ['a', 'b', 'c', 'b'], firstcaseismedian=True)
-    assert outvar.valmap == {'a':0, 'b':1, 'c':2}
-    
+    assert outvar.valmap == {'a': 0, 'b': 1, 'c': 2}
+
 @pytest.fixture
 def mcoutvars_split():
     mcoutvars = dict()
-    v = np.array([[1,1],[2,2],[3,3]])
+    v = np.array([[1, 1], [2, 2], [3, 3]])
     mcoutvars['test'] = MCOutVar('test', [v, v, v, v, v])
-    mcoutvars['test'].addVarStat(stattype='orderstatTI', statkwargs={'p':0.33, 'c':0.50, 'bound':'1-sided'})
+    mcoutvars['test'].addVarStat(stattype='orderstatTI',
+                                 statkwargs={'p': 0.33, 'c': 0.50, 'bound': '1-sided'})
     mcoutvars.update(mcoutvars['test'].split())
     return mcoutvars
 
 def test_mcoutvar_split(mcoutvars_split):
-    assert np.array_equal(mcoutvars_split['test [0]'].nums, [[1, 1], [1, 1], [1, 1], [1, 1], [1, 1]])
-    assert np.array_equal(mcoutvars_split['test [1]'].nums, [[2, 2], [2, 2], [2, 2], [2, 2], [2, 2]])
+    assert np.array_equal(mcoutvars_split['test [0]'].nums,
+                          [[1, 1], [1, 1], [1, 1], [1, 1], [1, 1]])
+    assert np.array_equal(mcoutvars_split['test [1]'].nums,
+                          [[2, 2], [2, 2], [2, 2], [2, 2], [2, 2]])
 
 
 def test_mcoutvar_split_orderstat(mcoutvars_split):
