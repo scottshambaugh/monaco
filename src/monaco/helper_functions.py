@@ -3,12 +3,17 @@
 from operator import itemgetter
 from tqdm import tqdm
 import numpy as np
-import pandas as pd
 from typing import Callable, Any, Union, Sequence, Iterable, Sized
 from time import time
 from functools import wraps
 from hashlib import sha512
 import warnings
+
+# Optional imports
+try:
+    import pandas as pd
+except ImportError:
+    pd = None 
 
 
 def next_power_of_2(x : int) -> int:
@@ -113,7 +118,7 @@ def get_tuple(x : Any) -> tuple:
     """
     if x is None:
         return tuple()
-    elif isinstance(x, pd.DataFrame):
+    elif pd and isinstance(x, pd.DataFrame):
         return (x,)
     elif isinstance(x, Iterable):
         return tuple(x)

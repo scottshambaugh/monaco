@@ -1,13 +1,16 @@
 # MCVal.py
 
 import numpy as np
-import pandas as pd
 from itertools import chain
 from copy import copy, deepcopy
 from monaco.helper_functions import is_num
 from typing import Union, Any
 from scipy.stats import rv_discrete, rv_continuous
 from abc import ABC
+try:
+    import pandas as pd
+except ImportError:
+    pd = None 
 
 ### MCVal Base Class ###
 class MCVal(ABC):
@@ -179,8 +182,9 @@ class MCOutVal(MCVal):
         If the output value is a pandas dataseries or index, convert it to a
         format we understand.
         """
-        if isinstance(self.val, pd.Series) or isinstance(self.val, pd.Index):
-            self.val = self.val.values
+        if pd:
+            if isinstance(self.val, pd.Series) or isinstance(self.val, pd.Index):
+                self.val = self.val.values
 
 
     def genSize(self) -> None:

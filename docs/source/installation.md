@@ -12,7 +12,7 @@ pip install monaco
 git clone https://github.com/scottshambaugh/monaco.git
 cd monaco
 pip install poetry
-poetry install
+poetry install --extras "pandas"
 ```
 
 ## Running Tests and Type Checking
