@@ -35,6 +35,7 @@ pytest = "^6.0.0"
 coverage = "^6.0"
 mypy = "^0.800"
 flake8 = "^4.000"
+pre-commit = "^2.0"
 
 [tool.poetry.extras]
 pandas = ["pandas"]

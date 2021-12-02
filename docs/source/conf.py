@@ -58,11 +58,11 @@ def linkcode_resolve(domain, info):
     filename = info['module'].replace('.', '/')
     return "https://github.com/scottshambaugh/monaco/blob/main/src/%s.py" % filename
 
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 html_logo = '../images/monaco_logo.png'

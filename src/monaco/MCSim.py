@@ -8,7 +8,8 @@ from datetime import datetime, timedelta
 from monaco.MCCase import MCCase
 from monaco.MCVar import MCInVar, MCOutVar
 from monaco.MCEnums import MCFunctions, SampleMethod
-from monaco.helper_functions import get_tuple, slice_by_index, vprint, vwarn, vwrite, hash_str_repeatable
+from monaco.helper_functions import (get_tuple, slice_by_index, vprint, vwarn,
+                                     vwrite, hash_str_repeatable)
 from psutil import cpu_count
 from pathos.pools import ThreadPool as Pool
 from tqdm import tqdm
