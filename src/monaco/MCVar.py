@@ -17,7 +17,7 @@ from abc import ABC, abstractmethod
 ### MCVar Base Class ###
 class MCVar(ABC):
     """
-    Abstract base class to hold the data for a Monte-Carlo variable. 
+    Abstract base class to hold the data for a Monte-Carlo variable.
 
     Parameters
     ----------
@@ -29,14 +29,14 @@ class MCVar(ABC):
         Whether the first case represents the median case.
     """
     def __init__(self,
-                 name              : str, 
-                 ndraws            : int, 
+                 name              : str,
+                 ndraws            : int,
                  firstcaseismedian : bool,
                  ):
-        self.name = name 
-        self.ndraws = ndraws 
+        self.name = name
+        self.ndraws = ndraws
         self.firstcaseismedian = firstcaseismedian
-        
+
         self.ncases = ndraws + 1
         self.setFirstCaseMedian(firstcaseismedian)
         self.vals       : list[Any]
@@ -47,7 +47,7 @@ class MCVar(ABC):
         self.size       : tuple
         self.isscalar   : bool
         self.mcvarstats : list[MCVarStat] = empty_list()
-        
+
 
     def setFirstCaseMedian(self,
                            firstcaseismedian : bool,
@@ -61,11 +61,11 @@ class MCVar(ABC):
             Whether the first case represents a median case.
         """
         if firstcaseismedian:
-           self.firstcaseismedian = True
-           self.ncases = self.ndraws + 1
+            self.firstcaseismedian = True
+            self.ncases = self.ndraws + 1
         else:
-           self.firstcaseismedian = False
-           self.ncases = self.ndraws
+            self.firstcaseismedian = False
+            self.ncases = self.ndraws
 
 
     def stats(self) -> DescribeResult:
@@ -79,11 +79,11 @@ class MCVar(ABC):
         """
         stats = describe(self.nums)
         return stats
-    
-    
+
+
     def addVarStat(self,
-                   stattype   : VarStat, 
-                   statkwargs : dict[str, Any] = None, 
+                   stattype   : VarStat,
+                   statkwargs : dict[str, Any] = None,
                    name       : str = None,
                    ) -> None:
         """
@@ -100,7 +100,8 @@ class MCVar(ABC):
         """
         if statkwargs is None:
             statkwargs = dict()
-        self.mcvarstats.append(MCVarStat(mcvar=self, stattype=stattype, statkwargs=statkwargs, name=name))
+        self.mcvarstats.append(MCVarStat(mcvar=self, stattype=stattype,
+                                         statkwargs=statkwargs, name=name))
 
 
     def clearVarStats(self) -> None:
@@ -121,7 +122,7 @@ class MCVar(ABC):
 ### MCInVar Class ###
 class MCInVar(MCVar):
     """
-    A Monte-Carlo input variable. 
+    A Monte-Carlo input variable.
 
     Parameters
     ----------
@@ -167,31 +168,31 @@ class MCInVar(MCVar):
         A list of all the variable statistics for this variable.
     """
     def __init__(self,
-                 name              : str, 
-                 ndraws            : int, 
-                 dist              : Union[rv_discrete, rv_continuous], 
+                 name              : str,
+                 ndraws            : int,
+                 dist              : Union[rv_discrete, rv_continuous],
                  distkwargs        : dict         = None,
                  nummap            : dict         = None,
                  samplemethod      : SampleMethod = SampleMethod.SOBOL_RANDOM,
                  ninvar            : int          = None,
-                 seed              : int          = np.random.get_state(legacy=False)['state']['key'][0], 
+                 seed              : int = np.random.get_state(legacy=False)['state']['key'][0],
                  firstcaseismedian : bool         = False,
                  autodraw          : bool         = True,
                  ):
         super().__init__(name=name, ndraws=ndraws, firstcaseismedian=firstcaseismedian)
-        
+
         self.dist = dist
         if distkwargs is None:
             distkwargs = dict()
         self.distkwargs = distkwargs
         self.samplemethod = samplemethod
-        self.ninvar = ninvar 
-        self.seed = seed 
-        self.nummap = nummap 
-        
+        self.ninvar = ninvar
+        self.seed = seed
+        self.nummap = nummap
+
         self.isscalar = True
         self.size = (1, 1)
-        
+
         self.genValMap()
         if autodraw:
             self.draw(ninvar_max=None)
@@ -214,7 +215,7 @@ class MCInVar(MCVar):
         if self.nummap is None:
             self.valmap = None
         else:
-            self.valmap = {val:num for num, val in self.nummap.items()}
+            self.valmap = {val: num for num, val in self.nummap.items()}
 
 
     def setNDraws(self,
@@ -230,8 +231,8 @@ class MCInVar(MCVar):
         """
         self.ndraws = ndraws
         self.setFirstCaseMedian(self.firstcaseismedian)
-        
-        
+
+
     def draw(self,
              ninvar_max : int = None,
              ) -> None:
@@ -252,18 +253,24 @@ class MCInVar(MCVar):
             self.ncases = self.ndraws + 1
             self.pcts.append(0.5)
             self.nums.append(self.getDistMedian())
-            
-        pcts = mc_sampling(ndraws=self.ndraws, method=self.samplemethod, ninvar=self.ninvar, ninvar_max=ninvar_max, seed=self.seed)
+
+        pcts = mc_sampling(ndraws=self.ndraws, method=self.samplemethod,
+                           ninvar=self.ninvar, ninvar_max=ninvar_max,
+                           seed=self.seed)
         self.pcts.extend(pcts)
         self.nums.extend(dist.ppf(pcts).tolist())
-        
+
         if any(np.isinf(num) for num in self.nums):
-            warn(f'Infinite value drawn. Check distribution and parameters: {self.dist=}, {self.distkwargs=}')
+            warn( 'Infinite value drawn. Check distribution and parameters: ' +
+                 f'{self.dist=}, {self.distkwargs=}')
             if self.samplemethod in (SampleMethod.SOBOL, SampleMethod.HALTON):
-                warn(f"Infinite value draw may happen with {self.dist=} for the first point of the {self.samplemethod} sampling method. Consider using {SampleMethod.SOBOL_RANDOM} instead.")
+                warn(f'Infinite value draw may happen with {self.dist=} for the ' +
+                     f'first point of the {self.samplemethod} sampling method. ' +
+                     f'Consider using {SampleMethod.SOBOL_RANDOM} instead.')
 
         if any(np.isnan(num) for num in self.nums):
-            raise ValueError(f'Invalid draw. Check distribution and parameters: {self.dist=}, {self.distkwargs=}')
+            raise ValueError( 'Invalid draw. Check distribution and parameters: ' +
+                             f'{self.dist=}, {self.distkwargs=}')
 
         self.mapNums()
 
@@ -278,7 +285,7 @@ class MCInVar(MCVar):
         ----------
         ncase : int
             The number of the case to get the value for.
-        
+
         Returns
         -------
         val : monaco.MCVal.MCInVal
@@ -288,7 +295,10 @@ class MCInVar(MCVar):
         if (ncase == 0) and self.firstcaseismedian:
             ismedian = True
 
-        val = MCInVal(name=self.name, ncase=ncase, pct=self.pcts[ncase], num=self.nums[ncase], dist=self.dist, nummap=self.nummap, ismedian=ismedian)
+        val = MCInVal(name=self.name, ncase=ncase,
+                      pct=self.pcts[ncase], num=self.nums[ncase],
+                      dist=self.dist, nummap=self.nummap,
+                      ismedian=ismedian)
         return val
 
 
@@ -318,11 +328,12 @@ class MCInVar(MCVar):
         """
         dist = self.dist(**self.distkwargs)
         ev = dist.expect()
-        
+
         if isinstance(self.dist, rv_continuous):
             return ev
 
-        # For a discrete distribution, we take the nearest discrete value closest to the expected value
+        # For a discrete distribution, we take the nearest discrete value
+        # closest to the expected value
         elif isinstance(self.dist, rv_discrete):
             eps = np.finfo(float).eps
             p = dist.cdf(ev)
@@ -330,7 +341,7 @@ class MCInVar(MCVar):
             ev_candidates_dist = abs(ev_candidates - ev)
             ev_closest = ev_candidates[np.nanargmin(ev_candidates_dist)]
             return ev_closest
-        
+
         else:
             return None
 
@@ -339,7 +350,7 @@ class MCInVar(MCVar):
 ### MCOutVar Class ###
 class MCOutVar(MCVar):
     """
-    A Monte-Carlo output variable. 
+    A Monte-Carlo output variable.
 
     Parameters
     ----------
@@ -370,17 +381,17 @@ class MCOutVar(MCVar):
         A list of all the variable statistics for this variable.
     """
     def __init__(self,
-                 name              : str, 
-                 vals              : list[Any], 
-                 valmap            : dict = None, 
-                 ndraws            : int  = None, 
+                 name              : str,
+                 vals              : list[Any],
+                 valmap            : dict = None,
+                 ndraws            : int  = None,
                  firstcaseismedian : bool = False,
                  ):
         if ndraws is None:
             ndraws = len(vals)
             if firstcaseismedian:
                 ndraws = ndraws - 1
-        
+
         super().__init__(name=name, ndraws=ndraws, firstcaseismedian=firstcaseismedian)
         self.vals = vals
         self.valmap = valmap
@@ -396,17 +407,17 @@ class MCOutVar(MCVar):
         Parse the output value to determine the size of each value and whether
         it is scalar.
         """
-        if isinstance(self.vals[0],(list, tuple, np.ndarray)):
+        if isinstance(self.vals[0], (list, tuple, np.ndarray)):
             self.isscalar = False
-            if isinstance(self.vals[0][0],(list, tuple, np.ndarray)):
+            if isinstance(self.vals[0][0], (list, tuple, np.ndarray)):
                 self.size = (len(self.vals[0]), len(self.vals[0][0]))
             else:
                 self.size = (1, len(self.vals[0]))
         else:
             self.isscalar = True
             self.size = (1, 1)
-            
-    
+
+
     def extractValMap(self) -> None:
         """
         Parse the output values and extract a valmap.
@@ -431,7 +442,7 @@ class MCOutVar(MCVar):
         if self.valmap is None:
             self.nummap = None
         else:
-            self.nummap = {num:val for val, num in self.valmap.items()}
+            self.nummap = {num: val for val, num in self.valmap.items()}
 
 
     def mapVals(self) -> None:
@@ -440,7 +451,7 @@ class MCOutVar(MCVar):
         """
         self.nums = copy(self.vals)
         for i in range(self.ncases):
-            self.nums[i] = self.getVal(i).num  
+            self.nums[i] = self.getVal(i).num
 
 
     def getVal(self, ncase : int) -> MCOutVal:
@@ -451,7 +462,7 @@ class MCOutVar(MCVar):
         ----------
         ncase : int
             The number of the case to get the value for.
-        
+
         Returns
         -------
         val : monaco.MCVal.MCOutVal
@@ -460,11 +471,12 @@ class MCOutVar(MCVar):
         ismedian = False
         if (ncase == 0) and self.firstcaseismedian:
             ismedian = True
-            
-        val = MCOutVal(name=self.name, ncase=ncase, val=self.vals[ncase], valmap=self.valmap, ismedian=ismedian)
+
+        val = MCOutVal(name=self.name, ncase=ncase, val=self.vals[ncase],
+                       valmap=self.valmap, ismedian=ismedian)
         return val
-        
-    
+
+
     def getMedianVal(self) -> MCOutVal:
         """
         Get the median value for this output variable if `firstcaseismedian`.
@@ -476,15 +488,16 @@ class MCOutVar(MCVar):
         """
         val = None
         if self.firstcaseismedian:
-            val = MCOutVal(name=self.name, ncase=0, val=self.vals[0], valmap=self.valmap, ismedian=True)
+            val = MCOutVal(name=self.name, ncase=0, val=self.vals[0],
+                           valmap=self.valmap, ismedian=True)
         return val
-    
-    
+
+
     def split(self) -> dict[str, 'MCOutVar']:  # Quotes in typing to avoid import error
         """
         Split a multidimentional output variable along its outermost dimension,
         and generate individual MCOutVar objects for each index.
-        
+
         Returns
         -------
         mcvars : dict[str : monaco.MCVar.MCOutVar]
@@ -496,8 +509,11 @@ class MCOutVar(MCVar):
                 vals = []
                 for j in range(self.ncases):
                     vals.append(self.vals[j][i])
-                mcvars[name] = MCOutVar(name=name, vals=vals, ndraws=self.ndraws, \
-                                        valmap=self.valmap, firstcaseismedian=self.firstcaseismedian)
+                mcvars[name] = MCOutVar(name=name, vals=vals, ndraws=self.ndraws,
+                                        valmap=self.valmap,
+                                        firstcaseismedian=self.firstcaseismedian)
                 for mcvarstat in self.mcvarstats:
-                    mcvars[name].addVarStat(stattype=mcvarstat.stattype, statkwargs=mcvarstat.statkwargs, name=mcvarstat.name)
+                    mcvars[name].addVarStat(stattype=mcvarstat.stattype,
+                                            statkwargs=mcvarstat.statkwargs,
+                                            name=mcvarstat.name)
         return mcvars

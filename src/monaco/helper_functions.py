@@ -13,18 +13,18 @@ import warnings
 try:
     import pandas as pd
 except ImportError:
-    pd = None 
+    pd = None
 
 
 def next_power_of_2(x : int) -> int:
     """
     Returns the next power of two greater than or equal to the input.
-    
+
     Parameters
     ----------
     x : int
         The input number.
-    
+
     Returns
     -------
     _ : int
@@ -41,12 +41,12 @@ def hash_str_repeatable(s : str) -> int:
     By default, string hashing in python is randomized. This function returns a
     repeatable non-randomized hash for strings.
     See: https://docs.python.org/3/using/cmdline.html#cmdoption-R
-    
+
     Parameters
     ----------
     s : str
         The string to hash.
-    
+
     Returns
     -------
     _ : int
@@ -58,12 +58,12 @@ def hash_str_repeatable(s : str) -> int:
 def is_num(val : Any) -> bool:
     """
     Type checking function to see if the input is a number.
-    
+
     Parameters
     ----------
     val : Any
         The value to check.
-    
+
     Returns
     -------
     _ : bool
@@ -83,12 +83,12 @@ def is_num(val : Any) -> bool:
 def length(x : Any) -> int:
     """
     Genericized length function that works on scalars (which have length 1).
-    
+
     Parameters
     ----------
     x : Any
         The value to check.
-    
+
     Returns
     -------
     _ : int
@@ -105,12 +105,12 @@ def length(x : Any) -> int:
 def get_tuple(x : Any) -> tuple:
     """
     Converts the input to an iterable tuple.
-    
+
     Parameters
     ----------
     x : Any
         The object to convert.
-    
+
     Returns
     -------
     _ : tuple
@@ -126,19 +126,19 @@ def get_tuple(x : Any) -> tuple:
         return (x,)
 
 
-def slice_by_index(sequence : Sequence, 
+def slice_by_index(sequence : Sequence,
                    indices : Union[int, Iterable]
                    ) -> list:
     """
     Returns a slice of a sequence at the specified indices.
-    
+
     Parameters
     ----------
     sequence : Sequence
         The sequence to slice.
     indices : {int, Iterable}
         The indices to slice at.
-    
+
     Returns
     -------
     _ : list
@@ -157,7 +157,7 @@ def slice_by_index(sequence : Sequence,
 def vprint(verbose : bool, *args, **kwargs) -> None:
     """
     Print only if verbose is True.
-    
+
     Parameters
     ----------
     verbose : bool
@@ -179,7 +179,7 @@ def warn_short_format(message, category, filename, lineno, file=None, line=None)
 def vwarn(verbose : bool, *args, **kwargs) -> None:
     """
     Warn only if verbose is True.
-    
+
     Parameters
     ----------
     verbose : bool
@@ -189,7 +189,7 @@ def vwarn(verbose : bool, *args, **kwargs) -> None:
     """
     if verbose:
         warn_default_format = warnings.formatwarning
-        warnings.formatwarning = warn_short_format # type: ignore
+        warnings.formatwarning = warn_short_format  # type: ignore
         warnings.warn(*args, **kwargs)
         warnings.formatwarning = warn_default_format
 
@@ -197,7 +197,7 @@ def vwarn(verbose : bool, *args, **kwargs) -> None:
 def vwrite(verbose : bool, *args, **kwargs) -> None:
     """
     Perform a tqdm.write() only if verbose is True.
-    
+
     Parameters
     ----------
     verbose : bool
@@ -212,7 +212,7 @@ def vwrite(verbose : bool, *args, **kwargs) -> None:
 def timeit(fcn : Callable):
     """
     Function decorator to print out the function runtime in milliseconds.
-    
+
     Parameters
     ----------
     fcn : Callable

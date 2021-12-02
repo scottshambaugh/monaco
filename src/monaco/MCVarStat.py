@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from monaco.MCVar import MCVar
-    
+
 import numpy as np
 from copy import copy
 from statistics import mode
@@ -39,7 +39,7 @@ class MCVarStat:
     vals : list[Any]
         The values for the `nums` as determined by `mcvar.nummap`
 
-    Notes 
+    Notes
     -----
     These are the valid stattypes with their statkwargs
 
@@ -82,12 +82,12 @@ class MCVarStat:
         `'2-sided'`.
     """
     def __init__(self,
-                 mcvar      : MCVar,  
-                 stattype   : VarStat, 
-                 statkwargs : dict[str, Any] = None, 
+                 mcvar      : MCVar,
+                 stattype   : VarStat,
+                 statkwargs : dict[str, Any] = None,
                  name       : str = None,
                  ):
-        
+
         self.mcvar = mcvar
         self.stattype = stattype
         if statkwargs is None:
@@ -97,7 +97,7 @@ class MCVarStat:
         self.nums : np.ndarray = np.array([])
         self.vals : Union[list[Any], np.ndarray] = []
         self.name = name
-        
+
         if stattype == VarStat.MAX:
             self.genStatsMax()
         elif stattype == VarStat.MIN:
@@ -119,9 +119,11 @@ class MCVarStat:
         elif stattype == VarStat.ORDERSTATP:
             self.genStatsOrderStatP()
         else:
-            raise ValueError("".join([f"{self.stattype=} must be one of the following: ",
-                                      f"{VarStat.MAX}, {VarStat.MIN}, {VarStat.MEDIAN}, {VarStat.MEAN}, {VarStat.GEOMEAN}, {VarStat.MODE},",
-                                      f"{VarStat.SIGMA}, {VarStat.GAUSSIANP}, {VarStat.ORDERSTATTI}, {VarStat.ORDERSTATP}"]))
+            raise ValueError(f'{self.stattype=} must be one of the following: ' +
+                             f'{VarStat.MAX}, {VarStat.MIN}, {VarStat.MEDIAN}, ' +
+                             f'{VarStat.MEAN}, {VarStat.GEOMEAN}, {VarStat.MODE}, ' +
+                             f'{VarStat.SIGMA}, {VarStat.GAUSSIANP}, ' +
+                             f'{VarStat.ORDERSTATTI}, {VarStat.ORDERSTATP}')
 
 
     def genStatsMax(self) -> None:
@@ -196,8 +198,8 @@ class MCVarStat:
 
 
     def sigma(self,
-               x, # TODO: explicit typing here
-               ) -> float:
+              x,  # TODO: explicit typing here
+              ) -> float:
         """
         Calculate the sigma value of a normally distributed list of numbers.
 
@@ -226,34 +228,34 @@ class MCVarStat:
         """
         if fcnkwargs is None:
             fcnkwargs = dict()
-        
+
         if self.mcvar.isscalar:
             self.nums = fcn(self.mcvar.nums, **fcnkwargs)
             self.vals = copy(self.nums)
             if self.mcvar.nummap is not None:
                 self.vals = [self.mcvar.nummap[num] for num in self.nums]
-                
+
         elif self.mcvar.size[0] == 1:
             nums_tuple = get_tuple(self.mcvar.nums)
             npoints = max(len(x) for x in nums_tuple)
             self.nums = np.empty(npoints)
             for i in range(npoints):
-                numsatidx = [x[i] for x in nums_tuple if len(x)>i]
+                numsatidx = [x[i] for x in nums_tuple if len(x) > i]
                 self.nums[i] = fcn(numsatidx, **fcnkwargs)
             self.vals = copy(self.nums)
             if self.mcvar.nummap is not None:
                 self.vals = np.array([[self.mcvar.nummap[x] for x in y] for y in self.nums])
-                
+
         else:
             # Suppress warning since this will become valid when MCVar is split
-            #warn('MCVarStat only available for scalar or 1-D data')
+            # warn('MCVarStat only available for scalar or 1-D data')
             pass
 
 
     def genStatsOrderStatTI(self) -> None:
         """Get the order statistic tolerance interval value of the variable."""
         self.checkOrderStatsKWArgs()
-      
+
         if self.bound == StatBound.ONESIDED and self.p >= 0.5:
             self.side = VarStatSide.HIGH
         elif self.bound == StatBound.ONESIDED:
@@ -266,7 +268,8 @@ class MCVarStat:
         else:
             raise ValueError(f'{self.bound} is not a valid bound for genStatsOrderStatTI')
 
-        self.setName(f'{self.bound} P{round(self.p*100,4)}/{round(self.c*100,4)}% Confidence Interval')
+        self.setName(f'{self.bound} P{round(self.p*100,4)}/{round(self.c*100,4)}% ' +
+                      'Confidence Interval')
 
         self.k = order_stat_TI_k(n=self.mcvar.ncases, p=self.p, c=self.c, bound=self.bound)
 
@@ -281,14 +284,19 @@ class MCVarStat:
             elif self.side == VarStatSide.BOTH:
                 self.nums = np.array([sortednums[self.k-1], sortednums[-self.k]])
                 if self.mcvar.nummap is not None:
-                    self.vals = np.array([self.mcvar.nummap[self.nums[0]], self.mcvar.nummap[self.nums[1]]])
+                    self.vals = np.array([self.mcvar.nummap[self.nums[0]],
+                                          self.mcvar.nummap[self.nums[1]]])
             elif self.side == VarStatSide.ALL:
-                self.nums = np.array([sortednums[self.k-1], np.median(sortednums), sortednums[-self.k]])
+                self.nums = np.array([sortednums[self.k-1],
+                                      np.median(sortednums),
+                                      sortednums[-self.k]])
                 if self.mcvar.nummap is not None:
-                    self.vals = np.array([self.mcvar.nummap[self.nums[0]], self.mcvar.nummap[self.nums[1]], self.mcvar.nummap[self.nums[2]]])
+                    self.vals = np.array([self.mcvar.nummap[self.nums[0]],
+                                          self.mcvar.nummap[self.nums[1]],
+                                          self.mcvar.nummap[self.nums[2]]])
             if self.mcvar.nummap is None:
                 self.vals = copy(self.nums)
-                
+
         elif self.mcvar.size[0] == 1:
             npoints = max(len(get_tuple(x)) for x in self.mcvar.nums)
             self.nums = np.empty(npoints)
@@ -297,42 +305,46 @@ class MCVarStat:
             elif self.side == VarStatSide.ALL:
                 self.nums = np.empty((npoints, 3))
             for i in range(npoints):
-                numsatidx = [get_tuple(x)[i] for x in self.mcvar.nums if len(get_tuple(x))>i]
+                numsatidx = [get_tuple(x)[i] for x in self.mcvar.nums if len(get_tuple(x)) > i]
                 sortednums = sorted(numsatidx)
                 if self.side == VarStatSide.LOW:
                     sortednums.reverse()
                 if self.side in (VarStatSide.HIGH, VarStatSide.LOW):
                     self.nums[i] = sortednums[-self.k]
                 elif self.side == VarStatSide.BOTH:
-                    self.nums[i,:] = [sortednums[self.k-1], sortednums[-self.k]]
+                    self.nums[i, :] = [sortednums[self.k - 1], sortednums[-self.k]]
                 elif self.side == VarStatSide.ALL:
-                    self.nums[i,:] = [sortednums[self.k-1], sortednums[int(np.round(len(sortednums)/2)-1)], sortednums[-self.k]]
+                    self.nums[i, :] = [sortednums[self.k - 1],
+                                       sortednums[int(np.round(len(sortednums)/2)-1)],
+                                       sortednums[-self.k]]
             if self.mcvar.nummap is not None:
                 self.vals = np.array([[self.mcvar.nummap[x] for x in y] for y in self.nums])
             else:
                 self.vals = copy(self.nums)
-                
+
         else:
             # Suppress warning since this will become valid when MCVar is split
-            #warn('MCVarStat only available for scalar or 1-D data')
+            # warn('MCVarStat only available for scalar or 1-D data')
             pass
 
 
     def genStatsOrderStatP(self) -> None:
         """Get the order statistic percentile value of the variable."""
         self.checkOrderStatsKWArgs()
-      
+
         bound = self.bound
-        if self.bound not in (StatBound.ONESIDED_UPPER, StatBound.ONESIDED_LOWER, StatBound.TWOSIDED, StatBound.NEAREST, StatBound.ALL):
+        if self.bound not in (StatBound.ONESIDED_UPPER, StatBound.ONESIDED_LOWER,
+                              StatBound.TWOSIDED, StatBound.NEAREST, StatBound.ALL):
             raise ValueError(f'{self.bound} is not a valid bound for genStatsOrderStatP')
         elif self.bound in (StatBound.NEAREST, StatBound.ALL):
             bound = StatBound.TWOSIDED
-        
-        self.setName(f'{self.bound} {self.c*100}% Confidence Bound around {self.p*100}th Percentile')
+
+        self.setName(f'{self.bound} {self.c*100}% Confidence Bound around ' +
+                     f'{self.p*100}th Percentile')
 
         self.k = order_stat_P_k(n=self.mcvar.ncases, P=self.p, c=self.c, bound=bound)
 
-        (iPl, iP, iPu) = get_iP(n=self.mcvar.ncases, P=self.p) 
+        (iPl, iP, iPu) = get_iP(n=self.mcvar.ncases, P=self.p)
         if self.mcvar.isscalar:
             sortednums = sorted(self.mcvar.nums)
             if self.bound == StatBound.ONESIDED_LOWER:
@@ -341,17 +353,24 @@ class MCVarStat:
                 self.nums = np.array(sortednums[iPu + self.k])
             elif self.bound == StatBound.NEAREST:
                 self.nums = np.array(sortednums[iP])
-            if self.bound in (StatBound.ONESIDED_LOWER, StatBound.ONESIDED_UPPER, StatBound.NEAREST):
+            if self.bound in (StatBound.ONESIDED_LOWER,
+                              StatBound.ONESIDED_UPPER,
+                              StatBound.NEAREST):
                 if self.mcvar.nummap is not None:
                     self.vals = self.mcvar.nummap[self.nums]
             elif self.bound == StatBound.TWOSIDED:
                 self.nums = np.array([sortednums[iPl - self.k], sortednums[iPu + self.k]])
                 if self.mcvar.nummap is not None:
-                    self.vals = np.array([self.mcvar.nummap[self.nums[0]], self.mcvar.nummap[self.nums[1]]])
+                    self.vals = np.array([self.mcvar.nummap[self.nums[0]],
+                                          self.mcvar.nummap[self.nums[1]]])
             elif self.bound == StatBound.ALL:
-                self.nums = np.array([sortednums[iPl - self.k], sortednums[iP], sortednums[iPu + self.k]])
+                self.nums = np.array([sortednums[iPl - self.k],
+                                      sortednums[iP],
+                                      sortednums[iPu + self.k]])
                 if self.mcvar.nummap is not None:
-                    self.vals = np.array([self.mcvar.nummap[self.nums[0]], self.mcvar.nummap[self.nums[1]], self.mcvar.nummap[self.nums[2]]])
+                    self.vals = np.array([self.mcvar.nummap[self.nums[0]],
+                                          self.mcvar.nummap[self.nums[1]],
+                                          self.mcvar.nummap[self.nums[2]]])
             if self.mcvar.nummap is None:
                 self.vals = copy(self.nums)
 
@@ -363,7 +382,7 @@ class MCVarStat:
             elif self.bound == StatBound.ALL:
                 self.nums = np.empty((npoints, 3))
             for i in range(npoints):
-                numsatidx = [get_tuple(x)[i] for x in self.mcvar.nums if len(get_tuple(x))>i]
+                numsatidx = [get_tuple(x)[i] for x in self.mcvar.nums if len(get_tuple(x)) > i]
                 sortednums = sorted(numsatidx)
                 if self.bound == StatBound.ONESIDED_LOWER:
                     self.nums[i] = sortednums[iPl - self.k]
@@ -372,17 +391,19 @@ class MCVarStat:
                 elif self.bound == StatBound.NEAREST:
                     self.nums[i] = sortednums[iP]
                 elif self.bound == StatBound.TWOSIDED:
-                    self.nums[i,:] = [sortednums[iPl - self.k], sortednums[iPu + self.k]]
+                    self.nums[i, :] = [sortednums[iPl - self.k], sortednums[iPu + self.k]]
                 elif self.bound == StatBound.ALL:
-                    self.nums[i,:] = [sortednums[iPl - self.k], sortednums[iP], sortednums[iPu + self.k]]
+                    self.nums[i, :] = [sortednums[iPl - self.k],
+                                       sortednums[iP],
+                                       sortednums[iPu + self.k]]
             if self.mcvar.nummap is not None:
                 self.vals = np.array([[self.mcvar.nummap[x] for x in y] for y in self.nums])
             else:
                 self.vals = copy(self.nums)
-                
+
         else:
             # Suppress warning since this will become valid when MCVar is split
-            #warn('MCVarStat only available for scalar or 1-D data')
+            # warn('MCVarStat only available for scalar or 1-D data')
             pass
 
 
@@ -407,7 +428,7 @@ class MCVarStat:
                 ) -> None:
         """
         Set the name for this variable statistic.
-        
+
         Parameters
         ----------
         name : str

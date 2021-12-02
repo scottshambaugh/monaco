@@ -19,7 +19,7 @@ def pct2sig(p     : float,
         The percentile to convert, 0 < p < 1.
     bound : monaco.MCEnums.StatBound
         The statistical bound, either '1-sided' or '2-sided'.
-    
+
     Returns
     -------
     sig : float
@@ -28,7 +28,7 @@ def pct2sig(p     : float,
     sig = None
     if p <= 0 or p >= 1:
         raise ValueError(f'{p=} must be 0 < p < 1')
-          
+
     if bound == StatBound.TWOSIDED:
         if p >= 0.5:
             sig = scipy.stats.norm.ppf(1-(1-p)/2)
@@ -38,25 +38,25 @@ def pct2sig(p     : float,
         sig = scipy.stats.norm.ppf(p)
     else:
         raise ValueError(f"{bound=} must be {StatBound.ONESIDED} or {StatBound.TWOSIDED}")
-    
+
     return sig
 
 
 
-def sig2pct(sig   : float, 
+def sig2pct(sig   : float,
             bound : StatBound = StatBound.TWOSIDED,
             ) -> float:
     """
     Converts a gaussian sigma value to a percentile (1-sided), or to the
     percent of the normal distribution bounded by (-sigma, +sigma) (2-sided).
-    
+
     Parameters
     ----------
     sig : float
         The gaussian sigma value to convert.
     bound : monaco.MCEnums.StatBound
         The statistical bound, either '1-sided' or '2-sided'.
-    
+
     Returns
     -------
     p : float
@@ -68,8 +68,8 @@ def sig2pct(sig   : float,
     elif bound == StatBound.ONESIDED:
         p = scipy.stats.norm.cdf(sig)
     else:
-        raise ValueError(f"{bound=} must be {StatBound.ONESIDED} or {StatBound.TWOSIDED}")   
-    
+        raise ValueError(f"{bound=} must be {StatBound.ONESIDED} or {StatBound.TWOSIDED}")
+
     return p
 
 
@@ -78,33 +78,33 @@ def conf_ellipsoid_pct2sig(p  : float,
                            df : int,
                            ) -> float:
     """
-    Converts a percentile to a sigma value which bounds a df-dimensional 
+    Converts a percentile to a sigma value which bounds a df-dimensional
     gaussian distribution, used in generating confidence ellipsoids. Note
-    that in the 1-D case, np.sqrt(scipy.stats.chi2.ppf(p, df=1)) is 
+    that in the 1-D case, np.sqrt(scipy.stats.chi2.ppf(p, df=1)) is
     equivalent to pct2sig(p >= 0.5, bound = '2-sided') ==
     scipy.stats.norm.ppf(1-(1-p)/2)
-    
+
     Parameters
     ----------
     p : float
         The percentile to convert, 0 < p < 1.
     df : int
         The degrees of freedom, df > 0.
-    
+
     Returns
     -------
     sig : float
         The gaussian sigma value for the input percentile.
     """
     sig = None
-    
+
     if p <= 0 or p >= 1:
-        raise ValueError(f'{p=} must be 0 < p < 1')            
+        raise ValueError(f'{p=} must be 0 < p < 1')
     elif df <= 0:
-        raise ValueError(f'{df=} must be > 0')            
+        raise ValueError(f'{df=} must be > 0')
     else:
         sig = np.sqrt(scipy.stats.chi2.ppf(p, df=df))
-        
+
     return sig
 
 
@@ -115,16 +115,16 @@ def conf_ellipsoid_sig2pct(sig : float,
     """
     Converts a sigma value which bounds a df-dimensional gaussian distribution,
     to a percentil used in generating confidence ellipsoids. Note that in the
-    1-D case, scipy.stats.chi2.cdf(sig**2, df=1) is equivalent to 
+    1-D case, scipy.stats.chi2.cdf(sig**2, df=1) is equivalent to
     sig2pct(sig > 0, bound='2-sided) == 1-(1-scipy.stats.norm.cdf(sig))*2
-    
+
     Parameters
     ----------
     sig : float
         The gaussian sigma value to convert, sig > 0.
     df : int
         The degrees of freedom, df > 0.
-    
+
     Returns
     -------
     p : float
@@ -132,9 +132,9 @@ def conf_ellipsoid_sig2pct(sig : float,
     """
 
     if sig <= 0:
-        raise ValueError(f'{sig=} must be > 0')            
+        raise ValueError(f'{sig=} must be > 0')
     elif df <= 0:
-        raise ValueError(f'{df=} must be > 0')            
+        raise ValueError(f'{df=} must be > 0')
 
     p = scipy.stats.chi2.cdf(sig**2, df=df)
     return p

@@ -34,6 +34,7 @@ myst-parser = {version = ">=0.15", optional = true}
 pytest = "^6.0.0"
 coverage = "^6.0"
 mypy = "^0.800"
+flake8 = "^4.000"
 
 [tool.poetry.extras]
 pandas = ["pandas"]
