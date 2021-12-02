@@ -51,7 +51,7 @@ class MCSim:
         files.
     resultsdir : {str, pathlib.Path}
         The directory to save simulation and case data to. If None, then this
-        defaults to a directory named '`name`_results'.
+        defaults to a directory named '\`name\`_results'.
     
     Attributes
     ----------

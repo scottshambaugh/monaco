@@ -10,7 +10,15 @@ Once all input variables have been added, the sim can be run with `MCSim.runSim(
 
 Your function will now be run for all the individual cases via the call chain shown below. This should give some light into what the three functions you passed to `MCSim` are doing. `preprocess` needs to take in an `MCCase` object, extract its random values, and package that along with any other data into the structure that `run` expects for its input arguments. The `run` function then executes on those inputs arguments and returns its outputs. The `postprocess` function then needs to take in the original `mccase` as well as those outputs. Within that function, you will need to perform any postprocessing you wish to do, and choose what data to log out by calling `MCCase.addOutVal(val)` on those values. The outputs of `preproccess` and `run` both need to be packaged into tuples for unpacking later.
 
-    postprocess( mccase, *run( *preprocess( mccase ) ) )
+```
+postprocess( mccase, *run( *preprocess( mccase ) ) )
+
+# Or equivalently to unpack this:
+
+siminput = (siminput1, siminput2, ...) = preprocess(mccase)
+simrawoutput = (simrawoutput1, simrawoutput2, ...) = run(*siminput) = run(siminput1, siminput2, ...)
+postprocess(mccase, *simrawoutput) = postprocess(mccase, simrawoutput1, simrawoutput2, ...)
+```
 
 A progress bar in the terminal will show the progress as the results for all cases are calculated. After it is complete, all the output values will be compiled into `MCOutVar` objects, and you can now interrogate the combined results. Several things which you might want to do are built in:
 

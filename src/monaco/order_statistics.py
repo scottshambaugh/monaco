@@ -24,7 +24,11 @@ def order_stat_TI_n(k     : int,
     
     For example, if I want to use my 2nd highest measurement as a bound on 99%
     of all future samples with 90% confidence:
+    
+    .. code-block::
+
         n = order_stat_TI_n(k=2, p=0.99, c=0.90, bound='1-sided') = 389
+    
     The 388th value of x when sorted from low to high, or sorted(x)[-2], will
     bound the upper end of the measurement with P99/90. 
     
@@ -263,9 +267,13 @@ def order_stat_P_n(k     : int,
     
     For example, if I want to use my 5th nearest measurement as a bound on the 
     50th Percentile with 90% confidence:
+
+    .. code-block::
+
         n = order_stat_P_n(k=5, P=0.50, c=0.90, bound='2-sided') = 38
         iPl = np.floor(P*(n + 1)) = 19
         iPu = np.ceil(P*(n + 1)) = 20
+    
     The 19-5 = 14th and 20+5= 25th values of x when sorted from low to high, or
     [sorted(x)[13], sorted(x)[24]] will bound the 50th percentile with 90%
     confidence.
@@ -274,7 +282,7 @@ def order_stat_P_n(k     : int,
     '1-sided upper' give the respective lower or upper bound of the Pth 
     percentile over the entire rest of the distribution. 
     
-    See chapter 5 of Reference [1]_ for statistical background.
+    See chapter 5 of Reference [2]_ for statistical background.
 
     Parameters
     ----------
@@ -296,7 +304,7 @@ def order_stat_P_n(k     : int,
 
     References
     ----------
-    .. [1] Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A
+    .. [2] Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A
        Guide for Practitioners." Germany, Wiley, 1991.
     """
     order_stat_var_check(p=P, k=k, c=c, nmax=nmax)

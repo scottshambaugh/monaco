@@ -44,9 +44,9 @@ def mc_multi_plot(mcvars   : list[Union[MCInVar, MCOutVar]],
     
     Returns
     -------
-        (fig, axes) : (matplotlib.figure.Figure, (matplotlib.axes.Axes,))
-            fig is the figure handle for the plot.
-            axes is a tuple of the axes handles for the plots.
+    (fig, axes) : (matplotlib.figure.Figure, (matplotlib.axes.Axes,))
+        fig is the figure handle for the plot.
+        axes is a tuple of the axes handles for the plots.
     """
     # Split larger vars
     if len(mcvars) == 1:
@@ -116,12 +116,11 @@ def mc_multi_plot_2d_scatter_hist(mcvarx     : Union[MCInVar, MCOutVar],
     
     Returns
     -------
-        (fig, (ax1, ax2, ax3)) : (matplotlib.figure.Figure, 
-                                 (matplotlib.axes.Axes, matplotlib.axes.Axes,
-                                  matplotlib.axes.Axes))
-            fig is the figure handle for the plot.
-            (ax1, ax2, ax3) are the axes handles for the central, y-axis, and
-            x-axis plots, respectively.
+    (fig, (ax1, ax2, ax3)) : (matplotlib.figure.Figure, 
+    (matplotlib.axes.Axes, matplotlib.axes.Axes, matplotlib.axes.Axes))
+        fig is the figure handle for the plot.
+        (ax1, ax2, ax3) are the axes handles for the central, y-axis, and
+        x-axis plots, respectively.
     """
     fig = handle_fig(fig)
     

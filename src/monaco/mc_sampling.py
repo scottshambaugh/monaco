@@ -29,7 +29,7 @@ def mc_sampling(ndraws     : int,
         'sobol_random' methods must have ninvar <= 21201
     ninvar_max : int
         The total number of invars, ninvar_max >= ninvar. Used for caching.
-    seed : int
+    seed : int, default: np.random.get_state(legacy=False)['state']['key'][0]
         The random seed. Not used in 'sobol' or 'halton' methods.
     
     Returns

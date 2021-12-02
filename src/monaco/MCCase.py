@@ -19,9 +19,9 @@ class MCCase():
         Whether this represents the median case.
     mcinvars : dict[str, monaco.MCVar.MCInVar]
         A dict pointing to all of the input variables.
-    constvals : dict[str, Any]
+    constvals : dict[str, Any], default: None
         A dict of any constant values common to all cases.
-    seed : int
+    seed : int, default: np.random.get_state(legacy=False)['state']['key'][0]
         The random seed to pass to the run function for this case. Not used in
         as part of any Monte-Carlo sampling.
     

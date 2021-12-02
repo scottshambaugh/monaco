@@ -21,11 +21,13 @@ MCVar
 -----
 .. automodule:: monaco.MCVar
    :members:
+   :show-inheritance:
 
 MCVal
 -----
 .. automodule:: monaco.MCVal
    :members:
+   :show-inheritance:
 
 MCVarStat
 ---------
@@ -36,6 +38,7 @@ MCEnums
 -------
 .. automodule:: monaco.MCEnums
    :members:
+   :undoc-members:
 
 Functions
 =========
