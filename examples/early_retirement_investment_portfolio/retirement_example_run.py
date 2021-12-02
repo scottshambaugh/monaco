@@ -5,12 +5,12 @@ def retirement_example_run(yearly_returns, beginning_investments, yearly_spendin
     # yearly_returns: A list of yearly investment returns
     # beginning_investments: The money initially invested
     # yearly_spending: The money withdrawn each year
-    
+
     nyears = len(yearly_returns)
-    
+
     starting_balance = np.ones(nyears)*beginning_investments
     ending_balance = np.zeros(nyears)
-    
+
     for i in range(nyears):
         if i > 0:
             starting_balance[i] = ending_balance[i-1]
@@ -20,8 +20,8 @@ def retirement_example_run(yearly_returns, beginning_investments, yearly_spendin
     df = pd.DataFrame({'Returns'         : yearly_returns,
                        'Spending'        : yearly_spending,
                        'Starting Balance': starting_balance,
-                       'Ending Balance'  : ending_balance},\
-                      index = dates)
+                       'Ending Balance'  : ending_balance},
+                      index=dates)
 
     return (df)
 
