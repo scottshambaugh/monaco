@@ -36,7 +36,7 @@
 ### Changed    
 * Dusted off the code with lots of linting
 * Made all modules lowercase
-### Removed    
+* pandas is now an optional dependency
 
 
 ## [0.2.0] - 2021-11-30
