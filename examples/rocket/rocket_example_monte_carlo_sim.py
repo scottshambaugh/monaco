@@ -1,5 +1,5 @@
 from scipy.stats import uniform, rv_discrete, norm
-from monaco.MCSim import MCSim
+from monaco.mc_sim import MCSim
 from monaco.mc_plot import mc_plot
 from monaco.mc_multi_plot import mc_multi_plot
 

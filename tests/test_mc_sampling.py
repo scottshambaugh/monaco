@@ -3,7 +3,7 @@
 import pytest
 import numpy as np
 from monaco.mc_sampling import mc_sampling
-from monaco.MCEnums import SampleMethod
+from monaco.mc_enums import SampleMethod
 
 generator = np.random.RandomState(744948050)
 seeds = generator.randint(0, 2**31-1, size=10)

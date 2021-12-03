@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from monaco.mc_plot import mc_plot_hist, mc_plot_2d_scatter
-from monaco.MCVar import MCInVar, MCOutVar
-from monaco.MCEnums import PlotOrientation
+from monaco.mc_var import MCInVar, MCOutVar
+from monaco.mc_enums import PlotOrientation
 from monaco.helper_functions import empty_list
 from typing import Optional, Iterable
 
@@ -25,7 +25,7 @@ def mc_multi_plot(mcvars   : list[MCInVar | MCOutVar],
 
     Parameters
     ----------
-    mcvars : list[monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar]
+    mcvars : list[monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar]
         The variables to plot.
     cases : None | int | Iterable[int], default: None
         The cases to plot. If None, then all cases are plotted.
@@ -105,9 +105,9 @@ def mc_multi_plot_2d_scatter_hist(mcvarx     : MCInVar | MCOutVar,
 
     Parameters
     ----------
-    mcvarx : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
+    mcvarx : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
         The x variable to plot.
-    mcvary : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
+    mcvary : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
         The y variable to plot.
     cases : None | int | Iterable[int], default: None
         The cases to plot. If None, then all cases are plotted.
@@ -185,7 +185,7 @@ def mc_multi_plot_2d_scatter_grid(mcvars     : list[MCInVar | MCOutVar],
 
     Parameters
     ----------
-    mcvars : list[monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar]
+    mcvars : list[monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar]
         The variables to plot.
     cases : None | int | Iterable[int], default: None
         The cases to plot. If None, then all cases are plotted.

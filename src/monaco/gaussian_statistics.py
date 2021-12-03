@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import scipy.stats
 import numpy as np
-from monaco.MCEnums import StatBound
+from monaco.mc_enums import StatBound
 
 
 def pct2sig(p     : float,
@@ -18,7 +18,7 @@ def pct2sig(p     : float,
     ----------
     p : float
         The percentile to convert, 0 < p < 1.
-    bound : monaco.MCEnums.StatBound
+    bound : monaco.mc_enums.StatBound
         The statistical bound, either '1-sided' or '2-sided'.
 
     Returns
@@ -55,7 +55,7 @@ def sig2pct(sig   : float,
     ----------
     sig : float
         The gaussian sigma value to convert.
-    bound : monaco.MCEnums.StatBound
+    bound : monaco.mc_enums.StatBound
         The statistical bound, either '1-sided' or '2-sided'.
 
     Returns

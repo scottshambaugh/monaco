@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import scipy.stats
 import numpy as np
-from monaco.MCEnums import StatBound
+from monaco.mc_enums import StatBound
 
 
 def order_stat_TI_n(k     : int,
@@ -50,7 +50,7 @@ def order_stat_TI_n(k     : int,
         The confidence of the interval bound.
     nmax : int, default: 1e7
         The maximum number of draws. Hard limit of 2**1000.
-    bound : monaco.MCEnums.StatBound, default: '2-sided'
+    bound : monaco.mc_enums.StatBound, default: '2-sided'
         The statistical bound, either '1-sided' or '2-sided'.
 
     Returns
@@ -116,7 +116,7 @@ def order_stat_TI_p(n     : int,
         The confidence of the interval bound.
     ptol : float, default: 1e-9
         The absolute tolerance on determining p.
-    bound : monaco.MCEnums.StatBound, default: '2-sided'
+    bound : monaco.mc_enums.StatBound, default: '2-sided'
         The statistical bound, either '1-sided' or '2-sided'.
 
     Returns
@@ -169,7 +169,7 @@ def order_stat_TI_k(n     : int,
         The percent covered by the tolerance interval.
     c : float (0 < c < 1)
         The confidence of the interval bound.
-    bound : monaco.MCEnums.StatBound, default: '2-sided'
+    bound : monaco.mc_enums.StatBound, default: '2-sided'
         The statistical bound, either '1-sided' or '2-sided'.
 
     Returns
@@ -230,7 +230,7 @@ def order_stat_TI_c(n     : int,
         The k'th order statistic.
     p : float (0 < p < 1)
         The percent covered by the tolerance interval.
-    bound : monaco.MCEnums.StatBound, default: '2-sided'
+    bound : monaco.mc_enums.StatBound, default: '2-sided'
         The statistical bound, either '1-sided' or '2-sided'.
 
     Returns
@@ -298,7 +298,7 @@ def order_stat_P_n(k     : int,
         The confidence of the interval bound.
     nmax : int, default: 1e7
         The maximum number of draws. Hard limit of 2**1000.
-    bound : monaco.MCEnums.StatBound, default: '2-sided'
+    bound : monaco.mc_enums.StatBound, default: '2-sided'
         The statistical bound, '1-sided upper', '1-sided lower', or '2-sided'.
 
     Returns
@@ -386,7 +386,7 @@ def order_stat_P_k(n     : int,
         The confidence of the interval bound.
     ptol : float, default: 1e-9
         The absolute tolerance on determining p.
-    bound : monaco.MCEnums.StatBound, default: '2-sided'
+    bound : monaco.mc_enums.StatBound, default: '2-sided'
         The statistical bound, '1-sided upper', '1-sided lower', or '2-sided'.
 
     Returns
@@ -469,7 +469,7 @@ def order_stat_P_c(n     : int,
         The k'th order statistic.
     P : float (0 < P < 1)
         The target percentile.
-    bound : monaco.MCEnums.StatBound, default: '2-sided'
+    bound : monaco.mc_enums.StatBound, default: '2-sided'
         The statistical bound, '1-sided upper', '1-sided lower', or '2-sided'.
 
     Returns

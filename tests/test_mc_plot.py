@@ -18,11 +18,11 @@ def plot_testing():
     import numpy as np
     import matplotlib.pyplot as plt
     from scipy.stats import randint, norm
-    from monaco.MCVar import MCInVar, MCOutVar
+    from monaco.mc_var import MCInVar, MCOutVar
     from monaco.mc_plot import (mc_plot, mc_plot_hist, mc_plot_cdf,
                                 mc_plot_cov_corr, mc_plot_integration_convergence,
                                 mc_plot_integration_error)
-    from monaco.MCEnums import SampleMethod
+    from monaco.mc_enums import SampleMethod
 
     generator = np.random.RandomState(74494861)
     invarseeds = generator.randint(0, 2**31-1, size=10)

@@ -5,7 +5,7 @@ import numpy as np
 from scipy.optimize import root_scalar
 from typing import Optional
 from monaco.gaussian_statistics import pct2sig
-from monaco.MCEnums import SampleMethod
+from monaco.mc_enums import SampleMethod
 
 def integration_error(nums         : list[float],
                       dimension    : int,
@@ -33,7 +33,7 @@ def integration_error(nums         : list[float],
     conf : float
         Confidence level of the calculated error. This must be 0 < conf < 1,
         and should be 0.5 < conf < 1.
-    samplemethod : monaco.MCEnums.SampleMethod
+    samplemethod : monaco.mc_enums.SampleMethod
         Monte Carlo sample method. Either 'random' (default and bounding), or
         'sobol'. If using a different sample method, use 'random' here.
     runningerror : bool
@@ -126,7 +126,7 @@ def integration_n_from_err(error        : float,
     conf : float
         Confidence level of the calculated error. This must be 0 < conf < 1,
         and should be 0.5 < conf < 1.
-    samplemethod : monaco.MCEnums.SampleMethod
+    samplemethod : monaco.mc_enums.SampleMethod
         Monte Carlo sample method. Either 'random' (default and bounding), or
         'sobol'. If using a different sample method, use 'random' here.
 
@@ -184,7 +184,7 @@ def integration_args_check(error        : Optional[float],
         stdev > 0.
     conf : float
          0 < conf < 1
-    samplemethod : monaco.MCEnums.SampleMethod
+    samplemethod : monaco.mc_enums.SampleMethod
         Either 'random' or 'sobol'.
     """
     if (error is not None) and (error < 0):

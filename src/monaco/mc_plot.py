@@ -8,11 +8,11 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib.patches import Ellipse
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
-from monaco.MCVar import MCInVar, MCOutVar
+from monaco.mc_var import MCInVar, MCOutVar
 from monaco.helper_functions import get_tuple, slice_by_index, length, empty_list
 from monaco.gaussian_statistics import conf_ellipsoid_sig2pct
 from monaco.integration_statistics import integration_error
-from monaco.MCEnums import SampleMethod, PlotOrientation
+from monaco.mc_enums import SampleMethod, PlotOrientation
 from copy import copy
 from typing import Optional, Iterable
 
@@ -35,11 +35,11 @@ def mc_plot(mcvarx   : MCInVar | MCOutVar,
 
     Parameters
     ----------
-    mcvarx : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
+    mcvarx : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
         The x variable to plot.
-    mcvary : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar, default: None
+    mcvary : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar, default: None
         The y variable to plot.
-    mcvarz : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar, default: None
+    mcvarz : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar, default: None
         The z variable to plot.
     cases : None | int | Iterable[int], default: None
         The cases to plot. If None, then all cases are plotted.
@@ -167,13 +167,13 @@ def mc_plot_hist(mcvar       : MCInVar | MCOutVar,
 
     Parameters
     ----------
-    mcvar : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
+    mcvar : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
         The variable to plot.
     highlight_cases : None | int | Iterable[int], default: []
         The cases to highlight. If [], then no cases are highlighted.
     cumulative : bool, default: False
         Whether to plot the histograms as cumulative distribution functions.
-    orientation : monaco.MCEnums.PlotOrientation, default: 'vertical'
+    orientation : monaco.mc_enums.PlotOrientation, default: 'vertical'
         The orientation of the histogram. Either 'vertical' or 'horizontal'.
     rug_plot : bool, default: True
         Whether to plot rug marks.
@@ -306,11 +306,11 @@ def mc_plot_cdf(mcvar       : MCInVar | MCOutVar,
 
     Parameters
     ----------
-    mcvar : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
+    mcvar : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
         The variable to plot.
     highlight_cases : None | int | Iterable[int], default: []
         The cases to highlight. If [], then no cases are highlighted.
-    orientation : monaco.MCEnums.PlotOrientation, default: 'vertical'
+    orientation : monaco.mc_enums.PlotOrientation, default: 'vertical'
         The orientation of the histogram. Either 'vertical' or 'horizontal'.
     rug_plot : bool, default: True
         Whether to plot rug marks.
@@ -345,9 +345,9 @@ def mc_plot_2d_scatter(mcvarx   : MCInVar | MCOutVar,
 
     Parameters
     ----------
-    mcvarx : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
+    mcvarx : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
         The x variable to plot.
-    mcvary : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
+    mcvary : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
         The y variable to plot.
     cases : None | int | Iterable[int], default: None
         The cases to plot. If None, then all cases are highlighted.
@@ -420,9 +420,9 @@ def mc_plot_2d_line(mcvarx : MCInVar | MCOutVar,
 
     Parameters
     ----------
-    mcvarx : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
+    mcvarx : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
         The x variable to plot.
-    mcvary : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
+    mcvary : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
         The y variable to plot.
     cases : None | int | Iterable[int], default: None
         The cases to plot. If None, then all cases are highlighted.
@@ -480,11 +480,11 @@ def mc_plot_3d_scatter(mcvarx : MCInVar | MCOutVar,
 
     Parameters
     ----------
-    mcvarx : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
+    mcvarx : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
         The x variable to plot.
-    mcvary : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
+    mcvary : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
         The y variable to plot.
-    mcvarz : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
+    mcvarz : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
         The z variable to plot.
     cases : None | int | Iterable[int], default: None
         The cases to plot. If None, then all cases are highlighted.
@@ -540,11 +540,11 @@ def mc_plot_3d_line(mcvarx : MCInVar | MCOutVar,
 
     Parameters
     ----------
-    mcvarx : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
+    mcvarx : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
         The x variable to plot.
-    mcvary : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
+    mcvary : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
         The y variable to plot.
-    mcvarz : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
+    mcvarz : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
         The z variable to plot.
     cases : None | int | Iterable[int], default: None
         The cases to plot. If None, then all cases are highlighted.
@@ -660,7 +660,7 @@ def mc_plot_integration_convergence(mcoutvar     : MCOutVar,
 
     Parameters
     ----------
-    mcoutvar : monaco.MCVar.MCOutVar
+    mcoutvar : monaco.mc_var.MCOutVar
         The variable representing the integration estimate.
     dimension : int
         The number of dimensions over which the integration was performed.
@@ -670,7 +670,7 @@ def mc_plot_integration_convergence(mcoutvar     : MCOutVar,
         If known a-priori, the reference value for the integration.
     conf : float, default: 0.95
         The confidence level for the error estimate. 0.95 corresponds to 95%.
-    samplemethod : monaco.MCEnums.SampleMethod
+    samplemethod : monaco.mc_enums.SampleMethod
         The sample method used for integration. Either 'random' or 'sobol'.
     ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
@@ -719,7 +719,7 @@ def mc_plot_integration_error(mcoutvar     : MCOutVar,
 
     Parameters
     ----------
-    mcoutvar : monaco.MCVar.MCOutVar
+    mcoutvar : monaco.mc_var.MCOutVar
         The variable representing the integration estimate.
     dimension : int
         The number of dimensions over which the integration was performed.
@@ -729,7 +729,7 @@ def mc_plot_integration_error(mcoutvar     : MCOutVar,
         The reference value for the integration.
     conf : float, default: 0.95
         The confidence level for the error estimate. 0.95 corresponds to 95%.
-    samplemethod : monaco.MCEnums.SampleMethod
+    samplemethod : monaco.mc_enums.SampleMethod
         The sample method used for integration. Either 'random' or 'sobol'.
     ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
@@ -803,11 +803,11 @@ def apply_category_labels(ax : Axes,
     ----------
     ax : matplotlib.axes.Axes
         The target axis.
-    mcvarx : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar, default: None
+    mcvarx : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar, default: None
         The x variable.
-    mcvary : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar, default: None
+    mcvary : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar, default: None
         The y variable.
-    mcvarz : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar, default: None
+    mcvarz : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar, default: None
         The z variable.
     """
     # Wrapped in try statements in case some categories aren't printable
@@ -903,9 +903,9 @@ def plot_2d_cov_ellipse(ax     : Axes,
     ----------
     ax : matplotlib.axes.Axes
         The target axis.
-    mcvarx : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
+    mcvarx : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
         The x variable.
-    mcvary : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
+    mcvary : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
         The y variable.
     p : float
         Coviariance percentile, assuming a gaussian distribution.

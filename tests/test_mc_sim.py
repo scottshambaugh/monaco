@@ -1,8 +1,8 @@
 # test_MCSim.py
 
 import pytest
-from monaco.MCSim import MCSim
-from monaco.MCEnums import MCFunctions, SampleMethod
+from monaco.mc_sim import MCSim
+from monaco.mc_enums import MCFunctions, SampleMethod
 from tests.mcsim_testing_fcns import dummyfcn
 import numpy as np
 

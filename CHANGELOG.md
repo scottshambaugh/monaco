@@ -25,8 +25,23 @@
 
 ## [Unreleased]
 ### Added    
+* Python 3.8 support
+* pre-commit hooks for linting
 ### Changed    
+* Dusting off the code with lots of linting
 ### Removed    
+
+
+## [0.2.0] - 2021-11-30
+### Added    
+* Documentation is now [up on readthedocs](https://monaco.readthedocs.io/en/latest/)!
+* Docstrings for all classes and functions, roughly follows the [numpy docstrings convention](https://numpydoc.readthedocs.io/en/latest/format.html)
+* Analysis process diagram
+* More unit tests
+### Changed    
+* Documentation and images were moved around.
+### Removed    
+
 
 
 ## [0.2.0] - 2021-11-30

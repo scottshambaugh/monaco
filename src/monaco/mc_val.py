@@ -1,4 +1,4 @@
-# MCVal.py
+# mc_val.py
 from __future__ import annotations
 
 import numpy as np
@@ -265,7 +265,7 @@ class MCOutVal(MCVal):
 
         Returns
         -------
-        mcvals : dict[str : monaco.MCVal.MCOutVal]
+        mcvals : dict[str : monaco.mc_val.MCOutVal]
         """
         mcvals = dict()
         if self.size[0] > 1:

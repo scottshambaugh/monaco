@@ -1,12 +1,12 @@
-# MCVar.py
+# mc_var.py
 from __future__ import annotations
 
 import numpy as np
 from scipy.stats import rv_continuous, rv_discrete, describe
 from scipy.stats.stats import DescribeResult
-from monaco.MCVal import MCVal, MCInVal, MCOutVal
-from monaco.MCVarStat import MCVarStat
-from monaco.MCEnums import SampleMethod, VarStat
+from monaco.mc_val import MCVal, MCInVal, MCOutVal
+from monaco.mc_varstat import MCVarStat
+from monaco.mc_enums import SampleMethod, VarStat
 from monaco.mc_sampling import mc_sampling
 from monaco.helper_functions import empty_list
 from copy import copy
@@ -92,7 +92,7 @@ class MCVar(ABC):
 
         Parameters
         ----------
-        stattype : monaco.MCEnums.VarStat
+        stattype : monaco.mc_enums.VarStat
             The type of variable statistic to add.
         statkwargs : dict[str, Any]
             Keyword arguments for the specified variable stastistic.
@@ -138,7 +138,7 @@ class MCInVar(MCVar):
     nummap : dict
         A dictionary mapping numbers to nonnumeric values (the inverse of
         `valmap`).
-    samplemethod : monaco.MCEnums.SampleMethod, default: 'sobol_random'
+    samplemethod : monaco.mc_enums.SampleMethod, default: 'sobol_random'
         The random sampling method to use.
     ninvar : int
         The number of the input variable this is.
@@ -289,7 +289,7 @@ class MCInVar(MCVar):
 
         Returns
         -------
-        val : monaco.MCVal.MCInVal
+        val : monaco.mc_val.MCInVal
             The input value for that case.
         """
         ismedian = False
@@ -466,7 +466,7 @@ class MCOutVar(MCVar):
 
         Returns
         -------
-        val : monaco.MCVal.MCOutVal
+        val : monaco.mc_val.MCOutVal
             The output value.
         """
         ismedian = False
@@ -484,7 +484,7 @@ class MCOutVar(MCVar):
 
         Returns
         -------
-        val : monaco.MCVal.MCOutVal
+        val : monaco.mc_val.MCOutVal
             The median output value.
         """
         val = None
@@ -501,7 +501,7 @@ class MCOutVar(MCVar):
 
         Returns
         -------
-        mcvars : dict[str : monaco.MCVar.MCOutVar]
+        mcvars : dict[str : monaco.mc_var.MCOutVar]
         """
         mcvars = dict()
         if self.size[0] > 1:

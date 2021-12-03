@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from monaco.mc_sampling import mc_sampling
 from monaco.integration_statistics import  integration_args_check
 from monaco.gaussian_statistics import pct2sig
-from monaco.MCEnums import SampleMethod
+from monaco.mc_enums import SampleMethod
 
 n = int(2**19)
 conf = 0.95

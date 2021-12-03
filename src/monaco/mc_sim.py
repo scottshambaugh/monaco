@@ -6,9 +6,9 @@ import numpy as np
 import dill
 import pathlib
 from datetime import datetime, timedelta
-from monaco.MCCase import MCCase
-from monaco.MCVar import MCInVar, MCOutVar
-from monaco.MCEnums import MCFunctions, SampleMethod
+from monaco.mc_case import MCCase
+from monaco.mc_var import MCInVar, MCOutVar
+from monaco.mc_enums import MCFunctions, SampleMethod
 from monaco.helper_functions import (get_tuple, slice_by_index, vprint, vwarn,
                                      vwrite, hash_str_repeatable)
 from psutil import cpu_count
@@ -28,14 +28,14 @@ class MCSim:
         The name for the simulation.
     ndraws : int
         The number of random draws to perform.
-    fcns : dict[monaco.MCEnums.MCFunctions, Callable]
+    fcns : dict[monaco.mc_enums.MCFunctions, Callable]
         fcns is a dict with keys MCFunctions.PREPROCESS, RUN, and POSTPROCESS.
         These point to user-defined functions with certain input and output
         structures, please see the documentation on how to construct these
         functions.
     firstcaseismedian : bool, default: False
         Whether the first case represents the median value.
-    samplemethod : monaco.MCEnums.SampleMethod, default: 'sobol_random'
+    samplemethod : monaco.mc_enums.SampleMethod, default: 'sobol_random'
         The random sampling method to use.
     seed : int, default: np.random.get_state(legacy=False)['state']['key'][0]
         The random number to seed the simulation.
@@ -80,13 +80,13 @@ class MCSim:
         The cases which were sucessfully run.
     casespostprocessed : set[int]
         The cases which were sucessfully postprocessed.
-    mcinvars : dict[str, monaco.MCVar.MCInVar]
+    mcinvars : dict[str, monaco.mc_var.MCInVar]
         The Monte-Carlo Input Variables.
-    mcoutvars : dict[str, monaco.MCVar.MCOutVar]
+    mcoutvars : dict[str, monaco.mc_var.MCOutVar]
         The Monte-Carlo Output Variables.
     constvals : dict[str, Any]
         The constant values to pass to each of the cases.
-    mccases : list[monaco.MCCase.MCCase]
+    mccases : list[monaco.mc_case.MCCase]
         The Monte-Carlo Cases.
     ninvars : int
         The number of input variables.
@@ -201,7 +201,7 @@ class MCSim:
 
         Parameters
         ----------
-        fcns : dict[monaco.MCEnums.MCFunctions, Callable]
+        fcns : dict[monaco.mc_enums.MCFunctions, Callable]
             fcns must be a dict with keys MCFunctions.PREPROCESS, RUN, and
             POSTPROCESS, which point to special user-defined functions.
         """
@@ -509,12 +509,12 @@ class MCSim:
 
         Parameters
         ----------
-        mccase : monaco.MCCase.MCCase
+        mccase : monaco.mc_case.MCCase
             The case to preprocess.
 
         Returns
         -------
-        mccase : monaco.MCCase.MCCase
+        mccase : monaco.mc_case.MCCase
             The same case, preprocessed.
         """
         try:
@@ -594,12 +594,12 @@ class MCSim:
 
         Parameters
         ----------
-        mccase : monaco.MCCase.MCCase
+        mccase : monaco.mc_case.MCCase
             The case to run.
 
         Returns
         -------
-        mccase : monaco.MCCase.MCCase
+        mccase : monaco.mc_case.MCCase
             The same case, ran.
         """
         try:
@@ -678,12 +678,12 @@ class MCSim:
 
         Parameters
         ----------
-        mccase : monaco.MCCase.MCCase
+        mccase : monaco.mc_case.MCCase
             The case to postprocess.
 
         Returns
         -------
-        mccase : monaco.MCCase.MCCase
+        mccase : monaco.mc_case.MCCase
             The same case, postprocessed.
         """
         try:

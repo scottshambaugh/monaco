@@ -1,5 +1,5 @@
 from scipy.stats import uniform
-from monaco.MCSim import MCSim
+from monaco.mc_sim import MCSim
 from monaco.helper_functions import next_power_of_2
 from monaco.integration_statistics import integration_error, integration_n_from_err, max_stdev
 import numpy as np

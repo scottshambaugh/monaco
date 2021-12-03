@@ -1,8 +1,8 @@
-# MCCase.py
+# mc_case.py
 from __future__ import annotations
 
-from monaco.MCVar import MCOutVar, MCInVar
-from monaco.MCVal import MCOutVal, MCInVal
+from monaco.mc_var import MCOutVar, MCInVar
+from monaco.mc_val import MCOutVal, MCInVal
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -18,7 +18,7 @@ class MCCase():
         The number of this case.
     ismedian : bool
         Whether this represents the median case.
-    mcinvars : dict[str, monaco.MCVar.MCInVar]
+    mcinvars : dict[str, monaco.mc_var.MCInVar]
         A dict pointing to all of the input variables.
     constvals : dict[str, Any], default: None
         A dict of any constant values common to all cases.
@@ -44,9 +44,9 @@ class MCCase():
         Whether this case has run the run function.
     haspostprocessed : bool
         Whether this case has been postprocessed.
-    mcinvals : dict[str, monaco.MCVal.MCInVal]
+    mcinvals : dict[str, monaco.mc_val.MCInVal]
         The input values for this partitcular case.
-    mcoutvals : dict[str, monaco.MCVal.MCOutVal]
+    mcoutvals : dict[str, monaco.mc_val.MCOutVal]
         The output values for this partitcular case.
     siminput : tuple[Any]
         The preprocessed inputs provided to the run function for this case.
@@ -93,7 +93,7 @@ class MCCase():
 
         Returns
         -------
-        mcvals: dict[str, monaco.MCVal.MCInVal]
+        mcvals: dict[str, monaco.mc_val.MCInVal]
             The MCInVal's for this case.
         """
         mcvals = dict()
@@ -109,7 +109,7 @@ class MCCase():
 
         Returns
         -------
-        mcvals: dict[str, monaco.MCVal.MCOutVal]
+        mcvals: dict[str, monaco.mc_val.MCOutVal]
             The MCOutVal's for this case.
         """
         mcvals = dict()

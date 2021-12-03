@@ -3,7 +3,7 @@
 import pytest
 from monaco.gaussian_statistics import (sig2pct, pct2sig, conf_ellipsoid_sig2pct,
                                         conf_ellipsoid_pct2sig)
-from monaco.MCEnums import StatBound
+from monaco.mc_enums import StatBound
 
 
 def test_pct2sig():

@@ -4,7 +4,7 @@ import pytest
 from monaco.gaussian_statistics import pct2sig
 from monaco.integration_statistics import (integration_error, integration_n_from_err,
                                            integration_args_check, max_variance, max_stdev)
-from monaco.MCEnums import SampleMethod
+from monaco.mc_enums import SampleMethod
 
 def test_integration_error():
     assert integration_error([1, 0, 2], dimension=1, conf=0.95, samplemethod=SampleMethod.RANDOM,

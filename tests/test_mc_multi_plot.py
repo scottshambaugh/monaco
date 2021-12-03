@@ -7,9 +7,9 @@ def plot_testing():
     import numpy as np
     from scipy.stats import norm
     import matplotlib.pyplot as plt
-    from monaco.MCVar import MCInVar
+    from monaco.mc_var import MCInVar
     from monaco.mc_multi_plot import mc_multi_plot
-    from monaco.MCEnums import SampleMethod
+    from monaco.mc_enums import SampleMethod
 
     plt.close('all')
 

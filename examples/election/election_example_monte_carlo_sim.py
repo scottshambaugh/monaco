@@ -1,6 +1,6 @@
 from scipy.stats import norm, uniform
 from monaco.gaussian_statistics import pct2sig
-from monaco.MCSim import MCSim
+from monaco.mc_sim import MCSim
 from monaco.mc_plot import mc_plot
 import matplotlib.pyplot as plt
 import numpy as np

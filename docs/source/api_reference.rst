@@ -9,34 +9,34 @@ Classes
 
 MCSim
 -----
-.. automodule:: monaco.MCSim
+.. automodule:: monaco.mc_sim
    :members:
 
 MCCase
 ------
-.. automodule:: monaco.MCCase
+.. automodule:: monaco.mc_case
    :members:
-   
+
 MCVar
 -----
-.. automodule:: monaco.MCVar
+.. automodule:: monaco.mc_var
    :members:
    :show-inheritance:
 
 MCVal
 -----
-.. automodule:: monaco.MCVal
+.. automodule:: monaco.mc_val
    :members:
    :show-inheritance:
 
 MCVarStat
 ---------
-.. automodule:: monaco.MCVarStat
+.. automodule:: monaco.mc_varstat
    :members:
 
 MCEnums
 -------
-.. automodule:: monaco.MCEnums
+.. automodule:: monaco.mc_enums
    :members:
    :undoc-members:
 

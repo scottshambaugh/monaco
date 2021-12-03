@@ -1,6 +1,6 @@
 # template_monte_carlo_sim.py
 
-from monaco.MCSim import MCSim
+from monaco.mc_sim import MCSim
 from monaco.mc_plot import mc_plot, mc_plot_cov_corr
 
 # Import the statistical distributions from scipy.stats that you will be using.

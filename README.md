@@ -30,12 +30,12 @@ First, install `monaco`:
 ```
 pip install monaco
 ```
-Then, copy the two files from the [template directory](https://github.com/scottshambaugh/monaco/main/template), which contains a simple, well commented Monte Carlo simulation of flipping coins. That link also contains some exercises for you to do, to help you familiarize yourself with how `monaco` is structured.
+Then, copy the two files from the [template directory](https://github.com/scottshambaugh/monaco/tree/main/template), which contains a simple, well commented Monte Carlo simulation of flipping coins. That link also contains some exercises for you to do, to help you familiarize yourself with how `monaco` is structured.
 
 After working through the template exercises, check out the other [examples](https://github.com/scottshambaugh/monaco/tree/main/examples) for inspiration and more in-depth usage of `monaco`'s features.
 
 ### Documentation / API Reference
-Documentation is being built up - [read the docs here.](https://monaco.readthedocs.io/en/latest/)
+Documentation is being built up - read the docs here: https://monaco.readthedocs.io
 
 Currently there is a complete [API reference](https://monaco.readthedocs.io/en/latest/api_reference.html), more detailed [installation, test, and publishing](https://monaco.readthedocs.io/en/latest/installation.html) instructions, an overview of the [basic architecture](https://monaco.readthedocs.io/en/latest/basic_architecture.html) and [basic workflow](https://monaco.readthedocs.io/en/latest/basic_workflow.html), and some details on [statistical distributions](https://monaco.readthedocs.io/en/latest/statistical_distributions.html) and [sampling methods](https://monaco.readthedocs.io/en/latest/sampling_methods.html). 
 

@@ -1,4 +1,4 @@
-# MCEnums.py
+# mc_enums.py
 from __future__ import annotations
 
 from enum import Enum

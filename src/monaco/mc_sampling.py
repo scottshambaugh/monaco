@@ -6,7 +6,7 @@ import numpy as np
 from functools import lru_cache
 import warnings
 import sys
-from monaco.MCEnums import SampleMethod
+from monaco.mc_enums import SampleMethod
 
 
 def mc_sampling(ndraws     : int,
@@ -22,7 +22,7 @@ def mc_sampling(ndraws     : int,
     ----------
     ndraws : int
         The number of samples to draw.
-    method : monaco.MCEnums.SampleMethod
+    method : monaco.mc_enums.SampleMethod
         The sample method to use.
     ninvar : int
         For all but the 'random' method, must define which number input
@@ -86,7 +86,7 @@ def cached_pcts(ndraws     : int,
     ----------
     ndraws : int
         The number of samples to draw.
-    method : monaco.MCEnums.SampleMethod
+    method : monaco.mc_enums.SampleMethod
         The sample method to use.
     ninvar_max : int
         The total number of invars.
