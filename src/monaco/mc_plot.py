@@ -14,18 +14,18 @@ from monaco.gaussian_statistics import conf_ellipsoid_sig2pct
 from monaco.integration_statistics import integration_error
 from monaco.MCEnums import SampleMethod, PlotOrientation
 from copy import copy
-from typing import Union, Optional, Iterable
+from typing import Optional, Iterable
 
 
 # If cases or highlight_cases are None, will plot all. Set to [] to plot none.
-def mc_plot(mcvarx   : Union[MCInVar, MCOutVar],
-            mcvary   : Union[MCInVar, MCOutVar] = None,
-            mcvarz   : Union[MCInVar, MCOutVar] = None,
-            cases           : Union[None, int, Iterable[int]] = None,
-            highlight_cases : Union[None, int, Iterable[int]] = empty_list(),
+def mc_plot(mcvarx   : MCInVar | MCOutVar,
+            mcvary   : MCInVar | MCOutVar = None,
+            mcvarz   : MCInVar | MCOutVar = None,
+            cases           : None | int | Iterable[int] = None,
+            highlight_cases : None | int | Iterable[int] = empty_list(),
             rug_plot : bool           = False,
             cov_plot : bool           = False,
-            cov_p    : Union[None, float, Iterable[float]] = None,
+            cov_p    : None | float | Iterable[float] = None,
             ax       : Optional[Axes] = None,
             title    : str            = '',
             ) -> tuple[Figure, Axes]:
@@ -35,22 +35,22 @@ def mc_plot(mcvarx   : Union[MCInVar, MCOutVar],
 
     Parameters
     ----------
-    mcvarx : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
+    mcvarx : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
         The x variable to plot.
-    mcvary : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}, default: None
+    mcvary : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar, default: None
         The y variable to plot.
-    mcvarz : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}, default: None
+    mcvarz : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar, default: None
         The z variable to plot.
-    cases : {None, int, Iterable[int]}, default: None
+    cases : None | int | Iterable[int], default: None
         The cases to plot. If None, then all cases are plotted.
-    highlight_cases : {None, int, Iterable[int]}, default: []
+    highlight_cases : None | int | Iterable[int], default: []
         The cases to highlight. If [], then no cases are highlighted.
     rug_plot : bool, default: True
         Whether to plot rug marks.
     cov_plot : bool, default: False
         Whether to plot a covariance ellipse at a certain gaussian percentile
         level.
-    cov_p : {None, float, Iterable[float]}, default: None
+    cov_p : None | float | Iterable[float], default: None
         The gaussian percentiles for the covariance plot.
     ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
@@ -154,8 +154,8 @@ def mc_plot(mcvarx   : Union[MCInVar, MCOutVar],
 
 
 
-def mc_plot_hist(mcvar       : Union[MCInVar, MCOutVar],
-                 highlight_cases : Union[None, int, Iterable[int]] = empty_list(),
+def mc_plot_hist(mcvar       : MCInVar | MCOutVar,
+                 highlight_cases : None | int | Iterable[int] = empty_list(),
                  cumulative  : bool            = False,
                  orientation : PlotOrientation = PlotOrientation.VERTICAL,
                  rug_plot    : bool            = True,
@@ -167,9 +167,9 @@ def mc_plot_hist(mcvar       : Union[MCInVar, MCOutVar],
 
     Parameters
     ----------
-    mcvar : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
+    mcvar : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
         The variable to plot.
-    highlight_cases : {None, int, Iterable[int]}, default: []
+    highlight_cases : None | int | Iterable[int], default: []
         The cases to highlight. If [], then no cases are highlighted.
     cumulative : bool, default: False
         Whether to plot the histograms as cumulative distribution functions.
@@ -294,8 +294,8 @@ def mc_plot_hist(mcvar       : Union[MCInVar, MCOutVar],
 
 
 
-def mc_plot_cdf(mcvar       : Union[MCInVar, MCOutVar],
-                highlight_cases : Union[None, int, Iterable[int]] = empty_list(),
+def mc_plot_cdf(mcvar       : MCInVar | MCOutVar,
+                highlight_cases : None | int | Iterable[int] = empty_list(),
                 orientation : PlotOrientation = PlotOrientation.VERTICAL,
                 rug_plot    : bool            = True,
                 ax          : Optional[Axes]  = None,
@@ -306,9 +306,9 @@ def mc_plot_cdf(mcvar       : Union[MCInVar, MCOutVar],
 
     Parameters
     ----------
-    mcvar : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
+    mcvar : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
         The variable to plot.
-    highlight_cases : {None, int, Iterable[int]}, default: []
+    highlight_cases : None | int | Iterable[int], default: []
         The cases to highlight. If [], then no cases are highlighted.
     orientation : monaco.MCEnums.PlotOrientation, default: 'vertical'
         The orientation of the histogram. Either 'vertical' or 'horizontal'.
@@ -330,13 +330,13 @@ def mc_plot_cdf(mcvar       : Union[MCInVar, MCOutVar],
 
 
 
-def mc_plot_2d_scatter(mcvarx   : Union[MCInVar, MCOutVar],
-                       mcvary   : Union[MCInVar, MCOutVar],
-                       cases           : Union[None, int, Iterable[int]] = None,
-                       highlight_cases : Union[None, int, Iterable[int]] = empty_list(),
+def mc_plot_2d_scatter(mcvarx   : MCInVar | MCOutVar,
+                       mcvary   : MCInVar | MCOutVar,
+                       cases           : None | int | Iterable[int] = None,
+                       highlight_cases : None | int | Iterable[int] = empty_list(),
                        rug_plot : bool           = False,
                        cov_plot : bool           = False,
-                       cov_p    : Union[None, float, Iterable[float]] = None,
+                       cov_p    : None | float | Iterable[float] = None,
                        ax       : Optional[Axes] = None,
                        title    : str            = '',
                        ) -> tuple[Figure, Axes]:
@@ -345,20 +345,20 @@ def mc_plot_2d_scatter(mcvarx   : Union[MCInVar, MCOutVar],
 
     Parameters
     ----------
-    mcvarx : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
+    mcvarx : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
         The x variable to plot.
-    mcvary : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
+    mcvary : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
         The y variable to plot.
-    cases : {None, int, Iterable[int]}, default: None
+    cases : None | int | Iterable[int], default: None
         The cases to plot. If None, then all cases are highlighted.
-    highlight_cases : {None, int, Iterable[int]}, default: []
+    highlight_cases : None | int | Iterable[int], default: []
         The cases to highlight. If [], then no cases are highlighted.
     rug_plot : bool, default: True
         Whether to plot rug marks.
     cov_plot : bool, default: False
         Whether to plot a covariance ellipse at a certain gaussian percentile
         level.
-    cov_p : {None, float, Iterable[float]}, default: None
+    cov_p : None | float | Iterable[float], default: None
         The gaussian percentiles for the covariance plot.
     ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
@@ -408,10 +408,10 @@ def mc_plot_2d_scatter(mcvarx   : Union[MCInVar, MCOutVar],
 
 
 
-def mc_plot_2d_line(mcvarx : Union[MCInVar, MCOutVar],
-                    mcvary : Union[MCInVar, MCOutVar],
-                    cases           : Union[None, int, Iterable[int]] = None,
-                    highlight_cases : Union[None, int, Iterable[int]] = empty_list(),
+def mc_plot_2d_line(mcvarx : MCInVar | MCOutVar,
+                    mcvary : MCInVar | MCOutVar,
+                    cases           : None | int | Iterable[int] = None,
+                    highlight_cases : None | int | Iterable[int] = empty_list(),
                     ax     : Optional[Axes] = None,
                     title  : str            = '',
                     ) -> tuple[Figure, Axes]:
@@ -420,13 +420,13 @@ def mc_plot_2d_line(mcvarx : Union[MCInVar, MCOutVar],
 
     Parameters
     ----------
-    mcvarx : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
+    mcvarx : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
         The x variable to plot.
-    mcvary : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
+    mcvary : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
         The y variable to plot.
-    cases : {None, int, Iterable[int]}, default: None
+    cases : None | int | Iterable[int], default: None
         The cases to plot. If None, then all cases are highlighted.
-    highlight_cases : {None, int, Iterable[int]}, default: []
+    highlight_cases : None | int | Iterable[int], default: []
         The cases to highlight. If [], then no cases are highlighted.
     ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
@@ -467,11 +467,11 @@ def mc_plot_2d_line(mcvarx : Union[MCInVar, MCOutVar],
 
 
 
-def mc_plot_3d_scatter(mcvarx : Union[MCInVar, MCOutVar],
-                       mcvary : Union[MCInVar, MCOutVar],
-                       mcvarz : Union[MCInVar, MCOutVar],
-                       cases           : Union[None, int, Iterable[int]] = None,
-                       highlight_cases : Union[None, int, Iterable[int]] = empty_list(),
+def mc_plot_3d_scatter(mcvarx : MCInVar | MCOutVar,
+                       mcvary : MCInVar | MCOutVar,
+                       mcvarz : MCInVar | MCOutVar,
+                       cases           : None | int | Iterable[int] = None,
+                       highlight_cases : None | int | Iterable[int] = empty_list(),
                        ax     : Optional[Axes] = None,
                        title  : str            = '',
                        ) -> tuple[Figure, Axes]:
@@ -480,15 +480,15 @@ def mc_plot_3d_scatter(mcvarx : Union[MCInVar, MCOutVar],
 
     Parameters
     ----------
-    mcvarx : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
+    mcvarx : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
         The x variable to plot.
-    mcvary : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
+    mcvary : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
         The y variable to plot.
-    mcvarz : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
+    mcvarz : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
         The z variable to plot.
-    cases : {None, int, Iterable[int]}, default: None
+    cases : None | int | Iterable[int], default: None
         The cases to plot. If None, then all cases are highlighted.
-    highlight_cases : {None, int, Iterable[int]}, default: []
+    highlight_cases : None | int | Iterable[int], default: []
         The cases to highlight. If [], then no cases are highlighted.
     ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
@@ -527,11 +527,11 @@ def mc_plot_3d_scatter(mcvarx : Union[MCInVar, MCOutVar],
 
 
 
-def mc_plot_3d_line(mcvarx : Union[MCInVar, MCOutVar],
-                    mcvary : Union[MCInVar, MCOutVar],
-                    mcvarz : Union[MCInVar, MCOutVar],
-                    cases           : Union[None, int, Iterable[int]] = None,
-                    highlight_cases : Union[None, int, Iterable[int]] = empty_list(),
+def mc_plot_3d_line(mcvarx : MCInVar | MCOutVar,
+                    mcvary : MCInVar | MCOutVar,
+                    mcvarz : MCInVar | MCOutVar,
+                    cases           : None | int | Iterable[int] = None,
+                    highlight_cases : None | int | Iterable[int] = empty_list(),
                     ax     : Optional[Axes] = None,
                     title  : str            = '',
                     ) -> tuple[Figure, Axes]:
@@ -540,15 +540,15 @@ def mc_plot_3d_line(mcvarx : Union[MCInVar, MCOutVar],
 
     Parameters
     ----------
-    mcvarx : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
+    mcvarx : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
         The x variable to plot.
-    mcvary : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
+    mcvary : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
         The y variable to plot.
-    mcvarz : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
+    mcvarz : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
         The z variable to plot.
-    cases : {None, int, Iterable[int]}, default: None
+    cases : None | int | Iterable[int], default: None
         The cases to plot. If None, then all cases are highlighted.
-    highlight_cases : {None, int, Iterable[int]}, default: []
+    highlight_cases : None | int | Iterable[int], default: []
         The cases to highlight. If [], then no cases are highlighted.
     ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
@@ -792,9 +792,9 @@ def manage_axis(ax   : Optional[Axes],
 
 
 def apply_category_labels(ax : Axes,
-                          mcvarx : Union[MCInVar, MCOutVar] = None,
-                          mcvary : Union[MCInVar, MCOutVar] = None,
-                          mcvarz : Union[MCInVar, MCOutVar] = None,
+                          mcvarx : MCInVar | MCOutVar = None,
+                          mcvary : MCInVar | MCOutVar = None,
+                          mcvarz : MCInVar | MCOutVar = None,
                           ) -> None:
     """
     For nonnumeric Monte-Carlo variables, use the `nummap` to label the axes.
@@ -803,11 +803,11 @@ def apply_category_labels(ax : Axes,
     ----------
     ax : matplotlib.axes.Axes
         The target axis.
-    mcvarx : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}, default: None
+    mcvarx : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar, default: None
         The x variable.
-    mcvary : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}, default: None
+    mcvary : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar, default: None
         The y variable.
-    mcvarz : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}, default: None
+    mcvarz : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar, default: None
         The z variable.
     """
     # Wrapped in try statements in case some categories aren't printable
@@ -892,8 +892,8 @@ def plot_rug_marks(ax          : Axes,
 
 
 def plot_2d_cov_ellipse(ax     : Axes,
-                        mcvarx : Union[MCInVar, MCOutVar],
-                        mcvary : Union[MCInVar, MCOutVar],
+                        mcvarx : MCInVar | MCOutVar,
+                        mcvary : MCInVar | MCOutVar,
                         p      : float,
                         ) -> None:
     """
@@ -903,9 +903,9 @@ def plot_2d_cov_ellipse(ax     : Axes,
     ----------
     ax : matplotlib.axes.Axes
         The target axis.
-    mcvarx : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
+    mcvarx : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
         The x variable.
-    mcvary : {monaco.MCVar.MCInVar, monaco.MCVar.MCOutVar}
+    mcvary : monaco.MCVar.MCInVar | monaco.MCVar.MCOutVar
         The y variable.
     p : float
         Coviariance percentile, assuming a gaussian distribution.
@@ -938,7 +938,7 @@ def plot_2d_cov_ellipse(ax     : Axes,
 
 
 def get_cases(ncases : int,
-              cases  : Union[None, int, Iterable[int]],
+              cases  : None | int | Iterable[int],
               ) -> tuple[int]:
     """
     Parse the `cases` input for plotting functions. If None, return a tuple of
@@ -948,7 +948,7 @@ def get_cases(ncases : int,
     ----------
     ncases : int
         The total number of cases.
-    cases : {None, int, Iterable[int]}
+    cases : None | int | Iterable[int]
         The cases to downselect to.
 
     Returns

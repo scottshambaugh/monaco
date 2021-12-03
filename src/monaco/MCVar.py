@@ -10,7 +10,7 @@ from monaco.MCEnums import SampleMethod, VarStat
 from monaco.mc_sampling import mc_sampling
 from monaco.helper_functions import empty_list
 from copy import copy
-from typing import Union, Any
+from typing import Any
 from warnings import warn
 from abc import ABC, abstractmethod
 
@@ -131,7 +131,7 @@ class MCInVar(MCVar):
         The name of this variable.
     ndraws : int
         The number of random draws.
-    dist : {scipy.stats.rv_discrete, scipy.stats.rv_continuous}
+    dist : scipy.stats.rv_discrete | scipy.stats.rv_continuous
         The statistical distribution to draw from.
     distkwargs : dict
         The keyword argument pairs for the statistical distribution function.
@@ -171,7 +171,7 @@ class MCInVar(MCVar):
     def __init__(self,
                  name              : str,
                  ndraws            : int,
-                 dist              : Union[rv_discrete, rv_continuous],
+                 dist              : rv_discrete | rv_continuous,
                  distkwargs        : dict         = None,
                  nummap            : dict         = None,
                  samplemethod      : SampleMethod = SampleMethod.SOBOL_RANDOM,

@@ -5,7 +5,7 @@ import numpy as np
 from itertools import chain
 from copy import deepcopy
 from monaco.helper_functions import is_num
-from typing import Union, Any
+from typing import Any
 from scipy.stats import rv_discrete, rv_continuous
 from abc import ABC
 try:
@@ -61,7 +61,7 @@ class MCInVal(MCVal):
         The percentile of the value draw.
     num : float
         The number corresponding to the statistical percentile draw.
-    dist : Union[scipy.stats.rv_discrete, scipy.stats.rv_continuous]
+    dist : scipy.stats.rv_discrete | scipy.stats.rv_continuous
         The statistical distribution that `num` was drawn from.
     nummap : dict, default: None
         A dictionary mapping numbers to nonnumeric values.
@@ -86,7 +86,7 @@ class MCInVal(MCVal):
                  ncase    : int,
                  pct      : float,
                  num      : float,
-                 dist     : Union[rv_discrete, rv_continuous],
+                 dist     : rv_discrete | rv_continuous,
                  nummap   : dict = None,
                  ismedian : bool = False,
                  ):

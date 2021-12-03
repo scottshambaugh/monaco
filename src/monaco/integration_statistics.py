@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import numpy as np
 from scipy.optimize import root_scalar
-from typing import Union, Optional
+from typing import Optional
 from monaco.gaussian_statistics import pct2sig
 from monaco.MCEnums import SampleMethod
 
@@ -13,7 +13,7 @@ def integration_error(nums         : list[float],
                       conf         : float        = 0.95,
                       samplemethod : SampleMethod = SampleMethod.RANDOM,
                       runningerror : bool         = False,
-                      ) -> Union[float, np.ndarray]:
+                      ) -> float | np.ndarray:
     """
     Returns the bounding integration error for an input array of numbers. This
     error can be a float point estimate if runningerror == False, or a numpy
@@ -42,7 +42,7 @@ def integration_error(nums         : list[float],
 
     Returns
     -------
-    error : {float, np.ndarray}
+    error : float | np.ndarray
         Either a point estimate of the error if runningerror == False, or an
         array of the running error if runningerror is True.
     """
@@ -174,13 +174,13 @@ def integration_args_check(error        : Optional[float],
 
     Parameters
     ----------
-    error : {None, float}
+    error : None | float
         error > 0.
     dimension : int
         dimension > 0.
     volume : float
         volume > 0.
-    stdev : {None, float}
+    stdev : None | float
         stdev > 0.
     conf : float
          0 < conf < 1

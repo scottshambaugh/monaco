@@ -14,7 +14,7 @@ from monaco.helper_functions import get_tuple
 from monaco.gaussian_statistics import pct2sig, sig2pct
 from monaco.order_statistics import order_stat_P_k, order_stat_TI_k, get_iP
 from monaco.MCEnums import StatBound, VarStat, VarStatSide
-from typing import Union, Any, Callable
+from typing import Any, Callable
 
 
 class MCVarStat:
@@ -95,7 +95,7 @@ class MCVarStat:
         self.statkwargs = statkwargs
 
         self.nums : np.ndarray = np.array([])
-        self.vals : Union[list[Any], np.ndarray] = []
+        self.vals : list[Any] | np.ndarray = []
         self.name = name
 
         if stattype == VarStat.MAX:

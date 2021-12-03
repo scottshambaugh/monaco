@@ -4,7 +4,7 @@ from __future__ import annotations
 from operator import itemgetter
 from tqdm import tqdm
 import numpy as np
-from typing import Callable, Any, Union, Sequence, Iterable, Sized
+from typing import Callable, Any, Sequence, Iterable, Sized
 from time import time
 from functools import wraps
 from hashlib import sha512
@@ -128,7 +128,7 @@ def get_tuple(x : Any) -> tuple:
 
 
 def slice_by_index(sequence : Sequence,
-                   indices : Union[int, Iterable]
+                   indices  : int | Iterable,
                    ) -> list:
     """
     Returns a slice of a sequence at the specified indices.
@@ -137,7 +137,7 @@ def slice_by_index(sequence : Sequence,
     ----------
     sequence : Sequence
         The sequence to slice.
-    indices : {int, Iterable}
+    indices : int | Iterable
         The indices to slice at.
 
     Returns

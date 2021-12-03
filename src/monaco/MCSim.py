@@ -14,7 +14,7 @@ from monaco.helper_functions import (get_tuple, slice_by_index, vprint, vwarn,
 from psutil import cpu_count
 from pathos.pools import ThreadPool as Pool
 from tqdm import tqdm
-from typing import Callable, Union, Any, Iterable
+from typing import Callable, Any, Iterable
 from scipy.stats import rv_continuous, rv_discrete
 
 
@@ -52,7 +52,7 @@ class MCSim:
     savecasedata : bool, default: True
         Whether to save the full output data for each case to disk as .mccase
         files.
-    resultsdir : {str, pathlib.Path}
+    resultsdir : str | pathlib.Path
         The directory to save simulation and case data to. If None, then this
         defaults to a directory named `name`_results.
 
@@ -119,7 +119,7 @@ class MCSim:
                  debug             : bool = False,
                  savesimdata       : bool = True,
                  savecasedata      : bool = True,
-                 resultsdir        : Union[str, pathlib.Path] = None,
+                 resultsdir        : str | pathlib.Path = None,
                  ):
 
         self.checkFcnsInput(fcns)
@@ -236,7 +236,7 @@ class MCSim:
 
     def addInVar(self,
                  name       : str,
-                 dist       : Union[rv_discrete, rv_continuous],
+                 dist       : rv_discrete | rv_continuous,
                  distkwargs : dict[str, Any],
                  nummap     : dict[int, Any] = None,
                  seed       : int = None,
@@ -248,7 +248,7 @@ class MCSim:
         ----------
         name : str
             The name of this variable.
-        dist : {scipy.stats.rv_discrete, scipy.stats.rv_continuous}
+        dist : scipy.stats.rv_discrete | scipy.stats.rv_continuous
             The statistical distribution to draw from.
         distkwargs : dict
             The keyword argument pairs for the statistical distribution function.
@@ -315,14 +315,14 @@ class MCSim:
 
 
     def runSim(self,
-               cases : Union[None, int, Iterable[int]] = None,
+               cases : None | int | Iterable[int] = None,
                ) -> None:
         """
         Run the full simulation.
 
         Parameters
         ----------
-        cases : {None, int, Iterable[int]}
+        cases : None | int | Iterable[int]
             The cases to run. If None, then all cases are run.
         """
         cases_downselect = self.downselectCases(cases=cases)
@@ -358,23 +358,23 @@ class MCSim:
 
 
     def runSimWorker(self,
-                     casestogenerate    : Union[None, int, Iterable[int]],
-                     casestopreprocess  : Union[None, int, Iterable[int]],
-                     casestorun         : Union[None, int, Iterable[int]],
-                     casestopostprocess : Union[None, int, Iterable[int]],
+                     casestogenerate    : None | int | Iterable[int],
+                     casestopreprocess  : None | int | Iterable[int],
+                     casestorun         : None | int | Iterable[int],
+                     casestopostprocess : None | int | Iterable[int],
                      ) -> None:
         """
         The worker function to run the full sim.
 
         Parameters
         ----------
-        casestogenerate : {None, int, Iterable[int]}
+        casestogenerate : None | int | Iterable[int]
             The cases to generate. If None, then all cases are generated.
-        casestopreprocess : {None, int, Iterable[int]}
+        casestopreprocess : None | int | Iterable[int]
             The cases to preprocess. If None, then all cases are preprocessed.
-        casestorun : {None, int, Iterable[int]}
+        casestorun : None | int | Iterable[int]
             The cases to run. If None, then all cases are run.
-        casestopostprocess : {None, int, Iterable[int]}
+        casestopostprocess : None | int | Iterable[int]
             The cases to postprocess. If None, then all cases are
             postprocessed.
         """
@@ -429,14 +429,14 @@ class MCSim:
 
 
     def genCases(self,
-                 cases : Union[None, int, Iterable[int]] = None,
+                 cases : None | int | Iterable[int] = None,
                  ) -> None:
         """
         Generate all the Monte-Carlo case objects.
 
         Parameters
         ----------
-        cases : {None, int, Iterable[int]}
+        cases : None | int | Iterable[int]
             The cases to generate. If None, then all cases are generated.
         """
         vprint(self.verbose, 'Generating cases...', flush=True)
@@ -462,14 +462,14 @@ class MCSim:
 
 
     def preProcessCases(self,
-                        cases : Union[None, int, Iterable[int]],
+                        cases : None | int | Iterable[int],
                         ) -> None:
         """
         Preprocess all the Monte-Carlo cases.
 
         Parameters
         ----------
-        cases : {None, int, Iterable[int]}
+        cases : None | int | Iterable[int]
             The cases to preprocess. If None, then all cases are preprocessed.
         """
         cases_downselect = self.downselectCases(cases=cases)
@@ -535,7 +535,7 @@ class MCSim:
 
 
     def runCases(self,
-                 cases            : Union[None, int, Iterable[int]],
+                 cases            : None | int | Iterable[int],
                  calledfromrunsim : bool = False,
                  ) -> None:
         """
@@ -543,7 +543,7 @@ class MCSim:
 
         Parameters
         ----------
-        cases : {None, int, Iterable[int]}
+        cases : None | int | Iterable[int]
             The cases to run. If None, then all cases are run.
         calledfromrunsim : bool, default: False
             Whether this was called from self.runSim(). If False, a new ID for
@@ -629,14 +629,14 @@ class MCSim:
 
 
     def postProcessCases(self,
-                         cases : Union[None, int, Iterable[int]],
+                         cases : None | int | Iterable[int],
                          ) -> None:
         """
         Postprocess all the Monte-Carlo cases.
 
         Parameters
         ----------
-        cases : {None, int, Iterable[int]}
+        cases : None | int | Iterable[int]
             The cases to postprocess. If None, then all cases are
             postprocessed.
         """
@@ -812,14 +812,14 @@ class MCSim:
 
 
     def downselectCases(self,
-                        cases : Union[None, int, Iterable[int]] = None,
+                        cases : None | int | Iterable[int] = None,
                         ) -> set[int]:
         """
         Convert the `cases` input to a set of all the target cases.
 
         Parameters
         ----------
-        cases : {None, int, Iterable[int]}
+        cases : None | int | Iterable[int]
             The cases to downselect. If None, returns all cases.
 
         Returns

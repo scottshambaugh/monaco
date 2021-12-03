@@ -1,11 +1,11 @@
 # n_sphere_sampling_testing.py
+from __future__ import annotations
 
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
 from monaco.mc_sampling import mc_sampling
 from monaco.integration_statistics import  integration_args_check
-from typing import Union
 from monaco.gaussian_statistics import pct2sig
 from monaco.MCEnums import SampleMethod
 
@@ -30,7 +30,7 @@ def integration_error(nums         : list[float],
                       conf         : float        = 0.95,
                       samplemethod : SampleMethod = SampleMethod.RANDOM,
                       runningerror : bool         = False,
-                      ) -> Union[float, list[float]]:
+                      ) -> float | list[float]:
 
     integration_args_check(error=None, volume=volume, stdev=None, conf=conf,
                            samplemethod=samplemethod, dimension=dimension)
