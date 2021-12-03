@@ -25,10 +25,17 @@
 
 ## [Unreleased]
 ### Added    
-* Python 3.8 support
-* pre-commit hooks for linting
 ### Changed    
-* Dusting off the code with lots of linting
+### Removed    
+
+
+## [0.2.1] - 2021-12-02
+### Added    
+* Python 3.8 support
+* Pre-commit hooks for linting
+### Changed    
+* Dusted off the code with lots of linting
+* Made all modules lowercase
 ### Removed    
 
 
