@@ -1,4 +1,5 @@
 # helper_functions.py
+from __future__ import annotations
 
 from operator import itemgetter
 from tqdm import tqdm

@@ -1,4 +1,5 @@
 # MCCase.py
+from __future__ import annotations
 
 from monaco.MCVar import MCOutVar, MCInVar
 from monaco.MCVal import MCOutVal, MCInVal

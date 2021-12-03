@@ -1,7 +1,7 @@
 # MCVarStat.py
+from __future__ import annotations
 
 # Somewhat hacky type checking to avoid circular imports:
-from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from monaco.MCVar import MCVar

@@ -1,4 +1,5 @@
 # MCVal.py
+from __future__ import annotations
 
 import numpy as np
 from itertools import chain
@@ -11,6 +12,7 @@ try:
     import pandas as pd
 except ImportError:
     pd = None
+
 
 ### MCVal Base Class ###
 class MCVal(ABC):

@@ -1,4 +1,5 @@
 # mc_multi_plot.py
+from __future__ import annotations
 
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure

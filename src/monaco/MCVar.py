@@ -1,4 +1,5 @@
 # MCVar.py
+from __future__ import annotations
 
 import numpy as np
 from scipy.stats import rv_continuous, rv_discrete, describe

@@ -1,4 +1,5 @@
 # gaussian_statistics.py
+from __future__ import annotations
 
 import scipy.stats
 import numpy as np

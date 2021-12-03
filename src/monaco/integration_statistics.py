@@ -1,4 +1,5 @@
 # integration_statistics.py
+from __future__ import annotations
 
 import numpy as np
 from scipy.optimize import root_scalar
