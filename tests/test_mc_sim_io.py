@@ -5,7 +5,7 @@ from monaco.mc_sim import MCSim
 import dill
 import os
 
-from tests.mcsim_testing_fcns import fcns
+from mcsim_testing_fcns import fcns
 
 ndraws = 16
 seed = 12362398
