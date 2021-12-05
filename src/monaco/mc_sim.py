@@ -614,7 +614,10 @@ class MCSim:
             if self.savecasedata:
                 filepath = self.resultsdir / f'{self.name}_{mccase.ncase}.mccase'
                 mccase.filepath = filepath
-                filepath.unlink(missing_ok=True)
+                try:
+                    filepath.unlink()
+                except FileNotFoundError:
+                    pass
                 with open(filepath, 'wb') as file:
                     dill.dump(mccase, file, protocol=dill.HIGHEST_PROTOCOL)
 
@@ -851,7 +854,10 @@ class MCSim:
     def saveSimToFile(self) -> None:
         """Save the simulation to a .mcsim file"""
         if self.savesimdata:
-            self.filepath.unlink(missing_ok=True)
+            try:
+                self.filepath.unlink()
+            except FileNotFoundError:
+                pass
             self.filepath.touch()
             with open(self.filepath, 'wb') as file:
                 dill.dump(self, file, protocol=dill.HIGHEST_PROTOCOL)
