@@ -188,17 +188,17 @@ def integration_args_check(error        : Optional[float],
         Either 'random' or 'sobol'.
     """
     if (error is not None) and (error < 0):
-        raise ValueError(f'{error=} must be positive')
+        raise ValueError(f'error={error} must be positive')
     if dimension < 1:
-        raise ValueError(f'{dimension=} must be a positive integer')
+        raise ValueError(f'dimension={dimension} must be a positive integer')
     if volume <= 0:
-        raise ValueError(f'{volume=} must be positive')
+        raise ValueError(f'volume={volume} must be positive')
     if (stdev is not None) and (stdev < 0):
-        raise ValueError(f'{stdev=} must be positive')
+        raise ValueError(f'stdev={stdev} must be positive')
     if not 0 < conf < 1:
-        raise ValueError(f'{conf=} must be between 0 and 1')
+        raise ValueError(f'conf={conf} must be between 0 and 1')
     if samplemethod not in (SampleMethod.RANDOM, SampleMethod.SOBOL):
-        raise ValueError(f'{samplemethod=} must be either ' +
+        raise ValueError(f'samplemethod={samplemethod} must be either ' +
                          f'{SampleMethod.RANDOM} or {SampleMethod.SOBOL}')
 
 

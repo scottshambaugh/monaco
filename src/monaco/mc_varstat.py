@@ -119,7 +119,7 @@ class MCVarStat:
         elif stattype == VarStat.ORDERSTATP:
             self.genStatsOrderStatP()
         else:
-            raise ValueError(f'{self.stattype=} must be one of the following: ' +
+            raise ValueError(f'stattype={self.stattype} must be one of the following: ' +
                              f'{VarStat.MAX}, {VarStat.MIN}, {VarStat.MEDIAN}, ' +
                              f'{VarStat.MEAN}, {VarStat.GEOMEAN}, {VarStat.MODE}, ' +
                              f'{VarStat.SIGMA}, {VarStat.GAUSSIANP}, ' +

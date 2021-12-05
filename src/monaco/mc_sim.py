@@ -206,10 +206,11 @@ class MCSim:
             POSTPROCESS, which point to special user-defined functions.
         """
         if set(fcns.keys()) != {MCFunctions.PREPROCESS, MCFunctions.RUN, MCFunctions.POSTPROCESS}:
-            raise ValueError(f'MCSim argument {fcns=} must have keys {MCFunctions.PREPROCESS}, ' +
-                             f'{MCFunctions.RUN}, and {MCFunctions.POSTPROCESS}')
+            raise ValueError(f'MCSim argument fcns={fcns} must have keys ' +
+                             f'{MCFunctions.PREPROCESS}, {MCFunctions.RUN}, ' +
+                             f'and {MCFunctions.POSTPROCESS}')
         if any(not callable(f) for f in fcns.values()):
-            raise ValueError(f'MCSim argument {fcns=} must contain functions as values')
+            raise ValueError(f'MCSim argument fcns={fcns} must contain functions as values')
 
 
     def setFirstCaseMedian(self,
