@@ -29,6 +29,13 @@
 ### Removed    
 
 
+## [0.2.2] - 2021-12-05
+### Added    
+* Python 3.7 support
+### Changed    
+### Removed    
+
+
 ## [0.2.1] - 2021-12-02
 ### Added    
 * Python 3.8 support
@@ -49,17 +56,6 @@
 * Documentation and images were moved around.
 ### Removed    
 
-
-
-## [0.2.0] - 2021-11-30
-### Added    
-* Documentation is now [up on readthedocs](https://monaco.readthedocs.io/en/latest/)!
-* Docstrings for all classes and functions, roughly follows the [numpy docstrings convention](https://numpydoc.readthedocs.io/en/latest/format.html)
-* Analysis process diagram
-* More unit tests
-### Changed    
-* Documentation and images were moved around.
-### Removed    
 
 ## [0.1.2] - 2021-11-15
 ### Added    
