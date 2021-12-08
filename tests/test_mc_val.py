@@ -2,8 +2,13 @@
 
 import pytest
 import numpy as np
-import pandas as pd
 from monaco.mc_val import MCInVal, MCOutVal
+
+# Only test with pandas if installed
+try:
+    import pandas as pd
+except ImportError:
+    pd = None
 
 
 def test_mcinval():
@@ -42,6 +47,7 @@ def test_mcoutval_valmap_bool_default():
     assert all(outval.num == [1, 0])
 
 
+@pytest.mark.skipif(pd is None, reason="Requires the pandas library")
 def test_mcoutval_dataframe():
     nvals = 3
     dates = pd.date_range(start='2020-01-01', periods=nvals, freq='YS')

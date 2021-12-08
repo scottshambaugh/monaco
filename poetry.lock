@@ -895,8 +895,8 @@ pandas = ["pandas"]
 
 [metadata]
 lock-version = "1.1"
-python-versions = ">=3.7.1,<3.11"
-content-hash = "e37587ec82ff5681207aa8c141d9a9c6ddffa31754b91dc987e9b216fab63e39"
+python-versions = ">=3.7.0,<3.11"
+content-hash = "01cade9764a55a528aa2b3a9d1eab0fb0c77ee7e001585dbd24687b5d914b361"
 
 [metadata.files]
 alabaster = [

@@ -24,6 +24,8 @@
 
 ## [Unreleased]
 ### Added    
+* Python 3.7.0 support (pandas testing made optional)
+
 ### Changed    
 ### Removed    
 

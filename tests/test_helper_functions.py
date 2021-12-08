@@ -1,11 +1,17 @@
 # test_helper_functions.py
 
 import pytest
-import pandas as pd
 import numpy as np
 from monaco.helper_functions import (next_power_of_2, hash_str_repeatable, is_num,
                                      length, get_list, slice_by_index, empty_list,
                                      flatten)
+
+# Only test with pandas if installed
+try:
+    import pandas as pd
+except ImportError:
+    pd = None
+
 
 @pytest.mark.parametrize("num, ans", [
     (0, 0),
@@ -46,20 +52,25 @@ def test_length(val, ans):
     assert length(val) == ans
 
 
-nvals = 3
-dates = pd.date_range(start='2020-01-01', periods=nvals, freq='YS')
-df = pd.DataFrame({'vals1': [0, 1, 2], 'vals2': [3, 4, 5]}, index=dates)
 @pytest.mark.parametrize("val, ans", [
     (       None, []),
     (         [], []),
     (          0, [0, ]),
     (     (0, 1), [0, 1]),
-    (         df, [df]),
-    (df['vals2'], [3, 4, 5]),
-    (   df.index, dates)
 ])
 def test_get_list(val, ans):
     assert all(get_list(get_list(val) == ans))
+
+
+@pytest.mark.skipif(pd is None, reason="Requires the pandas library")
+def test_get_list_pandas():
+    nvals = 3
+    dates = pd.date_range(start='2020-01-01', periods=nvals, freq='YS')
+    df = pd.DataFrame({'vals1': [0, 1, 2], 'vals2': [3, 4, 5]}, index=dates)
+
+    assert all(get_list(get_list(df) == [df]))
+    assert all(get_list(get_list(df['vals2']) == [3, 4, 5]))
+    assert all(get_list(get_list(df.index) == dates))
 
 
 data1 = [0, 1, 2, 3, 4, 5, 6, 7, 8]
