@@ -4,7 +4,8 @@ import pytest
 import pandas as pd
 import numpy as np
 from monaco.helper_functions import (next_power_of_2, hash_str_repeatable, is_num,
-                                     length, get_list, slice_by_index)
+                                     length, get_list, slice_by_index, empty_list,
+                                     flatten)
 
 @pytest.mark.parametrize("num, ans", [
     (0, 0),
@@ -71,3 +72,12 @@ data2 = np.array(data1)
 def test_slice_by_index(indices, ans):
     assert slice_by_index(data1, indices) == ans
     assert slice_by_index(data2, indices) == ans
+
+
+def test_empty_list():
+    assert empty_list() == []
+
+
+def test_flatten():
+    assert flatten(['test', [0, [1, [2], [3, 4]]], [[{(5)}]], 6, np.array([7, 8])]) \
+           == ['test', 0, 1, 2, 3, 4, 5, 6, 7, 8]

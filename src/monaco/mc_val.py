@@ -2,8 +2,7 @@
 from __future__ import annotations
 
 import numpy as np
-from itertools import chain
-from monaco.helper_functions import is_num, hashable_val
+from monaco.helper_functions import is_num, hashable_val, flatten
 from typing import Any
 from scipy.stats import rv_discrete, rv_continuous
 from abc import ABC
@@ -207,24 +206,12 @@ class MCOutVal(MCVal):
         """
         Parse the output value and extract a valmap.
         """
-        if self.isscalar:
-            if isinstance(self.val, bool):
-                self.valmap = {True: 1, False: 0}
-            elif not is_num(self.val):
-                self.valmap = {hashable_val(self.val): 0}
-        else:
-            if len(self.shape) == 1:
-                if all(isinstance(x, bool) for x in self.val):
-                    self.valmap = {True: 1, False: 0}
-                elif any(not is_num(x) for x in self.val):
-                    sorted_vals = sorted(set(hashable_val(x) for x in self.val))
-                    self.valmap = {val: idx for idx, val in enumerate(sorted_vals)}
-            else:
-                if all(isinstance(x, bool) for x in chain(*self.val)):
-                    self.valmap = {True: 1, False: 0}
-                elif any(not is_num(x) for x in chain(*self.val)):
-                    sorted_vals = sorted(set(hashable_val(x) for x in chain(*self.val)))
-                    self.valmap = {val: idx for idx, val in enumerate(sorted_vals)}
+        vals_flattened = flatten([self.val])
+        if all(isinstance(x, bool) for x in vals_flattened):
+            self.valmap = {True: 1, False: 0}
+        elif any(not is_num(x) for x in vals_flattened):
+            sorted_vals = sorted(set(hashable_val(x) for x in vals_flattened))
+            self.valmap = {val: idx for idx, val in enumerate(sorted_vals)}
 
 
     def mapVal(self) -> None:

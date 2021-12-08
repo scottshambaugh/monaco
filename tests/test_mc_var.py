@@ -97,7 +97,7 @@ def test_mcoutvar_genMaxDim(vals, maxdim):
     assert outvar.maxdim == maxdim
 
 def test_mcoutvar_extractValMap():
-    outvar = MCOutVar('test', ['a', 'b', 'c', 'b'], firstcaseismedian=True)
+    outvar = MCOutVar('test', ['a', 'b', 'c', ['b']], firstcaseismedian=True)
     assert outvar.valmap == {'a': 0, 'b': 1, 'c': 2}
 
 @pytest.fixture

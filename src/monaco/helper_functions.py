@@ -263,3 +263,31 @@ def empty_list():
     """
     empty_list = []
     return empty_list
+
+
+def flatten(nested_x : Iterable) -> list:
+    """
+    Flattens a nested interable into a list with all nested items.
+
+    Parameters
+    ----------
+    nested_x : Iterable
+        Nested iterable.
+
+    Returns
+    -------
+    flattened_x : list
+        The nested iterable flattened into a list.
+    """
+    def flatten_generator(x):
+        if isinstance(x, (str, bytes)):
+            yield x
+        else:
+            for element in x:
+                try:
+                    yield from flatten(element)
+                except TypeError:
+                    yield element
+
+    flattened_x = list(flatten_generator(nested_x))
+    return flattened_x
