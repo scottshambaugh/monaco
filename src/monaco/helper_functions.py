@@ -126,7 +126,7 @@ def length(x : Any) -> int:
         return None
 
 
-def get_list(x : Any) -> list:
+def get_list(x : Any) -> list[Any]:
     """
     Converts the input to an iterable list.
 
@@ -150,8 +150,8 @@ def get_list(x : Any) -> list:
         return [x, ]
 
 
-def slice_by_index(sequence : Sequence,
-                   indices  : int | Iterable,
+def slice_by_index(sequence : Sequence[Any],
+                   indices  : int | Iterable[int],
                    ) -> list:
     """
     Returns a slice of a sequence at the specified indices.
@@ -252,7 +252,7 @@ def timeit(fcn : Callable):
     return timed
 
 
-def empty_list():
+def empty_list() -> list:
     """
     Sentinel for default arguments being an empty list.
 
@@ -261,11 +261,10 @@ def empty_list():
     empty_list : list
         An empty list.
     """
-    empty_list = []
-    return empty_list
+    return []
 
 
-def flatten(nested_x : Iterable) -> list:
+def flatten(nested_x : Iterable[Any]) -> list[Any]:
     """
     Flattens a nested interable into a list with all nested items.
 
@@ -279,7 +278,7 @@ def flatten(nested_x : Iterable) -> list:
     flattened_x : list
         The nested iterable flattened into a list.
     """
-    def flatten_generator(x):
+    def flatten_generator(x) -> Any:
         if isinstance(x, (str, bytes)):
             yield x
         else:

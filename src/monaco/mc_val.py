@@ -37,10 +37,10 @@ class MCVal(ABC):
 
         self.val      : Any
         self.valmap   : dict[Any, float]
-        self.num      : np.float_ | np.typing.NDArray
+        self.num      : np.float_ | np.ndarray
         self.nummap   : dict[float, Any]
         self.isscalar : bool
-        self.shape    : tuple
+        self.shape    : tuple[int, ...]
 
 
 

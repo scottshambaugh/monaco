@@ -94,8 +94,8 @@ class MCVarStat:
             statkwargs = dict()
         self.statkwargs = statkwargs
 
-        self.nums : np.typing.NDArray = np.array([])
-        self.vals : list[Any] | np.typing.NDArray = []
+        self.nums : np.ndarray = np.array([])
+        self.vals : list[Any] | np.ndarray = []
         self.name = name
 
         if stattype == VarStat.MAX:

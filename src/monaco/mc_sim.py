@@ -194,7 +194,7 @@ class MCSim:
 
 
     def checkFcnsInput(self,
-                       fcns: dict,
+                       fcns: dict[MCFunctions, Callable],
                        ) -> None:
         """
         Check the `fcns` input dictionary for correctness.
@@ -306,7 +306,7 @@ class MCSim:
             self.drawVars()
 
 
-    def drawVars(self):
+    def drawVars(self) -> None:
         """Draw the random values for all the input variables."""
         if self.ninvars > 0:
             vprint(self.verbose, f"Drawing random samples for {self.ninvars} input variables " +
@@ -930,14 +930,14 @@ class MCSim:
                                f'up: [{", ".join([str(i) for i in sorted(extrafiles)])}]')
 
 
-    def findExtraResultsFiles(self):
+    def findExtraResultsFiles(self) -> set[str]:
         """
         Find .mcsim and .mccase files that we don't expect to see in the
         results directory.
 
         Returns
         -------
-        filenames : set[pathlib.Path]
+        filenames : set[str]
             The extra files.
         """
         files = set(self.resultsdir.glob('**/*.mcsim')) | set(self.resultsdir.glob('**/*.mccase'))

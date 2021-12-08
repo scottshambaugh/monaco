@@ -42,7 +42,7 @@ class MCVar(ABC):
         self.setFirstCaseMedian(firstcaseismedian)
         self.vals       : list[Any]
         self.valmap     : dict[Any, float]
-        self.nums       : list[np.typing.NDArray]
+        self.nums       : list[np.ndarray]
         self.nummap     : dict[float, Any]
         self.pcts       : list[float]
         self.maxdim     : int

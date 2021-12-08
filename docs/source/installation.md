@@ -19,7 +19,7 @@ poetry install --extras "pandas"
 
 ```
 poetry run coverage run --source=monaco -m pytest && poetry run coverage report -m 
-poetry run mypy src
+poetry run mypy src tests/test*
 ```
 
 ## Building Docs

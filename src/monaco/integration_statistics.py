@@ -7,7 +7,7 @@ from typing import Optional
 from monaco.gaussian_statistics import pct2sig
 from monaco.mc_enums import SampleMethod
 
-def integration_error(nums         : np.typing.NDArray,
+def integration_error(nums         : np.ndarray,
                       dimension    : int,
                       volume       : float        = 1,
                       conf         : float        = 0.95,
@@ -84,7 +84,7 @@ def integration_error(nums         : np.typing.NDArray,
         # Leading zeros will throw off plots, fill with reasonable dummy data
         error1sig[error1sig == 0] = np.max(error1sig)
 
-    error = error1sig*pct2sig(conf)
+    error : float | np.ndarray = error1sig*pct2sig(conf)
     return error
 
 
@@ -143,8 +143,9 @@ def integration_n_from_err(error        : float,
     if samplemethod == SampleMethod.RANDOM:
         n = n_random
     elif samplemethod == SampleMethod.SOBOL:
-        def f(n):
+        def f(n : float) -> float:
             return volume*stdev*pct2sig(conf)*np.log(n)**dimension/n - error
+
         try:
             rootResults = root_scalar(f, method='brentq', bracket=[2**8, 2**31-1],
                                          xtol=0.1, maxiter=int(1e3))

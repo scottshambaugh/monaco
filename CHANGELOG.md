@@ -11,7 +11,6 @@
 - Sensitivity Indices (Sobol's Method)
 - Get working in jupyter notebooks
 - Color plots by 3rd variable
-- Strict typing
 - Bootstrap statistics
 ### Maybe
 - Example: Evidence-Based Scheduling
@@ -37,8 +36,7 @@
 * `MCVal`s have a `shape` attribute rather than `size`, to match with numpy
 * `helper_functions.get_tuple()` changed to `get_list()`
 * Simplify code for extracting valmaps
-### Removed    
-
+* More typing
 
 ## [0.2.1] - 2021-12-02
 ### Added    
