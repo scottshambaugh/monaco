@@ -123,7 +123,7 @@ class MCCase():
                   name   : str,
                   val    : Any,
                   split  : bool = True,
-                  valmap : dict[Any, int] = None
+                  valmap : dict[Any, float] = None
                   ) -> None:
         """
         Generate an MCOutVal and add it to the dict of mcoutvals.
@@ -136,7 +136,7 @@ class MCCase():
             The output value.
         split : bool
             Whether to split the value into its components.
-        valmap : dict[Any, int]
+        valmap : dict[Any, float], default: None
             A valmap dict mapping nonnumeric values to numbers.
         """
 

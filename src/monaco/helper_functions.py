@@ -28,8 +28,8 @@ def next_power_of_2(x : int) -> int:
 
     Returns
     -------
-    _ : int
-        The next power of two, _ >= x.
+    nextpow2 : int
+        The next power of two, nextpow2 >= x.
     """
     if x <= 0:
         return 0
@@ -50,10 +50,33 @@ def hash_str_repeatable(s : str) -> int:
 
     Returns
     -------
-    _ : int
+    s_hash : int
         The hash of str.
     """
     return int(sha512(s.encode('utf-8')).hexdigest(), 16)
+
+
+def hashable_val(val : Any) -> Any:
+    """
+    For `nummap`s and `valmap`s, we need to use values as keys in a dictionary.
+    This will return the string representation of a value if that value is not
+    hashable.
+
+    Parameters
+    ----------
+    val : Any
+        The value to hash.
+
+    Returns
+    -------
+    hashable_val : Any
+        A hashable representation of the val.
+    """
+    try:
+        hash(val)
+        return val
+    except TypeError:
+        return str(val)
 
 
 def is_num(val : Any) -> bool:
@@ -67,7 +90,7 @@ def is_num(val : Any) -> bool:
 
     Returns
     -------
-    _ : bool
+    isnum : bool
         Returns True if the input is a number, False otherwise.
     """
     if isinstance(val, bool) or isinstance(val, str):
@@ -92,7 +115,7 @@ def length(x : Any) -> int:
 
     Returns
     -------
-    _ : int
+    x_len : int
         The length of the input.
     """
     if isinstance(x, Sized):
@@ -103,9 +126,9 @@ def length(x : Any) -> int:
         return None
 
 
-def get_tuple(x : Any) -> tuple:
+def get_list(x : Any) -> list:
     """
-    Converts the input to an iterable tuple.
+    Converts the input to an iterable list.
 
     Parameters
     ----------
@@ -114,17 +137,17 @@ def get_tuple(x : Any) -> tuple:
 
     Returns
     -------
-    _ : tuple
-        A tuple conversion of the input.
+    x_list : list
+        A list conversion of the input.
     """
     if x is None:
-        return tuple()
+        return list()
     elif pd and isinstance(x, pd.DataFrame):
-        return (x,)
+        return [x, ]
     elif isinstance(x, Iterable):
-        return tuple(x)
+        return list(x)
     else:
-        return (x,)
+        return [x, ]
 
 
 def slice_by_index(sequence : Sequence,
@@ -142,15 +165,15 @@ def slice_by_index(sequence : Sequence,
 
     Returns
     -------
-    _ : list
+    slice : list
         A list representing the values of the input sequence at the specified
         indices.
     """
-    indices_tuple = get_tuple(indices)
-    if sequence is None or indices_tuple == tuple():
+    indices_list = get_list(indices)
+    if sequence is None or indices_list == list():
         return []
-    items = itemgetter(*indices_tuple)(sequence)
-    if len(indices_tuple) == 1:
+    items = itemgetter(*indices_list)(sequence)
+    if len(indices_list) == 1:
         return [items]
     return list(items)
 

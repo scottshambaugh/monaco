@@ -1,6 +1,7 @@
 # test_MCCase.py
 
 import pytest
+import numpy as np
 from monaco.mc_case import MCCase
 from monaco.mc_var import MCInVar
 
@@ -20,9 +21,9 @@ def test_mccase_gen(mccase):
 def test_mccase_addoutval(mccase):
     mccase.addOutVal('TestOut', [[0, 0], [0, 0], [0, 0]])
     assert mccase.mcoutvals['TestOut'].val == [[0, 0], [0, 0], [0, 0]]
-    assert mccase.mcoutvals['TestOut'].size == (3, 2)
+    assert mccase.mcoutvals['TestOut'].shape == (3, 2)
 
 def test_mccase_addoutval_with_valmap(mccase):
     valmap = {'a': 0, 'b': -1, 'c': -2, 'd': -3, 'e': -4, 'f': -5}
     mccase.addOutVal('TestOut2', [['a', 'b'], ['c', 'd'], ['e', 'f']], valmap=valmap)
-    assert mccase.mcoutvals['TestOut2'].num == [[0, -1], [-2, -3], [-4, -5]]
+    np.testing.assert_array_equal(mccase.mcoutvals['TestOut2'].num, [[0, -1], [-2, -3], [-4, -5]])

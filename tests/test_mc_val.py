@@ -21,7 +21,7 @@ def mcoutval_3_by_2():
     return MCOutVal(name='test', ncase=1, val=[[0, 0], [0, 0], [0, 0]], ismedian=True)
 
 def test_mcoutval(mcoutval_3_by_2):
-    assert mcoutval_3_by_2.size == (3, 2)
+    assert mcoutval_3_by_2.shape == (3, 2)
     assert np.array_equal(mcoutval_3_by_2.val, [[0, 0], [0, 0], [0, 0]])
 
 def test_mcoutval_split(mcoutval_3_by_2):
@@ -29,17 +29,17 @@ def test_mcoutval_split(mcoutval_3_by_2):
     assert outvalssplit['test [0]'].val == [0, 0]
 
 def test_mcoutval_valmap_str():
-    outval = MCOutVal(name='test', ncase=1, val=[['a', 'a'], ['b', 'b'], ['a', 'b']], ismedian=True)
+    outval = MCOutVal(name='test', ncase=1, val=[['a', 'a'], ['b', 'b'], ['a', 'a']], ismedian=True)
     assert outval.valmap == {'a': 0, 'b': 1}
-    assert np.array_equal(outval.num, [[0, 0], [1, 1], [0, 1]])
+    assert np.array_equal(outval.num, [[0, 0], [1, 1], [0, 0]])
 
 def test_mcoutval_valmap_bool():
     outval = MCOutVal(name='test', ncase=1, val=[True, False], valmap={True: 2, False: 1})
-    assert outval.num == [2, 1]
+    assert all(outval.num == [2, 1])
 
 def test_mcoutval_valmap_bool_default():
     outval = MCOutVal(name='test', ncase=1, val=[True, False])
-    assert outval.num == [1, 0]
+    assert all(outval.num == [1, 0])
 
 
 def test_mcoutval_dataframe():

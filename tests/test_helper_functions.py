@@ -1,10 +1,10 @@
 # test_helper_functions.py
 
 import pytest
-from collections.abc import Iterable
 import pandas as pd
+import numpy as np
 from monaco.helper_functions import (next_power_of_2, hash_str_repeatable, is_num,
-                                     length, get_tuple, slice_by_index)
+                                     length, get_list, slice_by_index)
 
 @pytest.mark.parametrize("num, ans", [
     (0, 0),
@@ -47,23 +47,27 @@ def test_length(val, ans):
 
 nvals = 3
 dates = pd.date_range(start='2020-01-01', periods=nvals, freq='YS')
-df = pd.DataFrame({'vals1': range(nvals), 'vals2': range(nvals)}, index=dates)
+df = pd.DataFrame({'vals1': [0, 1, 2], 'vals2': [3, 4, 5]}, index=dates)
 @pytest.mark.parametrize("val, ans", [
-    (       None, True),
-    (          0, True),
-    (     (0, 1), True),
-    (         df, True),
-    (df['vals1'], True),
+    (       None, []),
+    (         [], []),
+    (          0, [0, ]),
+    (     (0, 1), [0, 1]),
+    (         df, [df]),
+    (df['vals2'], [3, 4, 5]),
+    (   df.index, dates)
 ])
-def test_get_tuple(val, ans):
-    assert isinstance(get_tuple(val), Iterable) == ans
+def test_get_list(val, ans):
+    assert all(get_list(get_list(val) == ans))
 
 
-data = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+data1 = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+data2 = np.array(data1)
 @pytest.mark.parametrize("indices, ans", [
     (     [],     []),
     (      0,    [0]),
     ( [3, 5], [3, 5]),
 ])
 def test_slice_by_index(indices, ans):
-    assert slice_by_index(data, indices) == ans
+    assert slice_by_index(data1, indices) == ans
+    assert slice_by_index(data2, indices) == ans

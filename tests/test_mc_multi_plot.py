@@ -31,13 +31,15 @@ def plot_testing():
                   highlight_cases=range(10, 30),
                   rug_plot=True,
                   cov_plot=True, cov_p=0.95,
-                  title='test')  # MCPlot2DScatter
+                  title='test')  # mc_multi_plot_2d_scatter_hist
 
     mc_multi_plot([mcinvars['norm1'], mcinvars['norm2'], mcinvars['norm3']],
                   highlight_cases=range(10, 30),
                   rug_plot=True,
                   cov_plot=True, cov_p=0.95,
-                  title='test')  # MCPlot2DScatter
+                  title='test')  # mc_multi_plot_2d_scatter_grid
+
+    plt.show()
 
 
 if __name__ == '__main__':

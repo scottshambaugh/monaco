@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from monaco.mc_case import MCCase
 from monaco.mc_var import MCInVar, MCOutVar
 from monaco.mc_enums import MCFunctions, SampleMethod
-from monaco.helper_functions import (get_tuple, slice_by_index, vprint, vwarn,
+from monaco.helper_functions import (get_list, slice_by_index, vprint, vwarn,
                                      vwrite, hash_str_repeatable)
 from psutil import cpu_count
 from pathos.pools import ThreadPool as Pool
@@ -239,7 +239,7 @@ class MCSim:
                  name       : str,
                  dist       : rv_discrete | rv_continuous,
                  distkwargs : dict[str, Any],
-                 nummap     : dict[int, Any] = None,
+                 nummap     : dict[float, Any] = None,
                  seed       : int = None,
                  ) -> None:
         """
@@ -253,7 +253,7 @@ class MCSim:
             The statistical distribution to draw from.
         distkwargs : dict
             The keyword argument pairs for the statistical distribution function.
-        nummap : dict[int, Any]
+        nummap : dict[float, Any], default: None
             A dictionary mapping numbers to nonnumeric values.
         seed : int
             The random seed for this variable. If None, a seed will be assigned
@@ -605,7 +605,7 @@ class MCSim:
         """
         try:
             mccase.starttime = datetime.now()
-            mccase.simrawoutput = self.fcns[MCFunctions.RUN](*get_tuple(mccase.siminput))
+            mccase.simrawoutput = self.fcns[MCFunctions.RUN](*get_list(mccase.siminput))
             mccase.endtime = datetime.now()
             mccase.runtime = mccase.endtime - mccase.starttime
             mccase.runsimid = self.runsimid
@@ -691,7 +691,7 @@ class MCSim:
             The same case, postprocessed.
         """
         try:
-            self.fcns[MCFunctions.POSTPROCESS](mccase, *get_tuple(mccase.simrawoutput))
+            self.fcns[MCFunctions.POSTPROCESS](mccase, *get_list(mccase.simrawoutput))
             self.casespostprocessed.add(mccase.ncase)
             mccase.haspostprocessed = True
 
@@ -714,7 +714,7 @@ class MCSim:
 
             if self.mccases[0].mcoutvals[varname].valmapsource == 'auto':
                 uniquevals : set[Any] = set()
-                valmap = None
+                valmap : dict[Any, float] = None
                 for i in range(self.ncases):
                     if self.mccases[i].mcoutvals[varname].valmap is None:
                         uniquevals = None
@@ -834,7 +834,7 @@ class MCSim:
         if cases is None:
             cases_downselect = self.allCases()
         else:
-            cases_downselect = set(get_tuple(cases))
+            cases_downselect = set(get_list(cases))
         return cases_downselect
 
 

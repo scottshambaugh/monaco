@@ -8,7 +8,7 @@ from monaco.mc_val import MCVal, MCInVal, MCOutVal
 from monaco.mc_varstat import MCVarStat
 from monaco.mc_enums import SampleMethod, VarStat
 from monaco.mc_sampling import mc_sampling
-from monaco.helper_functions import empty_list
+from monaco.helper_functions import empty_list, hashable_val
 from copy import copy
 from typing import Any
 from warnings import warn
@@ -41,11 +41,11 @@ class MCVar(ABC):
         self.ncases = ndraws + 1
         self.setFirstCaseMedian(firstcaseismedian)
         self.vals       : list[Any]
-        self.valmap     : dict
-        self.nums       : list[float]
-        self.nummap     : dict
+        self.valmap     : dict[Any, float]
+        self.nums       : list[np.typing.NDArray]
+        self.nummap     : dict[float, Any]
         self.pcts       : list[float]
-        self.size       : tuple
+        self.maxdim     : int
         self.isscalar   : bool
         self.mcvarstats : list[MCVarStat] = empty_list()
 
@@ -135,7 +135,7 @@ class MCInVar(MCVar):
         The statistical distribution to draw from.
     distkwargs : dict
         The keyword argument pairs for the statistical distribution function.
-    nummap : dict
+    nummap : dict[float, Any], default: None
         A dictionary mapping numbers to nonnumeric values (the inverse of
         `valmap`).
     samplemethod : monaco.mc_enums.SampleMethod, default: 'sobol_random'
@@ -153,18 +153,18 @@ class MCInVar(MCVar):
     ----------
     isscalar : bool
         Whether this is a scalar variable. Alway True for an input variable.
-    size : tuple[int]
-        The size of the values. Always (1,1) for an input variable.
-    valmap : dict
+    maxdim : int
+        The maximum dimensions of the values. Always 0 for an input variable.
+    valmap : dict[Any, float]
         A dictionary mapping nonnumeric values to numbers (the inverse of
         `nummap`).
     pcts : list[float]
         The randomly drawn percentiles.
-    nums : list[float]
+    nums : list[np.ndarry]
         The randomly drawn numbers obtained by feeding `pcts` into `dist`.
     vals : list[Any]
         The values corresponding to the randomly drawn numbers. If valmap is
-        None, then `vals == nums`
+        None, then `vals == nums.tolist()`
     mcvarstats : list[moncao.MCVarStat.MCVarStat]
         A list of all the variable statistics for this variable.
     """
@@ -172,13 +172,13 @@ class MCInVar(MCVar):
                  name              : str,
                  ndraws            : int,
                  dist              : rv_discrete | rv_continuous,
-                 distkwargs        : dict         = None,
-                 nummap            : dict         = None,
-                 samplemethod      : SampleMethod = SampleMethod.SOBOL_RANDOM,
-                 ninvar            : int          = None,
+                 distkwargs        : dict             = None,
+                 nummap            : dict[float, Any] = None,
+                 samplemethod      : SampleMethod     = SampleMethod.SOBOL_RANDOM,
+                 ninvar            : int              = None,
                  seed              : int = np.random.get_state(legacy=False)['state']['key'][0],
-                 firstcaseismedian : bool         = False,
-                 autodraw          : bool         = True,
+                 firstcaseismedian : bool             = False,
+                 autodraw          : bool             = True,
                  ):
         super().__init__(name=name, ndraws=ndraws, firstcaseismedian=firstcaseismedian)
 
@@ -189,10 +189,12 @@ class MCInVar(MCVar):
         self.samplemethod = samplemethod
         self.ninvar = ninvar
         self.seed = seed
-        self.nummap = nummap
+        self.nummap = None
+        if nummap is not None:
+            self.nummap = nummap
 
         self.isscalar = True
-        self.size = (1, 1)
+        self.maxdim = 0
 
         self.genValMap()
         if autodraw:
@@ -206,7 +208,7 @@ class MCInVar(MCVar):
         self.vals = copy(self.nums)
         if self.nummap is not None:
             for i in range(self.ncases):
-                self.vals[i] = self.nummap[self.nums[i]]
+                self.vals[i] = self.nummap[self.nums[i].item()]
 
 
     def genValMap(self) -> None:
@@ -216,7 +218,7 @@ class MCInVar(MCVar):
         if self.nummap is None:
             self.valmap = None
         else:
-            self.valmap = {val: num for num, val in self.nummap.items()}
+            self.valmap = {hashable_val(val): num for num, val in self.nummap.items()}
 
 
     def setNDraws(self,
@@ -253,15 +255,15 @@ class MCInVar(MCVar):
         if self.firstcaseismedian:
             self.ncases = self.ndraws + 1
             self.pcts.append(0.5)
-            self.nums.append(self.getDistMedian())
+            self.nums.append(np.array(self.getDistMedian()))
 
         pcts = mc_sampling(ndraws=self.ndraws, method=self.samplemethod,
                            ninvar=self.ninvar, ninvar_max=ninvar_max,
                            seed=self.seed)
         self.pcts.extend(pcts)
-        self.nums.extend(dist.ppf(pcts).tolist())
+        self.nums.extend([np.array(x) for x in dist.ppf(pcts)])
 
-        if any(np.isinf(num) for num in self.nums):
+        if any(np.isinf(self.nums)):
             warn( 'Infinite value drawn. Check distribution and parameters: ' +
                  f'dist={self.dist}, distkwargs={self.distkwargs}')
             if self.samplemethod in (SampleMethod.SOBOL, SampleMethod.HALTON):
@@ -297,7 +299,7 @@ class MCInVar(MCVar):
             ismedian = True
 
         val = MCInVal(name=self.name, ncase=ncase,
-                      pct=self.pcts[ncase], num=self.nums[ncase],
+                      pct=self.pcts[ncase], num=self.nums[ncase].item(),
                       dist=self.dist, nummap=self.nummap,
                       ismedian=ismedian)
         return val
@@ -370,14 +372,14 @@ class MCOutVar(MCVar):
     ----------
     isscalar : bool
         Whether this is a scalar variable. Alway True for an input variable.
-    size : tuple[int]
-        The size of the values. Always (1,1) for an input variable.
+    maxdim : int
+        The maximum dimension of the values. Always 0 for an input variable.
     nummap : dict
         A dictionary mapping numbers to nonnumeric values (the inverse of
         `valmap`).
-    nums : list[float]
+    nums : list[np.ndarry]
         The numbers corresponding to the output values. If valmap is None, then
-        `nums == vals`.
+        `nums == list[np.array(vals)]`.
     mcvarstats : list[moncao.MCVarStat.MCVarStat]
         A list of all the variable statistics for this variable.
     """
@@ -398,25 +400,23 @@ class MCOutVar(MCVar):
         self.valmap = valmap
         if valmap is None:
             self.extractValMap()
-        self.genSize()
         self.genNumMap()
         self.mapVals()
+        self.genMaxDim()
 
 
-    def genSize(self) -> None:
+    def genMaxDim(self) -> None:
         """
-        Parse the output value to determine the size of each value and whether
-        it is scalar.
+        Parse the output values to determine the maximum dimension of each of
+        their shapes.
         """
-        if isinstance(self.vals[0], (list, tuple, np.ndarray)):
-            self.isscalar = False
-            if isinstance(self.vals[0][0], (list, tuple, np.ndarray)):
-                self.size = (len(self.vals[0]), len(self.vals[0][0]))
-            else:
-                self.size = (1, len(self.vals[0]))
-        else:
+        self.maxdim = 0
+        for num in self.nums:
+            self.maxdim = max(self.maxdim, len(num.shape))
+
+        self.isscalar = False
+        if self.maxdim == 0:
             self.isscalar = True
-            self.size = (1, 1)
 
 
     def extractValMap(self) -> None:
@@ -448,11 +448,11 @@ class MCOutVar(MCVar):
 
     def mapVals(self) -> None:
         """
-        Generate `nums` by mapping the values with the valmap.
+        Generate `nums` by mapping the values with their valmap.
         """
-        self.nums = copy(self.vals)
+        self.nums = []
         for i in range(self.ncases):
-            self.nums[i] = self.getVal(i).num
+            self.nums.append(np.array(self.getVal(i).num))
 
 
     def getVal(self, ncase : int) -> MCOutVal:
@@ -503,9 +503,15 @@ class MCOutVar(MCVar):
         -------
         mcvars : dict[str : monaco.mc_var.MCOutVar]
         """
-        mcvars = dict()
-        if self.size[0] > 1:
-            for i in range(self.size[0]):
+        mcvars : dict[str, 'MCOutVar'] = dict()
+        if self.maxdim > 0:
+            # First ensure that the vals have the same shape over all cases
+            shape = self.nums[0].shape
+            for num in self.nums:
+                if num.shape[0] != shape[0]:
+                    return mcvars
+
+            for i in range(shape[0]):
                 name = self.name + f' [{i}]'
                 vals = []
                 for j in range(self.ncases):

@@ -9,7 +9,7 @@ from matplotlib.axes import Axes
 from matplotlib.patches import Ellipse
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 from monaco.mc_var import MCInVar, MCOutVar
-from monaco.helper_functions import get_tuple, slice_by_index, length, empty_list
+from monaco.helper_functions import get_list, slice_by_index, length, empty_list
 from monaco.gaussian_statistics import conf_ellipsoid_sig2pct
 from monaco.integration_statistics import integration_error
 from monaco.mc_enums import SampleMethod, PlotOrientation
@@ -65,32 +65,24 @@ def mc_plot(mcvarx   : MCInVar | MCOutVar,
     """
     # Split larger vars
     if mcvary is None and mcvarz is None:
-        if mcvarx.size[0] not in (1, 2, 3):
-            raise ValueError( 'Invalid variable size at index 0: ' +
-                             f'{mcvarx.name} ({mcvarx.size[0]},{mcvarx.size[1]})')
-        elif isinstance(mcvarx, MCOutVar) and mcvarx.size[0] in (2, 3):
+        if mcvarx.maxdim not in (0, 1, 2):
+            raise ValueError(f'Invalid variable dimension: {mcvarx.name} ({mcvarx.maxdim})')
+        elif mcvarx.maxdim == 2 and isinstance(mcvarx, MCOutVar):
             mcvarx_split = mcvarx.split()  # split only defined for MCOutVar
             origname = mcvarx.name
-            origsize = mcvarx.size
             mcvarx = mcvarx_split[origname + ' [0]']
             mcvary = mcvarx_split[origname + ' [1]']
-            if origsize[0] == 3:
+            if len(mcvarx_split) == 3:
                 mcvarz = mcvarx_split[origname + ' [2]']
 
     elif mcvary is not None and mcvarz is None:
-        if     (mcvarx.size[0] not in (1, 2)) \
-            or (mcvary.size[0] not in (1, 2)) \
-            or (mcvarx.size[0] + mcvary.size[0] not in (2, 3)):
-            raise ValueError( 'Invalid variable sizes at indices 0: ' +
-                             f'{mcvarx.name} ({mcvarx.size[0]},{mcvarx.size[1]}), ' +
-                             f'{mcvary.name} ({mcvary.size[0]},{mcvary.size[1]})')
-        elif isinstance(mcvarx, MCOutVar) and mcvarx.size[0] == 2:
+        if mcvarx.maxdim == 1 and mcvary.maxdim == 0 and isinstance(mcvarx, MCOutVar):
             mcvarx_split = mcvarx.split()  # split only defined for MCOutVar
             origname = mcvarx.name
             mcvarz = mcvary
             mcvarx = mcvarx_split[origname + ' [0]']
             mcvary = mcvarx_split[origname + ' [1]']
-        elif isinstance(mcvary, MCOutVar) and mcvary.size[0] == 2:
+        elif mcvarx.maxdim == 0 and mcvary.maxdim == 1 and isinstance(mcvary, MCOutVar):
             mcvary_split = mcvary.split()  # split only defined for MCOutVar
             origname = mcvary.name
             mcvary = mcvary_split[origname + ' [0]']
@@ -98,14 +90,14 @@ def mc_plot(mcvarx   : MCInVar | MCOutVar,
 
     # Single Variable Plots
     if mcvary is None and mcvarz is None:
-        if mcvarx.size[1] == 1:
+        if mcvarx.maxdim == 0:
             fig, ax = mc_plot_hist(mcvar=mcvarx, highlight_cases=highlight_cases,
                                    rug_plot=rug_plot, ax=ax, title=title)
         else:
             mcvary = copy(mcvarx)
             mcvarx = copy(mcvarx)   # don't overwrite the underlying object
             mcvarx.name = 'Simulation Steps'
-            steps = [*range(mcvary.size[1])]
+            steps = np.arange(max(len(num) for num in mcvary.nums))
             mcvarx.nums = [steps for _ in range(mcvarx.ncases)]
             mcvarx.nummap = None
             fig, ax = mc_plot_2d_line(mcvarx=mcvarx, mcvary=mcvary,
@@ -113,42 +105,39 @@ def mc_plot(mcvarx   : MCInVar | MCOutVar,
                                       ax=ax, title=title)
 
     # Two Variable Plots
-    elif mcvarz is None and mcvary is not None:
-        if mcvarx.size[1] != mcvary.size[1]:
-            raise ValueError( 'Variables have inconsistent lengths: ' +
-                             f'{mcvarx.name}:{mcvarx.size[1]}, ' +
-                             f'{mcvary.name}:{mcvary.size[1]}')
-
-        if mcvarx.size[1] == 1:
+    elif mcvary is not None and mcvarz is None:
+        if mcvarx.maxdim == 0 and mcvary.maxdim == 0:
             fig, ax = mc_plot_2d_scatter(mcvarx=mcvarx, mcvary=mcvary,
                                          cases=cases, highlight_cases=highlight_cases,
                                          rug_plot=rug_plot, cov_plot=cov_plot, cov_p=cov_p,
                                          ax=ax, title=title)
 
-        elif mcvarx.size[1] > 1:
+        elif mcvarx.maxdim == 1 and mcvary.maxdim == 1:
             fig, ax = mc_plot_2d_line(mcvarx=mcvarx, mcvary=mcvary,
                                       cases=cases, highlight_cases=highlight_cases,
                                       ax=ax, title=title)
+        else:
+            raise ValueError( 'Variables have inconsistent dimensions: ' +
+                             f'{mcvarx.name}:{mcvarx.maxdim}, ' +
+                             f'{mcvary.name}:{mcvary.maxdim}')
 
     # Three Variable Plots
     else:
-        if     (mcvarx.size[1] != mcvary.size[1]) \
-            or (mcvarx.size[1] != mcvarz.size[1]) \
-            or (mcvary.size[1] != mcvarz.size[1]):
-            raise ValueError( 'Variables have inconsistent lengths: ' +
-                             f'{mcvarx.name}:{mcvarx.size[1]}, ' +
-                             f'{mcvary.name}:{mcvary.size[1]}, ' +
-                             f'{mcvarz.name}:{mcvarz.size[1]}')
-
-        if mcvarx.size[1] == 1:
+        if mcvarx.maxdim == 0 and mcvary.maxdim == 0 and mcvarz.maxdim == 0:
             fig, ax = mc_plot_3d_scatter(mcvarx=mcvarx, mcvary=mcvary, mcvarz=mcvarz,
                                          cases=cases, highlight_cases=highlight_cases,
                                          ax=ax, title=title)
 
-        elif mcvarx.size[1] > 1:
+        elif mcvarx.maxdim == 1 and mcvary.maxdim == 1 and mcvarz.maxdim == 1:
             fig, ax = mc_plot_3d_line(mcvarx=mcvarx, mcvary=mcvary, mcvarz=mcvarz,
                                       cases=cases, highlight_cases=highlight_cases,
                                       ax=ax, title=title)
+
+        else:
+            raise ValueError( 'Variables have inconsistent dimensions: ' +
+                             f'{mcvarx.name}:{mcvarx.maxdim}, ' +
+                             f'{mcvary.name}:{mcvary.maxdim}, ' +
+                             f'{mcvarz.name}:{mcvarz.maxdim}')
 
     return fig, ax
 
@@ -191,7 +180,7 @@ def mc_plot_hist(mcvar       : MCInVar | MCOutVar,
     fig, ax = manage_axis(ax, is3d=False)
 
     # Histogram generation
-    highlight_cases_tuple = get_cases(mcvar.ncases, highlight_cases)
+    highlight_cases_list = get_cases(mcvar.ncases, highlight_cases)
     counts, bins = np.histogram(mcvar.nums, bins='auto')
     binwidth = mode(np.diff(bins))[0]
     bins = np.concatenate((bins - binwidth/2, bins[-1] + binwidth/2))
@@ -245,19 +234,19 @@ def mc_plot_hist(mcvar       : MCInVar | MCOutVar,
         ylabeltext = 'Probability Density'
 
     if rug_plot:
-        plot_rug_marks(ax, orientation=orientation, nums=mcvar.nums)
+        plot_rug_marks(ax, orientation=orientation, nums=np.array(mcvar.nums))
 
     xlim = ax.get_xlim()
     ylim = ax.get_ylim()
 
     # Highlight cases and MCVarStats
     if orientation == PlotOrientation.VERTICAL:
-        for i in highlight_cases_tuple:
+        for i in highlight_cases_list:
             plt.plot([mcvar.nums[i], mcvar.nums[i]],
                      [ylim[0], ylim[0] + (ylim[1] - ylim[0])*0.20],
                      linestyle='-', linewidth=1, color='red')
         for mcvarstat in mcvar.mcvarstats:
-            nums = get_tuple(mcvarstat.nums)
+            nums = get_list(mcvarstat.nums)
             if length(nums) == 1:
                 plt.plot([nums[0], nums[0]], ylim, linestyle='-', color='blue')
             elif length(nums) == 3:
@@ -272,12 +261,12 @@ def mc_plot_hist(mcvar       : MCInVar | MCOutVar,
         apply_category_labels(ax, mcvarx=mcvar)
 
     elif orientation == PlotOrientation.HORIZONTAL:
-        for i in highlight_cases_tuple:
+        for i in highlight_cases_list:
             plt.plot([xlim[0], xlim[0] + (xlim[1] - xlim[0])*0.20],
                      [mcvar.nums[i], mcvar.nums[i]],
                      linestyle='-', linewidth=1, color='red')
         for mcvarstat in mcvar.mcvarstats:
-            nums = get_tuple(mcvarstat.nums)
+            nums = get_list(mcvarstat.nums)
             if length(nums) == 1:
                 plt.plot(xlim, [nums[0], nums[0]], linestyle='-', color='blue')
             elif length(nums) == 3:
@@ -373,27 +362,27 @@ def mc_plot_2d_scatter(mcvarx   : MCInVar | MCOutVar,
     """
     fig, ax = manage_axis(ax, is3d=False)
 
-    cases_tuple = get_cases(mcvarx.ncases, cases)
-    highlight_cases_tuple = get_cases(mcvarx.ncases, highlight_cases)
-    reg_cases = set(cases_tuple) - set(highlight_cases_tuple)
+    cases_list = get_cases(mcvarx.ncases, cases)
+    highlight_cases_list = get_cases(mcvarx.ncases, highlight_cases)
+    reg_cases = set(cases_list) - set(highlight_cases_list)
     if reg_cases:
         plt.scatter(slice_by_index(mcvarx.nums, reg_cases),
                     slice_by_index(mcvary.nums, reg_cases),
                     edgecolors=None, c='k', alpha=0.4)
-    if highlight_cases_tuple:
-        plt.scatter(slice_by_index(mcvarx.nums, highlight_cases_tuple),
-                    slice_by_index(mcvary.nums, highlight_cases_tuple),
+    if highlight_cases_list:
+        plt.scatter(slice_by_index(mcvarx.nums, highlight_cases_list),
+                    slice_by_index(mcvary.nums, highlight_cases_list),
                     edgecolors=None, c='r', alpha=1)
 
     if cov_plot:
         if cov_p is None:
             cov_p = conf_ellipsoid_sig2pct(3.0, df=2)  # 3-sigma for 2D gaussian
-        cov_p_tuple = get_tuple(cov_p)
-        for p in cov_p_tuple:
+        cov_p_list = get_list(cov_p)
+        for p in cov_p_list:
             plot_2d_cov_ellipse(ax=ax, mcvarx=mcvarx, mcvary=mcvary, p=p)
 
     if rug_plot:
-        all_cases = set(cases_tuple) | set(highlight_cases_tuple)
+        all_cases = set(cases_list) | set(highlight_cases_list)
         plot_rug_marks(ax, orientation=PlotOrientation.VERTICAL,
                        nums=slice_by_index(mcvarx.nums, all_cases))
         plot_rug_marks(ax, orientation=PlotOrientation.HORIZONTAL,
@@ -441,12 +430,12 @@ def mc_plot_2d_line(mcvarx : MCInVar | MCOutVar,
     """
     fig, ax = manage_axis(ax, is3d=False)
 
-    cases_tuple = get_cases(mcvarx.ncases, cases)
-    highlight_cases_tuple = get_cases(mcvarx.ncases, highlight_cases)
-    reg_cases = set(cases_tuple) - set(highlight_cases_tuple)
+    cases_list = get_cases(mcvarx.ncases, cases)
+    highlight_cases_list = get_cases(mcvarx.ncases, highlight_cases)
+    reg_cases = set(cases_list) - set(highlight_cases_list)
     for i in reg_cases:
         plt.plot(mcvarx.nums[i], mcvary.nums[i], linestyle='-', color='black', alpha=0.2)
-    for i in highlight_cases_tuple:
+    for i in highlight_cases_list:
         plt.plot(mcvarx.nums[i], mcvary.nums[i], linestyle='-', color='red', alpha=1)
 
     for mcvarstat in mcvary.mcvarstats:
@@ -503,18 +492,18 @@ def mc_plot_3d_scatter(mcvarx : MCInVar | MCOutVar,
     """
     fig, ax = manage_axis(ax, is3d=True)
 
-    cases_tuple = get_cases(mcvarx.ncases, cases)
-    highlight_cases_tuple = get_cases(mcvarx.ncases, highlight_cases)
-    reg_cases = set(cases_tuple) - set(highlight_cases_tuple)
+    cases_list = get_cases(mcvarx.ncases, cases)
+    highlight_cases_list = get_cases(mcvarx.ncases, highlight_cases)
+    reg_cases = set(cases_list) - set(highlight_cases_list)
     if reg_cases:
         ax.scatter(slice_by_index(mcvarx.nums, reg_cases),
                    slice_by_index(mcvary.nums, reg_cases),
                    slice_by_index(mcvarz.nums, reg_cases),
                    edgecolors=None, c='k', alpha=0.4)
-    if highlight_cases_tuple:
-        ax.scatter(slice_by_index(mcvarx.nums, highlight_cases_tuple),
-                   slice_by_index(mcvary.nums, highlight_cases_tuple),
-                   slice_by_index(mcvarz.nums, highlight_cases_tuple),
+    if highlight_cases_list:
+        ax.scatter(slice_by_index(mcvarx.nums, highlight_cases_list),
+                   slice_by_index(mcvary.nums, highlight_cases_list),
+                   slice_by_index(mcvarz.nums, highlight_cases_list),
                    edgecolors=None, c='r', alpha=1)
 
     ax.set_xlabel(mcvarx.name)
@@ -563,13 +552,13 @@ def mc_plot_3d_line(mcvarx : MCInVar | MCOutVar,
     """
     fig, ax = manage_axis(ax, is3d=True)
 
-    cases_tuple = get_cases(mcvarx.ncases, cases)
-    highlight_cases_tuple = get_cases(mcvarx.ncases, highlight_cases)
-    reg_cases = set(cases_tuple) - set(highlight_cases_tuple)
+    cases_list = get_cases(mcvarx.ncases, cases)
+    highlight_cases_list = get_cases(mcvarx.ncases, highlight_cases)
+    reg_cases = set(cases_list) - set(highlight_cases_list)
     for i in reg_cases:
         ax.plot(mcvarx.nums[i], mcvary.nums[i], mcvarz.nums[i],
                 linestyle='-', color='black', alpha=0.3)
-    for i in highlight_cases_tuple:
+    for i in highlight_cases_list:
         ax.plot(mcvarx.nums[i], mcvary.nums[i], mcvarz.nums[i],
                 linestyle='-', color='red', alpha=1)
 
@@ -689,7 +678,7 @@ def mc_plot_integration_convergence(mcoutvar     : MCOutVar,
         ax.axhline(refval, color='k')
 
     cummean = volume*np.cumsum(mcoutvar.nums)/np.arange(1, mcoutvar.ncases+1)
-    err = integration_error(nums=mcoutvar.nums, dimension=dimension, volume=volume,
+    err = integration_error(nums=np.array(mcoutvar.nums), dimension=dimension, volume=volume,
                             conf=conf, samplemethod=samplemethod, runningerror=True)
     ax.plot(cummean, 'r')
     ax.plot(cummean + err, 'b')
@@ -745,7 +734,7 @@ def mc_plot_integration_error(mcoutvar     : MCOutVar,
     fig, ax = manage_axis(ax, is3d=False)
 
     cummean = volume*np.cumsum(mcoutvar.nums)/np.arange(1, mcoutvar.ncases+1)
-    err = integration_error(nums=mcoutvar.nums, dimension=dimension, volume=volume,
+    err = integration_error(nums=np.array(mcoutvar.nums), dimension=dimension, volume=volume,
                             conf=conf, samplemethod=samplemethod, runningerror=True)
     ax.loglog(err, 'b')
     ax.plot(np.abs(cummean - refval), 'r')
@@ -861,7 +850,7 @@ def get_hist_lim(ax          : Axes,
 
 def plot_rug_marks(ax          : Axes,
                    orientation : PlotOrientation,
-                   nums        : list[float]
+                   nums        : Iterable[float]
                    ) -> None:
     """
     Plot rug marks for a histogram or scatter plot.
@@ -872,7 +861,7 @@ def plot_rug_marks(ax          : Axes,
         The target axis.
     orientation : PlotOrientation
         The orientation of the plot, either 'vertical' or 'horizontal'.
-    nums : list[float]
+    nums : Iterable[float]
         The numbers to plot the rug marks at.
     """
     if ax is None:
@@ -914,7 +903,7 @@ def plot_2d_cov_ellipse(ax     : Axes,
         return
 
     # See https://www.visiondummy.com/2014/04/draw-error-ellipse-representing-covariance-matrix/
-    allnums = [mcvarx.nums, mcvary.nums]
+    allnums = [np.array(mcvarx.nums), np.array(mcvary.nums)]
     center = [np.mean(mcvarx.nums), np.mean(mcvary.nums)]
 
     covs = np.cov(np.array(allnums))
@@ -939,10 +928,10 @@ def plot_2d_cov_ellipse(ax     : Axes,
 
 def get_cases(ncases : int,
               cases  : None | int | Iterable[int],
-              ) -> tuple[int]:
+              ) -> list[int]:
     """
-    Parse the `cases` input for plotting functions. If None, return a tuple of
-    all the cases. Otherwise, return a tuple of all the specified cases.
+    Parse the `cases` input for plotting functions. If None, return a list of
+    all the cases. Otherwise, return a list of all the specified cases.
 
     Parameters
     ----------
@@ -953,10 +942,10 @@ def get_cases(ncases : int,
 
     Returns
     -------
-    cases_tuple : tuple[int]
+    cases_list : list[int]
         The cases.
     """
     if cases is None:
         cases = list(range(ncases))
-    cases_tuple = get_tuple(cases)
-    return cases_tuple
+    cases_list = get_list(cases)
+    return cases_list

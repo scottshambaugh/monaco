@@ -3,8 +3,7 @@ from __future__ import annotations
 
 import numpy as np
 from itertools import chain
-from copy import deepcopy
-from monaco.helper_functions import is_num
+from monaco.helper_functions import is_num, hashable_val
 from typing import Any
 from scipy.stats import rv_discrete, rv_continuous
 from abc import ABC
@@ -38,11 +37,11 @@ class MCVal(ABC):
         self.ismedian = ismedian
 
         self.val      : Any
-        self.valmap   : dict
-        self.num      : float
-        self.nummap   : dict
+        self.valmap   : dict[Any, float]
+        self.num      : np.float_ | np.typing.NDArray
+        self.nummap   : dict[float, Any]
         self.isscalar : bool
-        self.size     : tuple
+        self.shape    : tuple
 
 
 
@@ -63,7 +62,7 @@ class MCInVal(MCVal):
         The number corresponding to the statistical percentile draw.
     dist : scipy.stats.rv_discrete | scipy.stats.rv_continuous
         The statistical distribution that `num` was drawn from.
-    nummap : dict, default: None
+    nummap : dict[float, Any], default: None
         A dictionary mapping numbers to nonnumeric values.
     ismedian : bool, default: False
         Whether this case represents the median case,
@@ -75,9 +74,9 @@ class MCInVal(MCVal):
         this is equal to `num`.
     isscalar : bool
         Whether the value is scalar.
-    size : tuple[int]
-        The size of the value.
-    valmap : dict
+    shape : tuple[int]
+        The shape of the value.
+    valmap : dict[Any, float]
         A dictionary mapping nonnumeric values to numbers (the inverse of
         `nummap`).
     """
@@ -87,17 +86,17 @@ class MCInVal(MCVal):
                  pct      : float,
                  num      : float,
                  dist     : rv_discrete | rv_continuous,
-                 nummap   : dict = None,
+                 nummap   : dict[float, Any] = None,
                  ismedian : bool = False,
                  ):
 
         super().__init__(name=name, ncase=ncase, ismedian=ismedian)
         self.dist = dist
         self.pct = pct
-        self.num = num
+        self.num = np.float_(num)
         self.nummap = nummap
         self.isscalar = True
-        self.size = (1, 1)
+        self.shape = ()
 
         self.mapNum()
         self.genValMap()
@@ -110,7 +109,7 @@ class MCInVal(MCVal):
         if self.nummap is None:
             self.val = self.num
         else:
-            self.val = self.nummap[self.num]
+            self.val = self.nummap[self.num.item()]
 
 
     def genValMap(self) -> None:
@@ -120,7 +119,7 @@ class MCInVal(MCVal):
         if self.nummap is None:
             self.valmap = None
         else:
-            self.valmap = {val: num for num, val in self.nummap.items()}
+            self.valmap = {hashable_val(val): num for num, val in self.nummap.items()}
 
 
 
@@ -137,23 +136,23 @@ class MCOutVal(MCVal):
         The number of the case for this value.
     val : float
         The output value.
-    valmap : dict, default: None
+    valmap : dict[Any, float], default: None
         A dictionary mapping nonnumeric values to numbers.
     ismedian : bool, default: False
         Whether this case represents the median case,
 
     Attributes
     ----------
-    num : Any
+    num : np.array
         A number corresponding to the output value. If `valmap` is None and val
         is nonnumeric, then will be an integer as assigned by extractValMap().
     valmapsource : str
         Either 'assigned' or 'auto' based on whether a valmap was passed in.
     isscalar : bool
         Whether the value is scalar.
-    size : tuple[int]
-        The size of the value.
-    nummap : dict
+    shape : tuple[int]
+        The shape of the value.
+    nummap : dict[float, Any]
         A dictionary mapping numbers to nonnumeric values (the inverse of
         `valmap`).
     """
@@ -161,7 +160,7 @@ class MCOutVal(MCVal):
                  name     : str,
                  ncase    : int,
                  val      : Any,
-                 valmap   : dict = None,
+                 valmap   : dict[Any, float] = None,
                  ismedian : bool = False,
                  ):
         super().__init__(name=name, ncase=ncase, ismedian=ismedian)
@@ -169,7 +168,7 @@ class MCOutVal(MCVal):
         self.valmap = valmap
         self.convertPandas()
 
-        self.genSize()
+        self.genShape()
         if valmap is None:
             self.valmapsource = 'auto'
             self.extractValMap()
@@ -189,19 +188,19 @@ class MCOutVal(MCVal):
                 self.val = self.val.values
 
 
-    def genSize(self) -> None:
+    def genShape(self) -> None:
         """
-        Calculate the size of the output value, and whether it is a scalar.
+        Calculate the shape of the output value, and whether it is a scalar.
         """
-        if isinstance(self.val, (list, tuple, np.ndarray)):
-            self.isscalar = False
-            if isinstance(self.val[0], (list, tuple, np.ndarray)):
-                self.size = (len(self.val), len(self.val[0]))
-            else:
-                self.size = (1, len(self.val))
-        else:
+        try:
+            vals_array = np.array(self.val, dtype='float')
+        except ValueError:
+            vals_array = np.array(self.val, dtype='object')
+        self.shape = vals_array.shape
+
+        self.isscalar = False
+        if self.shape == ():
             self.isscalar = True
-            self.size = (1, 1)
 
 
     def extractValMap(self) -> None:
@@ -212,20 +211,20 @@ class MCOutVal(MCVal):
             if isinstance(self.val, bool):
                 self.valmap = {True: 1, False: 0}
             elif not is_num(self.val):
-                self.valmap = {str(self.val): 0}
+                self.valmap = {hashable_val(self.val): 0}
         else:
-            if self.size[0] == 1:
-                if not all(is_num(x) for x in self.val):
+            if len(self.shape) == 1:
+                if all(isinstance(x, bool) for x in self.val):
                     self.valmap = {True: 1, False: 0}
-                elif not all(is_num(x) for x in self.val):
-                    sorted_vals = sorted(set(self.val))
-                    self.valmap = {str(key): idx for idx, key in enumerate(sorted_vals)}
+                elif any(not is_num(x) for x in self.val):
+                    sorted_vals = sorted(set(hashable_val(x) for x in self.val))
+                    self.valmap = {val: idx for idx, val in enumerate(sorted_vals)}
             else:
                 if all(isinstance(x, bool) for x in chain(*self.val)):
                     self.valmap = {True: 1, False: 0}
-                elif not all(is_num(x) for x in chain(*self.val)):
-                    sorted_vals = sorted(set(chain(*self.val)))
-                    self.valmap = {str(key): idx for idx, key in enumerate(sorted_vals)}
+                elif any(not is_num(x) for x in chain(*self.val)):
+                    sorted_vals = sorted(set(hashable_val(x) for x in chain(*self.val)))
+                    self.valmap = {val: idx for idx, val in enumerate(sorted_vals)}
 
 
     def mapVal(self) -> None:
@@ -233,19 +232,19 @@ class MCOutVal(MCVal):
         Map the output value to a number or array of numbers.
         """
         if self.valmap is None:
-            self.num = self.val
+            self.num = np.array(self.val)
         elif self.isscalar:
-            self.num = self.valmap[self.val]
+            self.num = np.array(self.valmap[hashable_val(self.val)])
         else:
-            num = deepcopy(self.val)
-            if self.size[0] == 1:
-                for i in range(self.size[1]):
-                    num[i] = self.valmap[self.val[i]]
+            num = np.array(self.val, dtype='object')
+            if len(self.shape) == 1:
+                for i in range(self.shape[0]):
+                    num[i] = self.valmap[hashable_val(self.val[i])]
             else:
-                for i in range(self.size[0]):
-                    for j in range(self.size[1]):
-                        num[i][j] = self.valmap[self.val[i][j]]
-            self.num = num
+                for i in range(self.shape[0]):
+                    for j in range(self.shape[1]):
+                        num[i][j] = self.valmap[hashable_val(self.val[i][j])]
+            self.num = np.array(num, dtype='float')
 
 
     def genNumMap(self) -> None:
@@ -255,7 +254,7 @@ class MCOutVal(MCVal):
         if self.valmap is None:
             self.nummap = None
         else:
-            self.nummap = {num: val for val, num in self.valmap.items()}
+            self.nummap = {hashable_val(np.array(num)): val for val, num in self.valmap.items()}
 
 
     def split(self) -> dict[str, 'MCOutVal']:  # Quotes in typing to avoid import error
@@ -268,8 +267,8 @@ class MCOutVal(MCVal):
         mcvals : dict[str : monaco.mc_val.MCOutVal]
         """
         mcvals = dict()
-        if self.size[0] > 1:
-            for i in range(self.size[0]):
+        if len(self.shape) > 1:
+            for i in range(self.shape[0]):
                 name = self.name + f' [{i}]'
                 mcvals[name] = MCOutVal(name=name, ncase=self.ncase, val=self.val[i],
                                         valmap=self.valmap, ismedian=self.ismedian)

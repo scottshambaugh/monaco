@@ -78,12 +78,23 @@ def test_mcinvar_nummap():
     assert invar.vals == ['f', 'e', 'f', 'f', 'a', 'e', 'e', 'a', 'e', 'e']
 
 
-
 def test_mcoutvar():
     outvar = MCOutVar('test', [1, 0, 2, 2], firstcaseismedian=True)
     assert outvar.getVal(1).val == 0
     assert outvar.stats().mean == pytest.approx(1.25)
     assert outvar.getMedianVal().val == 1
+
+@pytest.mark.parametrize("vals, maxdim", [
+    (                  [None, ], 0),
+    (                     [0, ], 0),
+    (                     [[0]], 1),
+    (                  [[0, 0]], 1),
+    ([[[0, 0], [0, 0], [0, 0]]], 2),
+    (   [[[0]], [[0, 0]], [[]]], 2),
+])
+def test_mcoutvar_genMaxDim(vals, maxdim):
+    outvar = MCOutVar('test', vals)
+    assert outvar.maxdim == maxdim
 
 def test_mcoutvar_extractValMap():
     outvar = MCOutVar('test', ['a', 'b', 'c', 'b'], firstcaseismedian=True)
@@ -104,7 +115,6 @@ def test_mcoutvar_split(mcoutvars_split):
                           [[1, 1], [1, 1], [1, 1], [1, 1], [1, 1]])
     assert np.array_equal(mcoutvars_split['test [1]'].nums,
                           [[2, 2], [2, 2], [2, 2], [2, 2], [2, 2]])
-
 
 def test_mcoutvar_split_orderstat(mcoutvars_split):
     assert mcoutvars_split['test [0]'].mcvarstats[0].vals == pytest.approx([1, 1])

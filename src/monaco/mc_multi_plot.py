@@ -19,7 +19,7 @@ def mc_multi_plot(mcvars   : list[MCInVar | MCOutVar],
                   cov_p    : None | float | Iterable[float] = None,
                   fig      : Figure = None,
                   title    : str    = '',
-                  ) -> tuple[Figure, tuple[Axes]]:
+                  ) -> tuple[Figure, tuple[Axes, ...]]:
     """
     Umbrella function to make more complex plots of Monte-Carlo variables.
 
@@ -45,34 +45,34 @@ def mc_multi_plot(mcvars   : list[MCInVar | MCOutVar],
 
     Returns
     -------
-    (fig, axes) : (matplotlib.figure.Figure, (matplotlib.axes.Axes,))
+    (fig, axes) : (matplotlib.figure.Figure, (matplotlib.axes.Axes, ...))
         fig is the figure handle for the plot.
         axes is a tuple of the axes handles for the plots.
     """
     # Split larger vars
     if len(mcvars) == 1:
-        if isinstance(mcvars[0], MCOutVar) and mcvars[0].size[0] == 2:
+        if isinstance(mcvars[0], MCOutVar) and mcvars[0].maxdim == 1:
             mcvar_split = mcvars[0].split()
             origname = mcvars[0].name
             mcvarx = mcvar_split[origname + ' [0]']
             mcvary = mcvar_split[origname + ' [1]']
             mcvars = [mcvarx, mcvary]
         else:
-            raise ValueError( 'Invalid mcvars[0] size at index 0: ' +
-                             f'({mcvars[0].size[0]},{mcvars[0].size[1]})')
+            raise ValueError(f'Invalid mcvars[0] dimension: {mcvars[0].maxdim}')
+
     # Two Variable Plots
     if len(mcvars) == 2:
-        if mcvars[1].size[0] != 1:
-            raise ValueError( 'Invalid mcvars[1] size at index 0: ' +
-                             f'({mcvars[1].size[0]},{mcvars[1].size[1]})')
-
-        if mcvars[0].size[1] == 1 and mcvars[1].size[1] == 1:
+        if mcvars[0].isscalar and mcvars[1].isscalar:
             fig, axs = mc_multi_plot_2d_scatter_hist(mcvarx=mcvars[0], mcvary=mcvars[1],
                                                      cases=cases, highlight_cases=highlight_cases,
                                                      rug_plot=rug_plot,
                                                      cov_plot=cov_plot, cov_p=cov_p,
                                                      cumulative=False,
                                                      fig=fig, title=title)
+        else:
+            raise ValueError( 'Invalid variable dimensions: ' +
+                             f'{mcvarx.name} {mcvarx.maxdim}, ' +
+                             f'{mcvary.name} {mcvary.maxdim}')
 
     # Many Variable Plots
     elif len(mcvars) > 2:
@@ -98,7 +98,7 @@ def mc_multi_plot_2d_scatter_hist(mcvarx     : MCInVar | MCOutVar,
                                   cumulative : bool   = False,
                                   fig        : Figure = None,
                                   title      : str    = '',
-                                  ) -> tuple[Figure, tuple[Axes, Axes, Axes]]:
+                                  ) -> tuple[Figure, tuple[Axes, ...]]:
     """
     Plot two variables against each other with a central scatterplot and two
     histograms along the x and y axes.
@@ -177,7 +177,7 @@ def mc_multi_plot_2d_scatter_grid(mcvars     : list[MCInVar | MCOutVar],
                                   cumulative : bool   = False,
                                   fig        : Figure = None,
                                   title      : str    = '',
-                                  ) -> tuple[Figure, tuple[Axes]]:
+                                  ) -> tuple[Figure, tuple[Axes, ...]]:
     """
     Plot multiple variables against each other in a grid. The off-diagonal grid
     locations show scatterplots of the two corresponding variables. The
@@ -207,7 +207,7 @@ def mc_multi_plot_2d_scatter_grid(mcvars     : list[MCInVar | MCOutVar],
 
     Returns
     -------
-        (fig, axes) : (matplotlib.figure.Figure, (matplotlib.axes.Axes,))
+        (fig, axes) : (matplotlib.figure.Figure, (matplotlib.axes.Axes, ...))
             fig is the figure handle for the plot.
             axes is a tuple of the axes handles for the plots, starting from
             the top-left corner and working left-to-right, then top-to-bottom.

@@ -7,7 +7,7 @@ from typing import Optional
 from monaco.gaussian_statistics import pct2sig
 from monaco.mc_enums import SampleMethod
 
-def integration_error(nums         : list[float],
+def integration_error(nums         : np.typing.NDArray,
                       dimension    : int,
                       volume       : float        = 1,
                       conf         : float        = 0.95,

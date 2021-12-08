@@ -29,10 +29,13 @@
 ### Removed    
 
 
-## [0.2.2] - 2021-12-05
+## [0.2.2] - 2021-12-07
 ### Added    
-* Python 3.7 support
+* Python 3.7 support (>=3.7.1 to match pandas)
 ### Changed    
+* `MCVal.nums` were made numpy arrays
+* `MCVal`s have a `shape` attribute rather than `size`, to match with numpy
+* `helper_functions.get_tuple()` changed to `get_list()`
 ### Removed    
 
 

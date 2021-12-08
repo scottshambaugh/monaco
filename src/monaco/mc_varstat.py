@@ -10,7 +10,7 @@ import numpy as np
 from copy import copy
 from statistics import mode
 from scipy.stats.mstats import gmean
-from monaco.helper_functions import get_tuple
+from monaco.helper_functions import get_list
 from monaco.gaussian_statistics import pct2sig, sig2pct
 from monaco.order_statistics import order_stat_P_k, order_stat_TI_k, get_iP
 from monaco.mc_enums import StatBound, VarStat, VarStatSide
@@ -34,7 +34,7 @@ class MCVarStat:
 
     Attributes
     ----------
-    nums : numpy.array
+    nums : numpy.ndarray
         The output of the variable statistic function applied to `mcvar.nums`
     vals : list[Any]
         The values for the `nums` as determined by `mcvar.nummap`
@@ -94,8 +94,8 @@ class MCVarStat:
             statkwargs = dict()
         self.statkwargs = statkwargs
 
-        self.nums : np.ndarray = np.array([])
-        self.vals : list[Any] | np.ndarray = []
+        self.nums : np.typing.NDArray = np.array([])
+        self.vals : list[Any] | np.typing.NDArray = []
         self.name = name
 
         if stattype == VarStat.MAX:
@@ -235,12 +235,12 @@ class MCVarStat:
             if self.mcvar.nummap is not None:
                 self.vals = [self.mcvar.nummap[num] for num in self.nums]
 
-        elif self.mcvar.size[0] == 1:
-            nums_tuple = get_tuple(self.mcvar.nums)
-            npoints = max(len(x) for x in nums_tuple)
+        elif self.mcvar.maxdim == 1:
+            nums_list = get_list(self.mcvar.nums)
+            npoints = max(len(x) for x in nums_list)
             self.nums = np.empty(npoints)
             for i in range(npoints):
-                numsatidx = [x[i] for x in nums_tuple if len(x) > i]
+                numsatidx = [x[i] for x in nums_list if len(x) > i]
                 self.nums[i] = fcn(numsatidx, **fcnkwargs)
             self.vals = copy(self.nums)
             if self.mcvar.nummap is not None:
@@ -280,7 +280,7 @@ class MCVarStat:
             if self.side in (VarStatSide.HIGH, VarStatSide.LOW):
                 self.nums = np.array(sortednums[-self.k])
                 if self.mcvar.nummap is not None:
-                    self.vals = self.mcvar.nummap[self.nums]
+                    self.vals = self.mcvar.nummap[self.nums.item()]
             elif self.side == VarStatSide.BOTH:
                 self.nums = np.array([sortednums[self.k-1], sortednums[-self.k]])
                 if self.mcvar.nummap is not None:
@@ -297,15 +297,16 @@ class MCVarStat:
             if self.mcvar.nummap is None:
                 self.vals = copy(self.nums)
 
-        elif self.mcvar.size[0] == 1:
-            npoints = max(len(get_tuple(x)) for x in self.mcvar.nums)
+        elif self.mcvar.maxdim == 1:
+            npoints = max(x.shape[0] if len(x.shape) > 0 else 0 for x in self.mcvar.nums)
             self.nums = np.empty(npoints)
             if self.side == VarStatSide.BOTH:
                 self.nums = np.empty((npoints, 2))
             elif self.side == VarStatSide.ALL:
                 self.nums = np.empty((npoints, 3))
             for i in range(npoints):
-                numsatidx = [get_tuple(x)[i] for x in self.mcvar.nums if len(get_tuple(x)) > i]
+                numsatidx = [x[i] for x in self.mcvar.nums
+                             if (len(x.shape) > 0 and x.shape[0] > i)]
                 sortednums = sorted(numsatidx)
                 if self.side == VarStatSide.LOW:
                     sortednums.reverse()
@@ -357,7 +358,7 @@ class MCVarStat:
                               StatBound.ONESIDED_UPPER,
                               StatBound.NEAREST):
                 if self.mcvar.nummap is not None:
-                    self.vals = self.mcvar.nummap[self.nums]
+                    self.vals = self.mcvar.nummap[self.nums.item()]
             elif self.bound == StatBound.TWOSIDED:
                 self.nums = np.array([sortednums[iPl - self.k], sortednums[iPu + self.k]])
                 if self.mcvar.nummap is not None:
@@ -374,15 +375,15 @@ class MCVarStat:
             if self.mcvar.nummap is None:
                 self.vals = copy(self.nums)
 
-        elif self.mcvar.size[0] == 1:
-            npoints = max(len(get_tuple(x)) for x in self.mcvar.nums)
+        elif self.mcvar.maxdim == 1:
+            npoints = max(len(get_list(x)) for x in self.mcvar.nums)
             self.nums = np.empty(npoints)
             if self.bound == StatBound.TWOSIDED:
                 self.nums = np.empty((npoints, 2))
             elif self.bound == StatBound.ALL:
                 self.nums = np.empty((npoints, 3))
             for i in range(npoints):
-                numsatidx = [get_tuple(x)[i] for x in self.mcvar.nums if len(get_tuple(x)) > i]
+                numsatidx = [get_list(x)[i] for x in self.mcvar.nums if len(get_list(x)) > i]
                 sortednums = sorted(numsatidx)
                 if self.bound == StatBound.ONESIDED_LOWER:
                     self.nums[i] = sortednums[iPl - self.k]

@@ -51,6 +51,6 @@ def test_mcoutvarstat_2d():
 
 def test_mcoutvarstat_2d_irregular():
     from monaco.mc_var import MCOutVar
-    outvar = MCOutVar('test', [1*v, 2*v, 0*v, -1*v, [0, 0]], firstcaseismedian=True)
+    outvar = MCOutVar('test', [[0, 0], 1*v, 2*v, 0*v, -1*v, [0, 0]], firstcaseismedian=True)
     mcoutvarstat = MCVarStat(outvar, stattype=VarStat.MIN)
     assert(np.allclose(mcoutvarstat.vals, [-4, -2, -2, -3, -4, -5.]))
