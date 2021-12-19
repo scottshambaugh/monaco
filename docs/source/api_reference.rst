@@ -3,6 +3,8 @@
 =============
 API Reference
 =============
+Note that all classes and functions are automatically imported into the
+top-level package, so referencing via the module is unnecessary.
 
 Classes
 =======

@@ -24,10 +24,15 @@
 
 ## [Unreleased]
 ### Added    
-* Python 3.7.0 support (pandas testing made optional)
-
 ### Changed    
 ### Removed    
+
+
+## [0.2.3] - 2021-12-18
+### Added    
+* Python 3.7.0 support (pandas testing made optional)
+### Changed    
+* All functions are now imported into top-level package, so you don't need to dig through modules
 
 
 ## [0.2.2] - 2021-12-07
