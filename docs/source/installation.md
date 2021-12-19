@@ -7,12 +7,22 @@ pip install monaco
 ```
 
 ## Installing from Source
-
+Shouldn't need this before too long, see discussions here:
+https://github.com/python-poetry/poetry-core/pull/182
+https://github.com/python-poetry/poetry/discussions/1135
 ```
 git clone https://github.com/scottshambaugh/monaco.git
 cd monaco
 pip install poetry
 poetry install --extras "pandas"
+```
+
+## Installing Local Editable
+
+```
+poetry build --format sdist
+tar -xvf dist/*-`poetry version -s`.tar.gz --wildcards -O '*/setup.py' > setup.py
+pip install -e .
 ```
 
 ## Running Tests and Type Checking
