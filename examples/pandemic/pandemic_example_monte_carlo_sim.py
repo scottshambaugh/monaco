@@ -1,7 +1,5 @@
 from scipy.stats import uniform
-from monaco.mc_sim import MCSim
-from monaco.mc_plot import mc_plot
-from monaco.mc_multi_plot import mc_multi_plot
+import monaco as mc
 from monaco.order_statistics import order_stat_TI_n
 from math import ceil
 
@@ -23,9 +21,9 @@ seed = 12362398
 
 def pandemic_example_monte_carlo_sim():
 
-    sim = MCSim(name='pandemic', ndraws=ndraws, fcns=fcns,
-                firstcaseismedian=True, seed=seed, cores=4,
-                verbose=True, debug=False)
+    sim = mc.MCSim(name='pandemic', ndraws=ndraws, fcns=fcns,
+                   firstcaseismedian=True, seed=seed, cores=4,
+                   verbose=True, debug=False)
 
     sim.addInVar(name='Probability of Infection',
                  dist=uniform, distkwargs={'loc': 0.28, 'scale': 0.04})
@@ -38,16 +36,16 @@ def pandemic_example_monte_carlo_sim():
                                                      statkwargs={'p': 0.5, 'c': 0.5,
                                                                  'bound': 'all'})
 
-    mc_plot(sim.mcoutvars['Timestep'], sim.mcoutvars['Superspreader Degree'])
-    mc_plot(sim.mcoutvars['Max Superspreader Degree'], highlight_cases=0)
-    mc_plot(sim.mcoutvars['Herd Immunity Threshold'], highlight_cases=0)
+    mc.mc_plot(sim.mcoutvars['Timestep'], sim.mcoutvars['Superspreader Degree'])
+    mc.mc_plot(sim.mcoutvars['Max Superspreader Degree'], highlight_cases=0)
+    mc.mc_plot(sim.mcoutvars['Herd Immunity Threshold'], highlight_cases=0)
 
     # import matplotlib.pyplot as plt
-    mc_plot(sim.mcoutvars['Timestep'], sim.mcoutvars['Proportion Infected'], highlight_cases=0)
+    mc.mc_plot(sim.mcoutvars['Timestep'], sim.mcoutvars['Proportion Infected'], highlight_cases=0)
     # plt.savefig('cum_infections_vs_time.png')
-    mc_multi_plot([sim.mcinvars['Probability of Infection'],
-                   sim.mcoutvars['Herd Immunity Threshold']],
-                  cov_plot=False, highlight_cases=0)
+    mc.mc_multi_plot([sim.mcinvars['Probability of Infection'],
+                     sim.mcoutvars['Herd Immunity Threshold']],
+                     cov_plot=False, highlight_cases=0)
     # plt.savefig('p_infection_vs_herd_immunity.png')
 
     return sim

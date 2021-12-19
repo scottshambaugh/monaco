@@ -1,5 +1,14 @@
 # flake8: noqa
-from monaco import mc_case, mc_enums, mc_sim, mc_val, mc_var, mc_varstat
-from monaco import gaussian_statistics, order_statistics, integration_statistics
-from monaco import helper_functions, mc_sampling
-from monaco import mc_plot, mc_multi_plot
+from monaco.mc_case import *
+from monaco.mc_sim import *
+from monaco.mc_var import *
+from monaco.mc_varstat import *
+from monaco.mc_val import *
+from monaco.mc_enums import *
+from monaco.gaussian_statistics import *
+from monaco.order_statistics import *
+from monaco.integration_statistics import *
+from monaco.helper_functions import *
+from monaco.mc_sampling import *
+from monaco.mc_plot import *
+from monaco.mc_multi_plot import *

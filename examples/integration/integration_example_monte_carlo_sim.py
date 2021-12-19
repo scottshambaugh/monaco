@@ -1,7 +1,5 @@
 from scipy.stats import uniform
-from monaco.mc_sim import MCSim
-from monaco.helper_functions import next_power_of_2
-from monaco.integration_statistics import integration_error, integration_n_from_err, max_stdev
+import monaco as mc
 import numpy as np
 
 # Define our functions
@@ -51,29 +49,29 @@ firstcaseismedian = False
 # stdev from there.
 error = 0.01
 conf = 0.95
-stdev = max_stdev(low=0, high=1)
+stdev = mc.max_stdev(low=0, high=1)
 print(f'Maximum possible standard deviation: {stdev:0.3f}')
 
-nRandom = integration_n_from_err(error=error, dimension=dimension, volume=totalArea,
-                                 stdev=stdev, conf=conf, samplemethod='random')
-nSobol  = integration_n_from_err(error=error, dimension=dimension, volume=totalArea,
-                                 stdev=stdev, conf=conf, samplemethod='sobol')
+nRandom = mc.integration_n_from_err(error=error, dimension=dimension, volume=totalArea,
+                                    stdev=stdev, conf=conf, samplemethod='random')
+nSobol  = mc.integration_n_from_err(error=error, dimension=dimension, volume=totalArea,
+                                    stdev=stdev, conf=conf, samplemethod='sobol')
 print(f'Number of samples needed to reach an error ≤ ±{error} at {round(conf*100, 2)}% ' +
       f'confidence if using random vs sobol sampling: {nRandom} vs {nSobol}')
 
 # The sobol methods need to be a power of 2 for best performance and balance
-ndraws = next_power_of_2(nSobol)
+ndraws = mc.next_power_of_2(nSobol)
 print(f'Rounding up to next power of 2: {ndraws} samples')
 
 seed = 123639
 
 def integration_example_monte_carlo_sim():
 
-    sim = MCSim(name='integration', ndraws=ndraws, fcns=fcns,
-                firstcaseismedian=firstcaseismedian, samplemethod=samplemethod,
-                seed=seed, cores=4,
-                savecasedata=savecasedata, savesimdata=False,
-                verbose=True, debug=True)
+    sim = mc.MCSim(name='integration', ndraws=ndraws, fcns=fcns,
+                   firstcaseismedian=firstcaseismedian, samplemethod=samplemethod,
+                   seed=seed, cores=4,
+                   savecasedata=savecasedata, savesimdata=False,
+                   verbose=True, debug=True)
 
     sim.addInVar(name='x', dist=uniform,
                  distkwargs={'loc': xrange[0], 'scale': (xrange[1] - xrange[0])})  # -1 <= x <= 1
@@ -84,9 +82,9 @@ def integration_example_monte_carlo_sim():
 
     # Note that (True,False) vals are automatically valmapped to the nums (1,0)
     underCurvePct = sum(sim.mcoutvars['pi_est'].nums)/ndraws
-    err = integration_error(sim.mcoutvars['pi_est'].nums, dimension=dimension,
-                            volume=totalArea, conf=conf,
-                            samplemethod=samplemethod, runningerror=False)
+    err = mc.integration_error(sim.mcoutvars['pi_est'].nums, dimension=dimension,
+                               volume=totalArea, conf=conf,
+                               samplemethod=samplemethod, runningerror=False)
     stdev = np.std(sim.mcoutvars['pi_est'].nums, ddof=1)
 
     resultsstr = f'π ≈ {underCurvePct*totalArea:0.5f}, n = {ndraws}, ' + \
@@ -94,18 +92,18 @@ def integration_example_monte_carlo_sim():
     print(resultsstr)
 
     '''
-    from monaco.mc_plot import mc_plot, mc_plot_integration_convergence, mc_plot_integration_error
     import matplotlib.pyplot as plt
     indices_under_curve = [i for i, x in enumerate(sim.mcoutvars['pi_est'].vals) if x]
-    fig, ax = mc_plot(sim.mcinvars['x'], sim.mcinvars['y'], highlight_cases=indices_under_curve)
+    fig, ax = mc.mc_plot(sim.mcinvars['x'], sim.mcinvars['y'], highlight_cases=indices_under_curve)
     ax.axis('equal')
     plt.title(resultsstr)
 
-    fig, ax = mc_plot_integration_convergence(sim.mcoutvars['pi_est'], dimension=dimension,
-                                              volume=totalArea, refval=np.pi, conf=0.95,
-                                              title='Approx. value of π', samplemethod=samplemethod)
+    fig, ax = mc.mc_plot_integration_convergence(sim.mcoutvars['pi_est'], dimension=dimension,
+                                                 volume=totalArea, refval=np.pi, conf=0.95,
+                                                 title='Approx. value of π',
+                                                 samplemethod=samplemethod)
     ax.set_ylim((3.10, 3.18))
-    fig, ax = mc_plot_integration_error(sim.mcoutvars['pi_est'], dimension=dimension,
+    fig, ax = mc.mc_plot_integration_error(sim.mcoutvars['pi_est'], dimension=dimension,
                                         volume=totalArea, refval=np.pi, conf=0.95,
                                         title='Approx. error of π', samplemethod=samplemethod)
     #'''

@@ -1,7 +1,6 @@
 # template_monte_carlo_sim.py
 
-from monaco.mc_sim import MCSim
-from monaco.mc_plot import mc_plot, mc_plot_cov_corr
+import monaco as mc
 
 # Import the statistical distributions from scipy.stats that you will be using.
 # These must be rv_discrete or rv_continuous functions.
@@ -44,10 +43,10 @@ savesimdata = True
 
 def template_monte_carlo_sim():
     # We first initialize the sim with a name of our choosing
-    sim = MCSim(name='Coin Flip', ndraws=ndraws, fcns=fcns,
-                firstcaseismedian=firstcaseismedian, seed=seed, cores=cores,
-                savecasedata=savecasedata, savesimdata=savesimdata,
-                verbose=True, debug=False)
+    sim = mc.MCSim(name='Coin Flip', ndraws=ndraws, fcns=fcns,
+                   firstcaseismedian=firstcaseismedian, seed=seed, cores=cores,
+                   savecasedata=savecasedata, savesimdata=savesimdata,
+                   verbose=True, debug=False)
 
     # We now add input variables, with their associated distributions
     # Out first variable will be the person flipping a coin - Sam and Alex will
@@ -89,19 +88,19 @@ def template_monte_carlo_sim():
     bias = sim.mcoutvars['Flip Result'].vals.count('heads')/sim.ncases*100
     print(f'Average heads bias: {bias}%')
 
-    # We can also quickly make some plots of our invars and outvars. The mc_plot
+    # We can also quickly make some plots of our invars and outvars. The mc.mc_plot
     # function will automatically try to figure out which type of plot is most
     # appropriate based on the number and dimension of the variables.
     # This will make a histogram of the results:
-    mc_plot(sim.mcoutvars['Flip Result'])
+    mc.mc_plot(sim.mcoutvars['Flip Result'])
     # And this scatter plot will show that the flips were random over time:
-    mc_plot(sim.mcoutvars['Flip Number'], sim.mcoutvars['Flip Result'])
+    mc.mc_plot(sim.mcoutvars['Flip Number'], sim.mcoutvars['Flip Result'])
 
     # We can also look at the correlation between all scalar input and output
     # vars to see which are most affecting the others. This shows that the input
     # and output flip information is identical, and that the flipper and flip
     # number had no effect on the coin landing heads or tails.
-    mc_plot_cov_corr(*sim.corr())
+    mc.mc_plot_cov_corr(*sim.corr())
 
     # Alternatively, you can return the sim object and work with it elsewhere.
     return sim
