@@ -7,9 +7,7 @@ pip install monaco
 ```
 
 ## Installing from Source
-Shouldn't need this before too long, see discussions here:
-https://github.com/python-poetry/poetry-core/pull/182
-https://github.com/python-poetry/poetry/discussions/1135
+
 ```
 git clone https://github.com/scottshambaugh/monaco.git
 cd monaco
@@ -18,6 +16,10 @@ poetry install --extras "pandas"
 ```
 
 ## Installing Local Editable
+
+Shouldn't need this before too long, see discussions
+[here](https://github.com/python-poetry/poetry-core/pull/182) and
+[here](https://github.com/python-poetry/poetry/discussions/1135).
 
 ```
 poetry build --format sdist
@@ -40,7 +42,7 @@ cd docs
 poetry run make clean && poetry run make html
 ```
 
-## Publishing to PyPi
+## Releasing a New Version and Publishing to PyPi
 
 1) Update `CHANGELOG.md`
 2) Update the version in `pyproject.toml`
