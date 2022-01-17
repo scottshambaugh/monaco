@@ -4,28 +4,28 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
-from monaco.mc_plot import mc_plot_hist, mc_plot_2d_scatter
-from monaco.mc_var import MCInVar, MCOutVar
+from monaco.mc_plot import plot_hist, plot_2d_scatter
+from monaco.mc_var import InVar, OutVar
 from monaco.mc_enums import PlotOrientation
 from monaco.helper_functions import empty_list
 from typing import Optional, Iterable
 
 
-def mc_multi_plot(mcvars   : list[MCInVar | MCOutVar],
-                  cases           : None | int | Iterable[int] = None,
-                  highlight_cases : None | int | Iterable[int] = empty_list(),
-                  rug_plot : bool   = True,
-                  cov_plot : bool   = True,
-                  cov_p    : None | float | Iterable[float] = None,
-                  fig      : Figure = None,
-                  title    : str    = '',
-                  ) -> tuple[Figure, tuple[Axes, ...]]:
+def multi_plot(vars   : list[InVar | OutVar],
+               cases           : None | int | Iterable[int] = None,
+               highlight_cases : None | int | Iterable[int] = empty_list(),
+               rug_plot : bool   = True,
+               cov_plot : bool   = True,
+               cov_p    : None | float | Iterable[float] = None,
+               fig      : Figure = None,
+               title    : str    = '',
+               ) -> tuple[Figure, tuple[Axes, ...]]:
     """
     Umbrella function to make more complex plots of Monte-Carlo variables.
 
     Parameters
     ----------
-    mcvars : list[monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar]
+    vars : list[monaco.mc_var.InVar | monaco.mc_var.OutVar]
         The variables to plot.
     cases : None | int | Iterable[int], default: None
         The cases to plot. If None, then all cases are plotted.
@@ -50,64 +50,64 @@ def mc_multi_plot(mcvars   : list[MCInVar | MCOutVar],
         axes is a tuple of the axes handles for the plots.
     """
     # Split larger vars
-    if len(mcvars) == 1:
-        if isinstance(mcvars[0], MCOutVar) and mcvars[0].maxdim == 1:
-            mcvar_split = mcvars[0].split()
-            origname = mcvars[0].name
-            mcvarx = mcvar_split[origname + ' [0]']
-            mcvary = mcvar_split[origname + ' [1]']
-            mcvars = [mcvarx, mcvary]
+    if len(vars) == 1:
+        if isinstance(vars[0], OutVar) and vars[0].maxdim == 1:
+            var_split = vars[0].split()
+            origname = vars[0].name
+            varx = var_split[origname + ' [0]']
+            vary = var_split[origname + ' [1]']
+            vars = [varx, vary]
         else:
-            raise ValueError(f'Invalid mcvars[0] dimension: {mcvars[0].maxdim}')
+            raise ValueError(f'Invalid vars[0] dimension: {vars[0].maxdim}')
 
     # Two Variable Plots
-    if len(mcvars) == 2:
-        if mcvars[0].isscalar and mcvars[1].isscalar:
-            fig, axs = mc_multi_plot_2d_scatter_hist(mcvarx=mcvars[0], mcvary=mcvars[1],
-                                                     cases=cases, highlight_cases=highlight_cases,
-                                                     rug_plot=rug_plot,
-                                                     cov_plot=cov_plot, cov_p=cov_p,
-                                                     cumulative=False,
-                                                     fig=fig, title=title)
+    if len(vars) == 2:
+        if vars[0].isscalar and vars[1].isscalar:
+            fig, axs = multi_plot_2d_scatter_hist(varx=vars[0], vary=vars[1],
+                                                  cases=cases, highlight_cases=highlight_cases,
+                                                  rug_plot=rug_plot,
+                                                  cov_plot=cov_plot, cov_p=cov_p,
+                                                  cumulative=False,
+                                                  fig=fig, title=title)
         else:
             raise ValueError( 'Invalid variable dimensions: ' +
-                             f'{mcvarx.name} {mcvarx.maxdim}, ' +
-                             f'{mcvary.name} {mcvary.maxdim}')
+                             f'{varx.name} {varx.maxdim}, ' +
+                             f'{vary.name} {vary.maxdim}')
 
     # Many Variable Plots
-    elif len(mcvars) > 2:
-        scalarmcvars = [mcvar for mcvar in mcvars if mcvar.isscalar]
-        fig, axs = mc_multi_plot_2d_scatter_grid(mcvars=scalarmcvars,
-                                                 cases=cases, highlight_cases=highlight_cases,
-                                                 rug_plot=rug_plot,
-                                                 cov_plot=cov_plot, cov_p=cov_p,
-                                                 cumulative=False,
-                                                 fig=fig, title=title)
+    elif len(vars) > 2:
+        scalarvars = [var for var in vars if var.isscalar]
+        fig, axs = multi_plot_2d_scatter_grid(vars=scalarvars,
+                                              cases=cases, highlight_cases=highlight_cases,
+                                              rug_plot=rug_plot,
+                                              cov_plot=cov_plot, cov_p=cov_p,
+                                              cumulative=False,
+                                              fig=fig, title=title)
 
     return fig, axs
 
 
 
-def mc_multi_plot_2d_scatter_hist(mcvarx     : MCInVar | MCOutVar,
-                                  mcvary     : MCInVar | MCOutVar,
-                                  cases           : None | int | Iterable[int] = None,
-                                  highlight_cases : None | int | Iterable[int] = empty_list(),
-                                  rug_plot   : bool   = True,
-                                  cov_plot   : bool   = True,
-                                  cov_p      : None | float | Iterable[float] = None,
-                                  cumulative : bool   = False,
-                                  fig        : Figure = None,
-                                  title      : str    = '',
-                                  ) -> tuple[Figure, tuple[Axes, ...]]:
+def multi_plot_2d_scatter_hist(varx     : InVar | OutVar,
+                               vary     : InVar | OutVar,
+                               cases           : None | int | Iterable[int] = None,
+                               highlight_cases : None | int | Iterable[int] = empty_list(),
+                               rug_plot   : bool   = True,
+                               cov_plot   : bool   = True,
+                               cov_p      : None | float | Iterable[float] = None,
+                               cumulative : bool   = False,
+                               fig        : Figure = None,
+                               title      : str    = '',
+                               ) -> tuple[Figure, tuple[Axes, ...]]:
     """
     Plot two variables against each other with a central scatterplot and two
     histograms along the x and y axes.
 
     Parameters
     ----------
-    mcvarx : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
+    varx : monaco.mc_var.InVar | monaco.mc_var.OutVar
         The x variable to plot.
-    mcvary : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
+    vary : monaco.mc_var.InVar | monaco.mc_var.OutVar
         The y variable to plot.
     cases : None | int | Iterable[int], default: None
         The cases to plot. If None, then all cases are plotted.
@@ -142,18 +142,18 @@ def mc_multi_plot_2d_scatter_hist(mcvarx     : MCInVar | MCOutVar,
     ax2 = fig.add_subplot(gs[0:3, 0])
     ax3 = fig.add_subplot(gs[0:3, 1:4], sharex=ax1, sharey=ax2)
 
-    mc_plot_hist(mcvarx, highlight_cases=highlight_cases,
-                 cumulative=cumulative, rug_plot=False,
-                 ax=ax1, title='')
-    mc_plot_hist(mcvary, highlight_cases=highlight_cases,
-                 cumulative=cumulative, rug_plot=False,
-                 ax=ax2, title='',
-                 orientation=PlotOrientation.HORIZONTAL)
-    mc_plot_2d_scatter(mcvarx, mcvary,
-                       cases=cases, highlight_cases=highlight_cases,
-                       rug_plot=rug_plot,
-                       cov_plot=cov_plot, cov_p=cov_p,
-                       ax=ax3, title='')
+    plot_hist(varx, highlight_cases=highlight_cases,
+              cumulative=cumulative, rug_plot=False,
+              ax=ax1, title='')
+    plot_hist(vary, highlight_cases=highlight_cases,
+              cumulative=cumulative, rug_plot=False,
+              ax=ax2, title='',
+              orientation=PlotOrientation.HORIZONTAL)
+    plot_2d_scatter(varx, vary,
+                    cases=cases, highlight_cases=highlight_cases,
+                    rug_plot=rug_plot,
+                    cov_plot=cov_plot, cov_p=cov_p,
+                    ax=ax3, title='')
 
     ax1.set_ylabel('')
     ax2.set_xlabel('')
@@ -168,16 +168,16 @@ def mc_multi_plot_2d_scatter_hist(mcvarx     : MCInVar | MCOutVar,
 
 
 
-def mc_multi_plot_2d_scatter_grid(mcvars     : list[MCInVar | MCOutVar],
-                                  cases           : None | int | Iterable[int] = None,
-                                  highlight_cases : None | int | Iterable[int] = empty_list(),
-                                  rug_plot   : bool   = True,
-                                  cov_plot   : bool   = True,
-                                  cov_p      : None | float | Iterable[float] = None,
-                                  cumulative : bool   = False,
-                                  fig        : Figure = None,
-                                  title      : str    = '',
-                                  ) -> tuple[Figure, tuple[Axes, ...]]:
+def multi_plot_2d_scatter_grid(vars     : list[InVar | OutVar],
+                               cases           : None | int | Iterable[int] = None,
+                               highlight_cases : None | int | Iterable[int] = empty_list(),
+                               rug_plot   : bool   = True,
+                               cov_plot   : bool   = True,
+                               cov_p      : None | float | Iterable[float] = None,
+                               cumulative : bool   = False,
+                               fig        : Figure = None,
+                               title      : str    = '',
+                               ) -> tuple[Figure, tuple[Axes, ...]]:
     """
     Plot multiple variables against each other in a grid. The off-diagonal grid
     locations show scatterplots of the two corresponding variables. The
@@ -185,7 +185,7 @@ def mc_multi_plot_2d_scatter_grid(mcvars     : list[MCInVar | MCOutVar],
 
     Parameters
     ----------
-    mcvars : list[monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar]
+    vars : list[monaco.mc_var.InVar | monaco.mc_var.OutVar]
         The variables to plot.
     cases : None | int | Iterable[int], default: None
         The cases to plot. If None, then all cases are plotted.
@@ -214,18 +214,18 @@ def mc_multi_plot_2d_scatter_grid(mcvars     : list[MCInVar | MCOutVar],
     """
     fig = handle_fig(fig)
 
-    nvars = len(mcvars)
+    nvars = len(vars)
     axs = fig.subplots(nvars, nvars, sharex='col')
     for i in range(nvars):
         row_scatter_axs = [ax for k, ax in enumerate(axs[i]) if k != i]
         for j in range(nvars):
             ax = axs[i][j]
             if i == j:
-                mc_plot_hist(mcvars[i], highlight_cases=highlight_cases,
+                plot_hist(vars[i], highlight_cases=highlight_cases,
                              rug_plot=False, ax=ax, title='', cumulative=cumulative)
             else:
                 ax.get_shared_y_axes().join(*row_scatter_axs)  # Don't link the histogram y axis
-                mc_plot_2d_scatter(mcvars[j], mcvars[i],
+                plot_2d_scatter(vars[j], vars[i],
                                    cases=cases, highlight_cases=highlight_cases,
                                    rug_plot=rug_plot, cov_plot=cov_plot, cov_p=cov_p,
                                    ax=ax, title='')
@@ -233,9 +233,9 @@ def mc_multi_plot_2d_scatter_grid(mcvars     : list[MCInVar | MCOutVar],
             ax.set_xlabel('')
             ax.set_ylabel('')
             if j == 0:
-                ax.set_ylabel(mcvars[i].name)
+                ax.set_ylabel(vars[i].name)
             if i == nvars-1:
-                ax.set_xlabel(mcvars[j].name)
+                ax.set_xlabel(vars[j].name)
 
     plt.suptitle(title)
 

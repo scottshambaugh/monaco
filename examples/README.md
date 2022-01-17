@@ -16,4 +16,4 @@ Shows best practices for Monte-Carlo integration, to calculate the value of pi f
 Models the spread of a virus through a scale-free network using an SIR model. A good look at using order statistics to figure out how many cases to run, passing random seeds to a program during preprocessing, and some more complicated postprocessing.
 
 ### [Rocket](rocket/)
-Models the flight of a model rocket for varying environmental conditions and performance characteristics. A useful example for looking at more complicated program inputs and outputs, and postprocessing that data into mcoutvars of different shapes and types.
+Models the flight of a model rocket for varying environmental conditions and performance characteristics. A useful example for looking at more complicated program inputs and outputs, and postprocessing that data into outvars of different shapes and types.

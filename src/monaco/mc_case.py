@@ -1,14 +1,14 @@
 # mc_case.py
 from __future__ import annotations
 
-from monaco.mc_var import MCOutVar, MCInVar
-from monaco.mc_val import MCOutVal, MCInVal
+from monaco.mc_var import OutVar, InVar
+from monaco.mc_val import OutVal, InVal
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 import numpy as np
 
-class MCCase():
+class Case():
     """
     Object to hold all the data for a single Monte-Carlo case.
 
@@ -18,7 +18,7 @@ class MCCase():
         The number of this case.
     ismedian : bool
         Whether this represents the median case.
-    mcinvars : dict[str, monaco.mc_var.MCInVar]
+    invars : dict[str, monaco.mc_var.InVar]
         A dict pointing to all of the input variables.
     constvals : dict[str, Any], default: None
         A dict of any constant values common to all cases.
@@ -44,9 +44,9 @@ class MCCase():
         Whether this case has run the run function.
     haspostprocessed : bool
         Whether this case has been postprocessed.
-    mcinvals : dict[str, monaco.mc_val.MCInVal]
+    invals : dict[str, monaco.mc_val.InVal]
         The input values for this partitcular case.
-    mcoutvals : dict[str, monaco.mc_val.MCOutVal]
+    outvals : dict[str, monaco.mc_val.OutVal]
         The output values for this partitcular case.
     siminput : tuple[Any]
         The preprocessed inputs provided to the run function for this case.
@@ -56,18 +56,18 @@ class MCCase():
     def __init__(self,
                  ncase     : int,
                  ismedian  : bool,
-                 mcinvars  : dict[str, MCInVar],
+                 invars    : dict[str, InVar],
                  constvals : dict[str, Any] = None,
                  seed      : int = np.random.get_state(legacy=False)['state']['key'][0],
                  ):
 
         self.ncase = ncase
         self.ismedian = ismedian
-        self.mcinvars = mcinvars
+        self.invars = invars
         if constvals is None:
             constvals = dict()
         self.constvals = constvals
-        self.mcoutvars : dict[str, MCOutVar] = dict()
+        self.outvars : dict[str, OutVar] = dict()
         self.seed = seed
 
         self.starttime : datetime = None
@@ -80,43 +80,43 @@ class MCCase():
         self.hasrun           : bool = False
         self.haspostprocessed : bool = False
 
-        self.mcinvals  : dict[str, MCInVal]  = self.getMCInVals()
-        self.mcoutvals : dict[str, MCOutVal] = dict()
+        self.invals  : dict[str, InVal]  = self.getInVals()
+        self.outvals : dict[str, OutVal] = dict()
 
         self.siminput     : tuple[Any] = None
         self.simrawoutput : tuple[Any] = None
 
 
-    def getMCInVals(self) -> dict[str, MCInVal]:
+    def getInVals(self) -> dict[str, InVal]:
         """
-        From all the MCInVar's, extract the vals for this case.
+        From all the InVar's, extract the vals for this case.
 
         Returns
         -------
-        mcvals: dict[str, monaco.mc_val.MCInVal]
-            The MCInVal's for this case.
+        vals: dict[str, monaco.mc_val.InVal]
+            The InVal's for this case.
         """
-        mcvals = dict()
-        for mcvar in self.mcinvars.values():
-            mcval = mcvar.getVal(self.ncase)
-            mcvals[mcval.name] = mcval
-        return mcvals
+        vals = dict()
+        for var in self.invars.values():
+            val = var.getVal(self.ncase)
+            vals[val.name] = val
+        return vals
 
 
-    def getMCOutVals(self) -> dict[str, MCOutVal]:
+    def getOutVals(self) -> dict[str, OutVal]:
         """
-        From all the MCOutVar's, extract the vals for this case.
+        From all the OutVar's, extract the vals for this case.
 
         Returns
         -------
-        mcvals: dict[str, monaco.mc_val.MCOutVal]
-            The MCOutVal's for this case.
+        vals: dict[str, monaco.mc_val.OutVal]
+            The OutVal's for this case.
         """
-        mcvals = dict()
-        for mcvar in self.mcoutvars.values():
-            mcval = mcvar.getVal(self.ncase)
-            mcvals[mcval.name] = mcval
-        return mcvals
+        vals = dict()
+        for var in self.outvars.values():
+            val = var.getVal(self.ncase)
+            vals[val.name] = val
+        return vals
 
 
     def addOutVal(self,
@@ -126,7 +126,7 @@ class MCCase():
                   valmap : dict[Any, float] = None
                   ) -> None:
         """
-        Generate an MCOutVal and add it to the dict of mcoutvals.
+        Generate an OutVal and add it to the dict of outvals.
 
         Parameters
         ----------
@@ -140,7 +140,7 @@ class MCCase():
             A valmap dict mapping nonnumeric values to numbers.
         """
 
-        self.mcoutvals[name] = MCOutVal(name=name, ncase=self.ncase, val=val,
+        self.outvals[name] = OutVal(name=name, ncase=self.ncase, val=val,
                                         valmap=valmap, ismedian=self.ismedian)
         if split:
-            self.mcoutvals.update(self.mcoutvals[name].split())
+            self.outvals.update(self.outvals[name].split())

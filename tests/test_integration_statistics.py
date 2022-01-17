@@ -53,14 +53,14 @@ def test_max_stdev():
 def plot_testing():
     import numpy as np
     import matplotlib.pyplot as plt
-    from monaco.mc_sampling import mc_sampling
+    from monaco.mc_sampling import sampling
 
     n = int(2**15)
     conf = 0.95
     seed = 25106011
     midpoint = 1
-    x1 = mc_sampling(ndraws=n, method=SampleMethod.RANDOM, ninvar=1, seed=seed)*midpoint*2
-    x2 = mc_sampling(ndraws=n, method=SampleMethod.SOBOL, ninvar=1, seed=seed)*midpoint*2
+    x1 = sampling(ndraws=n, method=SampleMethod.RANDOM, ninvar=1, seed=seed)*midpoint*2
+    x2 = sampling(ndraws=n, method=SampleMethod.SOBOL, ninvar=1, seed=seed)*midpoint*2
 
     cummean1 = np.cumsum(x1)/np.arange(1, n+1)
     cummean2 = np.cumsum(x2)/np.arange(1, n+1)

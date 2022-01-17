@@ -4,7 +4,7 @@ This page contains a list of common probability distributions that you may want 
 
 ## Usage
 
-    # After having initialized your MCSim object as 'sim', 
+    # After having initialized your Sim object as 'sim',
     # create a continuous uniform random variable between 1 and 5
     from scipy.stats import uniform
     sim.addInVar(name='var1', dist=uniform, distkwargs={'loc':1, 'scale':4})

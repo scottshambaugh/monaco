@@ -1,4 +1,4 @@
-# MCSim.py
+# mc_sim.py
 from __future__ import annotations
 
 import os
@@ -6,9 +6,9 @@ import numpy as np
 import dill
 import pathlib
 from datetime import datetime, timedelta
-from monaco.mc_case import MCCase
-from monaco.mc_var import MCInVar, MCOutVar
-from monaco.mc_enums import MCFunctions, SampleMethod
+from monaco.mc_case import Case
+from monaco.mc_var import InVar, OutVar
+from monaco.mc_enums import SimFunctions, SampleMethod
 from monaco.helper_functions import (get_list, slice_by_index, vprint, vwarn,
                                      vwrite, hash_str_repeatable)
 from psutil import cpu_count
@@ -18,7 +18,7 @@ from typing import Callable, Any, Iterable
 from scipy.stats import rv_continuous, rv_discrete
 
 
-class MCSim:
+class Sim:
     """
     The main Monte-Carlo Simulation object.
 
@@ -28,8 +28,8 @@ class MCSim:
         The name for the simulation.
     ndraws : int
         The number of random draws to perform.
-    fcns : dict[monaco.mc_enums.MCFunctions, Callable]
-        fcns is a dict with keys MCFunctions.PREPROCESS, RUN, and POSTPROCESS.
+    fcns : dict[monaco.mc_enums.SimFunctions, Callable]
+        fcns is a dict with keys SimFunctions.PREPROCESS, RUN, and POSTPROCESS.
         These point to user-defined functions with certain input and output
         structures, please see the documentation on how to construct these
         functions.
@@ -75,18 +75,18 @@ class MCSim:
     runtime : datetime.timedelta
         The length of time it took the simulation to run.
     casespreprocessed : set[int]
-        The cases which were sucessfully preprocessed.
+        The case numbers which were sucessfully preprocessed.
     casesrun : set[int]
-        The cases which were sucessfully run.
+        The case numbers which were sucessfully run.
     casespostprocessed : set[int]
-        The cases which were sucessfully postprocessed.
-    mcinvars : dict[str, monaco.mc_var.MCInVar]
+        The case numbers which were sucessfully postprocessed.
+    invars : dict[str, monaco.mc_var.InVar]
         The Monte-Carlo Input Variables.
-    mcoutvars : dict[str, monaco.mc_var.MCOutVar]
+    outvars : dict[str, monaco.mc_var.OutVar]
         The Monte-Carlo Output Variables.
     constvals : dict[str, Any]
         The constant values to pass to each of the cases.
-    mccases : list[monaco.mc_case.MCCase]
+    cases : list[monaco.mc_case.Case]
         The Monte-Carlo Cases.
     ninvars : int
         The number of input variables.
@@ -110,7 +110,7 @@ class MCSim:
     def __init__(self,
                  name              : str,
                  ndraws            : int,
-                 fcns              : dict[MCFunctions, Callable],
+                 fcns              : dict[SimFunctions, Callable],
                  firstcaseismedian : bool = False,
                  samplemethod      : SampleMethod = SampleMethod.SOBOL_RANDOM,
                  seed              : int  = np.random.get_state(legacy=False)['state']['key'][0],
@@ -158,10 +158,10 @@ class MCSim:
         self.casesrun           : set[int] = set()
         self.casespostprocessed : set[int] = set()
 
-        self.mcinvars  : dict[str, MCInVar] = dict()
-        self.mcoutvars : dict[str, MCOutVar] = dict()
+        self.invars  : dict[str, InVar] = dict()
+        self.outvars : dict[str, OutVar] = dict()
         self.constvals : dict[str, Any] = dict()
-        self.mccases : list[MCCase] = []
+        self.cases : list[Case] = []
         self.ninvars : int = 0
 
         self.corrcoeffs : np.ndarray = None
@@ -182,7 +182,7 @@ class MCSim:
     def __getstate__(self):
         """Function for pickling self to save to file."""
         state = self.__dict__.copy()
-        state['mccases'] = []  # don't save mccase data when pickling self
+        state['cases'] = []  # don't save case data when pickling self
         return state
 
 
@@ -194,23 +194,24 @@ class MCSim:
 
 
     def checkFcnsInput(self,
-                       fcns: dict[MCFunctions, Callable],
+                       fcns: dict[SimFunctions, Callable],
                        ) -> None:
         """
         Check the `fcns` input dictionary for correctness.
 
         Parameters
         ----------
-        fcns : dict[monaco.mc_enums.MCFunctions, Callable]
-            fcns must be a dict with keys MCFunctions.PREPROCESS, RUN, and
+        fcns : dict[monaco.mc_enums.SimFunctions, Callable]
+            fcns must be a dict with keys SimFunctions.PREPROCESS, RUN, and
             POSTPROCESS, which point to special user-defined functions.
         """
-        if set(fcns.keys()) != {MCFunctions.PREPROCESS, MCFunctions.RUN, MCFunctions.POSTPROCESS}:
-            raise ValueError(f'MCSim argument fcns={fcns} must have keys ' +
-                             f'{MCFunctions.PREPROCESS}, {MCFunctions.RUN}, ' +
-                             f'and {MCFunctions.POSTPROCESS}')
+        if set(fcns.keys()) \
+           != {SimFunctions.PREPROCESS, SimFunctions.RUN, SimFunctions.POSTPROCESS}:
+            raise ValueError(f'Sim argument fcns={fcns} must have keys ' +
+                             f'{SimFunctions.PREPROCESS}, {SimFunctions.RUN}, ' +
+                             f'and {SimFunctions.POSTPROCESS}')
         if any(not callable(f) for f in fcns.values()):
-            raise ValueError(f'MCSim argument fcns={fcns} must contain functions as values')
+            raise ValueError(f'Sim argument fcns={fcns} must contain functions as values')
 
 
     def setFirstCaseMedian(self,
@@ -230,8 +231,8 @@ class MCSim:
         else:
             self.firstcaseismedian = False
             self.ncases = self.ndraws
-        if self.mcinvars != dict():
-            for invar in self.mcinvars.values():
+        if self.invars != dict():
+            for invar in self.invars.values():
                 invar.setFirstCaseMedian(firstcaseismedian)
 
 
@@ -263,10 +264,10 @@ class MCSim:
         if seed is None:
             seed = (self.seed + self.ninvars) % 2**32  # seed is dependent on the order added
         self.invarseeds.append(seed)
-        invar = MCInVar(name=name, dist=dist, distkwargs=distkwargs, ndraws=self.ndraws,
+        invar = InVar(name=name, dist=dist, distkwargs=distkwargs, ndraws=self.ndraws,
                         nummap=nummap, samplemethod=self.samplemethod, ninvar=self.ninvars,
                         seed=seed, firstcaseismedian=self.firstcaseismedian, autodraw=False)
-        self.mcinvars[name] = invar
+        self.invars[name] = invar
 
 
     def addConstVal(self,
@@ -300,9 +301,9 @@ class MCSim:
         self.clearResults()
         self.ndraws = ndraws
         self.setFirstCaseMedian(self.firstcaseismedian)
-        for invar in self.mcinvars.values():
+        for invar in self.invars.values():
             invar.setNDraws(ndraws)
-        if self.mcinvars != dict():
+        if self.invars != dict():
             self.drawVars()
 
 
@@ -311,7 +312,7 @@ class MCSim:
         if self.ninvars > 0:
             vprint(self.verbose, f"Drawing random samples for {self.ninvars} input variables " +
                                  f"via the '{self.samplemethod}' method...", flush=True)
-        for invar in self.mcinvars.values():
+        for invar in self.invars.values():
             invar.draw(ninvar_max=self.ninvars)
 
 
@@ -324,7 +325,7 @@ class MCSim:
         Parameters
         ----------
         cases : None | int | Iterable[int]
-            The cases to run. If None, then all cases are run.
+            The case numbers to run. If None, then all cases are run.
         """
         cases_downselect = self.downselectCases(cases=cases)
         vprint(self.verbose, f"Running '{self.name}' Monte Carlo simulation with " +
@@ -370,18 +371,20 @@ class MCSim:
         Parameters
         ----------
         casestogenerate : None | int | Iterable[int]
-            The cases to generate. If None, then all cases are generated.
+            The case numbers to generate. If None, then all cases are
+            generated.
         casestopreprocess : None | int | Iterable[int]
-            The cases to preprocess. If None, then all cases are preprocessed.
+            The case numbers to preprocess. If None, then all cases are
+            preprocessed.
         casestorun : None | int | Iterable[int]
-            The cases to run. If None, then all cases are run.
+            The case numbers to run. If None, then all cases are run.
         casestopostprocess : None | int | Iterable[int]
-            The cases to postprocess. If None, then all cases are
+            The case numbers to postprocess. If None, then all cases are
             postprocessed.
         """
         self.starttime = datetime.now()
 
-        if casestorun in (None, self.allCases()):
+        if set(casestorun) in (None, self.allCases()):
             self.clearResults()  # only clear results if we are rerunning all cases
 
         self.runsimid = self.genID()
@@ -438,22 +441,24 @@ class MCSim:
         Parameters
         ----------
         cases : None | int | Iterable[int]
-            The cases to generate. If None, then all cases are generated.
+            The case numbers to generate. If None, then all cases are
+            generated.
         """
         vprint(self.verbose, 'Generating cases...', flush=True)
         self.genCaseSeeds()
 
+        # If we are rerunning partial cases we don't want to reset this
         if cases is None:
-            self.mccases = []
+            self.cases = []
 
         cases_downselect = self.downselectCases(cases)
-        for case in cases_downselect:
+        for ncase in cases_downselect:
             ismedian = False
-            if self.firstcaseismedian and case == 0:
+            if self.firstcaseismedian and ncase == 0:
                 ismedian = True
-            self.mccases.append(MCCase(ncase=case, ismedian=ismedian, mcinvars=self.mcinvars,
-                                       constvals=self.constvals, seed=int(self.caseseeds[case])))
-        self.mccases.sort(key=lambda mccase: mccase.ncase)
+            self.cases.append(Case(ncase=ncase, ismedian=ismedian, invars=self.invars,
+                                   constvals=self.constvals, seed=int(self.caseseeds[ncase])))
+        self.cases.sort(key=lambda case: case.ncase)
 
 
     def genCaseSeeds(self) -> None:
@@ -471,7 +476,8 @@ class MCSim:
         Parameters
         ----------
         cases : None | int | Iterable[int]
-            The cases to preprocess. If None, then all cases are preprocessed.
+            The case numbers to preprocess. If None, then all cases are
+            preprocessed.
         """
         cases_downselect = self.downselectCases(cases=cases)
 
@@ -480,15 +486,15 @@ class MCSim:
                               unit=' cases', position=0)
 
         if self.cores == 1:
-            for case in cases_downselect:
-                self.preProcessCase(mccase=self.mccases[case])
+            for ncase in cases_downselect:
+                self.preProcessCase(case=self.cases[ncase])
 
         else:
             p = Pool(self.cores)
             try:
-                mccases_downselect = slice_by_index(self.mccases, cases_downselect)
-                mccases = p.imap(self.preProcessCase, mccases_downselect)
-                mccases = list(mccases)
+                cases_downselect = slice_by_index(self.cases, cases_downselect)
+                cases = p.imap(self.preProcessCase, cases_downselect)
+                cases = list(cases)
                 p.terminate()
                 p.restart()
             except KeyboardInterrupt:
@@ -503,36 +509,36 @@ class MCSim:
 
 
     def preProcessCase(self,
-                       mccase : MCCase,
-                       ) -> MCCase:
+                       case : Case,
+                       ) -> Case:
         """
         Preprocess a single Monte-Carlo case.
 
         Parameters
         ----------
-        mccase : monaco.mc_case.MCCase
+        case : monaco.mc_case.Case
             The case to preprocess.
 
         Returns
         -------
-        mccase : monaco.mc_case.MCCase
+        case : monaco.mc_case.Case
             The same case, preprocessed.
         """
         try:
-            mccase.siminput = self.fcns[MCFunctions.PREPROCESS](mccase)
-            self.casespreprocessed.add(mccase.ncase)
-            mccase.haspreprocessed = True
+            case.siminput = self.fcns[SimFunctions.PREPROCESS](case)
+            self.casespreprocessed.add(case.ncase)
+            case.haspreprocessed = True
 
         except Exception:
             if self.debug:
                 raise
             else:
-                vwarn(self.verbose, f'\nPreprocessing case {mccase.ncase} failed')
+                vwarn(self.verbose, f'\nPreprocessing case {case.ncase} failed')
 
         if self.pbar0 is not None:
             self.pbar0.update(1)
 
-        return mccase
+        return case
 
 
     def runCases(self,
@@ -545,7 +551,7 @@ class MCSim:
         Parameters
         ----------
         cases : None | int | Iterable[int]
-            The cases to run. If None, then all cases are run.
+            The case numbers to run. If None, then all cases are run.
         calledfromrunsim : bool, default: False
             Whether this was called from self.runSim(). If False, a new ID for
             this simulation run is generated.
@@ -560,14 +566,14 @@ class MCSim:
                               unit=' cases', position=0)
 
         if self.cores == 1:
-            for case in cases_downselect:
-                self.runCase(mccase=self.mccases[case])
+            for ncase in cases_downselect:
+                self.runCase(case=self.cases[ncase])
 
         else:
             p = Pool(self.cores)
             try:
-                mccases_downselect = slice_by_index(self.mccases, cases_downselect)
-                casesrun = p.imap(self.runCase, mccases_downselect)
+                cases_downselect = slice_by_index(self.cases, cases_downselect)
+                casesrun = p.imap(self.runCase, cases_downselect)
                 # below is a dummy function to ensure we wait for imap to finish
                 casesrun = list(casesrun)
                 p.terminate()
@@ -588,45 +594,45 @@ class MCSim:
 
 
     def runCase(self,
-                mccase : MCCase,
+                case : Case,
                 ) -> None:
         """
         Run a single Monte-Carlo case.
 
         Parameters
         ----------
-        mccase : monaco.mc_case.MCCase
+        case : monaco.mc_case.Case
             The case to run.
 
         Returns
         -------
-        mccase : monaco.mc_case.MCCase
+        case : monaco.mc_case.Case
             The same case, ran.
         """
         try:
-            mccase.starttime = datetime.now()
-            mccase.simrawoutput = self.fcns[MCFunctions.RUN](*get_list(mccase.siminput))
-            mccase.endtime = datetime.now()
-            mccase.runtime = mccase.endtime - mccase.starttime
-            mccase.runsimid = self.runsimid
-            mccase.hasrun = True
+            case.starttime = datetime.now()
+            case.simrawoutput = self.fcns[SimFunctions.RUN](*get_list(case.siminput))
+            case.endtime = datetime.now()
+            case.runtime = case.endtime - case.starttime
+            case.runsimid = self.runsimid
+            case.hasrun = True
 
             if self.savecasedata:
-                filepath = self.resultsdir / f'{self.name}_{mccase.ncase}.mccase'
-                mccase.filepath = filepath
+                filepath = self.resultsdir / f'{self.name}_{case.ncase}.mccase'
+                case.filepath = filepath
                 try:
                     filepath.unlink()
                 except FileNotFoundError:
                     pass
                 with open(filepath, 'wb') as file:
-                    dill.dump(mccase, file, protocol=dill.HIGHEST_PROTOCOL)
+                    dill.dump(case, file, protocol=dill.HIGHEST_PROTOCOL)
 
-            self.casesrun.add(mccase.ncase)
+            self.casesrun.add(case.ncase)
 
         except Exception:
             if self.debug:
                 raise
-            vwrite(self.verbose, f'\nRunning case {mccase.ncase} failed')
+            vwrite(self.verbose, f'\nRunning case {case.ncase} failed')
 
         if self.pbar1 is not None:
             self.pbar1.update(1)
@@ -641,7 +647,7 @@ class MCSim:
         Parameters
         ----------
         cases : None | int | Iterable[int]
-            The cases to postprocess. If None, then all cases are
+            The case numbers to postprocess. If None, then all cases are
             postprocessed.
         """
         cases_downselect = self.downselectCases(cases=cases)
@@ -651,14 +657,14 @@ class MCSim:
                               unit=' cases', position=0)
 
         if self.cores == 1:
-            for case in cases_downselect:
-                self.postProcessCase(mccase=self.mccases[case])
+            for ncase in cases_downselect:
+                self.postProcessCase(case=self.cases[ncase])
 
         else:
             p = Pool(self.cores)
             try:
-                mccases_downselect = slice_by_index(self.mccases, cases_downselect)
-                casespostprocessed = p.imap(self.postProcessCase, mccases_downselect)
+                cases_downselect = slice_by_index(self.cases, cases_downselect)
+                casespostprocessed = p.imap(self.postProcessCase, cases_downselect)
                 # below is a dummy function to ensure we wait for imap to finish
                 casespostprocessed = list(casespostprocessed)
                 p.terminate()
@@ -675,31 +681,31 @@ class MCSim:
 
 
     def postProcessCase(self,
-                        mccase : MCCase,
+                        case : Case,
                         ) -> None:
         """
         Postprocess a single Monte-Carlo case.
 
         Parameters
         ----------
-        mccase : monaco.mc_case.MCCase
+        case : monaco.mc_case.Case
             The case to postprocess.
 
         Returns
         -------
-        mccase : monaco.mc_case.MCCase
+        case : monaco.mc_case.Case
             The same case, postprocessed.
         """
         try:
-            self.fcns[MCFunctions.POSTPROCESS](mccase, *get_list(mccase.simrawoutput))
-            self.casespostprocessed.add(mccase.ncase)
-            mccase.haspostprocessed = True
+            self.fcns[SimFunctions.POSTPROCESS](case, *get_list(case.simrawoutput))
+            self.casespostprocessed.add(case.ncase)
+            case.haspostprocessed = True
 
         except Exception:
             if self.debug:
                 raise
             else:
-                vwrite(self.verbose, f'\nPostprocessing case {mccase.ncase} failed')
+                vwrite(self.verbose, f'\nPostprocessing case {case.ncase} failed')
 
         if self.pbar2 is not None:
             self.pbar2.update(1)
@@ -707,31 +713,31 @@ class MCSim:
 
     def genOutVars(self) -> None:
         """Generate the output variables."""
-        for varname in self.mccases[0].mcoutvals.keys():
+        for varname in self.cases[0].outvals.keys():
             vals = []
             for i in range(self.ncases):
-                vals.append(self.mccases[i].mcoutvals[varname].val)
+                vals.append(self.cases[i].outvals[varname].val)
 
-            if self.mccases[0].mcoutvals[varname].valmapsource == 'auto':
+            if self.cases[0].outvals[varname].valmapsource == 'auto':
                 uniquevals : set[Any] = set()
                 valmap : dict[Any, float] = None
                 for i in range(self.ncases):
-                    if self.mccases[i].mcoutvals[varname].valmap is None:
+                    if self.cases[i].outvals[varname].valmap is None:
                         uniquevals = None
                     else:
-                        uniquevals.update(self.mccases[i].mcoutvals[varname].valmap.keys())
+                        uniquevals.update(self.cases[i].outvals[varname].valmap.keys())
                 if uniquevals is not None:
                     valmap = dict()
                     for i, val in enumerate(uniquevals):
                         valmap[val] = i
             else:
-                valmap = self.mccases[0].mcoutvals[varname].valmap
+                valmap = self.cases[0].outvals[varname].valmap
 
-            self.mcoutvars[varname] = MCOutVar(name=varname, vals=vals, valmap=valmap,
+            self.outvars[varname] = OutVar(name=varname, vals=vals, valmap=valmap,
                                                ndraws=self.ndraws,
                                                firstcaseismedian=self.firstcaseismedian)
             for i in range(self.ncases):
-                self.mccases[i].mcoutvars[varname] = self.mcoutvars[varname]
+                self.cases[i].outvars[varname] = self.outvars[varname]
 
 
     def genCovarianceMatrix(self) -> None:
@@ -741,14 +747,14 @@ class MCSim:
         """
         self.covvarlist = []
         allnums = []
-        for var in self.mcinvars.keys():
-            if self.mcinvars[var].isscalar:
-                allnums.append(self.mcinvars[var].nums)
-                self.covvarlist.append(self.mcinvars[var].name)
-        for var in self.mcoutvars.keys():
-            if self.mcoutvars[var].isscalar:
-                allnums.append(self.mcoutvars[var].nums)
-                self.covvarlist.append(self.mcoutvars[var].name)
+        for var in self.invars.keys():
+            if self.invars[var].isscalar:
+                allnums.append(self.invars[var].nums)
+                self.covvarlist.append(self.invars[var].name)
+        for var in self.outvars.keys():
+            if self.outvars[var].isscalar:
+                allnums.append(self.outvars[var].nums)
+                self.covvarlist.append(self.outvars[var].name)
         self.covs = np.cov(np.array(allnums))
         self.corrcoeffs = np.corrcoef(np.array(allnums))
 
@@ -791,8 +797,8 @@ class MCSim:
 
     def clearResults(self) -> None:
         """Clear all the simulation results."""
-        self.mccases = []
-        self.mcoutvars = dict()
+        self.cases = []
+        self.outvars = dict()
         self.casespreprocessed = set()
         self.casesrun = set()
         self.casespostprocessed = set()
@@ -807,7 +813,7 @@ class MCSim:
     def reset(self) -> None:
         """Completely reset the simulation to the default object state."""
         self.clearResults()
-        self.mcinvars = dict()
+        self.invars = dict()
         self.constvals = dict()
         self.ninvars = 0
         self.invarseeds = []
@@ -824,12 +830,12 @@ class MCSim:
         Parameters
         ----------
         cases : None | int | Iterable[int]
-            The cases to downselect. If None, returns all cases.
+            The case numbers to downselect. If None, returns all cases.
 
         Returns
         -------
         cases_downselect : set[int]
-            A set of all the cases to use.
+            A set of all the case numbers to use.
         """
         if cases is None:
             cases_downselect = self.allCases()
@@ -868,7 +874,7 @@ class MCSim:
         vprint(self.verbose, f'{self.filepath} indicates {len(self.casesrun)}/{self.ncases} ' +
                               'cases were run, attempting to load raw case data from disk...',
                              end='\n', flush=True)
-        self.mccases = []
+        self.cases = []
         casesloaded = set()
         casesstale  = set()
         casesnotloaded        = self.allCases()
@@ -876,29 +882,29 @@ class MCSim:
 
         pbar = tqdm(total=len(self.casesrun), unit=' cases', desc='Loading', position=0)
 
-        for case in self.casesrun:
-            filepath = self.resultsdir / f'{self.name}_{case}.mccase'
+        for ncase in self.casesrun:
+            filepath = self.resultsdir / f'{self.name}_{ncase}.mccase'
             try:
                 with open(filepath, 'rb') as file:
                     try:
-                        mccase = dill.load(file)
-                        if (not mccase.haspreprocessed) \
-                            or (not mccase.hasrun) \
-                            or (mccase.runtime is None):  # only load mccase if it completed running
-                            self.mccases.append(None)
+                        case = dill.load(file)
+                        if (not case.haspreprocessed) \
+                            or (not case.hasrun) \
+                            or (case.runtime is None):  # only load case if it completed running
+                            self.cases.append(None)
                             vwarn(self.verbose, f'{filepath.name} did not finish running, ' +
                                                  'not loaded')
                         else:
-                            self.mccases.append(mccase)
+                            self.cases.append(case)
 
-                            if mccase.runsimid != self.runsimid:
+                            if case.runsimid != self.runsimid:
                                 vwarn(self.verbose, f'{filepath.name} is not from the most ' +
                                                      'recent run and may be stale')
-                                casesstale.add(case)
-                            casesloaded.add(case)
-                            casesnotloaded.remove(case)
-                            if case in self.casespostprocessed:
-                                casesnotpostprocessed.remove(case)
+                                casesstale.add(ncase)
+                            casesloaded.add(ncase)
+                            casesnotloaded.remove(ncase)
+                            if ncase in self.casespostprocessed:
+                                casesnotpostprocessed.remove(ncase)
                     except Exception:
                         vwarn(self.verbose, f'Unknown error loading {filepath.name}')
             except FileNotFoundError:
@@ -946,9 +952,9 @@ class MCSim:
             filenames.remove(f'{self.name}.mcsim')
         except Exception:
             pass
-        for case in range(self.ncases):
+        for ncase in range(self.ncases):
             try:
-                filenames.remove(f'{self.name}_{case}.mccase')
+                filenames.remove(f'{self.name}_{ncase}.mccase')
             except Exception:
                 pass
 

@@ -49,7 +49,7 @@ poetry run make clean && poetry run make html
 3) Update and install the package
     ```
     poetry update
-    poetry install
+    poetry install --extras "pandas"
     ```
 4) Run tests, type checking, and linting locally
     ```

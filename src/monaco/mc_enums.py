@@ -15,18 +15,18 @@ class SampleMethod(str, Enum):
     LATIN_HYPERCUBE = 'latin_hypercube'
 
 
-class MCFunctions(str, Enum):
+class SimFunctions(str, Enum):
     """
     Enum for the three required user functions.
 
     Notes
     -----
-    The preprocess function must take in only a moncao.MCCase.MCCase object. It
+    The preprocess function must take in only a moncao.mc_case.Case object. It
     then must return a tuple of the input arguments for the run function.
     The run function will take in whatever inputs and return whatever outputs.
     It it recommended to package the outputs into a tuple.
     The postprocess function must take in as its first argument a
-    moncao.MCCase.MCCase object, followed by the outputs from the run function.
+    moncao.mc_case.Case object, followed by the outputs from the run function.
     The simulation will attempt to unpack the run function outputs if they are
     stored in a tuple.
 
@@ -53,7 +53,7 @@ class StatBound(str, Enum):
     ONESIDED_LOWER = '1-sided lower'
 
 
-class VarStat(str, Enum):
+class VarStatType(str, Enum):
     """
     Enum for the variable statistics functions.
     """

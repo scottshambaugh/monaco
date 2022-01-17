@@ -3,9 +3,9 @@ import monaco as mc
 import numpy as np
 
 # Define our functions
-def integration_example_preprocess(mccase):
-    x = mccase.mcinvals['x'].val
-    y = mccase.mcinvals['y'].val
+def integration_example_preprocess(case):
+    x = case.invals['x'].val
+    y = case.invals['y'].val
     return (x, y)
 
 
@@ -17,8 +17,8 @@ def integration_example_run(x, y):
     return isUnderCurve
 
 
-def integration_example_postprocess(mccase, isUnderCurve):
-    mccase.addOutVal('pi_est', isUnderCurve)
+def integration_example_postprocess(case, isUnderCurve):
+    case.addOutVal('pi_est', isUnderCurve)
 
 
 fcns = {'preprocess' : integration_example_preprocess,
@@ -67,11 +67,11 @@ seed = 123639
 
 def integration_example_monte_carlo_sim():
 
-    sim = mc.MCSim(name='integration', ndraws=ndraws, fcns=fcns,
-                   firstcaseismedian=firstcaseismedian, samplemethod=samplemethod,
-                   seed=seed, cores=4,
-                   savecasedata=savecasedata, savesimdata=False,
-                   verbose=True, debug=True)
+    sim = mc.Sim(name='integration', ndraws=ndraws, fcns=fcns,
+                 firstcaseismedian=firstcaseismedian, samplemethod=samplemethod,
+                 seed=seed, cores=4,
+                 savecasedata=savecasedata, savesimdata=False,
+                 verbose=True, debug=True)
 
     sim.addInVar(name='x', dist=uniform,
                  distkwargs={'loc': xrange[0], 'scale': (xrange[1] - xrange[0])})  # -1 <= x <= 1
@@ -81,11 +81,11 @@ def integration_example_monte_carlo_sim():
     sim.runSim()
 
     # Note that (True,False) vals are automatically valmapped to the nums (1,0)
-    underCurvePct = sum(sim.mcoutvars['pi_est'].nums)/ndraws
-    err = mc.integration_error(sim.mcoutvars['pi_est'].nums, dimension=dimension,
+    underCurvePct = sum(sim.outvars['pi_est'].nums)/ndraws
+    err = mc.integration_error(sim.outvars['pi_est'].nums, dimension=dimension,
                                volume=totalArea, conf=conf,
                                samplemethod=samplemethod, runningerror=False)
-    stdev = np.std(sim.mcoutvars['pi_est'].nums, ddof=1)
+    stdev = np.std(sim.outvars['pi_est'].nums, ddof=1)
 
     resultsstr = f'π ≈ {underCurvePct*totalArea:0.5f}, n = {ndraws}, ' + \
                  f'{round(conf*100, 2)}% error = ±{err:0.5f}, stdev={stdev:0.3f}'
@@ -93,17 +93,17 @@ def integration_example_monte_carlo_sim():
 
     '''
     import matplotlib.pyplot as plt
-    indices_under_curve = [i for i, x in enumerate(sim.mcoutvars['pi_est'].vals) if x]
-    fig, ax = mc.mc_plot(sim.mcinvars['x'], sim.mcinvars['y'], highlight_cases=indices_under_curve)
+    indices_under_curve = [i for i, x in enumerate(sim.outvars['pi_est'].vals) if x]
+    fig, ax = mc.plot(sim.invars['x'], sim.invars['y'], highlight_cases=indices_under_curve)
     ax.axis('equal')
     plt.title(resultsstr)
 
-    fig, ax = mc.mc_plot_integration_convergence(sim.mcoutvars['pi_est'], dimension=dimension,
-                                                 volume=totalArea, refval=np.pi, conf=0.95,
-                                                 title='Approx. value of π',
-                                                 samplemethod=samplemethod)
+    fig, ax = mc.plot_integration_convergence(sim.outvars['pi_est'], dimension=dimension,
+                                              volume=totalArea, refval=np.pi, conf=0.95,
+                                              title='Approx. value of π',
+                                              samplemethod=samplemethod)
     ax.set_ylim((3.10, 3.18))
-    fig, ax = mc.mc_plot_integration_error(sim.mcoutvars['pi_est'], dimension=dimension,
+    fig, ax = mc.plot_integration_error(sim.outvars['pi_est'], dimension=dimension,
                                         volume=totalArea, refval=np.pi, conf=0.95,
                                         title='Approx. error of π', samplemethod=samplemethod)
     #'''

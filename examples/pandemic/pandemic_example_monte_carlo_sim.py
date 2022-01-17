@@ -21,31 +21,31 @@ seed = 12362398
 
 def pandemic_example_monte_carlo_sim():
 
-    sim = mc.MCSim(name='pandemic', ndraws=ndraws, fcns=fcns,
-                   firstcaseismedian=True, seed=seed, cores=4,
-                   verbose=True, debug=False)
+    sim = mc.Sim(name='pandemic', ndraws=ndraws, fcns=fcns,
+                 firstcaseismedian=True, seed=seed, cores=4,
+                 verbose=True, debug=False)
 
     sim.addInVar(name='Probability of Infection',
                  dist=uniform, distkwargs={'loc': 0.28, 'scale': 0.04})
 
     sim.runSim()
 
-    sim.mcoutvars['Proportion Infected'].addVarStat(stattype='orderstatTI',
+    sim.outvars['Proportion Infected'].addVarStat(stattype='orderstatTI',
                                                     statkwargs={'p': p, 'c': c, 'bound': bound})
-    sim.mcoutvars['Superspreader Degree'].addVarStat(stattype='orderstatTI',
+    sim.outvars['Superspreader Degree'].addVarStat(stattype='orderstatTI',
                                                      statkwargs={'p': 0.5, 'c': 0.5,
                                                                  'bound': 'all'})
 
-    mc.mc_plot(sim.mcoutvars['Timestep'], sim.mcoutvars['Superspreader Degree'])
-    mc.mc_plot(sim.mcoutvars['Max Superspreader Degree'], highlight_cases=0)
-    mc.mc_plot(sim.mcoutvars['Herd Immunity Threshold'], highlight_cases=0)
+    mc.plot(sim.outvars['Timestep'], sim.outvars['Superspreader Degree'])
+    mc.plot(sim.outvars['Max Superspreader Degree'], highlight_cases=0)
+    mc.plot(sim.outvars['Herd Immunity Threshold'], highlight_cases=0)
 
     # import matplotlib.pyplot as plt
-    mc.mc_plot(sim.mcoutvars['Timestep'], sim.mcoutvars['Proportion Infected'], highlight_cases=0)
+    mc.plot(sim.outvars['Timestep'], sim.outvars['Proportion Infected'], highlight_cases=0)
     # plt.savefig('cum_infections_vs_time.png')
-    mc.mc_multi_plot([sim.mcinvars['Probability of Infection'],
-                     sim.mcoutvars['Herd Immunity Threshold']],
-                     cov_plot=False, highlight_cases=0)
+    mc.multi_plot([sim.invars['Probability of Infection'],
+                   sim.outvars['Herd Immunity Threshold']],
+                   cov_plot=False, highlight_cases=0)
     # plt.savefig('p_infection_vs_herd_immunity.png')
 
     return sim

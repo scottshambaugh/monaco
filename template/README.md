@@ -14,12 +14,12 @@ Here's some things to try out:
 ```
 sim = template_monte_carlo_sim()
 sim.__dict__
-sim.mccases[0].__dict__
-sim.mcinvars['flipper'].__dict__
+sim.cases[0].__dict__
+sim.invars['flipper'].__dict__
 ``` 
-* It turns out that Alex is a cheater and flips the weighted coin, while Sam doesn't know and flips a fair 50-50 coin. Try changing the sim so that it runs this scenario. Hint: try adding a second fair coin as an `MCInVar`, and changing which gets selected in the `template_preprocess` function based on the flipper. What is the correlation now between the flipper and getting Heads on the coin?
+* It turns out that Alex is a cheater and flips the weighted coin, while Sam doesn't know and flips a fair 50-50 coin. Try changing the sim so that it runs this scenario. Hint: try adding a second fair coin as an `InVar`, and changing which gets selected in the `template_preprocess` function based on the flipper. What is the correlation now between the flipper and getting Heads on the coin?
 * Try changing the simulation and the functions so that instead of a weighted coin, you are rolling a 6-sided die.
-* Add more dice as `MCInVar`s so that you have a total of 5. Edit the postprocessing function to answer the following questions:
+* Add more dice as `InVar`s so that you have a total of 5. Edit the postprocessing function to answer the following questions:
   * What are the odds of a one-roll Yahtzee? (All 5 dice showing the same number)
   * What is the histogram of the sum of all 5 dice?
 

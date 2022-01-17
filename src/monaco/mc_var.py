@@ -4,10 +4,10 @@ from __future__ import annotations
 import numpy as np
 from scipy.stats import rv_continuous, rv_discrete, describe
 from scipy.stats.stats import DescribeResult
-from monaco.mc_val import MCVal, MCInVal, MCOutVal
-from monaco.mc_varstat import MCVarStat
-from monaco.mc_enums import SampleMethod, VarStat
-from monaco.mc_sampling import mc_sampling
+from monaco.mc_val import Val, InVal, OutVal
+from monaco.mc_varstat import VarStat
+from monaco.mc_enums import SampleMethod, VarStatType
+from monaco.mc_sampling import sampling
 from monaco.helper_functions import empty_list, hashable_val
 from copy import copy
 from typing import Any
@@ -15,8 +15,8 @@ from warnings import warn
 from abc import ABC, abstractmethod
 
 
-### MCVar Base Class ###
-class MCVar(ABC):
+### Var Base Class ###
+class Var(ABC):
     """
     Abstract base class to hold the data for a Monte-Carlo variable.
 
@@ -40,14 +40,14 @@ class MCVar(ABC):
 
         self.ncases = ndraws + 1
         self.setFirstCaseMedian(firstcaseismedian)
-        self.vals       : list[Any]
-        self.valmap     : dict[Any, float]
-        self.nums       : list[np.ndarray]
-        self.nummap     : dict[float, Any]
-        self.pcts       : list[float]
-        self.maxdim     : int
-        self.isscalar   : bool
-        self.mcvarstats : list[MCVarStat] = empty_list()
+        self.vals     : list[Any]
+        self.valmap   : dict[Any, float]
+        self.nums     : list[np.ndarray]
+        self.nummap   : dict[float, Any]
+        self.pcts     : list[float]
+        self.maxdim   : int
+        self.isscalar : bool
+        self.varstats : list[VarStat] = empty_list()
 
 
     def setFirstCaseMedian(self,
@@ -83,7 +83,7 @@ class MCVar(ABC):
 
 
     def addVarStat(self,
-                   stattype   : VarStat,
+                   stattype   : VarStatType,
                    statkwargs : dict[str, Any] = None,
                    name       : str = None,
                    ) -> None:
@@ -92,7 +92,7 @@ class MCVar(ABC):
 
         Parameters
         ----------
-        stattype : monaco.mc_enums.VarStat
+        stattype : monaco.mc_enums.VarStatType
             The type of variable statistic to add.
         statkwargs : dict[str, Any]
             Keyword arguments for the specified variable stastistic.
@@ -101,27 +101,27 @@ class MCVar(ABC):
         """
         if statkwargs is None:
             statkwargs = dict()
-        self.mcvarstats.append(MCVarStat(mcvar=self, stattype=stattype,
-                                         statkwargs=statkwargs, name=name))
+        self.varstats.append(VarStat(var=self, stattype=stattype,
+                                     statkwargs=statkwargs, name=name))
 
 
     def clearVarStats(self) -> None:
         """
         Remove all the variable statistics for this variable.
         """
-        self.mcvarstats = []
+        self.varstats = []
 
 
     @abstractmethod
     def getVal(self,
                ncase : int,
-               ) -> MCVal:
+               ) -> Val:
         pass
 
 
 
-### MCInVar Class ###
-class MCInVar(MCVar):
+### InVar Class ###
+class InVar(Var):
     """
     A Monte-Carlo input variable.
 
@@ -165,7 +165,7 @@ class MCInVar(MCVar):
     vals : list[Any]
         The values corresponding to the randomly drawn numbers. If valmap is
         None, then `vals == nums.tolist()`
-    mcvarstats : list[moncao.MCVarStat.MCVarStat]
+    varstats : list[moncao.mc_varstat.VarStat]
         A list of all the variable statistics for this variable.
     """
     def __init__(self,
@@ -257,7 +257,7 @@ class MCInVar(MCVar):
             self.pcts.append(0.5)
             self.nums.append(np.array(self.getDistMedian()))
 
-        pcts = mc_sampling(ndraws=self.ndraws, method=self.samplemethod,
+        pcts = sampling(ndraws=self.ndraws, method=self.samplemethod,
                            ninvar=self.ninvar, ninvar_max=ninvar_max,
                            seed=self.seed)
         self.pcts.extend(pcts)
@@ -280,7 +280,7 @@ class MCInVar(MCVar):
 
     def getVal(self,
                ncase : int,
-               ) -> MCInVal:
+               ) -> InVal:
         """
         Get the input value for a specific case.
 
@@ -291,17 +291,17 @@ class MCInVar(MCVar):
 
         Returns
         -------
-        val : monaco.mc_val.MCInVal
+        val : monaco.mc_val.InVal
             The input value for that case.
         """
         ismedian = False
         if (ncase == 0) and self.firstcaseismedian:
             ismedian = True
 
-        val = MCInVal(name=self.name, ncase=ncase,
-                      pct=self.pcts[ncase], num=self.nums[ncase].item(),
-                      dist=self.dist, nummap=self.nummap,
-                      ismedian=ismedian)
+        val = InVal(name=self.name, ncase=ncase,
+                    pct=self.pcts[ncase], num=self.nums[ncase].item(),
+                    dist=self.dist, nummap=self.nummap,
+                    ismedian=ismedian)
         return val
 
 
@@ -350,8 +350,8 @@ class MCInVar(MCVar):
 
 
 
-### MCOutVar Class ###
-class MCOutVar(MCVar):
+### OutVar Class ###
+class OutVar(Var):
     """
     A Monte-Carlo output variable.
 
@@ -380,7 +380,7 @@ class MCOutVar(MCVar):
     nums : list[np.ndarry]
         The numbers corresponding to the output values. If valmap is None, then
         `nums == list[np.array(vals)]`.
-    mcvarstats : list[moncao.MCVarStat.MCVarStat]
+    varstats : list[moncao.VarStat.VarStat]
         A list of all the variable statistics for this variable.
     """
     def __init__(self,
@@ -455,7 +455,7 @@ class MCOutVar(MCVar):
             self.nums.append(np.array(self.getVal(i).num))
 
 
-    def getVal(self, ncase : int) -> MCOutVal:
+    def getVal(self, ncase : int) -> OutVal:
         """
         Get the variable value for a specific case.
 
@@ -466,61 +466,61 @@ class MCOutVar(MCVar):
 
         Returns
         -------
-        val : monaco.mc_val.MCOutVal
+        val : monaco.mc_val.OutVal
             The output value.
         """
         ismedian = False
         if (ncase == 0) and self.firstcaseismedian:
             ismedian = True
 
-        val = MCOutVal(name=self.name, ncase=ncase, val=self.vals[ncase],
-                       valmap=self.valmap, ismedian=ismedian)
+        val = OutVal(name=self.name, ncase=ncase, val=self.vals[ncase],
+                     valmap=self.valmap, ismedian=ismedian)
         return val
 
 
-    def getMedianVal(self) -> MCOutVal:
+    def getMedianVal(self) -> OutVal:
         """
         Get the median value for this output variable if `firstcaseismedian`.
 
         Returns
         -------
-        val : monaco.mc_val.MCOutVal
+        val : monaco.mc_val.OutVal
             The median output value.
         """
         val = None
         if self.firstcaseismedian:
-            val = MCOutVal(name=self.name, ncase=0, val=self.vals[0],
+            val = OutVal(name=self.name, ncase=0, val=self.vals[0],
                            valmap=self.valmap, ismedian=True)
         return val
 
 
-    def split(self) -> dict[str, 'MCOutVar']:  # Quotes in typing to avoid import error
+    def split(self) -> dict[str, 'OutVar']:  # Quotes in typing to avoid import error
         """
         Split a multidimentional output variable along its outermost dimension,
-        and generate individual MCOutVar objects for each index.
+        and generate individual OutVar objects for each index.
 
         Returns
         -------
-        mcvars : dict[str : monaco.mc_var.MCOutVar]
+        vars : dict[str : monaco.mc_var.OutVar]
         """
-        mcvars : dict[str, 'MCOutVar'] = dict()
+        vars : dict[str, 'OutVar'] = dict()
         if self.maxdim > 0:
             # First ensure that the vals have the same shape over all cases
             shape = self.nums[0].shape
             for num in self.nums:
                 if num.shape[0] != shape[0]:
-                    return mcvars
+                    return vars
 
             for i in range(shape[0]):
                 name = self.name + f' [{i}]'
                 vals = []
                 for j in range(self.ncases):
                     vals.append(self.vals[j][i])
-                mcvars[name] = MCOutVar(name=name, vals=vals, ndraws=self.ndraws,
-                                        valmap=self.valmap,
-                                        firstcaseismedian=self.firstcaseismedian)
-                for mcvarstat in self.mcvarstats:
-                    mcvars[name].addVarStat(stattype=mcvarstat.stattype,
-                                            statkwargs=mcvarstat.statkwargs,
-                                            name=mcvarstat.name)
-        return mcvars
+                vars[name] = OutVar(name=name, vals=vals, ndraws=self.ndraws,
+                                    valmap=self.valmap,
+                                    firstcaseismedian=self.firstcaseismedian)
+                for varstat in self.varstats:
+                    vars[name].addVarStat(stattype=varstat.stattype,
+                                            statkwargs=varstat.statkwargs,
+                                            name=varstat.name)
+        return vars

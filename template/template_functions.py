@@ -1,18 +1,18 @@
 # template_functions.py
 
-# This file contains the three functions passed into the fcns dict used by MCSim.
+# This file contains the three functions passed into the fcns dict used by Sim.
 # It is up to you whether to put all these functions in one file, or break it up
 # into multiple files as the other examples in the examples directory do.
 
 
-# The preprocessing function should only take in an MCCase object, and extract the
+# The preprocessing function should only take in an Case object, and extract the
 # values from inside it in order to build the inputs for the run function.
-def template_preprocess(mccase):
+def template_preprocess(case):
 
     # For all random variables that you initialized in your run script and will
     # be passed to your function, access them like so:
-    flip = mccase.mcinvals['flip'].val
-    flipper = mccase.mcinvals['flipper'].val
+    flip = case.invals['flip'].val
+    flipper = case.invals['flipper'].val
 
     # Import or declare any other unchanging inputs that your function needs as well.
     coin = 'quarter'
@@ -45,10 +45,10 @@ def template_run(flip, flipper, coin):
     return (simulation_output, )
 
 
-# For your postprocessing function, the first argument must be the mccase, and
-# all input arguments after mccase need to match up with the outputs in the unpacked
+# For your postprocessing function, the first argument must be the case, and
+# all input arguments after case need to match up with the outputs in the unpacked
 # tuple from your run function.
-def template_postprocess(mccase, simulation_output):
+def template_postprocess(case, simulation_output):
 
     # Simulation outputs may be huge, and this is where postprocessing can be
     # done to extract the information you want. For example, you may only want
@@ -62,5 +62,5 @@ def template_postprocess(mccase, simulation_output):
     # Add output values from this case's simulation results, case information,
     # or from other data processing that you do in this file.
     # The name supplied here will become the outvar's name.
-    mccase.addOutVal(name='Flip Result', val=simulation_output['headsortails'], valmap=valmap)
-    mccase.addOutVal(name='Flip Number', val=mccase.ncase)
+    case.addOutVal(name='Flip Result', val=simulation_output['headsortails'], valmap=valmap)
+    case.addOutVal(name='Flip Number', val=case.ncase)

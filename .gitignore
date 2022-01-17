@@ -22,7 +22,7 @@ htmlcov/
 # VSCode
 .vscode/
 
-# MCSim Results
+# Sim Results
 *_results/
 *.mccase
 *.mcsim

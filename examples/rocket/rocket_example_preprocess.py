@@ -1,10 +1,10 @@
 import numpy as np
 
-def rocket_example_preprocess(mccase):
+def rocket_example_preprocess(case):
     sequence = {
         'ignition': 1,         # time that engines are lit [s]
         'parachute_delay': 3,  # time after apogee to open parachute [s]
-        'parachute_fails': mccase.mcinvals['Parachute Failure'].val,  # chute fails to deploy [bool]
+        'parachute_fails': case.invals['Parachute Failure'].val,  # chute fails to deploy [bool]
     }
 
     massprops = {
@@ -13,7 +13,7 @@ def rocket_example_preprocess(mccase):
     }
 
     # Thrust factor is applied such that total impulse is constant
-    T_fac = mccase.mcinvals['Thrust Factor'].val  # thrust factor []
+    T_fac = case.invals['Thrust Factor'].val  # thrust factor []
     propulsion = {
         'prop_time':     np.array([0,  0.1,  9.9, 10])/T_fac,  # thrust curve time [s]
         'prop_thrust':   np.array([0,   50,   50,  0])*T_fac,  # thrust curve thrust [N]
@@ -21,8 +21,8 @@ def rocket_example_preprocess(mccase):
     }
 
     aero = {
-        'windspd': mccase.mcinvals['Wind Speed [m/s]'].val,  # wind speed [m/s]
-        'windazi': mccase.mcinvals['Wind Azi [deg]'].val,    # azimuth north wind blows from [deg]
+        'windspd': case.invals['Wind Speed [m/s]'].val,  # wind speed [m/s]
+        'windazi': case.invals['Wind Azi [deg]'].val,    # azimuth north wind blows from [deg]
         'area_ax_flight':     0.01,                 # axial area during flight [m^2]
         'area_lat_flight':    0.10,                 # lateral area during flight [m^2]
         'area_ax_parachute':  0.40,                 # axial area during parachute [m^2]

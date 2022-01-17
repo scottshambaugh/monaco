@@ -13,8 +13,8 @@ ndraws = 50
 seed = 12362398
 
 def rocket_example_monte_carlo_sim():
-    sim = mc.MCSim(name='Rocket', ndraws=ndraws, fcns=fcns, firstcaseismedian=True,
-                   seed=seed, cores=1, verbose=True, debug=False)
+    sim = mc.Sim(name='Rocket', ndraws=ndraws, fcns=fcns, firstcaseismedian=True,
+                 seed=seed, cores=1, verbose=True, debug=False)
 
     sim.addInVar(name='Wind Azi [deg]', dist=uniform, distkwargs={'loc': 0, 'scale': 360})
     sim.addInVar(name='Wind Speed [m/s]', dist=uniform, distkwargs={'loc': 0, 'scale': 2})
@@ -27,24 +27,24 @@ def rocket_example_monte_carlo_sim():
 
     sim.runSim()
 
-    sim.mcoutvars['Distance [m]'].addVarStat(stattype='gaussianP',
+    sim.outvars['Distance [m]'].addVarStat(stattype='gaussianP',
                                              statkwargs={'p': 0.90, 'c': 0.50})
-    sim.mcoutvars['Distance [m]'].addVarStat(stattype='gaussianP',
+    sim.outvars['Distance [m]'].addVarStat(stattype='gaussianP',
                                              statkwargs={'p': 0.10, 'c': 0.50})
-    # print(sim.mcoutvars['Landing Dist [m]'].stats())
-    mc.mc_plot(sim.mcoutvars['Time [s]'], sim.mcoutvars['Distance [m]'], highlight_cases=0)
-    # mc.mc_plot(sim.mcoutvars['Time [s]'], sim.mcoutvars['|Velocity| [m/s]'], highlight_cases=0)
-    mc.mc_plot(sim.mcoutvars['Time [s]'], sim.mcoutvars['Acceleration [m/s^2] [2]'],
-               highlight_cases=0)
-    # mc.mc_plot(sim.mcoutvars['Time [s]'], sim.mcoutvars['Thrust [N]'], highlight_cases=0)
-    # mc.mc_plot(sim.mcoutvars['Landing Dist [m]'], highlight_cases=0)
-    # mc.mc_plot(sim.mcoutvars['Landing E [m]'], sim.mcoutvars['Landing N [m]'], highlight_cases=0)
-    # mc.mc_plot(sim.mcoutvars['Time [s]'], sim.mcoutvars['Flight Stage'], highlight_cases=0)
-    # mc.mc_plot(sim.mcoutvars['Position [m]'], highlight_cases=0)
-    mc.mc_plot(sim.mcoutvars['Easting [m]'], sim.mcoutvars['Northing [m]'],
-               sim.mcoutvars['Altitude [m]'], title='Model Rocket Trajectory', highlight_cases=0)
+    # print(sim.outvars['Landing Dist [m]'].stats())
+    mc.plot(sim.outvars['Time [s]'], sim.outvars['Distance [m]'], highlight_cases=0)
+    # mc.plot(sim.outvars['Time [s]'], sim.outvars['|Velocity| [m/s]'], highlight_cases=0)
+    mc.plot(sim.outvars['Time [s]'], sim.outvars['Acceleration [m/s^2] [2]'],
+            highlight_cases=0)
+    # mc.plot(sim.outvars['Time [s]'], sim.outvars['Thrust [N]'], highlight_cases=0)
+    # mc.plot(sim.outvars['Landing Dist [m]'], highlight_cases=0)
+    # mc.plot(sim.outvars['Landing E [m]'], sim.outvars['Landing N [m]'], highlight_cases=0)
+    # mc.plot(sim.outvars['Time [s]'], sim.outvars['Flight Stage'], highlight_cases=0)
+    # mc.plot(sim.outvars['Position [m]'], highlight_cases=0)
+    mc.plot(sim.outvars['Easting [m]'], sim.outvars['Northing [m]'],
+            sim.outvars['Altitude [m]'], title='Model Rocket Trajectory', highlight_cases=0)
     # plt.savefig('rocket_trajectory.png')
-    mc.mc_multi_plot([sim.mcinvars['Wind Speed [m/s]'], sim.mcoutvars['Landing Dist [m]']],
+    mc.multi_plot([sim.invars['Wind Speed [m/s]'], sim.outvars['Landing Dist [m]']],
                   cov_p=0.95, title='Wind Speed vs Landing Distance w/ 95% CI', highlight_cases=0)
     # plt.savefig('wind_vs_landing.png')
 

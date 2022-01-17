@@ -18,13 +18,13 @@ from scipy.optimize import minimize
 from numba import jit
 np.set_printoptions(suppress=True, precision=6)
 
-def vars_preprocess(mccase):
-    x1 = mccase.mcinvals['x1'].val
-    x2 = mccase.mcinvals['x2'].val
-    x3 = mccase.mcinvals['x3'].val
-    x4 = mccase.mcinvals['x4'].val
-    x5 = mccase.mcinvals['x5'].val
-    x6 = mccase.mcinvals['x6'].val
+def vars_preprocess(case):
+    x1 = case.invals['x1'].val
+    x2 = case.invals['x2'].val
+    x3 = case.invals['x3'].val
+    x4 = case.invals['x4'].val
+    x5 = case.invals['x5'].val
+    x6 = case.invals['x6'].val
     return (x1, x2, x3, x4, x5, x6)
 
 def g1(x):
@@ -45,8 +45,8 @@ def vars_run(x1, x2, x3, x4, x5, x6):
     #f = np.sin(np.pi*(0.2-x1))
     return (f,)
 
-def vars_postprocess(mccase, f):
-    mccase.addOutVal(name='f', val=f)
+def vars_postprocess(case, f):
+    case.addOutVal(name='f', val=f)
 
 
 def main():
@@ -55,7 +55,7 @@ def main():
            'postprocess':vars_postprocess}
 
     ndraws = 512
-    sim = mc.MCSim(name='dvars', ndraws=ndraws, fcns=fcns, firstcaseismedian=False, seed=3462356, cores=1, samplemethod='random', savecasedata=False, savesimdata=False, verbose=True, debug=True)
+    sim = mc.Sim(name='dvars', ndraws=ndraws, fcns=fcns, firstcaseismedian=False, seed=3462356, cores=1, samplemethod='random', savecasedata=False, savesimdata=False, verbose=True, debug=True)
 
     varnames = ['x1', 'x2', 'x3', 'x4', 'x5', 'x6']
     d = len(varnames)
@@ -64,12 +64,12 @@ def main():
     sim.runSim()
 
     #for varname in varnames:
-    #    plt.scatter(sim.mcinvars[varname].nums, sim.mcoutvars['f'].nums)
+    #    plt.scatter(sim.invars[varname].nums, sim.outvars['f'].nums)
 
     dh = 1e-3
     Hj_min = 0.1
     phi_opt = mc.calc_phi_opt(sim, Hj_min)
-    variance = np.var(np.array([sim.mcoutvars['f'].nums]))
+    variance = np.var(np.array([sim.outvars['f'].nums]))
     for Hj in np.arange(0.1, 1.1, 0.1):
         Gamma = []
         for j in range(d):
@@ -83,7 +83,7 @@ def main():
     phis = np.zeros((nL, sim.ninvars))
     Ls = np.zeros((nL, 1))
     for j in range(sim.ninvars):
-        phis[:,j] = phi_min + (phi_max-phi_min)*mc.mc_sampling(ndraws=nL, method='random', ninvar=j, ninvar_max=sim.ninvars, seed=j)
+        phis[:,j] = phi_min + (phi_max-phi_min)*mc.sampling(ndraws=nL, method='random', ninvar=j, ninvar_max=sim.ninvars, seed=j)
     for i in range(nL):
         Ls[i] = L_runner(phis[i,:], X, Y)
 

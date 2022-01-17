@@ -2,7 +2,7 @@
 
 import pytest
 import numpy as np
-from monaco.mc_sampling import mc_sampling
+from monaco.mc_sampling import sampling
 from monaco.mc_enums import SampleMethod
 
 generator = np.random.RandomState(744948050)
@@ -17,7 +17,7 @@ seeds = generator.randint(0, 2**31-1, size=10)
     (SampleMethod.LATIN_HYPERCUBE, 2, seeds[5], 0.3522243),
 ])
 def test_mc_sampling(method, ninvar, seed, ans):
-    pcts = mc_sampling(ndraws=512, method=method, ninvar=ninvar, ninvar_max=None, seed=seed)
+    pcts = sampling(ndraws=512, method=method, ninvar=ninvar, ninvar_max=None, seed=seed)
     assert pcts[0] == pytest.approx(ans)
 
 
@@ -28,7 +28,7 @@ def test_mc_sampling(method, ninvar, seed, ans):
 ])
 def test_mc_sampling_errors(method, ninvar, seed):
     with pytest.raises(ValueError):
-        mc_sampling(ndraws=512, method=method, ninvar=ninvar, ninvar_max=None, seed=seed)
+        sampling(ndraws=512, method=method, ninvar=ninvar, ninvar_max=None, seed=seed)
 
 
 ### Plot Testing ###
@@ -37,9 +37,9 @@ def plot_testing():
         import matplotlib.pyplot as plt
         import scipy.stats
 
-        pcts = np.array([mc_sampling(ndraws=ndraws, method=method,
+        pcts = np.array([sampling(ndraws=ndraws, method=method,
                                      ninvar=1, ninvar_max=2, seed=seeds[0]),
-                         mc_sampling(ndraws=ndraws, method=method,
+                         sampling(ndraws=ndraws, method=method,
                                      ninvar=2, ninvar_max=2, seed=seeds[1])])
 
         if genplot:
@@ -72,9 +72,9 @@ def plot_testing():
             ndraws_freq = 10000
             # ndraws_freq = 1000000  # For better frequency plots
             n_freq_grid = 2**8
-            pcts_freq = np.array([mc_sampling(ndraws=ndraws_freq, method=method,
+            pcts_freq = np.array([sampling(ndraws=ndraws_freq, method=method,
                                               ninvar=1, ninvar_max=2, seed=seeds[0]),
-                                  mc_sampling(ndraws=ndraws_freq, method=method,
+                                  sampling(ndraws=ndraws_freq, method=method,
                                               ninvar=2, ninvar_max=2, seed=seeds[1])])
             pcts_freq_int = np.round(pcts_freq*(n_freq_grid - 1)).astype(int)
             S = np.zeros([n_freq_grid, n_freq_grid])

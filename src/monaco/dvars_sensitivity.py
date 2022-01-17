@@ -9,19 +9,20 @@ data." Geophysical Research Letters 47.20 (2020): e2020GL089829.
 Multi-SQP is replaced with scipy's minimize function implementing L-BFGS-B.
 '''
 
-import monaco as mc
+from monaco.mc_sim import Sim
+from monaco.helper_functions import vprint
 import numpy as np
 from scipy.optimize import minimize
 from numba import jit
 
 
-def full_states(sim : mc.MCSim) -> tuple:
+def full_states(sim : Sim) -> tuple:
     X = np.zeros((sim.ncases, sim.ninvars))
     Y = np.zeros((sim.ncases, 1))
-    for i, varname in enumerate(sim.mcinvars):
-        X[:, i] = sim.mcinvars[varname].pcts
-    for i, varname in enumerate(sim.mcoutvars):
-        Y[:, i] = sim.mcoutvars[varname].nums
+    for i, varname in enumerate(sim.invars):
+        X[:, i] = sim.invars[varname].pcts
+    for i, varname in enumerate(sim.outvars):
+        Y[:, i] = sim.outvars[varname].nums
     return X, Y
 
 
@@ -86,8 +87,8 @@ def L_runner(phi     : np.ndarray,
              Y       : np.ndarray,
              verbose : bool = False
              ) -> float:
-    L = mc.calc_L(phi, X, Y)
-    mc.vprint(verbose, f'L = {L:0.4f}, Φ = {phi}')
+    L = calc_L(phi, X, Y)
+    vprint(verbose, f'L = {L:0.4f}, Φ = {phi}')
     return L
 
 
@@ -104,7 +105,7 @@ def calc_Gammaj(Hj       : float,
     return Gamma
 
 
-def calc_phi_opt(sim    : mc.MCSim,
+def calc_phi_opt(sim    : Sim,
                  Hj_min : float
                  ) -> np.ndarray:
     phi_max = 1/Hj_min
@@ -112,7 +113,7 @@ def calc_phi_opt(sim    : mc.MCSim,
 
     phi0 = [1, 1, 1, 1, 1, 1]
     bounds = []
-    X, Y = mc.full_states(sim)
+    X, Y = full_states(sim)
     verbose = True
     for j in range(sim.ninvars):
         bounds.append((phi_min, phi_max))

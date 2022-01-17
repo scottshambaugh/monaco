@@ -12,8 +12,8 @@ except ImportError:
     pd = None
 
 
-### MCVal Base Class ###
-class MCVal(ABC):
+### Val Base Class ###
+class Val(ABC):
     """
     Abstract base class to hold the data for a Monte-Carlo value.
 
@@ -44,8 +44,8 @@ class MCVal(ABC):
 
 
 
-### MCInVal Class ###
-class MCInVal(MCVal):
+### InVal Class ###
+class InVal(Val):
     """
     A Monte-Carlo input value.
 
@@ -122,8 +122,8 @@ class MCInVal(MCVal):
 
 
 
-### MCOutVal Class ###
-class MCOutVal(MCVal):
+### OutVal Class ###
+class OutVal(Val):
     """
     A Monte-Carlo output value.
 
@@ -244,19 +244,19 @@ class MCOutVal(MCVal):
             self.nummap = {hashable_val(np.array(num)): val for val, num in self.valmap.items()}
 
 
-    def split(self) -> dict[str, 'MCOutVal']:  # Quotes in typing to avoid import error
+    def split(self) -> dict[str, 'OutVal']:  # Quotes in typing to avoid import error
         """
         Split a multidimentional output value along its outermost dimension,
-        and generate individual MCOutVal objects for each index.
+        and generate individual OutVal objects for each index.
 
         Returns
         -------
-        mcvals : dict[str : monaco.mc_val.MCOutVal]
+        vals : dict[str : monaco.mc_val.OutVal]
         """
-        mcvals = dict()
+        vals = dict()
         if len(self.shape) > 1:
             for i in range(self.shape[0]):
                 name = self.name + f' [{i}]'
-                mcvals[name] = MCOutVal(name=name, ncase=self.ncase, val=self.val[i],
+                vals[name] = OutVal(name=name, ncase=self.ncase, val=self.val[i],
                                         valmap=self.valmap, ismedian=self.ismedian)
-        return mcvals
+        return vals

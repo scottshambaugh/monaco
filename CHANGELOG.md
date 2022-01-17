@@ -16,7 +16,7 @@
 - Example: Evidence-Based Scheduling
 - 2D/3D Line statistics
 - Correlation matrix input
-- Ability to plot derived data in addition to mcvars
+- Ability to plot derived data in addition to vars
 - Star Sampling
 - Variogram Sensitivity Analysis
 
@@ -39,8 +39,8 @@
 ### Added    
 * Python 3.7 support (>=3.7.1 to match pandas)
 ### Changed    
-* `MCVal.num`s were made numpy arrays
-* `MCVal`s have a `shape` attribute rather than `size`, to match with numpy
+* `Val.num`s were made numpy arrays
+* `Val`s have a `shape` attribute rather than `size`, to match with numpy
 * `helper_functions.get_tuple()` changed to `get_list()`
 * Simplify code for extracting valmaps
 * More typing
@@ -69,7 +69,7 @@
 ## [0.1.2] - 2021-11-15
 ### Added    
 * Project logo
-* Added mc_multi_plot_2d_scatter_grid()
+* Added multi_plot_2d_scatter_grid()
 * Python 3.10 support
 ### Changed
 * `import monaco` now imports all modules

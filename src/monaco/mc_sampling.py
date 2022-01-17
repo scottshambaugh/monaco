@@ -9,12 +9,12 @@ import sys
 from monaco.mc_enums import SampleMethod
 
 
-def mc_sampling(ndraws     : int,
-                method     : SampleMethod = SampleMethod.SOBOL_RANDOM,
-                ninvar     : int          = None,
-                ninvar_max : int          = None,
-                seed       : int          = np.random.get_state(legacy=False)['state']['key'][0],
-                ) -> np.ndarray:
+def sampling(ndraws     : int,
+             method     : SampleMethod = SampleMethod.SOBOL_RANDOM,
+             ninvar     : int          = None,
+             ninvar_max : int          = None,
+             seed       : int          = np.random.get_state(legacy=False)['state']['key'][0],
+             ) -> np.ndarray:
     """
     Draws random samples according to the specified method.
 

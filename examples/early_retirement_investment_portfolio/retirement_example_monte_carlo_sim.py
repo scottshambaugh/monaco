@@ -15,11 +15,11 @@ seed = 12362397
 
 def retirement_example_monte_carlo_sim():
 
-    sim = mc.MCSim(name='retirement', ndraws=ndraws, fcns=fcns,
-                   firstcaseismedian=True, samplemethod='sobol_random',
-                   seed=seed, cores=4,
-                   savecasedata=False,
-                   verbose=True, debug=True)
+    sim = mc.Sim(name='retirement', ndraws=ndraws, fcns=fcns,
+                 firstcaseismedian=True, samplemethod='sobol_random',
+                 seed=seed, cores=4,
+                 savecasedata=False,
+                 verbose=True, debug=True)
 
     sp500_mean = 0.114
     sp500_stdev = 0.197
@@ -36,14 +36,14 @@ def retirement_example_monte_carlo_sim():
 
     sim.runSim()
 
-    wentbrokecases = [i for i, e in enumerate(sim.mcoutvars['Broke'].vals) if e == 'Yes']
+    wentbrokecases = [i for i, e in enumerate(sim.outvars['Broke'].vals) if e == 'Yes']
 
-    mc.mc_plot(sim.mcinvars['Year 0 Returns'], sim.mcoutvars['Final Balance'],
-               highlight_cases=0, cov_plot=False)
-    mc.mc_plot(sim.mcoutvars['Broke'])
-    mc.mc_plot(sim.mcinvars['Beginning Balance'], highlight_cases=0)
-    fig, ax = mc.mc_plot(sim.mcoutvars['Date'], sim.mcoutvars['Ending Balance'],
-                         highlight_cases=wentbrokecases, title='Yearly Balances')
+    mc.plot(sim.invars['Year 0 Returns'], sim.outvars['Final Balance'],
+            highlight_cases=0, cov_plot=False)
+    mc.plot(sim.outvars['Broke'])
+    mc.plot(sim.invars['Beginning Balance'], highlight_cases=0)
+    fig, ax = mc.plot(sim.outvars['Date'], sim.outvars['Ending Balance'],
+                      highlight_cases=wentbrokecases, title='Yearly Balances')
     ax.set_yscale('symlog')
     ax.set_ylim(bottom=1e4)
 

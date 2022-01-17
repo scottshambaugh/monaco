@@ -4,7 +4,7 @@ from __future__ import annotations
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
-from monaco.mc_sampling import mc_sampling
+from monaco.mc_sampling import sampling
 from monaco.integration_statistics import  integration_args_check
 from monaco.gaussian_statistics import pct2sig
 from monaco.mc_enums import SampleMethod
@@ -75,9 +75,9 @@ def integration_error(nums         : list[float],
 samplepointsrandom = []
 samplepointssobol = []
 for i in range(d):
-    samplepointsrandom.append(mc_sampling(ndraws=n, method=SampleMethod.RANDOM,
+    samplepointsrandom.append(sampling(ndraws=n, method=SampleMethod.RANDOM,
                               ninvar=i+1, seed=seed+i))  # Need different seed for random draws
-    samplepointssobol.append( mc_sampling(ndraws=n, method=SampleMethod.SOBOL,
+    samplepointssobol.append( sampling(ndraws=n, method=SampleMethod.SOBOL,
                               ninvar=i+1, seed=None, ninvar_max=d))
 
 # Discrepancy calculations take too long

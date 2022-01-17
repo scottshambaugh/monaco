@@ -224,7 +224,7 @@
            dx="0"
            dy="0"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;font-family:'Courier New';-inkscape-font-specification:'Courier New, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.750001"
-           id="tspan842">mcinvals</tspan></tspan></text>
+           id="tspan842">invals</tspan></tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.912757px;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 103.85464,-814.95982 h 71.19506 v 20.53704 h -71.19506 z"
@@ -247,7 +247,7 @@
            dx="0"
            dy="0"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;font-family:'Courier New';-inkscape-font-specification:'Courier New, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.750001"
-           id="tspan850">MCInVal</tspan></tspan></text>
+           id="tspan850">InVal</tspan></tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.912757px;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 175.0497,-814.95982 h 21.44979 v 20.53704 H 175.0497 Z"
@@ -517,7 +517,7 @@
            dx="0"
            dy="0"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;font-family:'Courier New';-inkscape-font-specification:'Courier New, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.750001"
-           id="tspan944">MCInVar</tspan></tspan></text>
+           id="tspan944">InVar</tspan></tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.912757px;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 103.85464,-786.66434 h 71.19506 v 20.53703 h -71.19506 z"
@@ -637,7 +637,7 @@
            dx="0"
            dy="0"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14px;font-family:'Courier New';-inkscape-font-specification:'Courier New, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.750001"
-           id="tspan984">MCSim</tspan></tspan></text>
+           id="tspan984">Sim</tspan></tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.912757px;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 104.08283,-590.42152 h 70.73868 v 20.53704 h -70.73868 z"
@@ -660,7 +660,7 @@
            dx="0"
            dy="0"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;font-family:'Courier New';-inkscape-font-specification:'Courier New, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.750001"
-           id="tspan992">MCOutVal</tspan></tspan></text>
+           id="tspan992">OutVal</tspan></tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.912757px;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 174.82151,-590.42152 h 21.4498 v 20.53704 h -21.4498 z"
@@ -743,7 +743,7 @@
            dx="0"
            dy="0"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;font-family:'Courier New';-inkscape-font-specification:'Courier New, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.750001"
-           id="tspan1020">MCOutVar</tspan></tspan></text>
+           id="tspan1020">OutVar</tspan></tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.912757px;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 104.08283,-562.12605 h 70.73868 v 20.53704 h -70.73868 z"
@@ -981,7 +981,7 @@
            dx="0"
            dy="0"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;font-family:'Courier New';-inkscape-font-specification:'Courier New, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.750001"
-           id="tspan1102">MCCase</tspan></tspan></text>
+           id="tspan1102">Case</tspan></tspan></text>
     <path
        style="fill:none;stroke:#a6a6a6;stroke-width:0.912757px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:8;stroke-dasharray:none;stroke-opacity:1"
        d="m 109.10299,-704.43062 c 0,-5.59063 4.53527,-10.1259 10.1259,-10.1259 h 40.47508 c 5.59065,0 10.09738,4.53527 10.09738,10.1259 v 65.57591 c 0,5.59064 -4.50673,10.09738 -10.09738,10.09738 h -40.47508 c -5.59063,0 -10.1259,-4.50674 -10.1259,-10.09738 z"
@@ -1004,7 +1004,7 @@
            dx="0"
            dy="0"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;font-family:'Courier New';-inkscape-font-specification:'Courier New, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.750001"
-           id="tspan1110">mcoutvals</tspan></tspan></text>
+           id="tspan1110">outvals</tspan></tspan></text>
     <path
        style="fill:none;stroke:#a6a6a6;stroke-width:6;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:8;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
        clip-path="url(#clipEmfPath1-3)"

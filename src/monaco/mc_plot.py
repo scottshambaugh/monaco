@@ -8,7 +8,7 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib.patches import Ellipse
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
-from monaco.mc_var import MCInVar, MCOutVar
+from monaco.mc_var import InVar, OutVar
 from monaco.helper_functions import get_list, slice_by_index, length, empty_list
 from monaco.gaussian_statistics import conf_ellipsoid_sig2pct
 from monaco.integration_statistics import integration_error
@@ -18,28 +18,28 @@ from typing import Optional, Iterable
 
 
 # If cases or highlight_cases are None, will plot all. Set to [] to plot none.
-def mc_plot(mcvarx   : MCInVar | MCOutVar,
-            mcvary   : MCInVar | MCOutVar = None,
-            mcvarz   : MCInVar | MCOutVar = None,
-            cases           : None | int | Iterable[int] = None,
-            highlight_cases : None | int | Iterable[int] = empty_list(),
-            rug_plot : bool           = False,
-            cov_plot : bool           = False,
-            cov_p    : None | float | Iterable[float] = None,
-            ax       : Optional[Axes] = None,
-            title    : str            = '',
-            ) -> tuple[Figure, Axes]:
+def plot(varx   : InVar | OutVar,
+         vary   : InVar | OutVar = None,
+         varz   : InVar | OutVar = None,
+         cases           : None | int | Iterable[int] = None,
+         highlight_cases : None | int | Iterable[int] = empty_list(),
+         rug_plot : bool           = False,
+         cov_plot : bool           = False,
+         cov_p    : None | float | Iterable[float] = None,
+         ax       : Optional[Axes] = None,
+         title    : str            = '',
+         ) -> tuple[Figure, Axes]:
     """
     Umbrella function to make single plots of a single Monte-Carlo variable or
     pairs or triplets of variables.
 
     Parameters
     ----------
-    mcvarx : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
+    varx : monaco.mc_var.InVar | monaco.mc_var.OutVar
         The x variable to plot.
-    mcvary : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar, default: None
+    vary : monaco.mc_var.InVar | monaco.mc_var.OutVar, default: None
         The y variable to plot.
-    mcvarz : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar, default: None
+    varz : monaco.mc_var.InVar | monaco.mc_var.OutVar, default: None
         The z variable to plot.
     cases : None | int | Iterable[int], default: None
         The cases to plot. If None, then all cases are plotted.
@@ -64,99 +64,99 @@ def mc_plot(mcvarx   : MCInVar | MCOutVar,
         ax is the axes handle for the plot.
     """
     # Split larger vars
-    if mcvary is None and mcvarz is None:
-        if mcvarx.maxdim not in (0, 1, 2):
-            raise ValueError(f'Invalid variable dimension: {mcvarx.name} ({mcvarx.maxdim})')
-        elif mcvarx.maxdim == 2 and isinstance(mcvarx, MCOutVar):
-            mcvarx_split = mcvarx.split()  # split only defined for MCOutVar
-            origname = mcvarx.name
-            mcvarx = mcvarx_split[origname + ' [0]']
-            mcvary = mcvarx_split[origname + ' [1]']
-            if len(mcvarx_split) == 3:
-                mcvarz = mcvarx_split[origname + ' [2]']
+    if vary is None and varz is None:
+        if varx.maxdim not in (0, 1, 2):
+            raise ValueError(f'Invalid variable dimension: {varx.name} ({varx.maxdim})')
+        elif varx.maxdim == 2 and isinstance(varx, OutVar):
+            varx_split = varx.split()  # split only defined for OutVar
+            origname = varx.name
+            varx = varx_split[origname + ' [0]']
+            vary = varx_split[origname + ' [1]']
+            if len(varx_split) == 3:
+                varz = varx_split[origname + ' [2]']
 
-    elif mcvary is not None and mcvarz is None:
-        if mcvarx.maxdim == 1 and mcvary.maxdim == 0 and isinstance(mcvarx, MCOutVar):
-            mcvarx_split = mcvarx.split()  # split only defined for MCOutVar
-            origname = mcvarx.name
-            mcvarz = mcvary
-            mcvarx = mcvarx_split[origname + ' [0]']
-            mcvary = mcvarx_split[origname + ' [1]']
-        elif mcvarx.maxdim == 0 and mcvary.maxdim == 1 and isinstance(mcvary, MCOutVar):
-            mcvary_split = mcvary.split()  # split only defined for MCOutVar
-            origname = mcvary.name
-            mcvary = mcvary_split[origname + ' [0]']
-            mcvarz = mcvary_split[origname + ' [1]']
+    elif vary is not None and varz is None:
+        if varx.maxdim == 1 and vary.maxdim == 0 and isinstance(varx, OutVar):
+            varx_split = varx.split()  # split only defined for OutVar
+            origname = varx.name
+            varz = vary
+            varx = varx_split[origname + ' [0]']
+            vary = varx_split[origname + ' [1]']
+        elif varx.maxdim == 0 and vary.maxdim == 1 and isinstance(vary, OutVar):
+            vary_split = vary.split()  # split only defined for OutVar
+            origname = vary.name
+            vary = vary_split[origname + ' [0]']
+            varz = vary_split[origname + ' [1]']
 
     # Single Variable Plots
-    if mcvary is None and mcvarz is None:
-        if mcvarx.maxdim == 0:
-            fig, ax = mc_plot_hist(mcvar=mcvarx, highlight_cases=highlight_cases,
+    if vary is None and varz is None:
+        if varx.maxdim == 0:
+            fig, ax = plot_hist(var=varx, highlight_cases=highlight_cases,
                                    rug_plot=rug_plot, ax=ax, title=title)
         else:
-            mcvary = copy(mcvarx)
-            mcvarx = copy(mcvarx)   # don't overwrite the underlying object
-            mcvarx.name = 'Simulation Steps'
-            steps = np.arange(max(len(num) for num in mcvary.nums))
-            mcvarx.nums = [steps for _ in range(mcvarx.ncases)]
-            mcvarx.nummap = None
-            fig, ax = mc_plot_2d_line(mcvarx=mcvarx, mcvary=mcvary,
+            vary = copy(varx)
+            varx = copy(varx)   # don't overwrite the underlying object
+            varx.name = 'Simulation Steps'
+            steps = np.arange(max(len(num) for num in vary.nums))
+            varx.nums = [steps for _ in range(varx.ncases)]
+            varx.nummap = None
+            fig, ax = plot_2d_line(varx=varx, vary=vary,
                                       highlight_cases=highlight_cases,
                                       ax=ax, title=title)
 
     # Two Variable Plots
-    elif mcvary is not None and mcvarz is None:
-        if mcvarx.maxdim == 0 and mcvary.maxdim == 0:
-            fig, ax = mc_plot_2d_scatter(mcvarx=mcvarx, mcvary=mcvary,
+    elif vary is not None and varz is None:
+        if varx.maxdim == 0 and vary.maxdim == 0:
+            fig, ax = plot_2d_scatter(varx=varx, vary=vary,
                                          cases=cases, highlight_cases=highlight_cases,
                                          rug_plot=rug_plot, cov_plot=cov_plot, cov_p=cov_p,
                                          ax=ax, title=title)
 
-        elif mcvarx.maxdim == 1 and mcvary.maxdim == 1:
-            fig, ax = mc_plot_2d_line(mcvarx=mcvarx, mcvary=mcvary,
+        elif varx.maxdim == 1 and vary.maxdim == 1:
+            fig, ax = plot_2d_line(varx=varx, vary=vary,
                                       cases=cases, highlight_cases=highlight_cases,
                                       ax=ax, title=title)
         else:
             raise ValueError( 'Variables have inconsistent dimensions: ' +
-                             f'{mcvarx.name}:{mcvarx.maxdim}, ' +
-                             f'{mcvary.name}:{mcvary.maxdim}')
+                             f'{varx.name}:{varx.maxdim}, ' +
+                             f'{vary.name}:{vary.maxdim}')
 
     # Three Variable Plots
     else:
-        if mcvarx.maxdim == 0 and mcvary.maxdim == 0 and mcvarz.maxdim == 0:
-            fig, ax = mc_plot_3d_scatter(mcvarx=mcvarx, mcvary=mcvary, mcvarz=mcvarz,
+        if varx.maxdim == 0 and vary.maxdim == 0 and varz.maxdim == 0:
+            fig, ax = plot_3d_scatter(varx=varx, vary=vary, varz=varz,
                                          cases=cases, highlight_cases=highlight_cases,
                                          ax=ax, title=title)
 
-        elif mcvarx.maxdim == 1 and mcvary.maxdim == 1 and mcvarz.maxdim == 1:
-            fig, ax = mc_plot_3d_line(mcvarx=mcvarx, mcvary=mcvary, mcvarz=mcvarz,
+        elif varx.maxdim == 1 and vary.maxdim == 1 and varz.maxdim == 1:
+            fig, ax = plot_3d_line(varx=varx, vary=vary, varz=varz,
                                       cases=cases, highlight_cases=highlight_cases,
                                       ax=ax, title=title)
 
         else:
             raise ValueError( 'Variables have inconsistent dimensions: ' +
-                             f'{mcvarx.name}:{mcvarx.maxdim}, ' +
-                             f'{mcvary.name}:{mcvary.maxdim}, ' +
-                             f'{mcvarz.name}:{mcvarz.maxdim}')
+                             f'{varx.name}:{varx.maxdim}, ' +
+                             f'{vary.name}:{vary.maxdim}, ' +
+                             f'{varz.name}:{varz.maxdim}')
 
     return fig, ax
 
 
 
-def mc_plot_hist(mcvar       : MCInVar | MCOutVar,
-                 highlight_cases : None | int | Iterable[int] = empty_list(),
-                 cumulative  : bool            = False,
-                 orientation : PlotOrientation = PlotOrientation.VERTICAL,
-                 rug_plot    : bool            = True,
-                 ax          : Optional[Axes]  = None,
-                 title       : str             = '',
-                 ) -> tuple[Figure, Axes]:
+def plot_hist(var       : InVar | OutVar,
+              highlight_cases : None | int | Iterable[int] = empty_list(),
+              cumulative  : bool            = False,
+              orientation : PlotOrientation = PlotOrientation.VERTICAL,
+              rug_plot    : bool            = True,
+              ax          : Optional[Axes]  = None,
+              title       : str             = '',
+              ) -> tuple[Figure, Axes]:
     """
     Plot a histogram of a single variable.
 
     Parameters
     ----------
-    mcvar : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
+    var : monaco.mc_var.InVar | monaco.mc_var.OutVar
         The variable to plot.
     highlight_cases : None | int | Iterable[int], default: []
         The cases to highlight. If [], then no cases are highlighted.
@@ -180,21 +180,21 @@ def mc_plot_hist(mcvar       : MCInVar | MCOutVar,
     fig, ax = manage_axis(ax, is3d=False)
 
     # Histogram generation
-    highlight_cases_list = get_cases(mcvar.ncases, highlight_cases)
-    counts, bins = np.histogram(mcvar.nums, bins='auto')
+    highlight_cases_list = get_cases(var.ncases, highlight_cases)
+    counts, bins = np.histogram(var.nums, bins='auto')
     binwidth = mode(np.diff(bins))[0]
     bins = np.concatenate((bins - binwidth/2, bins[-1] + binwidth/2))
-    counts, bins = np.histogram(mcvar.nums, bins=bins)
+    counts, bins = np.histogram(var.nums, bins=bins)
 
-    if isinstance(mcvar, MCInVar):
+    if isinstance(var, InVar):
         # Continuous distribution
-        if isinstance(mcvar.dist, rv_continuous):
+        if isinstance(var.dist, rv_continuous):
             plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=True,
                      cumulative=cumulative, orientation=orientation, histtype='bar',
                      facecolor='k', alpha=0.5)
             lim = get_hist_lim(ax, orientation)
             x = np.arange(lim[0], lim[1], (lim[1] - lim[0])/100)
-            dist = mcvar.dist(**mcvar.distkwargs)
+            dist = var.dist(**var.distkwargs)
             if cumulative:
                 ydata = dist.cdf(x)
             else:
@@ -205,13 +205,13 @@ def mc_plot_hist(mcvar       : MCInVar | MCOutVar,
                 plt.plot(ydata, x, color='k', alpha=0.9)
 
         # Discrete distribution
-        elif isinstance(mcvar.dist, rv_discrete):
+        elif isinstance(var.dist, rv_discrete):
             plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False,
                      orientation=orientation, cumulative=cumulative, histtype='bar',
                      facecolor='k', alpha=0.5)
             lim = get_hist_lim(ax, orientation)
             x = np.concatenate(([lim[0]], bins, [lim[1]]))
-            dist = mcvar.dist(**mcvar.distkwargs)
+            dist = var.dist(**var.distkwargs)
             if cumulative:
                 xdata = x - binwidth
                 ydata = dist.cdf(x)
@@ -223,7 +223,7 @@ def mc_plot_hist(mcvar       : MCInVar | MCOutVar,
             elif orientation == PlotOrientation.HORIZONTAL:
                 plt.step(ydata, xdata, color='k', alpha=0.9, where='post')
 
-    elif isinstance(mcvar, MCOutVar):
+    elif isinstance(var, OutVar):
         plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False,
                  orientation=orientation, cumulative=cumulative, histtype='bar',
                  facecolor='k', alpha=0.5)
@@ -234,7 +234,7 @@ def mc_plot_hist(mcvar       : MCInVar | MCOutVar,
         ylabeltext = 'Probability Density'
 
     if rug_plot:
-        plot_rug_marks(ax, orientation=orientation, nums=np.array(mcvar.nums))
+        plot_rug_marks(ax, orientation=orientation, nums=np.array(var.nums))
 
     xlim = ax.get_xlim()
     ylim = ax.get_ylim()
@@ -242,11 +242,11 @@ def mc_plot_hist(mcvar       : MCInVar | MCOutVar,
     # Highlight cases and MCVarStats
     if orientation == PlotOrientation.VERTICAL:
         for i in highlight_cases_list:
-            plt.plot([mcvar.nums[i], mcvar.nums[i]],
+            plt.plot([var.nums[i], var.nums[i]],
                      [ylim[0], ylim[0] + (ylim[1] - ylim[0])*0.20],
                      linestyle='-', linewidth=1, color='red')
-        for mcvarstat in mcvar.mcvarstats:
-            nums = get_list(mcvarstat.nums)
+        for varstat in var.varstats:
+            nums = get_list(varstat.nums)
             if length(nums) == 1:
                 plt.plot([nums[0], nums[0]], ylim, linestyle='-', color='blue')
             elif length(nums) == 3:
@@ -256,26 +256,26 @@ def mc_plot_hist(mcvar       : MCInVar | MCOutVar,
                                 [ylim[0], ylim[0]],
                                 [ylim[1], ylim[1]],
                                 color='blue', alpha=0.2)
-        plt.xlabel(mcvar.name)
+        plt.xlabel(var.name)
         plt.ylabel(ylabeltext)
-        apply_category_labels(ax, mcvarx=mcvar)
+        apply_category_labels(ax, varx=var)
 
     elif orientation == PlotOrientation.HORIZONTAL:
         for i in highlight_cases_list:
             plt.plot([xlim[0], xlim[0] + (xlim[1] - xlim[0])*0.20],
-                     [mcvar.nums[i], mcvar.nums[i]],
+                     [var.nums[i], var.nums[i]],
                      linestyle='-', linewidth=1, color='red')
-        for mcvarstat in mcvar.mcvarstats:
-            nums = get_list(mcvarstat.nums)
+        for varstat in var.varstats:
+            nums = get_list(varstat.nums)
             if length(nums) == 1:
                 plt.plot(xlim, [nums[0], nums[0]], linestyle='-', color='blue')
             elif length(nums) == 3:
                 plt.plot(xlim, [nums[1], nums[1]], linestyle='-', color='blue')
             if length(nums) in (2, 3):
                 ax.fill_between(xlim, nums[0], nums[-1], color='blue', alpha=0.2)
-        plt.ylabel(mcvar.name)
+        plt.ylabel(var.name)
         plt.xlabel(ylabeltext)
-        apply_category_labels(ax, mcvary=mcvar)
+        apply_category_labels(ax, vary=var)
 
     plt.title(title)
 
@@ -283,19 +283,19 @@ def mc_plot_hist(mcvar       : MCInVar | MCOutVar,
 
 
 
-def mc_plot_cdf(mcvar       : MCInVar | MCOutVar,
-                highlight_cases : None | int | Iterable[int] = empty_list(),
-                orientation : PlotOrientation = PlotOrientation.VERTICAL,
-                rug_plot    : bool            = True,
-                ax          : Optional[Axes]  = None,
-                title       : str             = '',
-                ) -> tuple[Figure, Axes]:
+def plot_cdf(var       : InVar | OutVar,
+             highlight_cases : None | int | Iterable[int] = empty_list(),
+             orientation : PlotOrientation = PlotOrientation.VERTICAL,
+             rug_plot    : bool            = True,
+             ax          : Optional[Axes]  = None,
+             title       : str             = '',
+             ) -> tuple[Figure, Axes]:
     """
     Plot a cumulative distribution of a single variable.
 
     Parameters
     ----------
-    mcvar : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
+    var : monaco.mc_var.InVar | monaco.mc_var.OutVar
         The variable to plot.
     highlight_cases : None | int | Iterable[int], default: []
         The cases to highlight. If [], then no cases are highlighted.
@@ -314,29 +314,29 @@ def mc_plot_cdf(mcvar       : MCInVar | MCOutVar,
         fig is the figure handle for the plot.
         ax is the axes handle for the plot.
     """
-    return mc_plot_hist(mcvar=mcvar, highlight_cases=highlight_cases, cumulative=True,
-                        orientation=orientation, rug_plot=rug_plot, ax=ax, title=title)
+    return plot_hist(var=var, highlight_cases=highlight_cases, cumulative=True,
+                     orientation=orientation, rug_plot=rug_plot, ax=ax, title=title)
 
 
 
-def mc_plot_2d_scatter(mcvarx   : MCInVar | MCOutVar,
-                       mcvary   : MCInVar | MCOutVar,
-                       cases           : None | int | Iterable[int] = None,
-                       highlight_cases : None | int | Iterable[int] = empty_list(),
-                       rug_plot : bool           = False,
-                       cov_plot : bool           = False,
-                       cov_p    : None | float | Iterable[float] = None,
-                       ax       : Optional[Axes] = None,
-                       title    : str            = '',
-                       ) -> tuple[Figure, Axes]:
+def plot_2d_scatter(varx   : InVar | OutVar,
+                    vary   : InVar | OutVar,
+                    cases           : None | int | Iterable[int] = None,
+                    highlight_cases : None | int | Iterable[int] = empty_list(),
+                    rug_plot : bool           = False,
+                    cov_plot : bool           = False,
+                    cov_p    : None | float | Iterable[float] = None,
+                    ax       : Optional[Axes] = None,
+                    title    : str            = '',
+                    ) -> tuple[Figure, Axes]:
     """
     Plot a scatter plot of two variables.
 
     Parameters
     ----------
-    mcvarx : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
+    varx : monaco.mc_var.InVar | monaco.mc_var.OutVar
         The x variable to plot.
-    mcvary : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
+    vary : monaco.mc_var.InVar | monaco.mc_var.OutVar
         The y variable to plot.
     cases : None | int | Iterable[int], default: None
         The cases to plot. If None, then all cases are highlighted.
@@ -362,16 +362,16 @@ def mc_plot_2d_scatter(mcvarx   : MCInVar | MCOutVar,
     """
     fig, ax = manage_axis(ax, is3d=False)
 
-    cases_list = get_cases(mcvarx.ncases, cases)
-    highlight_cases_list = get_cases(mcvarx.ncases, highlight_cases)
+    cases_list = get_cases(varx.ncases, cases)
+    highlight_cases_list = get_cases(varx.ncases, highlight_cases)
     reg_cases = set(cases_list) - set(highlight_cases_list)
     if reg_cases:
-        plt.scatter(slice_by_index(mcvarx.nums, reg_cases),
-                    slice_by_index(mcvary.nums, reg_cases),
+        plt.scatter(slice_by_index(varx.nums, reg_cases),
+                    slice_by_index(vary.nums, reg_cases),
                     edgecolors=None, c='k', alpha=0.4)
     if highlight_cases_list:
-        plt.scatter(slice_by_index(mcvarx.nums, highlight_cases_list),
-                    slice_by_index(mcvary.nums, highlight_cases_list),
+        plt.scatter(slice_by_index(varx.nums, highlight_cases_list),
+                    slice_by_index(vary.nums, highlight_cases_list),
                     edgecolors=None, c='r', alpha=1)
 
     if cov_plot:
@@ -379,39 +379,39 @@ def mc_plot_2d_scatter(mcvarx   : MCInVar | MCOutVar,
             cov_p = conf_ellipsoid_sig2pct(3.0, df=2)  # 3-sigma for 2D gaussian
         cov_p_list = get_list(cov_p)
         for p in cov_p_list:
-            plot_2d_cov_ellipse(ax=ax, mcvarx=mcvarx, mcvary=mcvary, p=p)
+            plot_2d_cov_ellipse(ax=ax, varx=varx, vary=vary, p=p)
 
     if rug_plot:
         all_cases = set(cases_list) | set(highlight_cases_list)
         plot_rug_marks(ax, orientation=PlotOrientation.VERTICAL,
-                       nums=slice_by_index(mcvarx.nums, all_cases))
+                       nums=slice_by_index(varx.nums, all_cases))
         plot_rug_marks(ax, orientation=PlotOrientation.HORIZONTAL,
-                       nums=slice_by_index(mcvary.nums, all_cases))
+                       nums=slice_by_index(vary.nums, all_cases))
 
-    plt.xlabel(mcvarx.name)
-    plt.ylabel(mcvary.name)
-    apply_category_labels(ax, mcvarx, mcvary)
+    plt.xlabel(varx.name)
+    plt.ylabel(vary.name)
+    apply_category_labels(ax, varx, vary)
     plt.title(title)
 
     return fig, ax
 
 
 
-def mc_plot_2d_line(mcvarx : MCInVar | MCOutVar,
-                    mcvary : MCInVar | MCOutVar,
-                    cases           : None | int | Iterable[int] = None,
-                    highlight_cases : None | int | Iterable[int] = empty_list(),
-                    ax     : Optional[Axes] = None,
-                    title  : str            = '',
-                    ) -> tuple[Figure, Axes]:
+def plot_2d_line(varx : InVar | OutVar,
+                 vary : InVar | OutVar,
+                 cases           : None | int | Iterable[int] = None,
+                 highlight_cases : None | int | Iterable[int] = empty_list(),
+                 ax     : Optional[Axes] = None,
+                 title  : str            = '',
+                 ) -> tuple[Figure, Axes]:
     """
     Plot an ensemble of 2D lines for two nonscalar variables.
 
     Parameters
     ----------
-    mcvarx : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
+    varx : monaco.mc_var.InVar | monaco.mc_var.OutVar
         The x variable to plot.
-    mcvary : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
+    vary : monaco.mc_var.InVar | monaco.mc_var.OutVar
         The y variable to plot.
     cases : None | int | Iterable[int], default: None
         The cases to plot. If None, then all cases are highlighted.
@@ -430,110 +430,50 @@ def mc_plot_2d_line(mcvarx : MCInVar | MCOutVar,
     """
     fig, ax = manage_axis(ax, is3d=False)
 
-    cases_list = get_cases(mcvarx.ncases, cases)
-    highlight_cases_list = get_cases(mcvarx.ncases, highlight_cases)
+    cases_list = get_cases(varx.ncases, cases)
+    highlight_cases_list = get_cases(varx.ncases, highlight_cases)
     reg_cases = set(cases_list) - set(highlight_cases_list)
     for i in reg_cases:
-        plt.plot(mcvarx.nums[i], mcvary.nums[i], linestyle='-', color='black', alpha=0.2)
+        plt.plot(varx.nums[i], vary.nums[i], linestyle='-', color='black', alpha=0.2)
     for i in highlight_cases_list:
-        plt.plot(mcvarx.nums[i], mcvary.nums[i], linestyle='-', color='red', alpha=1)
+        plt.plot(varx.nums[i], vary.nums[i], linestyle='-', color='red', alpha=1)
 
-    for mcvarstat in mcvary.mcvarstats:
-        if length(mcvarstat.nums[0]) == 1:
-            plt.plot(mcvarx.nums[0], mcvarstat.nums[:], linestyle='-', color='blue')
-        elif length(mcvarstat.nums[0]) == 3:
-            plt.plot(mcvarx.nums[0], mcvarstat.nums[:, 1], linestyle='-', color='blue')
-        if length(mcvarstat.nums[0]) in (2, 3):
-            ax.fill_between(mcvarx.nums[0], mcvarstat.nums[:, 0], mcvarstat.nums[:, -1],
+    for varstat in vary.varstats:
+        if length(varstat.nums[0]) == 1:
+            plt.plot(varx.nums[0], varstat.nums[:], linestyle='-', color='blue')
+        elif length(varstat.nums[0]) == 3:
+            plt.plot(varx.nums[0], varstat.nums[:, 1], linestyle='-', color='blue')
+        if length(varstat.nums[0]) in (2, 3):
+            ax.fill_between(varx.nums[0], varstat.nums[:, 0], varstat.nums[:, -1],
                             color='blue', alpha=0.3)
 
-    plt.xlabel(mcvarx.name)
-    plt.ylabel(mcvary.name)
-    apply_category_labels(ax, mcvarx, mcvary)
+    plt.xlabel(varx.name)
+    plt.ylabel(vary.name)
+    apply_category_labels(ax, varx, vary)
     plt.title(title)
 
     return fig, ax
 
 
 
-def mc_plot_3d_scatter(mcvarx : MCInVar | MCOutVar,
-                       mcvary : MCInVar | MCOutVar,
-                       mcvarz : MCInVar | MCOutVar,
-                       cases           : None | int | Iterable[int] = None,
-                       highlight_cases : None | int | Iterable[int] = empty_list(),
-                       ax     : Optional[Axes] = None,
-                       title  : str            = '',
-                       ) -> tuple[Figure, Axes]:
-    """
-    Plot a scatter plot of three variables in 3D space.
-
-    Parameters
-    ----------
-    mcvarx : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
-        The x variable to plot.
-    mcvary : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
-        The y variable to plot.
-    mcvarz : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
-        The z variable to plot.
-    cases : None | int | Iterable[int], default: None
-        The cases to plot. If None, then all cases are highlighted.
-    highlight_cases : None | int | Iterable[int], default: []
-        The cases to highlight. If [], then no cases are highlighted.
-    ax : matplotlib.axes.Axes, default: None
-        The axes handle to plot in. If None, a new figure is created.
-    title : str, default: ''
-        The figure title.
-
-    Returns
-    -------
-    (fig, ax) : (matplotlib.figure.Figure, matplotlib.axes.Axes)
-        fig is the figure handle for the plot.
-        ax is the axes handle for the plot.
-    """
-    fig, ax = manage_axis(ax, is3d=True)
-
-    cases_list = get_cases(mcvarx.ncases, cases)
-    highlight_cases_list = get_cases(mcvarx.ncases, highlight_cases)
-    reg_cases = set(cases_list) - set(highlight_cases_list)
-    if reg_cases:
-        ax.scatter(slice_by_index(mcvarx.nums, reg_cases),
-                   slice_by_index(mcvary.nums, reg_cases),
-                   slice_by_index(mcvarz.nums, reg_cases),
-                   edgecolors=None, c='k', alpha=0.4)
-    if highlight_cases_list:
-        ax.scatter(slice_by_index(mcvarx.nums, highlight_cases_list),
-                   slice_by_index(mcvary.nums, highlight_cases_list),
-                   slice_by_index(mcvarz.nums, highlight_cases_list),
-                   edgecolors=None, c='r', alpha=1)
-
-    ax.set_xlabel(mcvarx.name)
-    ax.set_ylabel(mcvary.name)
-    ax.set_zlabel(mcvarz.name)
-    apply_category_labels(ax, mcvarx, mcvary, mcvarz)
-    plt.title(title)
-
-    return fig, ax
-
-
-
-def mc_plot_3d_line(mcvarx : MCInVar | MCOutVar,
-                    mcvary : MCInVar | MCOutVar,
-                    mcvarz : MCInVar | MCOutVar,
+def plot_3d_scatter(varx : InVar | OutVar,
+                    vary : InVar | OutVar,
+                    varz : InVar | OutVar,
                     cases           : None | int | Iterable[int] = None,
                     highlight_cases : None | int | Iterable[int] = empty_list(),
                     ax     : Optional[Axes] = None,
                     title  : str            = '',
                     ) -> tuple[Figure, Axes]:
     """
-    Plot an ensemble of 3D lines for three nonscalar variables.
+    Plot a scatter plot of three variables in 3D space.
 
     Parameters
     ----------
-    mcvarx : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
+    varx : monaco.mc_var.InVar | monaco.mc_var.OutVar
         The x variable to plot.
-    mcvary : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
+    vary : monaco.mc_var.InVar | monaco.mc_var.OutVar
         The y variable to plot.
-    mcvarz : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
+    varz : monaco.mc_var.InVar | monaco.mc_var.OutVar
         The z variable to plot.
     cases : None | int | Iterable[int], default: None
         The cases to plot. If None, then all cases are highlighted.
@@ -552,31 +492,91 @@ def mc_plot_3d_line(mcvarx : MCInVar | MCOutVar,
     """
     fig, ax = manage_axis(ax, is3d=True)
 
-    cases_list = get_cases(mcvarx.ncases, cases)
-    highlight_cases_list = get_cases(mcvarx.ncases, highlight_cases)
+    cases_list = get_cases(varx.ncases, cases)
+    highlight_cases_list = get_cases(varx.ncases, highlight_cases)
     reg_cases = set(cases_list) - set(highlight_cases_list)
-    for i in reg_cases:
-        ax.plot(mcvarx.nums[i], mcvary.nums[i], mcvarz.nums[i],
-                linestyle='-', color='black', alpha=0.3)
-    for i in highlight_cases_list:
-        ax.plot(mcvarx.nums[i], mcvary.nums[i], mcvarz.nums[i],
-                linestyle='-', color='red', alpha=1)
+    if reg_cases:
+        ax.scatter(slice_by_index(varx.nums, reg_cases),
+                   slice_by_index(vary.nums, reg_cases),
+                   slice_by_index(varz.nums, reg_cases),
+                   edgecolors=None, c='k', alpha=0.4)
+    if highlight_cases_list:
+        ax.scatter(slice_by_index(varx.nums, highlight_cases_list),
+                   slice_by_index(vary.nums, highlight_cases_list),
+                   slice_by_index(varz.nums, highlight_cases_list),
+                   edgecolors=None, c='r', alpha=1)
 
-    ax.set_xlabel(mcvarx.name)
-    ax.set_ylabel(mcvary.name)
-    ax.set_zlabel(mcvarz.name)
-    apply_category_labels(ax, mcvarx, mcvary, mcvarz)
+    ax.set_xlabel(varx.name)
+    ax.set_ylabel(vary.name)
+    ax.set_zlabel(varz.name)
+    apply_category_labels(ax, varx, vary, varz)
     plt.title(title)
 
     return fig, ax
 
 
 
-def mc_plot_cov_corr(matrix    : np.ndarray,
-                     varnames  : list[str],
-                     ax        : Optional[Axes] = None,
-                     title     : str            = '',
-                     ) -> tuple[Figure, Axes]:
+def plot_3d_line(varx : InVar | OutVar,
+                 vary : InVar | OutVar,
+                 varz : InVar | OutVar,
+                 cases           : None | int | Iterable[int] = None,
+                 highlight_cases : None | int | Iterable[int] = empty_list(),
+                 ax     : Optional[Axes] = None,
+                 title  : str            = '',
+                 ) -> tuple[Figure, Axes]:
+    """
+    Plot an ensemble of 3D lines for three nonscalar variables.
+
+    Parameters
+    ----------
+    varx : monaco.mc_var.InVar | monaco.mc_var.OutVar
+        The x variable to plot.
+    vary : monaco.mc_var.InVar | monaco.mc_var.OutVar
+        The y variable to plot.
+    varz : monaco.mc_var.InVar | monaco.mc_var.OutVar
+        The z variable to plot.
+    cases : None | int | Iterable[int], default: None
+        The cases to plot. If None, then all cases are highlighted.
+    highlight_cases : None | int | Iterable[int], default: []
+        The cases to highlight. If [], then no cases are highlighted.
+    ax : matplotlib.axes.Axes, default: None
+        The axes handle to plot in. If None, a new figure is created.
+    title : str, default: ''
+        The figure title.
+
+    Returns
+    -------
+    (fig, ax) : (matplotlib.figure.Figure, matplotlib.axes.Axes)
+        fig is the figure handle for the plot.
+        ax is the axes handle for the plot.
+    """
+    fig, ax = manage_axis(ax, is3d=True)
+
+    cases_list = get_cases(varx.ncases, cases)
+    highlight_cases_list = get_cases(varx.ncases, highlight_cases)
+    reg_cases = set(cases_list) - set(highlight_cases_list)
+    for i in reg_cases:
+        ax.plot(varx.nums[i], vary.nums[i], varz.nums[i],
+                linestyle='-', color='black', alpha=0.3)
+    for i in highlight_cases_list:
+        ax.plot(varx.nums[i], vary.nums[i], varz.nums[i],
+                linestyle='-', color='red', alpha=1)
+
+    ax.set_xlabel(varx.name)
+    ax.set_ylabel(vary.name)
+    ax.set_zlabel(varz.name)
+    apply_category_labels(ax, varx, vary, varz)
+    plt.title(title)
+
+    return fig, ax
+
+
+
+def plot_cov_corr(matrix    : np.ndarray,
+                  varnames  : list[str],
+                  ax        : Optional[Axes] = None,
+                  title     : str            = '',
+                  ) -> tuple[Figure, Axes]:
     """
     Plot either a covariance or correlation matrix.
 
@@ -634,22 +634,22 @@ def mc_plot_cov_corr(matrix    : np.ndarray,
 
 
 
-def mc_plot_integration_convergence(mcoutvar     : MCOutVar,
-                                    dimension    : int,
-                                    volume       : float,
-                                    refval       : float          = None,
-                                    conf         : float          = 0.95,
-                                    samplemethod : SampleMethod   = SampleMethod.RANDOM,
-                                    ax           : Optional[Axes] = None,
-                                    title        : str            = '',
-                                    ) -> tuple[Figure, Axes]:
+def plot_integration_convergence(outvar     : OutVar,
+                                 dimension    : int,
+                                 volume       : float,
+                                 refval       : float          = None,
+                                 conf         : float          = 0.95,
+                                 samplemethod : SampleMethod   = SampleMethod.RANDOM,
+                                 ax           : Optional[Axes] = None,
+                                 title        : str            = '',
+                                 ) -> tuple[Figure, Axes]:
     """
     For a Monte-Carlo integration, plot the running integration estimate along
     with error bars for a given confidence level.
 
     Parameters
     ----------
-    mcoutvar : monaco.mc_var.MCOutVar
+    outvar : monaco.mc_var.OutVar
         The variable representing the integration estimate.
     dimension : int
         The number of dimensions over which the integration was performed.
@@ -677,30 +677,30 @@ def mc_plot_integration_convergence(mcoutvar     : MCOutVar,
     if refval is not None:
         ax.axhline(refval, color='k')
 
-    cummean = volume*np.cumsum(mcoutvar.nums)/np.arange(1, mcoutvar.ncases+1)
-    err = integration_error(nums=np.array(mcoutvar.nums), dimension=dimension, volume=volume,
+    cummean = volume*np.cumsum(outvar.nums)/np.arange(1, outvar.ncases+1)
+    err = integration_error(nums=np.array(outvar.nums), dimension=dimension, volume=volume,
                             conf=conf, samplemethod=samplemethod, runningerror=True)
     ax.plot(cummean, 'r')
     ax.plot(cummean + err, 'b')
     ax.plot(cummean - err, 'b')
 
     ax.set_xlabel('Sample #')
-    ax.set_ylabel(f'Convergence of {mcoutvar.name} Integral')
+    ax.set_ylabel(f'Convergence of {outvar.name} Integral')
     plt.title(title)
 
     return fig, ax
 
 
 
-def mc_plot_integration_error(mcoutvar     : MCOutVar,
-                              dimension    : int,
-                              volume       : float,
-                              refval       : float,
-                              conf         : float          = 0.95,
-                              samplemethod : SampleMethod   = SampleMethod.RANDOM,
-                              ax           : Optional[Axes] = None,
-                              title        : str            = '',
-                              ) -> tuple[Figure, Axes]:
+def plot_integration_error(outvar     : OutVar,
+                           dimension    : int,
+                           volume       : float,
+                           refval       : float,
+                           conf         : float          = 0.95,
+                           samplemethod : SampleMethod   = SampleMethod.RANDOM,
+                           ax           : Optional[Axes] = None,
+                           title        : str            = '',
+                           ) -> tuple[Figure, Axes]:
     """
     For a Monte-Carlo integration where the reference value is known, plot the
     running integration error along with error bounds for a given confidence
@@ -708,7 +708,7 @@ def mc_plot_integration_error(mcoutvar     : MCOutVar,
 
     Parameters
     ----------
-    mcoutvar : monaco.mc_var.MCOutVar
+    outvar : monaco.mc_var.OutVar
         The variable representing the integration estimate.
     dimension : int
         The number of dimensions over which the integration was performed.
@@ -733,14 +733,14 @@ def mc_plot_integration_error(mcoutvar     : MCOutVar,
     """
     fig, ax = manage_axis(ax, is3d=False)
 
-    cummean = volume*np.cumsum(mcoutvar.nums)/np.arange(1, mcoutvar.ncases+1)
-    err = integration_error(nums=np.array(mcoutvar.nums), dimension=dimension, volume=volume,
+    cummean = volume*np.cumsum(outvar.nums)/np.arange(1, outvar.ncases+1)
+    err = integration_error(nums=np.array(outvar.nums), dimension=dimension, volume=volume,
                             conf=conf, samplemethod=samplemethod, runningerror=True)
     ax.loglog(err, 'b')
     ax.plot(np.abs(cummean - refval), 'r')
 
     ax.set_xlabel('Sample #')
-    ax.set_ylabel(f'{mcoutvar.name} {round(conf*100, 2)}% Confidence Error')
+    ax.set_ylabel(f'{outvar.name} {round(conf*100, 2)}% Confidence Error')
     plt.title(title)
 
     return fig, ax
@@ -781,9 +781,9 @@ def manage_axis(ax   : Optional[Axes],
 
 
 def apply_category_labels(ax : Axes,
-                          mcvarx : MCInVar | MCOutVar = None,
-                          mcvary : MCInVar | MCOutVar = None,
-                          mcvarz : MCInVar | MCOutVar = None,
+                          varx : InVar | OutVar = None,
+                          vary : InVar | OutVar = None,
+                          varz : InVar | OutVar = None,
                           ) -> None:
     """
     For nonnumeric Monte-Carlo variables, use the `nummap` to label the axes.
@@ -792,30 +792,30 @@ def apply_category_labels(ax : Axes,
     ----------
     ax : matplotlib.axes.Axes
         The target axis.
-    mcvarx : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar, default: None
+    varx : monaco.mc_var.InVar | monaco.mc_var.OutVar, default: None
         The x variable.
-    mcvary : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar, default: None
+    vary : monaco.mc_var.InVar | monaco.mc_var.OutVar, default: None
         The y variable.
-    mcvarz : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar, default: None
+    varz : monaco.mc_var.InVar | monaco.mc_var.OutVar, default: None
         The z variable.
     """
     # Wrapped in try statements in case some categories aren't printable
-    if mcvarx is not None and mcvarx.nummap is not None:
+    if varx is not None and varx.nummap is not None:
         try:
-            ax.set_xticks(list(mcvarx.nummap.keys()))
-            ax.set_xticklabels(list(mcvarx.nummap.values()))
+            ax.set_xticks(list(varx.nummap.keys()))
+            ax.set_xticklabels(list(varx.nummap.values()))
         except Exception:
             pass
-    if mcvary is not None and mcvary.nummap is not None:
+    if vary is not None and vary.nummap is not None:
         try:
-            ax.set_yticks(list(mcvary.nummap.keys()))
-            ax.set_yticklabels(list(mcvary.nummap.values()))
+            ax.set_yticks(list(vary.nummap.keys()))
+            ax.set_yticklabels(list(vary.nummap.values()))
         except Exception:
             pass
-    if mcvarz is not None and mcvarz.nummap is not None:
+    if varz is not None and varz.nummap is not None:
         try:
-            ax.set_zticks(list(mcvarz.nummap.keys()))
-            ax.set_zticklabels(list(mcvarz.nummap.values()))
+            ax.set_zticks(list(varz.nummap.keys()))
+            ax.set_zticklabels(list(varz.nummap.values()))
         except Exception:
             pass
 
@@ -881,8 +881,8 @@ def plot_rug_marks(ax          : Axes,
 
 
 def plot_2d_cov_ellipse(ax     : Axes,
-                        mcvarx : MCInVar | MCOutVar,
-                        mcvary : MCInVar | MCOutVar,
+                        varx : InVar | OutVar,
+                        vary : InVar | OutVar,
                         p      : float,
                         ) -> None:
     """
@@ -892,9 +892,9 @@ def plot_2d_cov_ellipse(ax     : Axes,
     ----------
     ax : matplotlib.axes.Axes
         The target axis.
-    mcvarx : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
+    varx : monaco.mc_var.InVar | monaco.mc_var.OutVar
         The x variable.
-    mcvary : monaco.mc_var.MCInVar | monaco.mc_var.MCOutVar
+    vary : monaco.mc_var.InVar | monaco.mc_var.OutVar
         The y variable.
     p : float
         Coviariance percentile, assuming a gaussian distribution.
@@ -903,8 +903,8 @@ def plot_2d_cov_ellipse(ax     : Axes,
         return
 
     # See https://www.visiondummy.com/2014/04/draw-error-ellipse-representing-covariance-matrix/
-    allnums = [np.array(mcvarx.nums), np.array(mcvary.nums)]
-    center = [np.mean(mcvarx.nums), np.mean(mcvary.nums)]
+    allnums = [np.array(varx.nums), np.array(vary.nums)]
+    center = [np.mean(varx.nums), np.mean(vary.nums)]
 
     covs = np.cov(np.array(allnums))
     eigvals, eigvecs = np.linalg.eigh(covs)  # Use eigh over eig since covs is guaranteed symmetric

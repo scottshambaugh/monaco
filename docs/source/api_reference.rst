@@ -9,40 +9,40 @@ top-level package, so referencing via the module is unnecessary.
 Classes
 =======
 
-MCSim
+Sim
 -----
 .. automodule:: monaco.mc_sim
    :members:
 
-MCCase
+Case
 ------
 .. automodule:: monaco.mc_case
    :members:
 
-MCVar
+Var
 -----
 .. automodule:: monaco.mc_var
    :members:
    :show-inheritance:
 
-MCVal
+Val
 -----
 .. automodule:: monaco.mc_val
    :members:
    :show-inheritance:
 
-MCVarStat
+VarStat
 ---------
 .. automodule:: monaco.mc_varstat
    :members:
 
-MCEnums
+Enums
 -------
 .. automodule:: monaco.mc_enums
    :members:
    :undoc-members:
 
-Functions
+SimFunctions
 =========
 
 helper_functions
@@ -50,17 +50,17 @@ helper_functions
 .. automodule:: monaco.helper_functions
    :members:
 
-mc_sampling
+sampling
 -----------
 .. automodule:: monaco.mc_sampling
    :members:
 
-mc_plot
+plot
 -------
 .. automodule:: monaco.mc_plot
    :members:
 
-mc_multi_plot
+multi_plot
 -------------
 .. automodule:: monaco.mc_multi_plot
    :members:

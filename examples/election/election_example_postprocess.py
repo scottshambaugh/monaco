@@ -1,18 +1,18 @@
-def election_example_postprocess(mccase, dem_evs, rep_evs, other_evs, state_winner, state_recount):
+def election_example_postprocess(case, dem_evs, rep_evs, other_evs, state_winner, state_recount):
 
     # Note that for pandas dataframes, you must explicitly include the index
-    mccase.addOutVal('Dem EVs', dem_evs)
-    mccase.addOutVal('Rep EVs', rep_evs)
-    mccase.addOutVal('Other EVs', other_evs)
+    case.addOutVal('Dem EVs', dem_evs)
+    case.addOutVal('Rep EVs', rep_evs)
+    case.addOutVal('Other EVs', other_evs)
 
     num_recounts = 0
-    for state in mccase.constvals['states']:
-        mccase.addOutVal(f'{state} Winner', state_winner[state])
-        mccase.addOutVal(f'{state} Recount', state_recount[state])
+    for state in case.constvals['states']:
+        case.addOutVal(f'{state} Winner', state_winner[state])
+        case.addOutVal(f'{state} Recount', state_recount[state])
         if state_recount[state]:
             num_recounts += 1
 
-    mccase.addOutVal('Num Recounts', num_recounts)
+    case.addOutVal('Num Recounts', num_recounts)
 
     winner = 'Contested'
     if dem_evs >= 270:
@@ -22,4 +22,4 @@ def election_example_postprocess(mccase, dem_evs, rep_evs, other_evs, state_winn
     elif other_evs >= 270:
         winner = 'Other'
 
-    mccase.addOutVal('Winner', winner)
+    case.addOutVal('Winner', winner)

@@ -10,7 +10,7 @@ from scipy.stats import randint, rv_discrete
 # Import the preprocess, sim, and postprocess function handles that you have created.
 from template_functions import template_preprocess, template_run, template_postprocess
 
-# These get packaged in the following format for MCSim to consume:
+# These get packaged in the following format for Sim to consume:
 fcns = {'preprocess' : template_preprocess,
         'run'        : template_run,
         'postprocess': template_postprocess}
@@ -43,10 +43,10 @@ savesimdata = True
 
 def template_monte_carlo_sim():
     # We first initialize the sim with a name of our choosing
-    sim = mc.MCSim(name='Coin Flip', ndraws=ndraws, fcns=fcns,
-                   firstcaseismedian=firstcaseismedian, seed=seed, cores=cores,
-                   savecasedata=savecasedata, savesimdata=savesimdata,
-                   verbose=True, debug=False)
+    sim = mc.Sim(name='Coin Flip', ndraws=ndraws, fcns=fcns,
+                 firstcaseismedian=firstcaseismedian, seed=seed, cores=cores,
+                 savecasedata=savecasedata, savesimdata=savesimdata,
+                 verbose=True, debug=False)
 
     # We now add input variables, with their associated distributions
     # Out first variable will be the person flipping a coin - Sam and Alex will
@@ -85,22 +85,22 @@ def template_monte_carlo_sim():
     # From here we can perform further postprocessing on our results. The outvar
     # names were assigned in our postprocessing function. We expect the heads
     # bias to be near the 70% we assigned up in flip_dist.
-    bias = sim.mcoutvars['Flip Result'].vals.count('heads')/sim.ncases*100
+    bias = sim.outvars['Flip Result'].vals.count('heads')/sim.ncases*100
     print(f'Average heads bias: {bias}%')
 
-    # We can also quickly make some plots of our invars and outvars. The mc.mc_plot
+    # We can also quickly make some plots of our invars and outvars. The mc.plot
     # function will automatically try to figure out which type of plot is most
     # appropriate based on the number and dimension of the variables.
     # This will make a histogram of the results:
-    mc.mc_plot(sim.mcoutvars['Flip Result'])
+    mc.plot(sim.outvars['Flip Result'])
     # And this scatter plot will show that the flips were random over time:
-    mc.mc_plot(sim.mcoutvars['Flip Number'], sim.mcoutvars['Flip Result'])
+    mc.plot(sim.outvars['Flip Number'], sim.outvars['Flip Result'])
 
     # We can also look at the correlation between all scalar input and output
     # vars to see which are most affecting the others. This shows that the input
     # and output flip information is identical, and that the flipper and flip
     # number had no effect on the coin landing heads or tails.
-    mc.mc_plot_cov_corr(*sim.corr())
+    mc.plot_cov_corr(*sim.corr())
 
     # Alternatively, you can return the sim object and work with it elsewhere.
     return sim

@@ -16,10 +16,10 @@ ndraws = 1000
 seed = 12362397
 
 def election_example_monte_carlo_sim():
-    sim = mc.MCSim(name='election', ndraws=ndraws, fcns=fcns,
-                   firstcaseismedian=False, seed=seed, cores=4,
-                   samplemethod='random', savecasedata=False,
-                   verbose=True, debug=False)
+    sim = mc.Sim(name='election', ndraws=ndraws, fcns=fcns,
+                 firstcaseismedian=False, seed=seed, cores=4,
+                 samplemethod='random', savecasedata=False,
+                 verbose=True, debug=False)
 
     rootdir = pathlib.Path(__file__).parent.absolute()
     df = pd.read_csv(rootdir / 'state_presidential_odds.csv')
@@ -44,30 +44,30 @@ def election_example_monte_carlo_sim():
 
     sim.runSim()
 
-    sim.mcoutvars['Dem EVs'].addVarStat(stattype='orderstatP',
+    sim.outvars['Dem EVs'].addVarStat(stattype='orderstatP',
                                         statkwargs={'p': 0.5, 'bound': 'nearest'})
-    sim.mcoutvars['Dem EVs'].addVarStat(stattype='orderstatTI',
+    sim.outvars['Dem EVs'].addVarStat(stattype='orderstatTI',
                                         statkwargs={'p': 0.75, 'c': 0.90, 'bound': '2-sided'})
-    fig, ax = mc.mc_plot(sim.mcoutvars['Dem EVs'])
+    fig, ax = mc.plot(sim.outvars['Dem EVs'])
     ax.set_autoscale_on(False)
     ax.plot([270, 270], [0, 1], '--k')
 
-    pct_dem_win = sum(x == 'Dem' for x in sim.mcoutvars['Winner'].vals)/sim.ncases
-    pct_rep_win = sum(x == 'Rep' for x in sim.mcoutvars['Winner'].vals)/sim.ncases
-    pct_contested = sum(x == 'Contested' for x in sim.mcoutvars['Winner'].vals)/sim.ncases
+    pct_dem_win = sum(x == 'Dem' for x in sim.outvars['Winner'].vals)/sim.ncases
+    pct_rep_win = sum(x == 'Rep' for x in sim.outvars['Winner'].vals)/sim.ncases
+    pct_contested = sum(x == 'Contested' for x in sim.outvars['Winner'].vals)/sim.ncases
     print(f'Win probabilities: {100*pct_dem_win:0.1f}% Dem, ' +
                              f'{100*pct_rep_win:0.1f}% Rep, ' +
                              f'{100*pct_contested:0.1f}% Contested')
-    mc.mc_plot(sim.mcoutvars['Winner'])
+    mc.plot(sim.outvars['Winner'])
 
-    pct_recount = sum(x != 0 for x in sim.mcoutvars['Num Recounts'].vals)/sim.ncases
+    pct_recount = sum(x != 0 for x in sim.outvars['Num Recounts'].vals)/sim.ncases
     print(f'In {100*pct_recount:0.1f}% of runs there was a state close enough ' +
            'to trigger a recount (<0.5%)')
 
     dem_win_state_pct = dict()
     for state in states:
         dem_win_state_pct[state] \
-            = sum(x == 'Dem' for x in sim.mcoutvars[f'{state} Winner'].vals)/sim.ncases
+            = sum(x == 'Dem' for x in sim.outvars[f'{state} Winner'].vals)/sim.ncases
 
     # Only generate state map if plotly installed. Want to avoid this as a dependency
     gen_map = False
