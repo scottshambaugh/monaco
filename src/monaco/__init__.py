@@ -8,6 +8,7 @@ from monaco.mc_enums import *
 from monaco.gaussian_statistics import *
 from monaco.order_statistics import *
 from monaco.integration_statistics import *
+from monaco.dvars_sensitivity import *
 from monaco.helper_functions import *
 from monaco.mc_sampling import *
 from monaco.mc_plot import *
