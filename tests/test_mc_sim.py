@@ -3,10 +3,12 @@
 import pytest
 from monaco.mc_sim import Sim
 from monaco.mc_enums import SimFunctions, SampleMethod
-from sim_testing_fcns import dummyfcn
 import numpy as np
 
 seed = 74494861
+
+def dummyfcn():
+    return 1
 
 @pytest.fixture
 def sim():
