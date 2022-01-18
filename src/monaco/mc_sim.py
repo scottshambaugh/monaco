@@ -90,6 +90,8 @@ class Sim:
         The Monte-Carlo Cases.
     ninvars : int
         The number of input variables.
+    noutvars : int
+        The number of output variables.
     corrcoeffs : numpy.ndarray
         The correlation coefficients between all of the scalar variables.
     covs : numpy.ndarray
@@ -162,7 +164,8 @@ class Sim:
         self.outvars : dict[str, OutVar] = dict()
         self.constvals : dict[str, Any] = dict()
         self.cases : list[Case] = []
-        self.ninvars : int = 0
+        self.ninvars  : int = 0
+        self.noutvars : int = 0
 
         self.corrcoeffs : np.ndarray = None
         self.covs       : np.ndarray = None
@@ -739,6 +742,8 @@ class Sim:
             for i in range(self.ncases):
                 self.cases[i].outvars[varname] = self.outvars[varname]
 
+        self.noutvars = len(self.outvars)
+
 
     def genCovarianceMatrix(self) -> None:
         """
@@ -816,6 +821,7 @@ class Sim:
         self.invars = dict()
         self.constvals = dict()
         self.ninvars = 0
+        self.noutvars = 0
         self.invarseeds = []
         self.caseseeds = []
         self.starttime = None
