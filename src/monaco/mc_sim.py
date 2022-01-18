@@ -745,6 +745,19 @@ class Sim:
         self.noutvars = len(self.outvars)
 
 
+    def scalarOutVars(self) -> dict[str, OutVar]:
+        """
+        Return a dict of just the scalar output variables.
+        """
+        scalaroutvars = dict()
+        if self.outvars != dict():
+            for name, outvar in self.outvars.items():
+                if outvar.isscalar:
+                    scalaroutvars[name] = outvar
+
+        return scalaroutvars
+
+
     def genCovarianceMatrix(self) -> None:
         """
         Generate the covariance matrix and correlation coefficients between all
