@@ -34,7 +34,7 @@ myst-parser = {version = ">=0.15", optional = true}
 [tool.poetry.dev-dependencies]
 pytest = "^6.0.0"
 coverage = "^6.0"
-mypy = "^0.800"
+mypy = ">=0.900"
 flake8 = "^4.000"
 pre-commit = "^2.0"
 

@@ -24,7 +24,9 @@
 
 ## [Unreleased]
 ### Added    
+* Experimental D-VARS sensitivity analysis
 ### Changed    
+* Removed mc_ and MC prefixes from all functions and classes
 ### Removed    
 
 
