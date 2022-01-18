@@ -91,8 +91,8 @@ def plot(varx   : InVar | OutVar,
     # Single Variable Plots
     if vary is None and varz is None:
         if varx.maxdim == 0:
-            fig, ax = plot_hist(var=varx, highlight_cases=highlight_cases,
-                                   rug_plot=rug_plot, ax=ax, title=title)
+            fig, ax = plot_hist(var=varx, cases=cases, highlight_cases=highlight_cases,
+                                rug_plot=rug_plot, ax=ax, title=title)
         else:
             vary = copy(varx)
             varx = copy(varx)   # don't overwrite the underlying object
@@ -101,16 +101,16 @@ def plot(varx   : InVar | OutVar,
             varx.nums = [steps for _ in range(varx.ncases)]
             varx.nummap = None
             fig, ax = plot_2d_line(varx=varx, vary=vary,
-                                      highlight_cases=highlight_cases,
-                                      ax=ax, title=title)
+                                   highlight_cases=highlight_cases,
+                                   ax=ax, title=title)
 
     # Two Variable Plots
     elif vary is not None and varz is None:
         if varx.maxdim == 0 and vary.maxdim == 0:
             fig, ax = plot_2d_scatter(varx=varx, vary=vary,
-                                         cases=cases, highlight_cases=highlight_cases,
-                                         rug_plot=rug_plot, cov_plot=cov_plot, cov_p=cov_p,
-                                         ax=ax, title=title)
+                                      cases=cases, highlight_cases=highlight_cases,
+                                      rug_plot=rug_plot, cov_plot=cov_plot, cov_p=cov_p,
+                                      ax=ax, title=title)
 
         elif varx.maxdim == 1 and vary.maxdim == 1:
             fig, ax = plot_2d_line(varx=varx, vary=vary,
@@ -125,13 +125,13 @@ def plot(varx   : InVar | OutVar,
     else:
         if varx.maxdim == 0 and vary.maxdim == 0 and varz.maxdim == 0:
             fig, ax = plot_3d_scatter(varx=varx, vary=vary, varz=varz,
-                                         cases=cases, highlight_cases=highlight_cases,
-                                         ax=ax, title=title)
+                                      cases=cases, highlight_cases=highlight_cases,
+                                      ax=ax, title=title)
 
         elif varx.maxdim == 1 and vary.maxdim == 1 and varz.maxdim == 1:
             fig, ax = plot_3d_line(varx=varx, vary=vary, varz=varz,
-                                      cases=cases, highlight_cases=highlight_cases,
-                                      ax=ax, title=title)
+                                   cases=cases, highlight_cases=highlight_cases,
+                                   ax=ax, title=title)
 
         else:
             raise ValueError( 'Variables have inconsistent dimensions: ' +
@@ -143,7 +143,8 @@ def plot(varx   : InVar | OutVar,
 
 
 
-def plot_hist(var       : InVar | OutVar,
+def plot_hist(var         : InVar | OutVar,
+              cases           : None | int | Iterable[int] = None,
               highlight_cases : None | int | Iterable[int] = empty_list(),
               cumulative  : bool            = False,
               orientation : PlotOrientation = PlotOrientation.VERTICAL,
@@ -158,6 +159,8 @@ def plot_hist(var       : InVar | OutVar,
     ----------
     var : monaco.mc_var.InVar | monaco.mc_var.OutVar
         The variable to plot.
+    cases : None | int | Iterable[int], default: None
+        The cases to plot. If None, then all cases are plotted.
     highlight_cases : None | int | Iterable[int], default: []
         The cases to highlight. If [], then no cases are highlighted.
     cumulative : bool, default: False
@@ -180,11 +183,13 @@ def plot_hist(var       : InVar | OutVar,
     fig, ax = manage_axis(ax, is3d=False)
 
     # Histogram generation
+    cases_list = get_cases(var.ncases, cases)
     highlight_cases_list = get_cases(var.ncases, highlight_cases)
-    counts, bins = np.histogram(var.nums, bins='auto')
+    nums = slice_by_index(var.nums, cases_list)
+    counts, bins = np.histogram(nums, bins='auto')
     binwidth = mode(np.diff(bins))[0]
     bins = np.concatenate((bins - binwidth/2, bins[-1] + binwidth/2))
-    counts, bins = np.histogram(var.nums, bins=bins)
+    counts, bins = np.histogram(nums, bins=bins)
 
     if isinstance(var, InVar):
         # Continuous distribution
@@ -284,6 +289,7 @@ def plot_hist(var       : InVar | OutVar,
 
 
 def plot_cdf(var       : InVar | OutVar,
+             cases           : None | int | Iterable[int] = None,
              highlight_cases : None | int | Iterable[int] = empty_list(),
              orientation : PlotOrientation = PlotOrientation.VERTICAL,
              rug_plot    : bool            = True,
@@ -297,6 +303,8 @@ def plot_cdf(var       : InVar | OutVar,
     ----------
     var : monaco.mc_var.InVar | monaco.mc_var.OutVar
         The variable to plot.
+    cases : None | int | Iterable[int], default: None
+        The cases to plot. If None, then all cases are plotted.
     highlight_cases : None | int | Iterable[int], default: []
         The cases to highlight. If [], then no cases are highlighted.
     orientation : monaco.mc_enums.PlotOrientation, default: 'vertical'
@@ -314,7 +322,7 @@ def plot_cdf(var       : InVar | OutVar,
         fig is the figure handle for the plot.
         ax is the axes handle for the plot.
     """
-    return plot_hist(var=var, highlight_cases=highlight_cases, cumulative=True,
+    return plot_hist(var=var, cases=cases, highlight_cases=highlight_cases, cumulative=True,
                      orientation=orientation, rug_plot=rug_plot, ax=ax, title=title)
 
 

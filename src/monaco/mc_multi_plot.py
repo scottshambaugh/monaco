@@ -142,10 +142,10 @@ def multi_plot_2d_scatter_hist(varx     : InVar | OutVar,
     ax2 = fig.add_subplot(gs[0:3, 0])
     ax3 = fig.add_subplot(gs[0:3, 1:4], sharex=ax1, sharey=ax2)
 
-    plot_hist(varx, highlight_cases=highlight_cases,
+    plot_hist(varx, cases=cases, highlight_cases=highlight_cases,
               cumulative=cumulative, rug_plot=False,
               ax=ax1, title='')
-    plot_hist(vary, highlight_cases=highlight_cases,
+    plot_hist(vary, cases=cases, highlight_cases=highlight_cases,
               cumulative=cumulative, rug_plot=False,
               ax=ax2, title='',
               orientation=PlotOrientation.HORIZONTAL)
@@ -221,14 +221,14 @@ def multi_plot_2d_scatter_grid(vars     : list[InVar | OutVar],
         for j in range(nvars):
             ax = axs[i][j]
             if i == j:
-                plot_hist(vars[i], highlight_cases=highlight_cases,
-                             rug_plot=False, ax=ax, title='', cumulative=cumulative)
+                plot_hist(vars[i], cases=cases, highlight_cases=highlight_cases,
+                          rug_plot=False, ax=ax, title='', cumulative=cumulative)
             else:
                 ax.get_shared_y_axes().join(*row_scatter_axs)  # Don't link the histogram y axis
                 plot_2d_scatter(vars[j], vars[i],
-                                   cases=cases, highlight_cases=highlight_cases,
-                                   rug_plot=rug_plot, cov_plot=cov_plot, cov_p=cov_p,
-                                   ax=ax, title='')
+                                cases=cases, highlight_cases=highlight_cases,
+                                rug_plot=rug_plot, cov_plot=cov_plot, cov_p=cov_p,
+                                ax=ax, title='')
 
             ax.set_xlabel('')
             ax.set_ylabel('')
