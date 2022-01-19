@@ -1,7 +1,8 @@
 # test_mc_plot.py
 
 import pytest
-from monaco.mc_plot import get_cases
+from monaco.mc_plot import get_cases, manage_invar_space
+from monaco.mc_enums import InVarSpace
 
 @pytest.mark.parametrize("ncases, cases, ans", [
     (3,   None, (0, 1, 2)),
@@ -11,6 +12,13 @@ from monaco.mc_plot import get_cases
 ])
 def test_get_cases(ncases, cases, ans):
     assert get_cases(ncases=ncases, cases=cases) == pytest.approx(ans)
+
+
+def test_manage_invar_space():
+    assert manage_invar_space(invar_space=InVarSpace.NUMS, nvars=2) == ['nums', 'nums']
+    assert manage_invar_space(invar_space=['pcts', 'nums'], nvars=2) == ['pcts', 'nums']
+    with pytest.raises(ValueError, match='expected length'):
+        manage_invar_space(invar_space=['pcts', 'nums'], nvars=3)
 
 
 ### Plot Testing ###
@@ -50,7 +58,7 @@ def plot_testing():
     f, (ax1, ax2) = plt.subplots(2, 1)
     plot_hist(invars['randint'], ax=ax1, orientation='horizontal')        # plot_hist
     plot_cdf(invars['randint'], ax=ax2)                                   # plot_cdf
-    plot(invars['norm'], title='norm')                                    # plot_hist
+    plot(invars['norm'], title='norm', invar_space=InVarSpace.PCTS)       # plot_hist
     plot_hist(outvars['test'], orientation='horizontal', rug_plot=False)  # plot_hist
     plot_cdf(invars['norm'], orientation='horizontal')                    # plot_cdf
     plot_cdf(outvars['test'])                                             # plot_cdf

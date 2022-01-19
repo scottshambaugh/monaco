@@ -258,8 +258,8 @@ class InVar(Var):
             self.nums.append(np.array(self.getDistMedian()))
 
         pcts = sampling(ndraws=self.ndraws, method=self.samplemethod,
-                           ninvar=self.ninvar, ninvar_max=ninvar_max,
-                           seed=self.seed)
+                        ninvar=self.ninvar, ninvar_max=ninvar_max,
+                        seed=self.seed)
         self.pcts.extend(pcts)
         self.nums.extend([np.array(x) for x in dist.ppf(pcts)])
 
@@ -490,7 +490,7 @@ class OutVar(Var):
         val = None
         if self.firstcaseismedian:
             val = OutVal(name=self.name, ncase=0, val=self.vals[0],
-                           valmap=self.valmap, ismedian=True)
+                         valmap=self.valmap, ismedian=True)
         return val
 
 

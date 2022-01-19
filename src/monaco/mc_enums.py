@@ -86,3 +86,11 @@ class PlotOrientation(str, Enum):
     """
     VERTICAL   = 'vertical'
     HORIZONTAL = 'horizontal'
+
+
+class InVarSpace(str, Enum):
+    """
+    Enum for whether to plot invars in number or percentile space.
+    """
+    NUMS = 'nums'
+    PCTS = 'pcts'

@@ -6,7 +6,7 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from monaco.mc_plot import plot_hist, plot_2d_scatter
 from monaco.mc_var import InVar, OutVar
-from monaco.mc_enums import PlotOrientation
+from monaco.mc_enums import PlotOrientation, InVarSpace
 from monaco.helper_functions import empty_list
 from typing import Optional, Iterable
 
@@ -17,6 +17,7 @@ def multi_plot(vars   : list[InVar | OutVar],
                rug_plot : bool   = True,
                cov_plot : bool   = True,
                cov_p    : None | float | Iterable[float] = None,
+               invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
                fig      : Figure = None,
                title    : str    = '',
                ) -> tuple[Figure, tuple[Axes, ...]]:
@@ -38,6 +39,9 @@ def multi_plot(vars   : list[InVar | OutVar],
         level.
     cov_p : None | float | Iterable[float], default: None
         The gaussian percentiles for the covariance plot.
+    invar_space : monaco.InVarSpace | Iterable[InVarSpace], default: 'nums'
+        The space to plot invars in, either 'nums' or 'pcts'. If an iterable,
+        specifies this individually for each of varx, vary, and varz.
     fig : matplotlib.figure.Figure, default: None
         The figure handle to plot in. If None, a new figure is created.
     title : str, default: ''
@@ -68,6 +72,7 @@ def multi_plot(vars   : list[InVar | OutVar],
                                                   rug_plot=rug_plot,
                                                   cov_plot=cov_plot, cov_p=cov_p,
                                                   cumulative=False,
+                                                  invar_space=invar_space,
                                                   fig=fig, title=title)
         else:
             raise ValueError( 'Invalid variable dimensions: ' +
@@ -82,6 +87,7 @@ def multi_plot(vars   : list[InVar | OutVar],
                                               rug_plot=rug_plot,
                                               cov_plot=cov_plot, cov_p=cov_p,
                                               cumulative=False,
+                                              invar_space=invar_space,
                                               fig=fig, title=title)
 
     return fig, axs
@@ -96,6 +102,7 @@ def multi_plot_2d_scatter_hist(varx     : InVar | OutVar,
                                cov_plot   : bool   = True,
                                cov_p      : None | float | Iterable[float] = None,
                                cumulative : bool   = False,
+                               invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
                                fig        : Figure = None,
                                title      : str    = '',
                                ) -> tuple[Figure, tuple[Axes, ...]]:
@@ -122,6 +129,9 @@ def multi_plot_2d_scatter_hist(varx     : InVar | OutVar,
         The gaussian percentiles for the covariance plot.
     cumulative : bool, default: False
         Whether to plot the histograms as cumulative distribution functions.
+    invar_space : monaco.InVarSpace | Iterable[InVarSpace], default: 'nums'
+        The space to plot invars in, either 'nums' or 'pcts'. If an iterable,
+        specifies this individually for each of varx, vary, and varz.
     fig : matplotlib.figure.Figure, default: None
         The figure handle to plot in. If None, a new figure is created.
     title : str, default: ''
@@ -143,16 +153,17 @@ def multi_plot_2d_scatter_hist(varx     : InVar | OutVar,
     ax3 = fig.add_subplot(gs[0:3, 1:4], sharex=ax1, sharey=ax2)
 
     plot_hist(varx, cases=cases, highlight_cases=highlight_cases,
-              cumulative=cumulative, rug_plot=False,
+              cumulative=cumulative, rug_plot=False, invar_space=invar_space,
               ax=ax1, title='')
     plot_hist(vary, cases=cases, highlight_cases=highlight_cases,
-              cumulative=cumulative, rug_plot=False,
+              cumulative=cumulative, rug_plot=False, invar_space=invar_space,
               ax=ax2, title='',
               orientation=PlotOrientation.HORIZONTAL)
     plot_2d_scatter(varx, vary,
                     cases=cases, highlight_cases=highlight_cases,
                     rug_plot=rug_plot,
                     cov_plot=cov_plot, cov_p=cov_p,
+                    invar_space=invar_space,
                     ax=ax3, title='')
 
     ax1.set_ylabel('')
@@ -175,6 +186,7 @@ def multi_plot_2d_scatter_grid(vars     : list[InVar | OutVar],
                                cov_plot   : bool   = True,
                                cov_p      : None | float | Iterable[float] = None,
                                cumulative : bool   = False,
+                               invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
                                fig        : Figure = None,
                                title      : str    = '',
                                ) -> tuple[Figure, tuple[Axes, ...]]:
@@ -200,6 +212,9 @@ def multi_plot_2d_scatter_grid(vars     : list[InVar | OutVar],
         The gaussian percentiles for the covariance plot.
     cumulative : bool, default: False
         Whether to plot the histograms as cumulative distribution functions.
+    invar_space : monaco.InVarSpace | Iterable[InVarSpace], default: 'nums'
+        The space to plot invars in, either 'nums' or 'pcts'. If an iterable,
+        specifies this individually for each of varx, vary, and varz.
     fig : matplotlib.figure.Figure, default: None
         The figure handle to plot in. If None, a new figure is created.
     title : str, default: ''
@@ -222,12 +237,14 @@ def multi_plot_2d_scatter_grid(vars     : list[InVar | OutVar],
             ax = axs[i][j]
             if i == j:
                 plot_hist(vars[i], cases=cases, highlight_cases=highlight_cases,
-                          rug_plot=False, ax=ax, title='', cumulative=cumulative)
+                          cumulative=cumulative, rug_plot=False, invar_space=invar_space,
+                          ax=ax, title='')
             else:
                 ax.get_shared_y_axes().join(*row_scatter_axs)  # Don't link the histogram y axis
                 plot_2d_scatter(vars[j], vars[i],
                                 cases=cases, highlight_cases=highlight_cases,
                                 rug_plot=rug_plot, cov_plot=cov_plot, cov_p=cov_p,
+                                invar_space=invar_space,
                                 ax=ax, title='')
 
             ax.set_xlabel('')

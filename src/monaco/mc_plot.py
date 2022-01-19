@@ -12,7 +12,7 @@ from monaco.mc_var import InVar, OutVar
 from monaco.helper_functions import get_list, slice_by_index, length, empty_list
 from monaco.gaussian_statistics import conf_ellipsoid_sig2pct
 from monaco.integration_statistics import integration_error
-from monaco.mc_enums import SampleMethod, PlotOrientation
+from monaco.mc_enums import SampleMethod, PlotOrientation, InVarSpace
 from copy import copy
 from typing import Optional, Iterable
 
@@ -23,11 +23,12 @@ def plot(varx   : InVar | OutVar,
          varz   : InVar | OutVar = None,
          cases           : None | int | Iterable[int] = None,
          highlight_cases : None | int | Iterable[int] = empty_list(),
-         rug_plot : bool           = False,
-         cov_plot : bool           = False,
-         cov_p    : None | float | Iterable[float] = None,
-         ax       : Optional[Axes] = None,
-         title    : str            = '',
+         rug_plot    : bool           = False,
+         cov_plot    : bool           = False,
+         cov_p       : None | float | Iterable[float] = None,
+         invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
+         ax          : Optional[Axes] = None,
+         title       : str            = '',
          ) -> tuple[Figure, Axes]:
     """
     Umbrella function to make single plots of a single Monte-Carlo variable or
@@ -52,6 +53,9 @@ def plot(varx   : InVar | OutVar,
         level.
     cov_p : None | float | Iterable[float], default: None
         The gaussian percentiles for the covariance plot.
+    invar_space : monaco.InVarSpace | Iterable[InVarSpace], default: 'nums'
+        The space to plot invars in, either 'nums' or 'pcts'. If an iterable,
+        specifies this individually for each of varx, vary, and varz.
     ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
     title : str, default: ''
@@ -92,16 +96,15 @@ def plot(varx   : InVar | OutVar,
     if vary is None and varz is None:
         if varx.maxdim == 0:
             fig, ax = plot_hist(var=varx, cases=cases, highlight_cases=highlight_cases,
-                                rug_plot=rug_plot, ax=ax, title=title)
+                                rug_plot=rug_plot, invar_space=invar_space, ax=ax, title=title)
         else:
             vary = copy(varx)
-            varx = copy(varx)   # don't overwrite the underlying object
-            varx.name = 'Simulation Steps'
             steps = np.arange(max(len(num) for num in vary.nums))
-            varx.nums = [steps for _ in range(varx.ncases)]
-            varx.nummap = None
-            fig, ax = plot_2d_line(varx=varx, vary=vary,
+            vals = [steps for _ in range(varx.ncases)]
+            varsteps = OutVar(name='Simulation Steps', vals=vals)
+            fig, ax = plot_2d_line(varx=varsteps, vary=vary,
                                    highlight_cases=highlight_cases,
+                                   invar_space=invar_space,
                                    ax=ax, title=title)
 
     # Two Variable Plots
@@ -110,12 +113,14 @@ def plot(varx   : InVar | OutVar,
             fig, ax = plot_2d_scatter(varx=varx, vary=vary,
                                       cases=cases, highlight_cases=highlight_cases,
                                       rug_plot=rug_plot, cov_plot=cov_plot, cov_p=cov_p,
+                                      invar_space=invar_space,
                                       ax=ax, title=title)
 
         elif varx.maxdim == 1 and vary.maxdim == 1:
             fig, ax = plot_2d_line(varx=varx, vary=vary,
-                                      cases=cases, highlight_cases=highlight_cases,
-                                      ax=ax, title=title)
+                                   cases=cases, highlight_cases=highlight_cases,
+                                   invar_space=invar_space,
+                                   ax=ax, title=title)
         else:
             raise ValueError( 'Variables have inconsistent dimensions: ' +
                              f'{varx.name}:{varx.maxdim}, ' +
@@ -126,11 +131,13 @@ def plot(varx   : InVar | OutVar,
         if varx.maxdim == 0 and vary.maxdim == 0 and varz.maxdim == 0:
             fig, ax = plot_3d_scatter(varx=varx, vary=vary, varz=varz,
                                       cases=cases, highlight_cases=highlight_cases,
+                                      invar_space=invar_space,
                                       ax=ax, title=title)
 
         elif varx.maxdim == 1 and vary.maxdim == 1 and varz.maxdim == 1:
             fig, ax = plot_3d_line(varx=varx, vary=vary, varz=varz,
                                    cases=cases, highlight_cases=highlight_cases,
+                                   invar_space=invar_space,
                                    ax=ax, title=title)
 
         else:
@@ -149,6 +156,7 @@ def plot_hist(var         : InVar | OutVar,
               cumulative  : bool            = False,
               orientation : PlotOrientation = PlotOrientation.VERTICAL,
               rug_plot    : bool            = True,
+              invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
               ax          : Optional[Axes]  = None,
               title       : str             = '',
               ) -> tuple[Figure, Axes]:
@@ -169,6 +177,9 @@ def plot_hist(var         : InVar | OutVar,
         The orientation of the histogram. Either 'vertical' or 'horizontal'.
     rug_plot : bool, default: True
         Whether to plot rug marks.
+    invar_space : monaco.InVarSpace | Iterable[InVarSpace], default: 'nums'
+        The space to plot invars in, either 'nums' or 'pcts'. If an iterable,
+        specifies this individually for each of varx, vary, and varz.
     ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
     title : str, default: ''
@@ -181,11 +192,13 @@ def plot_hist(var         : InVar | OutVar,
         ax is the axes handle for the plot.
     """
     fig, ax = manage_axis(ax, is3d=False)
+    invar_space = manage_invar_space(invar_space=invar_space, nvars=1)
 
     # Histogram generation
     cases_list = get_cases(var.ncases, cases)
     highlight_cases_list = get_cases(var.ncases, highlight_cases)
-    nums = slice_by_index(var.nums, cases_list)
+    points = get_plot_points(var, invar_space[0])
+    nums = slice_by_index(points, cases_list)
     counts, bins = np.histogram(nums, bins='auto')
     binwidth = mode(np.diff(bins))[0]
     bins = np.concatenate((bins - binwidth/2, bins[-1] + binwidth/2))
@@ -239,15 +252,15 @@ def plot_hist(var         : InVar | OutVar,
         ylabeltext = 'Probability Density'
 
     if rug_plot:
-        plot_rug_marks(ax, orientation=orientation, nums=np.array(var.nums))
+        plot_rug_marks(ax, orientation=orientation, nums=np.array(points))
 
     xlim = ax.get_xlim()
     ylim = ax.get_ylim()
 
-    # Highlight cases and MCVarStats
+    # Highlight cases and VarStats
     if orientation == PlotOrientation.VERTICAL:
         for i in highlight_cases_list:
-            plt.plot([var.nums[i], var.nums[i]],
+            plt.plot([points[i], points[i]],
                      [ylim[0], ylim[0] + (ylim[1] - ylim[0])*0.20],
                      linestyle='-', linewidth=1, color='red')
         for varstat in var.varstats:
@@ -268,7 +281,7 @@ def plot_hist(var         : InVar | OutVar,
     elif orientation == PlotOrientation.HORIZONTAL:
         for i in highlight_cases_list:
             plt.plot([xlim[0], xlim[0] + (xlim[1] - xlim[0])*0.20],
-                     [var.nums[i], var.nums[i]],
+                     [points[i], points[i]],
                      linestyle='-', linewidth=1, color='red')
         for varstat in var.varstats:
             nums = get_list(varstat.nums)
@@ -293,6 +306,7 @@ def plot_cdf(var       : InVar | OutVar,
              highlight_cases : None | int | Iterable[int] = empty_list(),
              orientation : PlotOrientation = PlotOrientation.VERTICAL,
              rug_plot    : bool            = True,
+             invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
              ax          : Optional[Axes]  = None,
              title       : str             = '',
              ) -> tuple[Figure, Axes]:
@@ -311,6 +325,9 @@ def plot_cdf(var       : InVar | OutVar,
         The orientation of the histogram. Either 'vertical' or 'horizontal'.
     rug_plot : bool, default: True
         Whether to plot rug marks.
+    invar_space : monaco.InVarSpace | Iterable[InVarSpace], default: 'nums'
+        The space to plot invars in, either 'nums' or 'pcts'. If an iterable,
+        specifies this individually for each of varx, vary, and varz.
     ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
     title : str, default: ''
@@ -323,7 +340,8 @@ def plot_cdf(var       : InVar | OutVar,
         ax is the axes handle for the plot.
     """
     return plot_hist(var=var, cases=cases, highlight_cases=highlight_cases, cumulative=True,
-                     orientation=orientation, rug_plot=rug_plot, ax=ax, title=title)
+                     orientation=orientation, rug_plot=rug_plot, invar_space=invar_space,
+                     ax=ax, title=title)
 
 
 
@@ -334,6 +352,7 @@ def plot_2d_scatter(varx   : InVar | OutVar,
                     rug_plot : bool           = False,
                     cov_plot : bool           = False,
                     cov_p    : None | float | Iterable[float] = None,
+                    invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
                     ax       : Optional[Axes] = None,
                     title    : str            = '',
                     ) -> tuple[Figure, Axes]:
@@ -357,6 +376,9 @@ def plot_2d_scatter(varx   : InVar | OutVar,
         level.
     cov_p : None | float | Iterable[float], default: None
         The gaussian percentiles for the covariance plot.
+    invar_space : monaco.InVarSpace | Iterable[InVarSpace], default: 'nums'
+        The space to plot invars in, either 'nums' or 'pcts'. If an iterable,
+        specifies this individually for each of varx, vary, and varz.
     ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
     title : str, default: ''
@@ -369,17 +391,21 @@ def plot_2d_scatter(varx   : InVar | OutVar,
         ax is the axes handle for the plot.
     """
     fig, ax = manage_axis(ax, is3d=False)
+    invar_space = manage_invar_space(invar_space=invar_space, nvars=2)
 
     cases_list = get_cases(varx.ncases, cases)
     highlight_cases_list = get_cases(varx.ncases, highlight_cases)
     reg_cases = set(cases_list) - set(highlight_cases_list)
+    varx_points = get_plot_points(varx, invar_space[0])
+    vary_points = get_plot_points(vary, invar_space[1])
+
     if reg_cases:
-        plt.scatter(slice_by_index(varx.nums, reg_cases),
-                    slice_by_index(vary.nums, reg_cases),
+        plt.scatter(slice_by_index(varx_points, reg_cases),
+                    slice_by_index(vary_points, reg_cases),
                     edgecolors=None, c='k', alpha=0.4)
     if highlight_cases_list:
-        plt.scatter(slice_by_index(varx.nums, highlight_cases_list),
-                    slice_by_index(vary.nums, highlight_cases_list),
+        plt.scatter(slice_by_index(varx_points, highlight_cases_list),
+                    slice_by_index(vary_points, highlight_cases_list),
                     edgecolors=None, c='r', alpha=1)
 
     if cov_plot:
@@ -392,9 +418,9 @@ def plot_2d_scatter(varx   : InVar | OutVar,
     if rug_plot:
         all_cases = set(cases_list) | set(highlight_cases_list)
         plot_rug_marks(ax, orientation=PlotOrientation.VERTICAL,
-                       nums=slice_by_index(varx.nums, all_cases))
+                       nums=slice_by_index(varx_points, all_cases))
         plot_rug_marks(ax, orientation=PlotOrientation.HORIZONTAL,
-                       nums=slice_by_index(vary.nums, all_cases))
+                       nums=slice_by_index(vary_points, all_cases))
 
     plt.xlabel(varx.name)
     plt.ylabel(vary.name)
@@ -409,6 +435,7 @@ def plot_2d_line(varx : InVar | OutVar,
                  vary : InVar | OutVar,
                  cases           : None | int | Iterable[int] = None,
                  highlight_cases : None | int | Iterable[int] = empty_list(),
+                 invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
                  ax     : Optional[Axes] = None,
                  title  : str            = '',
                  ) -> tuple[Figure, Axes]:
@@ -425,6 +452,9 @@ def plot_2d_line(varx : InVar | OutVar,
         The cases to plot. If None, then all cases are highlighted.
     highlight_cases : None | int | Iterable[int], default: []
         The cases to highlight. If [], then no cases are highlighted.
+    invar_space : monaco.InVarSpace | Iterable[InVarSpace], default: 'nums'
+        The space to plot invars in, either 'nums' or 'pcts'. If an iterable,
+        specifies this individually for each of varx, vary, and varz.
     ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
     title : str, default: ''
@@ -437,22 +467,25 @@ def plot_2d_line(varx : InVar | OutVar,
         ax is the axes handle for the plot.
     """
     fig, ax = manage_axis(ax, is3d=False)
+    invar_space = manage_invar_space(invar_space=invar_space, nvars=2)
 
     cases_list = get_cases(varx.ncases, cases)
     highlight_cases_list = get_cases(varx.ncases, highlight_cases)
     reg_cases = set(cases_list) - set(highlight_cases_list)
+    varx_points = get_plot_points(varx, invar_space[0])
+    vary_points = get_plot_points(vary, invar_space[1])
     for i in reg_cases:
-        plt.plot(varx.nums[i], vary.nums[i], linestyle='-', color='black', alpha=0.2)
+        plt.plot(varx_points[i], vary_points[i], linestyle='-', color='black', alpha=0.2)
     for i in highlight_cases_list:
-        plt.plot(varx.nums[i], vary.nums[i], linestyle='-', color='red', alpha=1)
+        plt.plot(varx_points[i], vary_points[i], linestyle='-', color='red', alpha=1)
 
     for varstat in vary.varstats:
         if length(varstat.nums[0]) == 1:
-            plt.plot(varx.nums[0], varstat.nums[:], linestyle='-', color='blue')
+            plt.plot(varx_points[0], varstat.nums[:], linestyle='-', color='blue')
         elif length(varstat.nums[0]) == 3:
-            plt.plot(varx.nums[0], varstat.nums[:, 1], linestyle='-', color='blue')
+            plt.plot(varx_points[0], varstat.nums[:, 1], linestyle='-', color='blue')
         if length(varstat.nums[0]) in (2, 3):
-            ax.fill_between(varx.nums[0], varstat.nums[:, 0], varstat.nums[:, -1],
+            ax.fill_between(varx_points[0], varstat.nums[:, 0], varstat.nums[:, -1],
                             color='blue', alpha=0.3)
 
     plt.xlabel(varx.name)
@@ -469,6 +502,7 @@ def plot_3d_scatter(varx : InVar | OutVar,
                     varz : InVar | OutVar,
                     cases           : None | int | Iterable[int] = None,
                     highlight_cases : None | int | Iterable[int] = empty_list(),
+                    invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
                     ax     : Optional[Axes] = None,
                     title  : str            = '',
                     ) -> tuple[Figure, Axes]:
@@ -487,6 +521,9 @@ def plot_3d_scatter(varx : InVar | OutVar,
         The cases to plot. If None, then all cases are highlighted.
     highlight_cases : None | int | Iterable[int], default: []
         The cases to highlight. If [], then no cases are highlighted.
+    invar_space : monaco.InVarSpace | Iterable[InVarSpace], default: 'nums'
+        The space to plot invars in, either 'nums' or 'pcts'. If an iterable,
+        specifies this individually for each of varx, vary, and varz.
     ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
     title : str, default: ''
@@ -499,19 +536,23 @@ def plot_3d_scatter(varx : InVar | OutVar,
         ax is the axes handle for the plot.
     """
     fig, ax = manage_axis(ax, is3d=True)
+    invar_space = manage_invar_space(invar_space=invar_space, nvars=3)
 
     cases_list = get_cases(varx.ncases, cases)
     highlight_cases_list = get_cases(varx.ncases, highlight_cases)
     reg_cases = set(cases_list) - set(highlight_cases_list)
+    varx_points = get_plot_points(varx, invar_space[0])
+    vary_points = get_plot_points(vary, invar_space[1])
+    varz_points = get_plot_points(varz, invar_space[2])
     if reg_cases:
-        ax.scatter(slice_by_index(varx.nums, reg_cases),
-                   slice_by_index(vary.nums, reg_cases),
-                   slice_by_index(varz.nums, reg_cases),
+        ax.scatter(slice_by_index(varx_points, reg_cases),
+                   slice_by_index(vary_points, reg_cases),
+                   slice_by_index(varz_points, reg_cases),
                    edgecolors=None, c='k', alpha=0.4)
     if highlight_cases_list:
-        ax.scatter(slice_by_index(varx.nums, highlight_cases_list),
-                   slice_by_index(vary.nums, highlight_cases_list),
-                   slice_by_index(varz.nums, highlight_cases_list),
+        ax.scatter(slice_by_index(varx_points, highlight_cases_list),
+                   slice_by_index(vary_points, highlight_cases_list),
+                   slice_by_index(varz_points, highlight_cases_list),
                    edgecolors=None, c='r', alpha=1)
 
     ax.set_xlabel(varx.name)
@@ -529,6 +570,7 @@ def plot_3d_line(varx : InVar | OutVar,
                  varz : InVar | OutVar,
                  cases           : None | int | Iterable[int] = None,
                  highlight_cases : None | int | Iterable[int] = empty_list(),
+                 invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
                  ax     : Optional[Axes] = None,
                  title  : str            = '',
                  ) -> tuple[Figure, Axes]:
@@ -547,6 +589,9 @@ def plot_3d_line(varx : InVar | OutVar,
         The cases to plot. If None, then all cases are highlighted.
     highlight_cases : None | int | Iterable[int], default: []
         The cases to highlight. If [], then no cases are highlighted.
+    invar_space : monaco.InVarSpace | Iterable[InVarSpace], default: 'nums'
+        The space to plot invars in, either 'nums' or 'pcts'. If an iterable,
+        specifies this individually for each of varx, vary, and varz.
     ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
     title : str, default: ''
@@ -559,15 +604,19 @@ def plot_3d_line(varx : InVar | OutVar,
         ax is the axes handle for the plot.
     """
     fig, ax = manage_axis(ax, is3d=True)
+    invar_space = manage_invar_space(invar_space=invar_space, nvars=3)
 
     cases_list = get_cases(varx.ncases, cases)
     highlight_cases_list = get_cases(varx.ncases, highlight_cases)
     reg_cases = set(cases_list) - set(highlight_cases_list)
+    varx_points = get_plot_points(varx, invar_space[0])
+    vary_points = get_plot_points(vary, invar_space[1])
+    varz_points = get_plot_points(varz, invar_space[2])
     for i in reg_cases:
-        ax.plot(varx.nums[i], vary.nums[i], varz.nums[i],
+        ax.plot(varx_points[i], vary_points[i], varz_points[i],
                 linestyle='-', color='black', alpha=0.3)
     for i in highlight_cases_list:
-        ax.plot(varx.nums[i], vary.nums[i], varz.nums[i],
+        ax.plot(varx_points[i], vary_points[i], varz_points[i],
                 linestyle='-', color='red', alpha=1)
 
     ax.set_xlabel(varx.name)
@@ -957,3 +1006,62 @@ def get_cases(ncases : int,
         cases = list(range(ncases))
     cases_list = get_list(cases)
     return cases_list
+
+
+
+def manage_invar_space(invar_space : InVarSpace | Iterable[InVarSpace],
+                       nvars : int,
+                       ) -> list[InVarSpace]:
+    '''
+    Parse the `invarspace` input for plotting functions. If already an iterable
+    of the right length, passes through. If a single value, returns a list of
+    the invarspace of the right length.
+
+    Parameters
+    ----------
+    invar_space : monaco.InVarSpace | Iterable[InVarSpace]
+        The space to plot invars in, either 'nums' or 'pcts'. If an iterable,
+        specifies this individually for each of varx, vary, and varz.
+    nvars : int
+        The length of the list to generate.
+
+    Returns
+    -------
+    invar_space_list : list[InVarSpace]
+        A list of length `nvars` for the desired InVarSpace's.
+    '''
+    if isinstance(invar_space, InVarSpace):
+        invar_space = [invar_space for _ in range(nvars)]
+
+    if len(invar_space) != nvars:
+        raise ValueError(f'Argument invar_space = {invar_space} expected length {nvars}')
+    invar_space_list = list(invar_space)
+
+    return invar_space_list
+
+
+
+def get_plot_points(var : InVar | OutVar,
+                    invar_space : InVarSpace,
+                    ) -> list[float]:
+    '''
+    Get the points to plot based on the invar_space. Returns var.nums, unless
+    var is an InVar and invar_space is 'pcts' in which case it returns
+    var.pcts.
+
+    Parameters
+    ----------
+    nvars : InVar | OutVar
+        The target variable.
+    invar_space : monaco.InVarSpace
+        The space to plot the invars in.
+
+    Returns
+    -------
+    plot_points : list[float]
+        The points to plot.
+    '''
+    plot_points = var.nums
+    if isinstance(var, InVar) and invar_space == InVarSpace.PCTS:
+        plot_points = var.pcts
+    return plot_points

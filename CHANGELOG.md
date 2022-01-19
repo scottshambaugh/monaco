@@ -27,6 +27,7 @@
 * Experimental D-VARS sensitivity analysis
 * Sim.scalarOutVars() dict and Sim.noutvars
 * You can specify a custom varstat
+* You can plot plot in percentile space rather than nums
 ### Changed    
 * Removed mc_ and MC prefixes from all functions and classes
 ### Removed    
