@@ -25,8 +25,8 @@ class VarStat:
     ----------
     var : monaco.mc_var.Var
         The variable to generate statistics for.
-    stattype : monaco.mc_enums.VarStatType
-        The type of variable statistic to generate.
+    stat : monaco.mc_enums.VarStatType | Callable
+        The statistic to generate. Can be custom.
     statkwargs : dict[str:Any]
         The keyword arguments for the variable statistic.
     name : str
@@ -41,7 +41,7 @@ class VarStat:
 
     Notes
     -----
-    These are the valid stattypes with their statkwargs
+    These are the valid stats with their statkwargs
 
     max()
         No kwargs
@@ -83,7 +83,7 @@ class VarStat:
     """
     def __init__(self,
                  var         : Var,
-                 stattype    : VarStatType,
+                 stat        : VarStatType | Callable,
                  statkwargs  : dict[str, Any] = None,
                  bootstrap   : bool = False,
                  bootstrap_k : int = 10,
@@ -93,7 +93,7 @@ class VarStat:
                  ):
 
         self.var = var
-        self.stattype = stattype
+        self.stat = stat
         if statkwargs is None:
             statkwargs = dict()
         self.statkwargs = statkwargs
@@ -106,68 +106,41 @@ class VarStat:
         self.bootstrap_k = bootstrap_k
         self.conf = conf
 
-        if stattype == VarStatType.MAX:
-            self.genStatsMax()
-        elif stattype == VarStatType.MIN:
-            self.genStatsMin()
-        elif stattype == VarStatType.MEDIAN:
-            self.genStatsMedian()
-        elif stattype == VarStatType.MEAN:
-            self.genStatsMean()
-        elif stattype == VarStatType.GEOMEAN:
-            self.genStatsGeoMean()
-        elif stattype == VarStatType.MODE:
-            self.genStatsMode()
-        elif stattype == VarStatType.SIGMA:
+        if isinstance(stat, Callable):
+            self.setName(str(stat))
+            self.genStatsFunction(fcn=stat, fcnkwargs=statkwargs)
+        elif stat == VarStatType.MAX:
+            self.setName('Max')
+            self.genStatsFunction(fcn=np.max)
+        elif stat == VarStatType.MIN:
+            self.setName('Min')
+            self.genStatsFunction(fcn=np.min)
+        elif stat == VarStatType.MEDIAN:
+            self.setName('Median')
+            self.genStatsFunction(fcn=np.median)
+        elif stat == VarStatType.MEAN:
+            self.setName('Mean')
+            self.genStatsFunction(fcn=np.mean)
+        elif stat == VarStatType.GEOMEAN:
+            self.setName('Geometric Mean')
+            self.genStatsFunction(fcn=gmean)
+        elif stat == VarStatType.MODE:
+            self.setName('Mode')
+            self.genStatsFunction(fcn=mode)
+        elif stat == VarStatType.SIGMA:
             self.genStatsSigma()
-        elif stattype == VarStatType.GAUSSIANP:
+        elif stat == VarStatType.GAUSSIANP:
             self.genStatsGaussianP()
-        elif stattype == VarStatType.ORDERSTATTI:
+        elif stat == VarStatType.ORDERSTATTI:
             self.genStatsOrderStatTI()
-        elif stattype == VarStatType.ORDERSTATP:
+        elif stat == VarStatType.ORDERSTATP:
             self.genStatsOrderStatP()
         else:
-            raise ValueError(f'stattype={self.stattype} must be one of the following: ' +
+            raise ValueError(f'stat={stat} must be callable, or one of the following: ' +
                              f'{VarStatType.MAX}, {VarStatType.MIN}, {VarStatType.MEDIAN}, ' +
                              f'{VarStatType.MEAN}, {VarStatType.GEOMEAN}, {VarStatType.MODE}, ' +
                              f'{VarStatType.SIGMA}, {VarStatType.GAUSSIANP}, ' +
                              f'{VarStatType.ORDERSTATTI}, {VarStatType.ORDERSTATP}')
-
-
-    def genStatsMax(self) -> None:
-        """Get the max value of the variable."""
-        self.setName('Max')
-        self.genStatsFunction(fcn=np.max)
-
-
-    def genStatsMin(self) -> None:
-        """Get the min value of the variable."""
-        self.setName('Min')
-        self.genStatsFunction(fcn=np.min)
-
-
-    def genStatsMedian(self) -> None:
-        """Get the median value of the variable."""
-        self.setName('Median')
-        self.genStatsFunction(fcn=np.median)
-
-
-    def genStatsMean(self) -> None:
-        """Get the mean value of the variable."""
-        self.setName('Mean')
-        self.genStatsFunction(fcn=np.mean)
-
-
-    def genStatsGeoMean(self) -> None:
-        """Get the geometric mean value of the variable."""
-        self.setName('Geometric Mean')
-        self.genStatsFunction(fcn=gmean)
-
-
-    def genStatsMode(self) -> None:
-        """Get the modal value of the variable."""
-        self.setName('Mode')
-        self.genStatsFunction(fcn=mode)
 
 
     def genStatsSigma(self) -> None:
@@ -176,7 +149,7 @@ class VarStat:
         a gaussian distribution.
         """
         if 'sig' not in self.statkwargs:
-            raise ValueError(f'{self.stattype} requires the kwarg ''sig''')
+            raise ValueError(f'{self.stat} requires the kwarg ''sig''')
         if 'bound' not in self.statkwargs:
             self.bound = StatBound.TWOSIDED
         else:
@@ -194,7 +167,7 @@ class VarStat:
         assuming a gaussian distribution.
         """
         if 'p' not in self.statkwargs:
-            raise ValueError(f'{self.stattype} requires the kwarg ''p''')
+            raise ValueError(f'{self.stat} requires the kwarg ''p''')
         if 'bound' not in self.statkwargs:
             self.bound = StatBound.TWOSIDED
         else:
@@ -428,7 +401,7 @@ class VarStat:
     def checkOrderStatsKWArgs(self) -> None:
         """Check the order statistic keyword arguments."""
         if 'p' not in self.statkwargs:
-            raise ValueError(f'{self.stattype} requires the kwarg ''p''')
+            raise ValueError(f'{self.stat} requires the kwarg ''p''')
         else:
             self.p = self.statkwargs['p']
         if 'c' not in self.statkwargs:

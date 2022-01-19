@@ -27,10 +27,10 @@ def rocket_example_monte_carlo_sim():
 
     sim.runSim()
 
-    sim.outvars['Distance [m]'].addVarStat(stattype='gaussianP',
-                                             statkwargs={'p': 0.90, 'c': 0.50})
-    sim.outvars['Distance [m]'].addVarStat(stattype='gaussianP',
-                                             statkwargs={'p': 0.10, 'c': 0.50})
+    sim.outvars['Distance [m]'].addVarStat(stat='gaussianP',
+                                           statkwargs={'p': 0.90, 'c': 0.50})
+    sim.outvars['Distance [m]'].addVarStat(stat='gaussianP',
+                                           statkwargs={'p': 0.10, 'c': 0.50})
     # print(sim.outvars['Landing Dist [m]'].stats())
     mc.plot(sim.outvars['Time [s]'], sim.outvars['Distance [m]'], highlight_cases=0)
     # mc.plot(sim.outvars['Time [s]'], sim.outvars['|Velocity| [m/s]'], highlight_cases=0)

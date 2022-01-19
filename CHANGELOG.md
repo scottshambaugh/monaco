@@ -26,6 +26,7 @@
 ### Added    
 * Experimental D-VARS sensitivity analysis
 * Sim.scalarOutVars() dict and Sim.noutvars
+* You can specify a custom varstat
 ### Changed    
 * Removed mc_ and MC prefixes from all functions and classes
 ### Removed    

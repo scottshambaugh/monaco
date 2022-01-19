@@ -44,10 +44,10 @@ def election_example_monte_carlo_sim():
 
     sim.runSim()
 
-    sim.outvars['Dem EVs'].addVarStat(stattype='orderstatP',
-                                        statkwargs={'p': 0.5, 'bound': 'nearest'})
-    sim.outvars['Dem EVs'].addVarStat(stattype='orderstatTI',
-                                        statkwargs={'p': 0.75, 'c': 0.90, 'bound': '2-sided'})
+    sim.outvars['Dem EVs'].addVarStat(stat='orderstatP',
+                                      statkwargs={'p': 0.5, 'bound': 'nearest'})
+    sim.outvars['Dem EVs'].addVarStat(stat='orderstatTI',
+                                      statkwargs={'p': 0.75, 'c': 0.90, 'bound': '2-sided'})
     fig, ax = mc.plot(sim.outvars['Dem EVs'])
     ax.set_autoscale_on(False)
     ax.plot([270, 270], [0, 1], '--k')

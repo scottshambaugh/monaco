@@ -57,8 +57,8 @@ def test_invar_custom(invar_custom_dist):
     assert invar_custom_dist.stats().mean == pytest.approx(4.105)
 
 def test_invar_addvarstat(invar_norm_random):
-    invar_norm_random.addVarStat(stattype='orderstatTI',
-                                   statkwargs={'p': 0.75, 'c': 0.95, 'bound': '2-sided'})
+    invar_norm_random.addVarStat(stat='orderstatTI',
+                                 statkwargs={'p': 0.75, 'c': 0.95, 'bound': '2-sided'})
     assert invar_norm_random.varstats[0].vals == pytest.approx([5.10075, 14.75052273])
 
 def test_invar_getVal(invar_custom_dist):
@@ -72,9 +72,9 @@ def test_invar_getMedian(invar_lognorm_random):
 
 def test_invar_nummap():
     invar = InVar('map', ndraws=10, dist=custom_dist, distkwargs=dict(),
-                    ninvar=1, nummap={1: 'a', 5: 'e', 6: 'f'},
-                    samplemethod=SampleMethod.RANDOM, seed=invarseeds[3],
-                    firstcaseismedian=False)
+                  ninvar=1, nummap={1: 'a', 5: 'e', 6: 'f'},
+                  samplemethod=SampleMethod.RANDOM, seed=invarseeds[3],
+                  firstcaseismedian=False)
     assert invar.vals == ['f', 'e', 'f', 'f', 'a', 'e', 'e', 'a', 'e', 'e']
 
 
@@ -105,8 +105,8 @@ def outvars_split():
     outvars = dict()
     v = np.array([[1, 1], [2, 2], [3, 3]])
     outvars['test'] = OutVar('test', [v, v, v, v, v])
-    outvars['test'].addVarStat(stattype='orderstatTI',
-                                 statkwargs={'p': 0.33, 'c': 0.50, 'bound': '1-sided'})
+    outvars['test'].addVarStat(stat='orderstatTI',
+                               statkwargs={'p': 0.33, 'c': 0.50, 'bound': '1-sided'})
     outvars.update(outvars['test'].split())
     return outvars
 

@@ -10,7 +10,7 @@ from monaco.mc_enums import SampleMethod, VarStatType
 from monaco.mc_sampling import sampling
 from monaco.helper_functions import empty_list, hashable_val
 from copy import copy
-from typing import Any
+from typing import Any, Callable
 from warnings import warn
 from abc import ABC, abstractmethod
 
@@ -83,7 +83,7 @@ class Var(ABC):
 
 
     def addVarStat(self,
-                   stattype   : VarStatType,
+                   stat       : VarStatType | Callable,
                    statkwargs : dict[str, Any] = None,
                    name       : str = None,
                    ) -> None:
@@ -92,7 +92,7 @@ class Var(ABC):
 
         Parameters
         ----------
-        stattype : monaco.mc_enums.VarStatType
+        stat : monaco.mc_enums.VarStatType | Callable
             The type of variable statistic to add.
         statkwargs : dict[str, Any]
             Keyword arguments for the specified variable stastistic.
@@ -101,7 +101,7 @@ class Var(ABC):
         """
         if statkwargs is None:
             statkwargs = dict()
-        self.varstats.append(VarStat(var=self, stattype=stattype,
+        self.varstats.append(VarStat(var=self, stat=stat,
                                      statkwargs=statkwargs, name=name))
 
 
@@ -520,7 +520,7 @@ class OutVar(Var):
                                     valmap=self.valmap,
                                     firstcaseismedian=self.firstcaseismedian)
                 for varstat in self.varstats:
-                    vars[name].addVarStat(stattype=varstat.stattype,
-                                            statkwargs=varstat.statkwargs,
-                                            name=varstat.name)
+                    vars[name].addVarStat(stat=varstat.stat,
+                                          statkwargs=varstat.statkwargs,
+                                          name=varstat.name)
         return vars

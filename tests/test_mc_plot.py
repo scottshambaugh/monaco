@@ -37,9 +37,9 @@ def plot_testing():
     invars['norm'] = InVar(name='norm', ndraws=1000,
                            dist=norm, distkwargs={'loc': 10, 'scale': 4},
                            samplemethod=SampleMethod.RANDOM, seed=invarseeds[1])
-    invars['norm'].addVarStat(stattype='orderstatTI',
+    invars['norm'].addVarStat(stat='orderstatTI',
                               statkwargs={'p': 0.75, 'c': 0.50, 'bound': '2-sided'})
-    invars['norm'].addVarStat(stattype='orderstatP',
+    invars['norm'].addVarStat(stat='orderstatP',
                               statkwargs={'p': 0.5, 'c': 0.9999, 'bound': 'all'})
     invars['norm2'] = InVar(name='norm2', ndraws=1000,
                             dist=norm, distkwargs={'loc': 10, 'scale': 4},
@@ -65,10 +65,10 @@ def plot_testing():
     var1 = OutVar(name='testx', vals=[v, v, v, v, v], firstcaseismedian=True)
     var2 = OutVar(name='testy', vals=[1*v, 2*v, 0*v, -1*v, -2*v], firstcaseismedian=True)
     var3 = OutVar(name='testz', vals=[1*v, 2*v, 0*v, -1*v, -2*v], firstcaseismedian=True)
-    var2.addVarStat(stattype='sigma', statkwargs={'sig': 3})
-    var2.addVarStat(stattype='sigma', statkwargs={'sig': -3})
-    var2.addVarStat(stattype='orderstatTI', statkwargs={'p': 0.6, 'c': 0.50, 'bound': '2-sided'})
-    var2.addVarStat(stattype='mean')
+    var2.addVarStat(stat='sigma', statkwargs={'sig': 3})
+    var2.addVarStat(stat='sigma', statkwargs={'sig': -3})
+    var2.addVarStat(stat='orderstatTI', statkwargs={'p': 0.6, 'c': 0.50, 'bound': '2-sided'})
+    var2.addVarStat(stat='mean')
 
     plot(var2, highlight_cases=None)               # plot_2d_line
     plot(var1, var2, highlight_cases=[0, 1])       # plot_2d_line

@@ -30,11 +30,11 @@ def pandemic_example_monte_carlo_sim():
 
     sim.runSim()
 
-    sim.outvars['Proportion Infected'].addVarStat(stattype='orderstatTI',
-                                                    statkwargs={'p': p, 'c': c, 'bound': bound})
-    sim.outvars['Superspreader Degree'].addVarStat(stattype='orderstatTI',
-                                                     statkwargs={'p': 0.5, 'c': 0.5,
-                                                                 'bound': 'all'})
+    sim.outvars['Proportion Infected'].addVarStat(stat='orderstatTI',
+                                                  statkwargs={'p': p, 'c': c, 'bound': bound})
+    sim.outvars['Superspreader Degree'].addVarStat(stat='orderstatTI',
+                                                   statkwargs={'p': 0.5, 'c': 0.5,
+                                                               'bound': 'all'})
 
     mc.plot(sim.outvars['Timestep'], sim.outvars['Superspreader Degree'])
     mc.plot(sim.outvars['Max Superspreader Degree'], highlight_cases=0)
