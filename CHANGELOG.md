@@ -1,28 +1,35 @@
 # Changelog
 
 ## Future Work
-### Definitely
+### Before SciPy 2022:
 - 2D Scatter Statistics
 - Migrate to dask as parallel processing backend
 - Run on remote server (AWS, etc)
-- Get custom distributions working
 - Polynomial approximations
-- Tornado plots
 - Sensitivity Indices (Sobol's Method)
 - Get working in jupyter notebooks
 - Color plots by 3rd variable
 - Bootstrap statistics
-### Maybe
+### Later:
+- Get custom distributions working
+- Tornado plots
 - Example: Evidence-Based Scheduling
 - 2D/3D Line statistics
-- Correlation matrix input
+- Correlated inputs
 - Ability to plot derived data in addition to vars
 - Star Sampling
 - Variogram Sensitivity Analysis
-
+### Known Bugs:
+- Cannot plot a varstat in percentile space
 ----
 
 ## [Unreleased]
+### Added    
+### Changed    
+### Removed    
+
+
+## [0.3.0] - 2021-01-22
 ### Added    
 * Experimental D-VARS sensitivity analysis
 * Sim.scalarOutVars() dict and Sim.noutvars
@@ -30,7 +37,6 @@
 * You can plot plot in percentile space rather than nums
 ### Changed    
 * Removed mc_ and MC prefixes from all functions and classes
-### Removed    
 
 
 ## [0.2.3] - 2021-12-18

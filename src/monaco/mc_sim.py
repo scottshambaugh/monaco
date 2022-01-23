@@ -54,7 +54,7 @@ class Sim:
         files.
     resultsdir : str | pathlib.Path
         The directory to save simulation and case data to. If None, then this
-        defaults to a directory named `name`_results.
+        defaults to a directory named {name}_results.
 
     Attributes
     ----------
@@ -495,7 +495,7 @@ class Sim:
         else:
             p = Pool(self.cores)
             try:
-                cases_downselect = slice_by_index(self.cases, cases_downselect)
+                cases_downselect = set(slice_by_index(self.cases, cases_downselect))
                 cases = p.imap(self.preProcessCase, cases_downselect)
                 cases = list(cases)
                 p.terminate()
@@ -575,7 +575,7 @@ class Sim:
         else:
             p = Pool(self.cores)
             try:
-                cases_downselect = slice_by_index(self.cases, cases_downselect)
+                cases_downselect = set(slice_by_index(self.cases, cases_downselect))
                 casesrun = p.imap(self.runCase, cases_downselect)
                 # below is a dummy function to ensure we wait for imap to finish
                 casesrun = list(casesrun)
@@ -666,7 +666,7 @@ class Sim:
         else:
             p = Pool(self.cores)
             try:
-                cases_downselect = slice_by_index(self.cases, cases_downselect)
+                cases_downselect = set(slice_by_index(self.cases, cases_downselect))
                 casespostprocessed = p.imap(self.postProcessCase, cases_downselect)
                 # below is a dummy function to ensure we wait for imap to finish
                 casespostprocessed = list(casespostprocessed)

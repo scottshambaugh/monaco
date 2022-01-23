@@ -58,9 +58,9 @@ def hash_str_repeatable(s : str) -> int:
 
 def hashable_val(val : Any) -> Any:
     """
-    For `nummap`s and `valmap`s, we need to use values as keys in a dictionary.
-    This will return the string representation of a value if that value is not
-    hashable.
+    For `nummap` and `valmap`, we need to use values as keys in a dictionary.
+    This function will return the string representation of a value if that
+    value is not hashable.
 
     Parameters
     ----------

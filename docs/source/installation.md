@@ -38,6 +38,7 @@ poetry run mypy src tests/test*
 
 ReadTheDocs will automatically [build](https://readthedocs.org/projects/monaco/builds/) when the `main` branch is updated.
 ```
+pip install sphinx sphinx_rtd_theme myst_parser
 cd docs
 poetry run make clean && poetry run make html
 ```
