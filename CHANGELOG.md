@@ -25,6 +25,7 @@
 
 ## [Unreleased]
 ### Added    
+* Vars get their own plot() method as a shorthand
 ### Changed    
 ### Removed    
 

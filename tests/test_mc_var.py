@@ -5,6 +5,7 @@ import numpy as np
 from scipy.stats import rv_discrete
 from monaco.mc_var import InVar, OutVar
 from monaco.mc_enums import SampleMethod
+import matplotlib.pyplot as plt
 
 generator = np.random.RandomState(74494861)
 invarseeds = generator.randint(0, 2**31-1, size=10)
@@ -118,3 +119,18 @@ def test_outvar_split(outvars_split):
 
 def test_outvar_split_orderstat(outvars_split):
     assert outvars_split['test [0]'].varstats[0].vals == pytest.approx([1, 1])
+
+
+### Plot Testing ###
+def plot_testing():
+    from scipy.stats import norm
+    invar = InVar('norm', ndraws=1000,
+                  dist=norm, distkwargs={'loc': 10, 'scale': 4},
+                  seed=invarseeds[1], samplemethod=SampleMethod.RANDOM,
+                  firstcaseismedian=False)
+    fig, ax = invar.plot()
+    plt.show()
+
+
+if __name__ == '__main__':
+    plot_testing()

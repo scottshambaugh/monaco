@@ -1,6 +1,12 @@
 # mc_plot.py
 from __future__ import annotations
 
+# Somewhat hacky type checking to avoid circular imports:
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from monaco.mc_var import InVar, OutVar
+import monaco.mc_var
+
 import numpy as np
 from scipy.stats import rv_continuous, rv_discrete, chi2, mode
 import matplotlib.pyplot as plt
@@ -8,7 +14,6 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib.patches import Ellipse
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
-from monaco.mc_var import InVar, OutVar
 from monaco.helper_functions import get_list, slice_by_index, length, empty_list
 from monaco.gaussian_statistics import conf_ellipsoid_sig2pct
 from monaco.integration_statistics import integration_error
@@ -71,7 +76,7 @@ def plot(varx   : InVar | OutVar,
     if vary is None and varz is None:
         if varx.maxdim not in (0, 1, 2):
             raise ValueError(f'Invalid variable dimension: {varx.name} ({varx.maxdim})')
-        elif varx.maxdim == 2 and isinstance(varx, OutVar):
+        elif varx.maxdim == 2 and isinstance(varx, monaco.mc_var.OutVar):
             varx_split = varx.split()  # split only defined for OutVar
             origname = varx.name
             varx = varx_split[origname + ' [0]']
@@ -80,13 +85,13 @@ def plot(varx   : InVar | OutVar,
                 varz = varx_split[origname + ' [2]']
 
     elif vary is not None and varz is None:
-        if varx.maxdim == 1 and vary.maxdim == 0 and isinstance(varx, OutVar):
+        if varx.maxdim == 1 and vary.maxdim == 0 and isinstance(varx, monaco.mc_var.OutVar):
             varx_split = varx.split()  # split only defined for OutVar
             origname = varx.name
             varz = vary
             varx = varx_split[origname + ' [0]']
             vary = varx_split[origname + ' [1]']
-        elif varx.maxdim == 0 and vary.maxdim == 1 and isinstance(vary, OutVar):
+        elif varx.maxdim == 0 and vary.maxdim == 1 and isinstance(vary, monaco.mc_var.OutVar):
             vary_split = vary.split()  # split only defined for OutVar
             origname = vary.name
             vary = vary_split[origname + ' [0]']
@@ -101,7 +106,7 @@ def plot(varx   : InVar | OutVar,
             vary = copy(varx)
             steps = np.arange(max(len(num) for num in vary.nums))
             vals = [steps for _ in range(varx.ncases)]
-            varsteps = OutVar(name='Simulation Steps', vals=vals)
+            varsteps = monaco.mc_var.OutVar(name='Simulation Steps', vals=vals)
             fig, ax = plot_2d_line(varx=varsteps, vary=vary,
                                    highlight_cases=highlight_cases,
                                    invar_space=invar_space,
@@ -204,7 +209,7 @@ def plot_hist(var         : InVar | OutVar,
     bins = np.concatenate((bins - binwidth/2, bins[-1] + binwidth/2))
     counts, bins = np.histogram(nums, bins=bins)
 
-    if isinstance(var, InVar):
+    if isinstance(var, monaco.mc_var.InVar):
         # Continuous distribution
         if isinstance(var.dist, rv_continuous):
             plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=True,
@@ -241,7 +246,7 @@ def plot_hist(var         : InVar | OutVar,
             elif orientation == PlotOrientation.HORIZONTAL:
                 plt.step(ydata, xdata, color='k', alpha=0.9, where='post')
 
-    elif isinstance(var, OutVar):
+    elif isinstance(var, monaco.mc_var.OutVar):
         plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False,
                  orientation=orientation, cumulative=cumulative, histtype='bar',
                  facecolor='k', alpha=0.5)
@@ -1062,6 +1067,6 @@ def get_plot_points(var : InVar | OutVar,
         The points to plot.
     '''
     plot_points = var.nums
-    if isinstance(var, InVar) and invar_space == InVarSpace.PCTS:
+    if isinstance(var, monaco.mc_var.InVar) and invar_space == InVarSpace.PCTS:
         plot_points = var.pcts
     return plot_points

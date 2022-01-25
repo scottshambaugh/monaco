@@ -4,13 +4,16 @@ from __future__ import annotations
 import numpy as np
 from scipy.stats import rv_continuous, rv_discrete, describe
 from scipy.stats.stats import DescribeResult
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes
 from monaco.mc_val import Val, InVal, OutVal
 from monaco.mc_varstat import VarStat
-from monaco.mc_enums import SampleMethod, VarStatType
+from monaco.mc_enums import SampleMethod, VarStatType, InVarSpace
 from monaco.mc_sampling import sampling
+from monaco.mc_plot import plot
 from monaco.helper_functions import empty_list, hashable_val
 from copy import copy
-from typing import Any, Callable
+from typing import Any, Callable, Iterable, Optional
 from warnings import warn
 from abc import ABC, abstractmethod
 
@@ -110,6 +113,30 @@ class Var(ABC):
         Remove all the variable statistics for this variable.
         """
         self.varstats = []
+
+
+    def plot(self,
+             vary   : InVar | OutVar = None,
+             varz   : InVar | OutVar = None,
+             cases           : None | int | Iterable[int] = None,
+             highlight_cases : None | int | Iterable[int] = empty_list(),
+             rug_plot    : bool           = False,
+             cov_plot    : bool           = False,
+             cov_p       : None | float | Iterable[float] = None,
+             invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
+             ax          : Optional[Axes] = None,
+             title       : str            = '',
+             ) -> tuple[Figure, Axes]:
+        """
+        Plot this variable, against other variables if desired.
+        See monaco.mc_plot.plot() for API details.
+        """
+        fig, ax = plot(varx=self, vary=vary, varz=varz,
+                       cases=cases, highlight_cases=highlight_cases,
+                       rug_plot=rug_plot, cov_plot=cov_plot, cov_p=cov_p,
+                       invar_space=invar_space,
+                       ax=ax, title=title)
+        return fig, ax
 
 
     @abstractmethod

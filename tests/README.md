@@ -5,6 +5,7 @@ Run unit tests starting with "test_" with the ```pytest``` command.
 Here are the tests which generate plots that may need to be reviewed manually:
 * test_mc_plot
 * test_mc_multi_plot
+* test_mc_var
 * test_mc_sampling
 * test_integration_statistics
 
