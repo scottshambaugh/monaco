@@ -1,5 +1,11 @@
 ## [monaco](../) - Examples
 
+### [Baseball](baseball/)
+Models the trajectory of a baseball after being hit for varying speeds, angles,
+wind conditions, and mass properties. A useful example for looking at more
+complicated program inputs and outputs, and postprocessing that data into
+outvars of different shapes and types.
+
 ### [Early Retirement Investment Portfolio](early_retirement_investment_portfolio/)
 Models an investment portfolio's balance during a retirement drawn-down, and calculates the likelihood of going broke. A good look at using pandas for time series data, generating input variables algorithmically, and using correlation coefficients meaningfully.
 

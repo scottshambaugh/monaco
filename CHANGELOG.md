@@ -8,7 +8,6 @@
 - Polynomial approximations
 - Sensitivity Indices (Sobol's Method)
 - Get working in jupyter notebooks
-- Color plots by 3rd variable
 - Bootstrap statistics
 ### Later:
 - Get custom distributions working
@@ -26,8 +25,10 @@
 ## [Unreleased]
 ### Added    
 * Vars get their own plot() method as a shorthand
+* Baseball example
 ### Changed    
 ### Removed    
+* Rocket example
 
 
 ## [0.3.0] - 2021-01-22
