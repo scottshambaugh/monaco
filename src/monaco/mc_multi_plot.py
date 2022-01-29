@@ -11,15 +11,16 @@ from monaco.helper_functions import empty_list
 from typing import Optional, Iterable
 
 
-def multi_plot(vars   : list[InVar | OutVar],
+def multi_plot(vars        : list[InVar | OutVar],
                cases           : None | int | Iterable[int] = None,
                highlight_cases : None | int | Iterable[int] = empty_list(),
-               rug_plot : bool   = True,
-               cov_plot : bool   = True,
-               cov_p    : None | float | Iterable[float] = None,
+               rug_plot    : bool   = True,
+               cov_plot    : bool   = True,
+               cov_p       : None | float | Iterable[float] = None,
                invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
-               fig      : Figure = None,
-               title    : str    = '',
+               fig         : Figure = None,
+               title       : str    = '',
+               plotkwargs  : dict   = dict(),
                ) -> tuple[Figure, tuple[Axes, ...]]:
     """
     Umbrella function to make more complex plots of Monte-Carlo variables.
@@ -73,7 +74,7 @@ def multi_plot(vars   : list[InVar | OutVar],
                                                   cov_plot=cov_plot, cov_p=cov_p,
                                                   cumulative=False,
                                                   invar_space=invar_space,
-                                                  fig=fig, title=title)
+                                                  fig=fig, title=title, plotkwargs=plotkwargs)
         else:
             raise ValueError( 'Invalid variable dimensions: ' +
                              f'{varx.name} {varx.maxdim}, ' +
@@ -88,7 +89,7 @@ def multi_plot(vars   : list[InVar | OutVar],
                                               cov_plot=cov_plot, cov_p=cov_p,
                                               cumulative=False,
                                               invar_space=invar_space,
-                                              fig=fig, title=title)
+                                              fig=fig, title=title, plotkwargs=plotkwargs)
 
     return fig, axs
 
@@ -105,6 +106,7 @@ def multi_plot_2d_scatter_hist(varx     : InVar | OutVar,
                                invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
                                fig        : Figure = None,
                                title      : str    = '',
+                               plotkwargs : dict   = dict(),
                                ) -> tuple[Figure, tuple[Axes, ...]]:
     """
     Plot two variables against each other with a central scatterplot and two
@@ -154,17 +156,17 @@ def multi_plot_2d_scatter_hist(varx     : InVar | OutVar,
 
     plot_hist(varx, cases=cases, highlight_cases=highlight_cases,
               cumulative=cumulative, rug_plot=False, invar_space=invar_space,
-              ax=ax1, title='')
+              ax=ax1, title='', plotkwargs=plotkwargs)
     plot_hist(vary, cases=cases, highlight_cases=highlight_cases,
               cumulative=cumulative, rug_plot=False, invar_space=invar_space,
-              ax=ax2, title='',
+              ax=ax2, title='', plotkwargs=plotkwargs,
               orientation=PlotOrientation.HORIZONTAL)
     plot_2d_scatter(varx, vary,
                     cases=cases, highlight_cases=highlight_cases,
                     rug_plot=rug_plot,
                     cov_plot=cov_plot, cov_p=cov_p,
                     invar_space=invar_space,
-                    ax=ax3, title='')
+                    ax=ax3, title='', plotkwargs=plotkwargs)
 
     ax1.set_ylabel('')
     ax2.set_xlabel('')
@@ -189,6 +191,7 @@ def multi_plot_2d_scatter_grid(vars     : list[InVar | OutVar],
                                invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
                                fig        : Figure = None,
                                title      : str    = '',
+                               plotkwargs : dict   = dict(),
                                ) -> tuple[Figure, tuple[Axes, ...]]:
     """
     Plot multiple variables against each other in a grid. The off-diagonal grid
@@ -238,14 +241,14 @@ def multi_plot_2d_scatter_grid(vars     : list[InVar | OutVar],
             if i == j:
                 plot_hist(vars[i], cases=cases, highlight_cases=highlight_cases,
                           cumulative=cumulative, rug_plot=False, invar_space=invar_space,
-                          ax=ax, title='')
+                          ax=ax, title='', plotkwargs=plotkwargs)
             else:
                 ax.get_shared_y_axes().join(*row_scatter_axs)  # Don't link the histogram y axis
                 plot_2d_scatter(vars[j], vars[i],
                                 cases=cases, highlight_cases=highlight_cases,
                                 rug_plot=rug_plot, cov_plot=cov_plot, cov_p=cov_p,
                                 invar_space=invar_space,
-                                ax=ax, title='')
+                                ax=ax, title='', plotkwargs=plotkwargs)
 
             ax.set_xlabel('')
             ax.set_ylabel('')

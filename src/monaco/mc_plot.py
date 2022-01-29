@@ -34,6 +34,7 @@ def plot(varx   : InVar | OutVar,
          invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
          ax          : Optional[Axes] = None,
          title       : str            = '',
+         plotkwargs  : dict           = dict(),
          ) -> tuple[Figure, Axes]:
     """
     Umbrella function to make single plots of a single Monte-Carlo variable or
@@ -101,7 +102,8 @@ def plot(varx   : InVar | OutVar,
     if vary is None and varz is None:
         if varx.maxdim == 0:
             fig, ax = plot_hist(var=varx, cases=cases, highlight_cases=highlight_cases,
-                                rug_plot=rug_plot, invar_space=invar_space, ax=ax, title=title)
+                                rug_plot=rug_plot, invar_space=invar_space, ax=ax, title=title,
+                                plotkwargs=plotkwargs)
         else:
             vary = copy(varx)
             steps = np.arange(max(len(num) for num in vary.nums))
@@ -110,7 +112,7 @@ def plot(varx   : InVar | OutVar,
             fig, ax = plot_2d_line(varx=varsteps, vary=vary,
                                    highlight_cases=highlight_cases,
                                    invar_space=invar_space,
-                                   ax=ax, title=title)
+                                   ax=ax, title=title, plotkwargs=plotkwargs)
 
     # Two Variable Plots
     elif vary is not None and varz is None:
@@ -119,13 +121,13 @@ def plot(varx   : InVar | OutVar,
                                       cases=cases, highlight_cases=highlight_cases,
                                       rug_plot=rug_plot, cov_plot=cov_plot, cov_p=cov_p,
                                       invar_space=invar_space,
-                                      ax=ax, title=title)
+                                      ax=ax, title=title, plotkwargs=plotkwargs)
 
         elif varx.maxdim == 1 and vary.maxdim == 1:
             fig, ax = plot_2d_line(varx=varx, vary=vary,
                                    cases=cases, highlight_cases=highlight_cases,
                                    invar_space=invar_space,
-                                   ax=ax, title=title)
+                                   ax=ax, title=title, plotkwargs=plotkwargs)
         else:
             raise ValueError( 'Variables have inconsistent dimensions: ' +
                              f'{varx.name}:{varx.maxdim}, ' +
@@ -137,13 +139,13 @@ def plot(varx   : InVar | OutVar,
             fig, ax = plot_3d_scatter(varx=varx, vary=vary, varz=varz,
                                       cases=cases, highlight_cases=highlight_cases,
                                       invar_space=invar_space,
-                                      ax=ax, title=title)
+                                      ax=ax, title=title, plotkwargs=plotkwargs)
 
         elif varx.maxdim == 1 and vary.maxdim == 1 and varz.maxdim == 1:
             fig, ax = plot_3d_line(varx=varx, vary=vary, varz=varz,
                                    cases=cases, highlight_cases=highlight_cases,
                                    invar_space=invar_space,
-                                   ax=ax, title=title)
+                                   ax=ax, title=title, plotkwargs=plotkwargs)
 
         else:
             raise ValueError( 'Variables have inconsistent dimensions: ' +
@@ -164,6 +166,7 @@ def plot_hist(var         : InVar | OutVar,
               invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
               ax          : Optional[Axes]  = None,
               title       : str             = '',
+              plotkwargs  : dict            = dict(),
               ) -> tuple[Figure, Axes]:
     """
     Plot a histogram of a single variable.
@@ -214,7 +217,7 @@ def plot_hist(var         : InVar | OutVar,
         if isinstance(var.dist, rv_continuous):
             plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=True,
                      cumulative=cumulative, orientation=orientation, histtype='bar',
-                     facecolor='k', alpha=0.5)
+                     facecolor='k', alpha=0.5, **plotkwargs)
             lim = get_hist_lim(ax, orientation)
             x = np.arange(lim[0], lim[1], (lim[1] - lim[0])/100)
             dist = var.dist(**var.distkwargs)
@@ -231,7 +234,7 @@ def plot_hist(var         : InVar | OutVar,
         elif isinstance(var.dist, rv_discrete):
             plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False,
                      orientation=orientation, cumulative=cumulative, histtype='bar',
-                     facecolor='k', alpha=0.5)
+                     facecolor='k', alpha=0.5, **plotkwargs)
             lim = get_hist_lim(ax, orientation)
             x = np.concatenate(([lim[0]], bins, [lim[1]]))
             dist = var.dist(**var.distkwargs)
@@ -249,7 +252,7 @@ def plot_hist(var         : InVar | OutVar,
     elif isinstance(var, monaco.mc_var.OutVar):
         plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False,
                  orientation=orientation, cumulative=cumulative, histtype='bar',
-                 facecolor='k', alpha=0.5)
+                 facecolor='k', alpha=0.5, **plotkwargs)
 
     if cumulative:
         ylabeltext = 'Cumulative Probability'
@@ -267,13 +270,15 @@ def plot_hist(var         : InVar | OutVar,
         for i in highlight_cases_list:
             plt.plot([points[i], points[i]],
                      [ylim[0], ylim[0] + (ylim[1] - ylim[0])*0.20],
-                     linestyle='-', linewidth=1, color='red')
+                     linestyle='-', linewidth=1, color='red', **plotkwargs)
         for varstat in var.varstats:
             nums = get_list(varstat.nums)
             if length(nums) == 1:
-                plt.plot([nums[0], nums[0]], ylim, linestyle='-', color='blue')
+                plt.plot([nums[0], nums[0]], ylim,
+                         linestyle='-', color='blue', **plotkwargs)
             elif length(nums) == 3:
-                plt.plot([nums[1], nums[1]], ylim, linestyle='-', color='blue')
+                plt.plot([nums[1], nums[1]], ylim,
+                         linestyle='-', color='blue', **plotkwargs)
             if length(nums) in (2, 3):
                 ax.fill_between([nums[0], nums[-1]],
                                 [ylim[0], ylim[0]],
@@ -287,13 +292,15 @@ def plot_hist(var         : InVar | OutVar,
         for i in highlight_cases_list:
             plt.plot([xlim[0], xlim[0] + (xlim[1] - xlim[0])*0.20],
                      [points[i], points[i]],
-                     linestyle='-', linewidth=1, color='red')
+                     linestyle='-', linewidth=1, color='red', **plotkwargs)
         for varstat in var.varstats:
             nums = get_list(varstat.nums)
             if length(nums) == 1:
-                plt.plot(xlim, [nums[0], nums[0]], linestyle='-', color='blue')
+                plt.plot(xlim, [nums[0], nums[0]],
+                         linestyle='-', color='blue', **plotkwargs)
             elif length(nums) == 3:
-                plt.plot(xlim, [nums[1], nums[1]], linestyle='-', color='blue')
+                plt.plot(xlim, [nums[1], nums[1]],
+                         linestyle='-', color='blue', **plotkwargs)
             if length(nums) in (2, 3):
                 ax.fill_between(xlim, nums[0], nums[-1], color='blue', alpha=0.2)
         plt.ylabel(var.name)
@@ -314,6 +321,7 @@ def plot_cdf(var       : InVar | OutVar,
              invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
              ax          : Optional[Axes]  = None,
              title       : str             = '',
+             plotkwargs  : dict            = dict(),
              ) -> tuple[Figure, Axes]:
     """
     Plot a cumulative distribution of a single variable.
@@ -346,7 +354,7 @@ def plot_cdf(var       : InVar | OutVar,
     """
     return plot_hist(var=var, cases=cases, highlight_cases=highlight_cases, cumulative=True,
                      orientation=orientation, rug_plot=rug_plot, invar_space=invar_space,
-                     ax=ax, title=title)
+                     ax=ax, title=title, plotkwargs=plotkwargs)
 
 
 
@@ -360,6 +368,7 @@ def plot_2d_scatter(varx   : InVar | OutVar,
                     invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
                     ax       : Optional[Axes] = None,
                     title    : str            = '',
+                    plotkwargs  : dict        = dict(),
                     ) -> tuple[Figure, Axes]:
     """
     Plot a scatter plot of two variables.
@@ -407,11 +416,11 @@ def plot_2d_scatter(varx   : InVar | OutVar,
     if reg_cases:
         plt.scatter(slice_by_index(varx_points, reg_cases),
                     slice_by_index(vary_points, reg_cases),
-                    edgecolors=None, c='k', alpha=0.4)
+                    edgecolors=None, c='k', alpha=0.4, **plotkwargs)
     if highlight_cases_list:
         plt.scatter(slice_by_index(varx_points, highlight_cases_list),
                     slice_by_index(vary_points, highlight_cases_list),
-                    edgecolors=None, c='r', alpha=1)
+                    edgecolors=None, c='r', alpha=1, **plotkwargs)
 
     if cov_plot:
         if cov_p is None:
@@ -443,6 +452,7 @@ def plot_2d_line(varx : InVar | OutVar,
                  invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
                  ax     : Optional[Axes] = None,
                  title  : str            = '',
+                 plotkwargs : dict       = dict(),
                  ) -> tuple[Figure, Axes]:
     """
     Plot an ensemble of 2D lines for two nonscalar variables.
@@ -480,15 +490,19 @@ def plot_2d_line(varx : InVar | OutVar,
     varx_points = get_plot_points(varx, invar_space[0])
     vary_points = get_plot_points(vary, invar_space[1])
     for i in reg_cases:
-        plt.plot(varx_points[i], vary_points[i], linestyle='-', color='black', alpha=0.2)
+        plt.plot(varx_points[i], vary_points[i],
+                 linestyle='-', color='black', alpha=0.2, **plotkwargs)
     for i in highlight_cases_list:
-        plt.plot(varx_points[i], vary_points[i], linestyle='-', color='red', alpha=1)
+        plt.plot(varx_points[i], vary_points[i],
+                 linestyle='-', color='red', alpha=1, **plotkwargs)
 
     for varstat in vary.varstats:
         if length(varstat.nums[0]) == 1:
-            plt.plot(varx_points[0], varstat.nums[:], linestyle='-', color='blue')
+            plt.plot(varx_points[0], varstat.nums[:],
+                     linestyle='-', color='blue', **plotkwargs)
         elif length(varstat.nums[0]) == 3:
-            plt.plot(varx_points[0], varstat.nums[:, 1], linestyle='-', color='blue')
+            plt.plot(varx_points[0], varstat.nums[:, 1],
+                     linestyle='-', color='blue', **plotkwargs)
         if length(varstat.nums[0]) in (2, 3):
             ax.fill_between(varx_points[0], varstat.nums[:, 0], varstat.nums[:, -1],
                             color='blue', alpha=0.3)
@@ -510,6 +524,7 @@ def plot_3d_scatter(varx : InVar | OutVar,
                     invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
                     ax     : Optional[Axes] = None,
                     title  : str            = '',
+                    plotkwargs : dict       = dict(),
                     ) -> tuple[Figure, Axes]:
     """
     Plot a scatter plot of three variables in 3D space.
@@ -553,12 +568,12 @@ def plot_3d_scatter(varx : InVar | OutVar,
         ax.scatter(slice_by_index(varx_points, reg_cases),
                    slice_by_index(vary_points, reg_cases),
                    slice_by_index(varz_points, reg_cases),
-                   edgecolors=None, c='k', alpha=0.4)
+                   edgecolors=None, c='k', alpha=0.4, **plotkwargs)
     if highlight_cases_list:
         ax.scatter(slice_by_index(varx_points, highlight_cases_list),
                    slice_by_index(vary_points, highlight_cases_list),
                    slice_by_index(varz_points, highlight_cases_list),
-                   edgecolors=None, c='r', alpha=1)
+                   edgecolors=None, c='r', alpha=1, **plotkwargs)
 
     ax.set_xlabel(varx.name)
     ax.set_ylabel(vary.name)
@@ -578,6 +593,7 @@ def plot_3d_line(varx : InVar | OutVar,
                  invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
                  ax     : Optional[Axes] = None,
                  title  : str            = '',
+                 plotkwargs : dict       = dict(),
                  ) -> tuple[Figure, Axes]:
     """
     Plot an ensemble of 3D lines for three nonscalar variables.
@@ -619,10 +635,10 @@ def plot_3d_line(varx : InVar | OutVar,
     varz_points = get_plot_points(varz, invar_space[2])
     for i in reg_cases:
         ax.plot(varx_points[i], vary_points[i], varz_points[i],
-                linestyle='-', color='black', alpha=0.3)
+                linestyle='-', color='black', alpha=0.3, **plotkwargs)
     for i in highlight_cases_list:
         ax.plot(varx_points[i], vary_points[i], varz_points[i],
-                linestyle='-', color='red', alpha=1)
+                linestyle='-', color='red', alpha=1, **plotkwargs)
 
     ax.set_xlabel(varx.name)
     ax.set_ylabel(vary.name)
@@ -634,10 +650,11 @@ def plot_3d_line(varx : InVar | OutVar,
 
 
 
-def plot_cov_corr(matrix    : np.ndarray,
-                  varnames  : list[str],
-                  ax        : Optional[Axes] = None,
-                  title     : str            = '',
+def plot_cov_corr(matrix     : np.ndarray,
+                  varnames   : list[str],
+                  ax         : Optional[Axes] = None,
+                  title      : str            = '',
+                  plotkwargs : dict           = dict(),
                   ) -> tuple[Figure, Axes]:
     """
     Plot either a covariance or correlation matrix.
@@ -662,7 +679,7 @@ def plot_cov_corr(matrix    : np.ndarray,
     fig, ax = manage_axis(ax, is3d=False)
     # for a correlation matrix scale will always be 1 from diagonal
     scale = np.nanmax(np.abs(matrix))
-    im = ax.imshow(matrix, cmap="RdBu", vmin=-scale, vmax=scale)
+    im = ax.imshow(matrix, cmap="RdBu", vmin=-scale, vmax=scale, **plotkwargs)
     n = matrix.shape[1]
 
     ax.set_xticks(np.arange(n))
@@ -704,6 +721,7 @@ def plot_integration_convergence(outvar     : OutVar,
                                  samplemethod : SampleMethod   = SampleMethod.RANDOM,
                                  ax           : Optional[Axes] = None,
                                  title        : str            = '',
+                                 plotkwargs   : dict           = dict(),
                                  ) -> tuple[Figure, Axes]:
     """
     For a Monte-Carlo integration, plot the running integration estimate along
@@ -754,7 +772,7 @@ def plot_integration_convergence(outvar     : OutVar,
 
 
 
-def plot_integration_error(outvar     : OutVar,
+def plot_integration_error(outvar       : OutVar,
                            dimension    : int,
                            volume       : float,
                            refval       : float,
@@ -762,6 +780,7 @@ def plot_integration_error(outvar     : OutVar,
                            samplemethod : SampleMethod   = SampleMethod.RANDOM,
                            ax           : Optional[Axes] = None,
                            title        : str            = '',
+                           plotkwargs   : dict           = dict(),
                            ) -> tuple[Figure, Axes]:
     """
     For a Monte-Carlo integration where the reference value is known, plot the
