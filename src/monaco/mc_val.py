@@ -207,7 +207,8 @@ class OutVal(Val):
         Parse the output value and extract a valmap.
         """
         vals_flattened = flatten([self.val])
-        if all(isinstance(x, bool) for x in vals_flattened):
+        if all((isinstance(x, bool) or isinstance(x, np.bool_))
+               for x in vals_flattened):
             self.valmap = {True: 1, False: 0}
         elif any(not is_num(x) for x in vals_flattened):
             sorted_vals = sorted(set(hashable_val(x) for x in vals_flattened))
