@@ -24,6 +24,12 @@
 
 ## [Unreleased]
 ### Added    
+### Changed    
+### Removed    
+
+
+## [0.3.1] - 2021-01-29
+### Added    
 * Vars get their own plot() method as a shorthand
 * Baseball example
 ### Changed    
