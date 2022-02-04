@@ -20,7 +20,7 @@ from scipy.stats import rv_continuous, rv_discrete
 
 class Sim:
     """
-    The main Monte-Carlo Simulation object.
+    The main Monte Carlo Simulation object.
 
     Parameters
     ----------
@@ -81,13 +81,13 @@ class Sim:
     casespostprocessed : set[int]
         The case numbers which were sucessfully postprocessed.
     invars : dict[str, monaco.mc_var.InVar]
-        The Monte-Carlo Input Variables.
+        The Monte Carlo Input Variables.
     outvars : dict[str, monaco.mc_var.OutVar]
-        The Monte-Carlo Output Variables.
+        The Monte Carlo Output Variables.
     constvals : dict[str, Any]
         The constant values to pass to each of the cases.
     cases : list[monaco.mc_case.Case]
-        The Monte-Carlo Cases.
+        The Monte Carlo Cases.
     ninvars : int
         The number of input variables.
     noutvars : int
@@ -439,7 +439,7 @@ class Sim:
                  cases : None | int | Iterable[int] = None,
                  ) -> None:
         """
-        Generate all the Monte-Carlo case objects.
+        Generate all the Monte Carlo case objects.
 
         Parameters
         ----------
@@ -474,7 +474,7 @@ class Sim:
                         cases : None | int | Iterable[int],
                         ) -> None:
         """
-        Preprocess all the Monte-Carlo cases.
+        Preprocess all the Monte Carlo cases.
 
         Parameters
         ----------
@@ -515,7 +515,7 @@ class Sim:
                        case : Case,
                        ) -> Case:
         """
-        Preprocess a single Monte-Carlo case.
+        Preprocess a single Monte Carlo case.
 
         Parameters
         ----------
@@ -549,7 +549,7 @@ class Sim:
                  calledfromrunsim : bool = False,
                  ) -> None:
         """
-        Run all the Monte-Carlo cases.
+        Run all the Monte Carlo cases.
 
         Parameters
         ----------
@@ -600,7 +600,7 @@ class Sim:
                 case : Case,
                 ) -> None:
         """
-        Run a single Monte-Carlo case.
+        Run a single Monte Carlo case.
 
         Parameters
         ----------
@@ -645,7 +645,7 @@ class Sim:
                          cases : None | int | Iterable[int],
                          ) -> None:
         """
-        Postprocess all the Monte-Carlo cases.
+        Postprocess all the Monte Carlo cases.
 
         Parameters
         ----------
@@ -687,7 +687,7 @@ class Sim:
                         case : Case,
                         ) -> None:
         """
-        Postprocess a single Monte-Carlo case.
+        Postprocess a single Monte Carlo case.
 
         Parameters
         ----------

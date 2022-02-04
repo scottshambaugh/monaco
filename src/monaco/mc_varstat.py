@@ -19,7 +19,7 @@ from typing import Any, Callable
 
 class VarStat:
     """
-    A variable statistic for a Monte-Carlo variable.
+    A variable statistic for a Monte Carlo variable.
 
     Parameters
     ----------

@@ -10,16 +10,19 @@ fcns = {'preprocess' : baseball_example_preprocess,
         'run'        : baseball_example_run,
         'postprocess': baseball_example_postprocess}
 
+## Constants
 ndraws = 100
 seed = 78547876
 in2m = 0.0254
 mph2mps = 0.44704
 
 def baseball_example_monte_carlo_sim():
+    ## Define sim
     sim = mc.Sim(name='baseball', ndraws=ndraws, fcns=fcns, firstcaseismedian=True,
                  seed=seed, cores=1, verbose=True, debug=True,
                  savecasedata=False, savesimdata=False)
 
+    ## Define input variables
     sim.addInVar(name='Y Init [m]', dist=uniform,
                  distkwargs={'loc': -19.94*in2m/2, 'scale': 19.94*in2m})
     sim.addInVar(name='Z Init [m]', dist=uniform,
@@ -34,8 +37,10 @@ def baseball_example_monte_carlo_sim():
     sim.addInVar(name='Wind Azi [deg]', dist=uniform, distkwargs={'loc': 0, 'scale': 360})
     sim.addInVar(name='CD', dist=norm, distkwargs={'loc': 0.300, 'scale': 0.015})
 
+    ## Run sim
     sim.runSim()
 
+    ## Generate stats and plots
     homerun_indices = np.where(sim.outvars['Home Run'].vals)[0]
     # foul_indices = np.where(sim.outvars['Foul Ball'].vals)[0]
 
@@ -53,11 +58,11 @@ def baseball_example_monte_carlo_sim():
     plot_baseball_field(ax)
     ax.scatter(sim.outvars['Landing X [m]'].nums, sim.outvars['Landing Y [m]'].nums, 0,
                s=2, c='k', marker='o')
-    plt.savefig('baseball_trajectory.png')
+    # plt.savefig('baseball_trajectory.png')
     mc.multi_plot([sim.invars['Launch Angle [deg]'], sim.outvars['Landing Dist [m]']],
                   cov_p=0.95, title='Launch Angle vs Landing Distance w/ 95% CI',
                   highlight_cases=homerun_indices)
-    plt.savefig('launch_angle_vs_landing.png')
+    # plt.savefig('launch_angle_vs_landing.png')
     plt.show()
 
     return sim

@@ -21,7 +21,7 @@ from abc import ABC, abstractmethod
 ### Var Base Class ###
 class Var(ABC):
     """
-    Abstract base class to hold the data for a Monte-Carlo variable.
+    Abstract base class to hold the data for a Monte Carlo variable.
 
     Parameters
     ----------
@@ -150,7 +150,7 @@ class Var(ABC):
 ### InVar Class ###
 class InVar(Var):
     """
-    A Monte-Carlo input variable.
+    A Monte Carlo input variable.
 
     Parameters
     ----------
@@ -380,7 +380,7 @@ class InVar(Var):
 ### OutVar Class ###
 class OutVar(Var):
     """
-    A Monte-Carlo output variable.
+    A Monte Carlo output variable.
 
     Parameters
     ----------

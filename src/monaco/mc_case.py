@@ -10,7 +10,7 @@ import numpy as np
 
 class Case():
     """
-    Object to hold all the data for a single Monte-Carlo case.
+    Object to hold all the data for a single Monte Carlo case.
 
     Parameters
     ----------
@@ -24,7 +24,7 @@ class Case():
         A dict of any constant values common to all cases.
     seed : int, default: np.random.get_state(legacy=False)['state']['key'][0]
         The random seed to pass to the run function for this case. Not used in
-        as part of any Monte-Carlo sampling.
+        as part of any Monte Carlo sampling.
 
     Attributes
     ----------

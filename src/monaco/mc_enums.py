@@ -5,7 +5,7 @@ from enum import Enum
 
 class SampleMethod(str, Enum):
     """
-    Enum for the possible Monte-Carlo sampling methods.
+    Enum for the possible Monte Carlo sampling methods.
     """
     RANDOM          = 'random'
     SOBOL           = 'sobol'

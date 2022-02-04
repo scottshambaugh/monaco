@@ -15,7 +15,7 @@ except ImportError:
 ### Val Base Class ###
 class Val(ABC):
     """
-    Abstract base class to hold the data for a Monte-Carlo value.
+    Abstract base class to hold the data for a Monte Carlo value.
 
     Parameters
     ----------
@@ -47,7 +47,7 @@ class Val(ABC):
 ### InVal Class ###
 class InVal(Val):
     """
-    A Monte-Carlo input value.
+    A Monte Carlo input value.
 
     Parameters
     ----------
@@ -125,7 +125,7 @@ class InVal(Val):
 ### OutVal Class ###
 class OutVal(Val):
     """
-    A Monte-Carlo output value.
+    A Monte Carlo output value.
 
     Parameters
     ----------

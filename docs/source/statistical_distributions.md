@@ -1,6 +1,6 @@
 # Statistical Distributions
 
-This page contains a list of common probability distributions that you may want to use to disperse your inputs in a Monte-Carlo analysis. For an overview of common distributions and how they are related, start with this excellent blog post: *[Common Probability Distributions: The Data Scientist’s Crib Sheet](https://medium.com/@srowen/common-probability-distributions-347e6b945ce4)*. 
+This page contains a list of common probability distributions that you may want to use to disperse your inputs in a Monte Carlo analysis. For an overview of common distributions and how they are related, start with this excellent blog post: *[Common Probability Distributions: The Data Scientist’s Crib Sheet](https://medium.com/@srowen/common-probability-distributions-347e6b945ce4)*.
 
 ## Usage
 

@@ -6,9 +6,8 @@ def baseball_example_run(initial_conditions, mass_props, aero):
     # Constants
     g = 9.81   # gravitational acceleration [m/s^2]
     d2r = np.pi/180  # degrees to radians conversion [rad/deg]
-    rpm2radps = 2*np.pi/60  # rpm to rad per second conversion
-    timeout = 100  # simulation timeout [s]
-    tmax = 10
+    rpm2radps = 2*np.pi/60  # rpm to rad per second conversion [rad/rev*min/sec]
+    tmax = 10  # max flight time [s]
 
     # Time histories
     t = np.array([0])
@@ -21,6 +20,7 @@ def baseball_example_run(initial_conditions, mass_props, aero):
     vel = np.array([[vel_x_init, vel_y_init, vel_z_init]])
     acc = np.array([[0, 0, -g]])
 
+    # Derived constants
     windvel = aero['windspd']*np.array([-np.sin(d2r*aero['windazi']),
                                         -np.cos(d2r*aero['windazi']),
                                         0])
@@ -32,20 +32,19 @@ def baseball_example_run(initial_conditions, mass_props, aero):
 
         dt = 0.1  # simulation timestep [s]
         # increase time resolution for landing
-        if pos[i-1][2] < 2.5:
+        if pos[i-1][2] < 5:
             dt = 0.020
         if pos[i-1][2] < 1:
             dt = 0.005
         if pos[i-1][2] < 0.1:
             dt = 0.001
 
-
         i = i+1
         t = np.append(t, t[i-1] + dt)
 
         # Calculate and add up forces
         velfreestream = vel[i-1]-windvel
-        rho = calcRho(pos[i-1][2])
+        rho = calcRho(pos[i-1][2] + initial_conditions['altitude'])
         Faero = -0.5*rho*(velfreestream**2)*np.sign(velfreestream)*aero['cd']*area
 
         cl = 0.319*(1-np.exp(-2.48e-3*initial_conditions['topspin']*rpm2radps))
@@ -66,11 +65,6 @@ def baseball_example_run(initial_conditions, mass_props, aero):
         if pos[i][2] <= 0:
             pos[i][2] = 0
             break
-
-        # Check for timeout
-        if t[i] > timeout:
-            print('Timeout')
-            return None
 
     # Backfill initial acceleration
     acc[0] = acc[1]
@@ -95,14 +89,15 @@ def calcRho(alt):  # alt is altitude above sea level [m]
     return rho
 
 
+# Generate a baseball field in a 3d plot
 def plot_baseball_field(ax):
     d2r = np.pi/180  # degrees to radians conversion [rad/deg]
-    ang = np.cos(d2r*45)
 
     ax.set_ylim([-80, 80])
     ax.set_xlim([-10, 150])
     ax.set_zlim([0, 45])
 
+    # Pitchers mount
     circle_angs = np.arange(-180, 180+1, 1)*d2r
     pitchers_mound = np.array([5.47/2*np.cos(circle_angs) + 18.39, 5.47/2*np.sin(circle_angs)]).T
     # ax.plot(pitchers_mound[:, 0], pitchers_mound[:, 1], 0*pitchers_mound[:, 0], c='k', zorder=5)
@@ -111,6 +106,8 @@ def plot_baseball_field(ax):
     coll.set_sort_zpos(-1)
     ax.add_collection3d(coll)
 
+    # Base Diamond
+    ang = np.cos(d2r*45)
     diamond = np.array([[0, 0],
                         [ang, -ang],
                         [2*ang, 0],
@@ -122,6 +119,7 @@ def plot_baseball_field(ax):
     coll.set_sort_zpos(-2)
     ax.add_collection3d(coll)
 
+    # Infield Boundary
     angs = np.arange(-45, 45+0.1, 0.1)*d2r
     infield_ys = np.append(np.arange(-27.524, 27.524+0.1, 0.1), 27.524)
     infield_xs = np.sqrt(29**2-infield_ys**2) + 18.39
@@ -134,6 +132,7 @@ def plot_baseball_field(ax):
     coll.set_sort_zpos(-3)
     ax.add_collection3d(coll)
 
+    # Outfield Boundary
     outfield_ys = np.sin(angs)*100
     outfield_xs = outfield_x(outfield_ys)
     outfield = np.array([[0, 0]])
@@ -144,9 +143,11 @@ def plot_baseball_field(ax):
     coll = Poly3DCollection(verts, color='forestgreen')
     coll.set_sort_zpos(-4)
     ax.add_collection3d(coll)
-    pass
+
+    return
 
 
+# Equation for the outfield boundary (350 ft x 400 ft)
 def outfield_x(outfield_y):
     return 125 - 0.01085786 * outfield_y**2
 
@@ -163,6 +164,7 @@ if __name__ == '__main__':
         'launch_angle': 30,
         'side_angle': 10,
         'topspin': -2000,
+        'altitude': 0,
     }
 
     mass_props = {

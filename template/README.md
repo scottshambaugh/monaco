@@ -1,7 +1,7 @@
 ## [monaco](../) - Templates
 
 ### Overview
-This directory contains a template you can use as a basis for building your Monte-Carlo simulation. The simulation is of a series of weighted coin flips that comes up 70% heads. By default, the simulation executes 500 draws, and tries to calculate a guess at what the coin's weighting is. These files should be very well commented, and hopefully gives you a sense of how a simulation is set up and run. 
+This directory contains a template you can use as a basis for building your Monte Carlo simulation. The simulation is of a series of weighted coin flips that comes up 70% heads. By default, the simulation executes 500 draws, and tries to calculate a guess at what the coin's weighting is. These files should be very well commented, and hopefully gives you a sense of how a simulation is set up and run.
 
 ### Running
 After installing `monaco`, download the two python files here and execute `template_monte_carlo_sim.py` in a terminal window. 
@@ -28,4 +28,4 @@ sim.invars['flipper'].__dict__
 </p>
 
 ### Next Steps
-Running through the steps above should start to give you a good sense of how the pieces of the Monte-Carlo simulation fit together, and hopefully the architecture diagram above starts to make sense. Once you're comfortable, head on over to the [examples](../examples) for some more complex simulations in different domains. You'll see that while the simulations have more depth to them, they all follow the same basic structure as this template.
+Running through the steps above should start to give you a good sense of how the pieces of the Monte Carlo simulation fit together, and hopefully the architecture diagram above starts to make sense. Once you're comfortable, head on over to the [examples](../examples) for some more complex simulations in different domains. You'll see that while the simulations have more depth to them, they all follow the same basic structure as this template.

@@ -37,7 +37,7 @@ def plot(varx   : InVar | OutVar,
          plotkwargs  : dict           = dict(),
          ) -> tuple[Figure, Axes]:
     """
-    Umbrella function to make single plots of a single Monte-Carlo variable or
+    Umbrella function to make single plots of a single Monte Carlo variable or
     pairs or triplets of variables.
 
     Parameters
@@ -724,7 +724,7 @@ def plot_integration_convergence(outvar     : OutVar,
                                  plotkwargs   : dict           = dict(),
                                  ) -> tuple[Figure, Axes]:
     """
-    For a Monte-Carlo integration, plot the running integration estimate along
+    For a Monte Carlo integration, plot the running integration estimate along
     with error bars for a given confidence level.
 
     Parameters
@@ -783,7 +783,7 @@ def plot_integration_error(outvar       : OutVar,
                            plotkwargs   : dict           = dict(),
                            ) -> tuple[Figure, Axes]:
     """
-    For a Monte-Carlo integration where the reference value is known, plot the
+    For a Monte Carlo integration where the reference value is known, plot the
     running integration error along with error bounds for a given confidence
     level.
 
@@ -867,7 +867,7 @@ def apply_category_labels(ax : Axes,
                           varz : InVar | OutVar = None,
                           ) -> None:
     """
-    For nonnumeric Monte-Carlo variables, use the `nummap` to label the axes.
+    For nonnumeric Monte Carlo variables, use the `nummap` to label the axes.
 
     Parameters
     ----------

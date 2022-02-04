@@ -23,7 +23,7 @@ def multi_plot(vars        : list[InVar | OutVar],
                plotkwargs  : dict   = dict(),
                ) -> tuple[Figure, tuple[Axes, ...]]:
     """
-    Umbrella function to make more complex plots of Monte-Carlo variables.
+    Umbrella function to make more complex plots of Monte Carlo variables.
 
     Parameters
     ----------
