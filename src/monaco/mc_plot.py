@@ -202,12 +202,17 @@ def plot_hist(var         : InVar | OutVar,
     fig, ax = manage_axis(ax, is3d=False)
     invar_space = manage_invar_space(invar_space=invar_space, nvars=1)
 
+    bins = 'auto'
+    if 'bins' in plotkwargs:
+        bins = plotkwargs['bins']
+        del(plotkwargs['bins'])
+
     # Histogram generation
     cases_list = get_cases(var.ncases, cases)
     highlight_cases_list = get_cases(var.ncases, highlight_cases)
     points = get_plot_points(var, invar_space[0])
     nums = slice_by_index(points, cases_list)
-    counts, bins = np.histogram(nums, bins='auto')
+    counts, bins = np.histogram(nums, bins=bins)
     binwidth = mode(np.diff(bins))[0]
     bins = np.concatenate((bins - binwidth/2, bins[-1] + binwidth/2))
     counts, bins = np.histogram(nums, bins=bins)
@@ -215,7 +220,7 @@ def plot_hist(var         : InVar | OutVar,
     if isinstance(var, monaco.mc_var.InVar):
         # Continuous distribution
         if isinstance(var.dist, rv_continuous):
-            plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=True,
+            plt.hist(bins[:-1], bins=bins, weights=counts/sum(counts), density=True,
                      cumulative=cumulative, orientation=orientation, histtype='bar',
                      facecolor='k', alpha=0.5, **plotkwargs)
             lim = get_hist_lim(ax, orientation)
@@ -232,7 +237,7 @@ def plot_hist(var         : InVar | OutVar,
 
         # Discrete distribution
         elif isinstance(var.dist, rv_discrete):
-            plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False,
+            plt.hist(bins[:-1], bins=bins, weights=counts/sum(counts), density=False,
                      orientation=orientation, cumulative=cumulative, histtype='bar',
                      facecolor='k', alpha=0.5, **plotkwargs)
             lim = get_hist_lim(ax, orientation)
@@ -250,7 +255,7 @@ def plot_hist(var         : InVar | OutVar,
                 plt.step(ydata, xdata, color='k', alpha=0.9, where='post')
 
     elif isinstance(var, monaco.mc_var.OutVar):
-        plt.hist(bins[:-1], bins, weights=counts/sum(counts), density=False,
+        plt.hist(bins[:-1], bins=bins, weights=counts/sum(counts), density=False,
                  orientation=orientation, cumulative=cumulative, histtype='bar',
                  facecolor='k', alpha=0.5, **plotkwargs)
 
