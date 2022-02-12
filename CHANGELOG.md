@@ -25,6 +25,7 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+* Change color palette to match matplotlib defaults
 ### Removed    
 
 
