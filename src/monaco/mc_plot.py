@@ -270,20 +270,21 @@ def plot_hist(var         : InVar | OutVar,
         for i in highlight_cases_list:
             plt.plot([points[i], points[i]],
                      [ylim[0], ylim[0] + (ylim[1] - ylim[0])*0.20],
-                     linestyle='-', linewidth=1, color='C1', **plotkwargs)
+                     linestyle='-', linewidth=1, color='C1', alpha=1,
+                     **plotkwargs)
         for varstat in var.varstats:
             nums = get_list(varstat.nums)
             if length(nums) == 1:
                 plt.plot([nums[0], nums[0]], ylim,
-                         linestyle='-', color='C0', **plotkwargs)
+                         linestyle='-', color='C0', alpha=1, **plotkwargs)
             elif length(nums) == 3:
                 plt.plot([nums[1], nums[1]], ylim,
-                         linestyle='-', color='C0', **plotkwargs)
+                         linestyle='-', color='C0', alpha=1, **plotkwargs)
             if length(nums) in (2, 3):
                 ax.fill_between([nums[0], nums[-1]],
                                 [ylim[0], ylim[0]],
                                 [ylim[1], ylim[1]],
-                                color='C0', alpha=0.2)
+                                color='C0', alpha=0.3)
         plt.xlabel(var.name)
         plt.ylabel(ylabeltext)
         apply_category_labels(ax, varx=var)
@@ -292,17 +293,17 @@ def plot_hist(var         : InVar | OutVar,
         for i in highlight_cases_list:
             plt.plot([xlim[0], xlim[0] + (xlim[1] - xlim[0])*0.20],
                      [points[i], points[i]],
-                     linestyle='-', linewidth=1, color='C1', **plotkwargs)
+                     linestyle='-', linewidth=1, color='C1', alpha=1, **plotkwargs)
         for varstat in var.varstats:
             nums = get_list(varstat.nums)
             if length(nums) == 1:
                 plt.plot(xlim, [nums[0], nums[0]],
-                         linestyle='-', color='C0', **plotkwargs)
+                         linestyle='-', color='C0', alpha=1, **plotkwargs)
             elif length(nums) == 3:
                 plt.plot(xlim, [nums[1], nums[1]],
-                         linestyle='-', color='C0', **plotkwargs)
+                         linestyle='-', color='C0', alpha=1, **plotkwargs)
             if length(nums) in (2, 3):
-                ax.fill_between(xlim, nums[0], nums[-1], color='C0', alpha=0.2)
+                ax.fill_between(xlim, nums[0], nums[-1], color='C0', alpha=0.3)
         plt.ylabel(var.name)
         plt.xlabel(ylabeltext)
         apply_category_labels(ax, vary=var)
@@ -420,7 +421,7 @@ def plot_2d_scatter(varx   : InVar | OutVar,
     if highlight_cases_list:
         plt.scatter(slice_by_index(varx_points, highlight_cases_list),
                     slice_by_index(vary_points, highlight_cases_list),
-                    edgecolors=None, c='C1', alpha=1, **plotkwargs)
+                    edgecolors=None, c='C1', alpha=0.9, **plotkwargs)
 
     if cov_plot:
         if cov_p is None:
@@ -494,15 +495,15 @@ def plot_2d_line(varx : InVar | OutVar,
                  linestyle='-', color='black', alpha=0.2, **plotkwargs)
     for i in highlight_cases_list:
         plt.plot(varx_points[i], vary_points[i],
-                 linestyle='-', color='C1', alpha=1, **plotkwargs)
+                 linestyle='-', color='C1', alpha=0.9, **plotkwargs)
 
     for varstat in vary.varstats:
         if length(varstat.nums[0]) == 1:
             plt.plot(varx_points[0], varstat.nums[:],
-                     linestyle='-', color='C0', **plotkwargs)
+                     linestyle='-', color='C0', alpha=0.9, **plotkwargs)
         elif length(varstat.nums[0]) == 3:
             plt.plot(varx_points[0], varstat.nums[:, 1],
-                     linestyle='-', color='C0', **plotkwargs)
+                     linestyle='-', color='C0', alpha=0.9, **plotkwargs)
         if length(varstat.nums[0]) in (2, 3):
             ax.fill_between(varx_points[0], varstat.nums[:, 0], varstat.nums[:, -1],
                             color='C0', alpha=0.3)
@@ -573,7 +574,7 @@ def plot_3d_scatter(varx : InVar | OutVar,
         ax.scatter(slice_by_index(varx_points, highlight_cases_list),
                    slice_by_index(vary_points, highlight_cases_list),
                    slice_by_index(varz_points, highlight_cases_list),
-                   edgecolors=None, c='C1', alpha=1, **plotkwargs)
+                   edgecolors=None, c='C1', alpha=0.9, **plotkwargs)
 
     ax.set_xlabel(varx.name)
     ax.set_ylabel(vary.name)
@@ -638,7 +639,7 @@ def plot_3d_line(varx : InVar | OutVar,
                 linestyle='-', color='black', alpha=0.3, **plotkwargs)
     for i in highlight_cases_list:
         ax.plot(varx_points[i], vary_points[i], varz_points[i],
-                linestyle='-', color='C1', alpha=1, **plotkwargs)
+                linestyle='-', color='C1', alpha=0.9, **plotkwargs)
 
     ax.set_xlabel(varx.name)
     ax.set_ylabel(vary.name)
