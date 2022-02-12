@@ -270,20 +270,20 @@ def plot_hist(var         : InVar | OutVar,
         for i in highlight_cases_list:
             plt.plot([points[i], points[i]],
                      [ylim[0], ylim[0] + (ylim[1] - ylim[0])*0.20],
-                     linestyle='-', linewidth=1, color='red', **plotkwargs)
+                     linestyle='-', linewidth=1, color='C1', **plotkwargs)
         for varstat in var.varstats:
             nums = get_list(varstat.nums)
             if length(nums) == 1:
                 plt.plot([nums[0], nums[0]], ylim,
-                         linestyle='-', color='blue', **plotkwargs)
+                         linestyle='-', color='C0', **plotkwargs)
             elif length(nums) == 3:
                 plt.plot([nums[1], nums[1]], ylim,
-                         linestyle='-', color='blue', **plotkwargs)
+                         linestyle='-', color='C0', **plotkwargs)
             if length(nums) in (2, 3):
                 ax.fill_between([nums[0], nums[-1]],
                                 [ylim[0], ylim[0]],
                                 [ylim[1], ylim[1]],
-                                color='blue', alpha=0.2)
+                                color='C0', alpha=0.2)
         plt.xlabel(var.name)
         plt.ylabel(ylabeltext)
         apply_category_labels(ax, varx=var)
@@ -292,17 +292,17 @@ def plot_hist(var         : InVar | OutVar,
         for i in highlight_cases_list:
             plt.plot([xlim[0], xlim[0] + (xlim[1] - xlim[0])*0.20],
                      [points[i], points[i]],
-                     linestyle='-', linewidth=1, color='red', **plotkwargs)
+                     linestyle='-', linewidth=1, color='C1', **plotkwargs)
         for varstat in var.varstats:
             nums = get_list(varstat.nums)
             if length(nums) == 1:
                 plt.plot(xlim, [nums[0], nums[0]],
-                         linestyle='-', color='blue', **plotkwargs)
+                         linestyle='-', color='C0', **plotkwargs)
             elif length(nums) == 3:
                 plt.plot(xlim, [nums[1], nums[1]],
-                         linestyle='-', color='blue', **plotkwargs)
+                         linestyle='-', color='C0', **plotkwargs)
             if length(nums) in (2, 3):
-                ax.fill_between(xlim, nums[0], nums[-1], color='blue', alpha=0.2)
+                ax.fill_between(xlim, nums[0], nums[-1], color='C0', alpha=0.2)
         plt.ylabel(var.name)
         plt.xlabel(ylabeltext)
         apply_category_labels(ax, vary=var)
@@ -420,7 +420,7 @@ def plot_2d_scatter(varx   : InVar | OutVar,
     if highlight_cases_list:
         plt.scatter(slice_by_index(varx_points, highlight_cases_list),
                     slice_by_index(vary_points, highlight_cases_list),
-                    edgecolors=None, c='r', alpha=1, **plotkwargs)
+                    edgecolors=None, c='C1', alpha=1, **plotkwargs)
 
     if cov_plot:
         if cov_p is None:
@@ -494,18 +494,18 @@ def plot_2d_line(varx : InVar | OutVar,
                  linestyle='-', color='black', alpha=0.2, **plotkwargs)
     for i in highlight_cases_list:
         plt.plot(varx_points[i], vary_points[i],
-                 linestyle='-', color='red', alpha=1, **plotkwargs)
+                 linestyle='-', color='C1', alpha=1, **plotkwargs)
 
     for varstat in vary.varstats:
         if length(varstat.nums[0]) == 1:
             plt.plot(varx_points[0], varstat.nums[:],
-                     linestyle='-', color='blue', **plotkwargs)
+                     linestyle='-', color='C0', **plotkwargs)
         elif length(varstat.nums[0]) == 3:
             plt.plot(varx_points[0], varstat.nums[:, 1],
-                     linestyle='-', color='blue', **plotkwargs)
+                     linestyle='-', color='C0', **plotkwargs)
         if length(varstat.nums[0]) in (2, 3):
             ax.fill_between(varx_points[0], varstat.nums[:, 0], varstat.nums[:, -1],
-                            color='blue', alpha=0.3)
+                            color='C0', alpha=0.3)
 
     plt.xlabel(varx.name)
     plt.ylabel(vary.name)
@@ -573,7 +573,7 @@ def plot_3d_scatter(varx : InVar | OutVar,
         ax.scatter(slice_by_index(varx_points, highlight_cases_list),
                    slice_by_index(vary_points, highlight_cases_list),
                    slice_by_index(varz_points, highlight_cases_list),
-                   edgecolors=None, c='r', alpha=1, **plotkwargs)
+                   edgecolors=None, c='C1', alpha=1, **plotkwargs)
 
     ax.set_xlabel(varx.name)
     ax.set_ylabel(vary.name)
@@ -638,7 +638,7 @@ def plot_3d_line(varx : InVar | OutVar,
                 linestyle='-', color='black', alpha=0.3, **plotkwargs)
     for i in highlight_cases_list:
         ax.plot(varx_points[i], vary_points[i], varz_points[i],
-                linestyle='-', color='red', alpha=1, **plotkwargs)
+                linestyle='-', color='C1', alpha=1, **plotkwargs)
 
     ax.set_xlabel(varx.name)
     ax.set_ylabel(vary.name)
@@ -713,7 +713,7 @@ def plot_cov_corr(matrix     : np.ndarray,
 
 
 
-def plot_integration_convergence(outvar     : OutVar,
+def plot_integration_convergence(outvar       : OutVar,
                                  dimension    : int,
                                  volume       : float,
                                  refval       : float          = None,
@@ -760,9 +760,9 @@ def plot_integration_convergence(outvar     : OutVar,
     cummean = volume*np.cumsum(outvar.nums)/np.arange(1, outvar.ncases+1)
     err = integration_error(nums=np.array(outvar.nums), dimension=dimension, volume=volume,
                             conf=conf, samplemethod=samplemethod, runningerror=True)
-    ax.plot(cummean, 'r')
-    ax.plot(cummean + err, 'b')
-    ax.plot(cummean - err, 'b')
+    ax.plot(cummean, 'C1')
+    ax.plot(cummean + err, 'C0')
+    ax.plot(cummean - err, 'C0')
 
     ax.set_xlabel('Sample #')
     ax.set_ylabel(f'Convergence of {outvar.name} Integral')
@@ -817,8 +817,8 @@ def plot_integration_error(outvar       : OutVar,
     cummean = volume*np.cumsum(outvar.nums)/np.arange(1, outvar.ncases+1)
     err = integration_error(nums=np.array(outvar.nums), dimension=dimension, volume=volume,
                             conf=conf, samplemethod=samplemethod, runningerror=True)
-    ax.loglog(err, 'b')
-    ax.plot(np.abs(cummean - refval), 'r')
+    ax.loglog(err, 'C0')
+    ax.plot(np.abs(cummean - refval), 'C1')
 
     ax.set_xlabel('Sample #')
     ax.set_ylabel(f'{outvar.name} {round(conf*100, 2)}% Confidence Error')
@@ -861,7 +861,7 @@ def manage_axis(ax   : Optional[Axes],
 
 
 
-def apply_category_labels(ax : Axes,
+def apply_category_labels(ax   : Axes,
                           varx : InVar | OutVar = None,
                           vary : InVar | OutVar = None,
                           varz : InVar | OutVar = None,
@@ -961,10 +961,10 @@ def plot_rug_marks(ax          : Axes,
 
 
 
-def plot_2d_cov_ellipse(ax     : Axes,
+def plot_2d_cov_ellipse(ax   : Axes,
                         varx : InVar | OutVar,
                         vary : InVar | OutVar,
-                        p      : float,
+                        p    : float,
                         ) -> None:
     """
     Add a covariance ellipse to a 2D scatter plot.
@@ -1034,7 +1034,7 @@ def get_cases(ncases : int,
 
 
 def manage_invar_space(invar_space : InVarSpace | Iterable[InVarSpace],
-                       nvars : int,
+                       nvars       : int,
                        ) -> list[InVarSpace]:
     '''
     Parse the `invarspace` input for plotting functions. If already an iterable
@@ -1065,7 +1065,7 @@ def manage_invar_space(invar_space : InVarSpace | Iterable[InVarSpace],
 
 
 
-def get_plot_points(var : InVar | OutVar,
+def get_plot_points(var         : InVar | OutVar,
                     invar_space : InVarSpace,
                     ) -> list[float]:
     '''

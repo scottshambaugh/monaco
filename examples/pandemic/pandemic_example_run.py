@@ -120,7 +120,7 @@ if __name__ == '__main__':
     nR = np.count_nonzero(nodes_status == 2, axis=1)
     fig = plt.figure()
     plt.plot(range(nsteps+1), nS, color='silver')
-    plt.plot(range(nsteps+1), nI, color='red')
+    plt.plot(range(nsteps+1), nI, color='C1')
     plt.plot(range(nsteps+1), nR, color='black')
     plt.legend(['S','I','R'])
     plt.xlabel('Timestep')
