@@ -145,6 +145,8 @@ def get_list(x : Any) -> list[Any]:
     elif pd and isinstance(x, pd.DataFrame):
         return [x, ]
     elif isinstance(x, Iterable):
+        if isinstance(x, np.ndarray) and np.ndim(x) == 0:
+            return [x[()], ]
         return list(x)
     else:
         return [x, ]
