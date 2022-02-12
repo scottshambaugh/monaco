@@ -32,12 +32,12 @@ def election_example_monte_carlo_sim():
 
     for state in states:
         i = df.loc[df['State'] == state].index[0]
-        sim.addInVar(name=f'{state} Dem Unscaled Pct',
-                     dist=norm, distkwargs={'loc': df['Dem_Mean'][i],   'scale': df['Dem_Sig'][i]})
-        sim.addInVar(name=f'{state} Rep Unscaled Pct',
-                     dist=norm, distkwargs={'loc': df['Rep_Mean'][i],   'scale': df['Rep_Sig'][i]})
-        sim.addInVar(name=f'{state} Other Unscaled Pct',
-                     dist=norm, distkwargs={'loc': df['Other_Mean'][i], 'scale': df['Other_Sig'][i]})  # noqa: E501
+        sim.addInVar(name=f'{state} Dem Unscaled Pct', dist=norm,
+                     distkwargs={'loc': df['Dem_Mean'][i],   'scale': df['Dem_Sig'][i]})
+        sim.addInVar(name=f'{state} Rep Unscaled Pct', dist=norm,
+                     distkwargs={'loc': df['Rep_Mean'][i],   'scale': df['Rep_Sig'][i]})
+        sim.addInVar(name=f'{state} Other Unscaled Pct', dist=norm,
+                     distkwargs={'loc': df['Other_Mean'][i], 'scale': df['Other_Sig'][i]})
 
     sim.addConstVal(name='states', val=states)
     sim.addConstVal(name='df', val=df)
@@ -48,9 +48,11 @@ def election_example_monte_carlo_sim():
                                       statkwargs={'p': 0.5, 'bound': 'nearest'})
     sim.outvars['Dem EVs'].addVarStat(stat='orderstatTI',
                                       statkwargs={'p': 0.75, 'c': 0.90, 'bound': '2-sided'})
-    fig, ax = mc.plot(sim.outvars['Dem EVs'])
+    fig, ax = mc.plot(sim.outvars['Dem EVs'], plotkwargs={'bins': 50})
     ax.set_autoscale_on(False)
     ax.plot([270, 270], [0, 1], '--k')
+    fig.set_size_inches(8.0, 4.5)
+    plt.savefig('ev_histogram.png', dpi=100)
 
     pct_dem_win = sum(x == 'Dem' for x in sim.outvars['Winner'].vals)/sim.ncases
     pct_rep_win = sum(x == 'Rep' for x in sim.outvars['Winner'].vals)/sim.ncases

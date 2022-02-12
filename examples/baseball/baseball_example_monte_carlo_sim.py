@@ -57,12 +57,14 @@ def baseball_example_monte_carlo_sim():
                       highlight_cases=homerun_indices, plotkwargs={'zorder': 10})
     plot_baseball_field(ax)
     ax.scatter(sim.outvars['Landing X [m]'].nums, sim.outvars['Landing Y [m]'].nums, 0,
-               s=2, c='k', marker='o')
-    # plt.savefig('baseball_trajectory.png')
-    mc.multi_plot([sim.invars['Launch Angle [deg]'], sim.outvars['Landing Dist [m]']],
-                  cov_p=0.95, title='Launch Angle vs Landing Distance w/ 95% CI',
-                  highlight_cases=homerun_indices)
-    # plt.savefig('launch_angle_vs_landing.png')
+               s=2, c='k', alpha=0.9, marker='o')
+    # fig.set_size_inches(7.0, 7.0)
+    # plt.savefig('baseball_trajectory.png', dpi=100)
+    fig, axs = mc.multi_plot([sim.invars['Launch Angle [deg]'], sim.outvars['Landing Dist [m]']],
+                             cov_p=0.95, title='Launch Angle vs Landing Distance w/ 95% CI',
+                             highlight_cases=homerun_indices)
+    # fig.set_size_inches(8.8, 6.6)
+    # plt.savefig('launch_angle_vs_landing.png', dpi=100)
     plt.show()
 
     return sim

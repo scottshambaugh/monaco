@@ -46,9 +46,11 @@ def retirement_example_monte_carlo_sim():
                       highlight_cases=wentbrokecases, title='Yearly Balances')
     ax.set_yscale('symlog')
     ax.set_ylim(bottom=1e4)
+    fig.set_size_inches(7.6, 5.4)
+    plt.savefig('yearly_balances.png', dpi=100)
 
     sim.genCovarianceMatrix()
-    plt.figure()
+    fig = plt.figure()
     yearly_return_broke_corr = []
     for i in range(nyears):
         corr = sim.covs[sim.covvarlist.index('Broke')][sim.covvarlist.index(f'Year {i} Returns')]
@@ -58,6 +60,10 @@ def retirement_example_monte_carlo_sim():
     plt.title('Correlation Between Yearly Return and Going Broke')
     plt.ylabel('Correlation Coeff')
     plt.xlabel('Year')
+    fig.set_size_inches(7.6, 5.4)
+    plt.savefig('return_broke_corr.png', dpi=100)
+
+    plt.show()
 
     return sim
 
