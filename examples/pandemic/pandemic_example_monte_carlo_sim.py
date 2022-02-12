@@ -40,13 +40,19 @@ def pandemic_example_monte_carlo_sim():
     mc.plot(sim.outvars['Max Superspreader Degree'], highlight_cases=0)
     mc.plot(sim.outvars['Herd Immunity Threshold'], highlight_cases=0)
 
-    # import matplotlib.pyplot as plt
-    mc.plot(sim.outvars['Timestep'], sim.outvars['Proportion Infected'], highlight_cases=0)
-    # plt.savefig('cum_infections_vs_time.png')
-    mc.multi_plot([sim.invars['Probability of Infection'],
-                   sim.outvars['Herd Immunity Threshold']],
-                   cov_plot=False, highlight_cases=0)
-    # plt.savefig('p_infection_vs_herd_immunity.png')
+    '''
+    import matplotlib.pyplot as plt
+    fig, ax = mc.plot(sim.outvars['Timestep'], sim.outvars['Proportion Infected'],
+                      highlight_cases=0)
+    fig.set_size_inches(8.8, 6.0)
+    plt.savefig('cum_infections_vs_time.png', dpi=100)
+
+    fig, axs = mc.multi_plot([sim.invars['Probability of Infection'],
+                              sim.outvars['Herd Immunity Threshold']],
+                             cov_plot=False, highlight_cases=0)
+    fig.set_size_inches(8.8, 6.0)
+    plt.savefig('p_infection_vs_herd_immunity.png', dpi=100)
+    #'''
 
     return sim
 

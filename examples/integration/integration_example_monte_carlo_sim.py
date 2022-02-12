@@ -97,15 +97,24 @@ def integration_example_monte_carlo_sim():
     fig, ax = mc.plot(sim.invars['x'], sim.invars['y'], highlight_cases=indices_under_curve)
     ax.axis('equal')
     plt.title(resultsstr)
+    fig.set_size_inches(8.8, 6.0)
+    plt.savefig('circle_integration.png', dpi=100)
 
     fig, ax = mc.plot_integration_convergence(sim.outvars['pi_est'], dimension=dimension,
                                               volume=totalArea, refval=np.pi, conf=0.95,
                                               title='Approx. value of π',
                                               samplemethod=samplemethod)
     ax.set_ylim((3.10, 3.18))
+    fig.set_size_inches(8.8, 6.0)
+    plt.savefig('pi_convergence.png', dpi=100)
+
     fig, ax = mc.plot_integration_error(sim.outvars['pi_est'], dimension=dimension,
                                         volume=totalArea, refval=np.pi, conf=0.95,
                                         title='Approx. error of π', samplemethod=samplemethod)
+    fig.set_size_inches(8.8, 6.0)
+    plt.savefig('pi_error.png', dpi=100)
+
+    plt.show()
     #'''
 
     return sim
