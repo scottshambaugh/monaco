@@ -57,7 +57,7 @@ def test_length(val, ans):
     (         [], []),
     (          0, [0, ]),
     (     (0, 1), [0, 1]),
-    (np.array(1), [1, ]),
+    (np.array(0), [0, ]),
 ])
 def test_get_list(val, ans):
     assert all(get_list(get_list(val) == ans))
