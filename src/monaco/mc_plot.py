@@ -241,18 +241,21 @@ def plot_hist(var         : InVar | OutVar,
                      orientation=orientation, cumulative=cumulative, histtype='bar',
                      facecolor='k', alpha=0.5, **plotkwargs)
             lim = get_hist_lim(ax, orientation)
-            x = np.concatenate(([lim[0]], bins, [lim[1]]))
+            x = np.arange(int(np.floor(lim[0])), int(np.ceil(lim[1])))
             dist = var.dist(**var.distkwargs)
+            xdata = x
             if cumulative:
-                xdata = x - binwidth
                 ydata = dist.cdf(x)
+                if orientation == PlotOrientation.VERTICAL:
+                    plt.step(xdata, ydata, color='k', alpha=0.9, where='post')
+                elif orientation == PlotOrientation.HORIZONTAL:
+                    plt.step(ydata, xdata, color='k', alpha=0.9, where='post')
             else:
-                xdata = x[1:]
-                ydata = np.diff(dist.cdf(x))  # manual pdf
-            if orientation == PlotOrientation.VERTICAL:
-                plt.step(xdata, ydata, color='k', alpha=0.9, where='post')
-            elif orientation == PlotOrientation.HORIZONTAL:
-                plt.step(ydata, xdata, color='k', alpha=0.9, where='post')
+                ydata = dist.pmf(x)
+                if orientation == PlotOrientation.VERTICAL:
+                    plt.vlines(xdata, 0, ydata, color='k', alpha=0.9)
+                elif orientation == PlotOrientation.HORIZONTAL:
+                    plt.hlines(xdata, 0, ydata, color='k', alpha=0.9)
 
     elif isinstance(var, monaco.mc_var.OutVar):
         plt.hist(bins[:-1], bins=bins, weights=counts/sum(counts), density=False,

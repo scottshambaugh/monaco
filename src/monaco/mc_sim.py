@@ -268,8 +268,8 @@ class Sim:
             seed = (self.seed + self.ninvars) % 2**32  # seed is dependent on the order added
         self.invarseeds.append(seed)
         invar = InVar(name=name, dist=dist, distkwargs=distkwargs, ndraws=self.ndraws,
-                        nummap=nummap, samplemethod=self.samplemethod, ninvar=self.ninvars,
-                        seed=seed, firstcaseismedian=self.firstcaseismedian, autodraw=False)
+                      nummap=nummap, samplemethod=self.samplemethod, ninvar=self.ninvars,
+                      seed=seed, firstcaseismedian=self.firstcaseismedian, autodraw=False)
         self.invars[name] = invar
 
 
