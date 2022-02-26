@@ -24,8 +24,10 @@
 
 ## [Unreleased]
 ### Added    
+* Plots of all the example statistical distributions
 ### Changed    
 * Change color palette to match matplotlib defaults
+* Discrete InVar plots show stem pmfs
 ### Removed    
 
 
