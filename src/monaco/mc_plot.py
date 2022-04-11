@@ -288,7 +288,7 @@ def plot_hist(var         : InVar | OutVar,
             elif length(nums) == 3:  # Sided Order Statistics
                 plt.plot([nums[1], nums[1]], ylim,
                          linestyle='-', color='C0', alpha=1, **plotkwargs)
-            if varstat.bootstrap:
+            if varstat.confidence_interval_high_nums is not None:
                 ax.fill_between([varstat.confidence_interval_low_nums,
                                  varstat.confidence_interval_high_nums],
                                 [ylim[0], ylim[0]],
@@ -316,7 +316,7 @@ def plot_hist(var         : InVar | OutVar,
             elif length(nums) == 3:  # Sided Order Statistics
                 plt.plot(xlim, [nums[1], nums[1]],
                          linestyle='-', color='C0', alpha=1, **plotkwargs)
-            if varstat.bootstrap:
+            if varstat.confidence_interval_high_nums is not None:
                 ax.fill_between(xlim,
                                 [varstat.confidence_interval_low_nums,
                                  varstat.confidence_interval_high_nums],
@@ -523,7 +523,7 @@ def plot_2d_line(varx : InVar | OutVar,
         elif length(varstat.nums[0]) == 3:  # Sided Order Statistic
             plt.plot(varx_points[0], varstat.nums[:, 1],
                      linestyle='-', color='C0', alpha=0.9, **plotkwargs)
-        if varstat.bootstrap:
+        if varstat.confidence_interval_high_nums is not None:
             ax.fill_between(varx_points[0],
                             varstat.confidence_interval_low_nums,
                             varstat.confidence_interval_high_nums,

@@ -214,7 +214,7 @@ class VarStat:
     def sigma(self,
               x,  # TODO: explicit typing here
               sig  : float,
-              axis : float = None,
+              axis : int = None,
               ) -> float:
         """
         Calculate the sigma value of a normally distributed list of numbers.

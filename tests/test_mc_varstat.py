@@ -16,20 +16,31 @@ def invar():
                  samplemethod=SampleMethod.RANDOM, seed=seed)
 
 
+@pytest.fixture
+def v():
+    v = np.array([-2, -1, 2, 3, 4, 5])
+    return v
+
+
 bound = StatBound.ONESIDED
-@pytest.mark.parametrize("stat, statkwargs, vals", [
-    (VarStatType.ORDERSTATTI, {'p': sig2pct( 3, bound), 'c': 0.50, 'bound': bound}        ,  3.0069887),  # noqa: E501
-    (VarStatType.ORDERSTATP , {'p': sig2pct( 3, bound), 'c': 0.50, 'bound': StatBound.ALL}, [2.9472576, 3.0069887, 3.0265706]),  # noqa: E501
-    (VarStatType.GAUSSIANP  , {'p': sig2pct(-3, bound), 'bound': bound}                   , -2.9930052),  # noqa: E501
-    (VarStatType.SIGMA      , {'sig': 3, 'bound': bound}                                  ,  3.0002124),  # noqa: E501
-    (VarStatType.MEAN       , dict()                                                      ,  0.0036036),  # noqa: E501
-    (np.mean                , dict()                                                      ,  0.0036036),  # noqa: E501
+@pytest.mark.parametrize("stat, statkwargs, vals, cilow, cihigh", [
+    (VarStatType.ORDERSTATTI, {'p': sig2pct( 3, bound), 'c': 0.50, 'bound': bound},
+     3.0069887, [], []),
+    (VarStatType.ORDERSTATP , {'p': sig2pct( 3, bound), 'c': 0.50, 'bound': StatBound.ALL},
+     [2.9472576, 3.0069887, 3.0265706], [], []),
+    (VarStatType.GAUSSIANP  , {'p': sig2pct(-3, bound), 'bound': bound},
+     -2.9930052, -3.0218270, -2.9478346),
+    (VarStatType.SIGMA      , {'sig': 3, 'bound': bound}, 3.0002124, 2.9639949, 3.034664),
+    (VarStatType.MEAN       , dict(), 0.0036036, -0.0204179, 0.0167662),
+    (np.mean                , dict(), 0.0036036, -0.0204179, 0.0167662),
 ])
-def test_invarstat(stat, statkwargs, vals, invar):
+def test_invarstat(stat, statkwargs, vals, cihigh, cilow, invar):
     invarstat = VarStat(invar, stat=stat, statkwargs=statkwargs,
                         bootstrap=True, bootstrap_k=10, conf=0.95, seed=0)
-    print(invarstat.vals)
+    print(invarstat.confidence_interval_low_vals, invarstat.confidence_interval_high_vals)
     assert np.allclose(invarstat.vals, vals)
+    assert np.allclose(invarstat.confidence_interval_low_vals, cilow)
+    assert np.allclose(invarstat.confidence_interval_high_vals, cihigh)
 
 
 def test_varstat_setName(invar):
@@ -40,12 +51,6 @@ def test_varstat_setName(invar):
     assert invarstat.name == 'norm 1-sided P99.865/50.0% Confidence Interval'
 
 
-@pytest.fixture
-def v():
-    v = np.array([-2, -1, 2, 3, 4, 5])
-    return v
-
-
 def test_outvarstat_2d(v):
     from monaco.mc_var import OutVar
     outvar = OutVar('test', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseismedian=True)
@@ -54,9 +59,17 @@ def test_outvarstat_2d(v):
                           bootstrap=True, bootstrap_k=10, conf=0.95, seed=0)
     outvarstat2 = VarStat(outvar, stat=VarStatType.MIN,
                           bootstrap=True, bootstrap_k=10, conf=0.95, seed=0)
+
     assert(np.allclose(outvarstat1.vals, [[-4, -2, 4], [-2, -1, 2], [-4, -2, 4],
                                           [-6, -3, 6], [-8, -4, 8], [-10, -5, 10]]))
+    assert outvarstat1.confidence_interval_low_nums is None
+    assert outvarstat1.confidence_interval_high_nums is None
+
     assert(np.allclose(outvarstat2.vals, [ -4, -2, -4, -6, -8, -10.]))
+    assert(np.allclose(outvarstat2.confidence_interval_low_nums,
+                       [-8.0, -4.0, -7.5, -11.25, -15.0, -18.75]))
+    assert(np.allclose(outvarstat2.confidence_interval_high_nums,
+                       [-4.0, -2.0, -4.0, -6.0, -8.0, -10.0]))
 
 
 def test_outvarstat_2d_irregular(v):
@@ -65,3 +78,5 @@ def test_outvarstat_2d_irregular(v):
     outvarstat = VarStat(outvar, stat=VarStatType.MIN,
                          bootstrap=True, bootstrap_k=10, conf=0.95, seed=0)
     assert(np.allclose(outvarstat.vals, [-4, -2, -2, -3, -4, -5.]))
+    assert(np.allclose(outvarstat.confidence_interval_low_nums, [-8, -4, -6, -9, -12, -15.]))
+    assert(np.allclose(outvarstat.confidence_interval_high_nums, [-4, -2, -2, -3, -4, -5.]))
