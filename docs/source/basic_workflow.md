@@ -22,7 +22,7 @@ postprocess(case, *simrawoutput) = postprocess(case, simrawoutput1, simrawoutput
 
 A progress bar in the terminal will show the progress as the results for all cases are calculated. After it is complete, all the output values will be compiled into `OutVar` objects, and you can now interrogate the combined results. Several things which you might want to do are built in:
 
-1) Calculate statistics on the ensemble of input or output values, via the `Var.addVarStat` method.
+1) Calculate statistics on the ensemble of input or output values, via the `Var.addVarStat` method. By default, these statistics are bootstrapped to calculate a 95% confidence interval.
 
 2) Plot the ensemble of results for a value, either on its own or against other values. The `plot` function intelligently chooses how to plot the variables you pass it, whether that data are singular values, timeseries, or 2D/3D vectors. Histograms, cumulative density plots, 2D/3D scatter plots, and 2D/3D line plots are manually callable for more fine grained control. Specific cases can be highlighted, and the statistics calculated in (1) above can be added to the plots as well.
 
