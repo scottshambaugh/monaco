@@ -1,6 +1,7 @@
 __pycache__/
 _build/
 *.py[cod]
+*.egg-info
 
 # Sphinx docs
 build/
@@ -30,3 +31,9 @@ htmlcov/
 # Security Keys
 *.pem
 *.ppk
+
+# Auto-generated setup.py
+setup.py
+
+# Jupyter cache
+*.ipynb_checkpoints
