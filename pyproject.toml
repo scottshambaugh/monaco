@@ -43,5 +43,5 @@ pandas = ["pandas"]
 docs = ["sphinx", "sphinx_rtd_theme", "myst-parser"]
 
 [build-system]
-requires = ["setuptools", "poetry-core>=1.0.7"]
+requires = ["setuptools", "poetry-core>=1.1.0a7"]
 build-backend = "poetry.core.masonry.api"
