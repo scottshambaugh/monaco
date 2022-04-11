@@ -235,7 +235,7 @@ class VarStat:
     def statsFunctionWrapper(self,
                              x : Any,
                              axis : int = None,  # Needed for bootstrap vectorization
-                             ) -> Callable:
+                             ) -> Any:
         """
         A wrapper function to allow using a bootstrap function that uses kwargs.
         Relies on self.fcn and self.fcnkwargs already being set. Note that fcn
