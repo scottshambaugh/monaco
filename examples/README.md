@@ -6,6 +6,7 @@ wind conditions, and mass properties. A useful example for looking at more
 complicated program inputs and outputs, and postprocessing that data into
 outvars of different shapes and types.
 
+The simulation does not perform robust integration. But it does model wind,
 aerodynamic drag and the magnus effect from topspin. Home runs are highlighted.
 
 <p float="left" align="center">
