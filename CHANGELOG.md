@@ -22,6 +22,11 @@
 
 ## [Unreleased]
 ### Added    
+### Changed    
+### Removed    
+
+## [0.4.0] - 2022-04-22
+### Added    
 * Plots of all the example statistical distributions
 * Bootstrapping confidence interval for a VarStat
 * Plot bootstrapped confidence intervals
@@ -32,7 +37,7 @@
 ### Removed    
 
 
-## [0.3.1] - 2021-01-29
+## [0.3.1] - 2022-01-29
 ### Added    
 * Vars get their own plot() method as a shorthand
 * Baseball example
@@ -41,7 +46,7 @@
 * Rocket example
 
 
-## [0.3.0] - 2021-01-22
+## [0.3.0] - 2022-01-22
 ### Added    
 * Experimental D-VARS sensitivity analysis
 * Sim.scalarOutVars() dict and Sim.noutvars
