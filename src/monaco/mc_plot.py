@@ -280,15 +280,21 @@ def plot_hist(var         : InVar | OutVar,
                      [ylim[0], ylim[0] + (ylim[1] - ylim[0])*0.20],
                      linestyle='-', linewidth=1, color='C1', alpha=1,
                      **plotkwargs)
-        for varstat in var.varstats:
+        for i, varstat in enumerate(var.varstats):
             nums = get_list(varstat.nums)
-            if length(nums) == 1:
+            if length(nums) == 1:  # Single Statistic
                 plt.plot([nums[0], nums[0]], ylim,
                          linestyle='-', color='C0', alpha=1, **plotkwargs)
-            elif length(nums) == 3:
+            elif length(nums) == 3:  # Sided Order Statistics
                 plt.plot([nums[1], nums[1]], ylim,
                          linestyle='-', color='C0', alpha=1, **plotkwargs)
-            if length(nums) in (2, 3):
+            if varstat.bootstrap:
+                ax.fill_between([varstat.confidence_interval_low_nums,
+                                 varstat.confidence_interval_high_nums],
+                                [ylim[0], ylim[0]],
+                                [ylim[1], ylim[1]],
+                                color='C0', alpha=0.3)
+            if length(nums) in (2, 3):  # Sided Order Statistics
                 ax.fill_between([nums[0], nums[-1]],
                                 [ylim[0], ylim[0]],
                                 [ylim[1], ylim[1]],
@@ -304,13 +310,18 @@ def plot_hist(var         : InVar | OutVar,
                      linestyle='-', linewidth=1, color='C1', alpha=1, **plotkwargs)
         for varstat in var.varstats:
             nums = get_list(varstat.nums)
-            if length(nums) == 1:
+            if length(nums) == 1:  # Single Statistic
                 plt.plot(xlim, [nums[0], nums[0]],
                          linestyle='-', color='C0', alpha=1, **plotkwargs)
-            elif length(nums) == 3:
+            elif length(nums) == 3:  # Sided Order Statistics
                 plt.plot(xlim, [nums[1], nums[1]],
                          linestyle='-', color='C0', alpha=1, **plotkwargs)
-            if length(nums) in (2, 3):
+            if varstat.bootstrap:
+                ax.fill_between(xlim,
+                                [varstat.confidence_interval_low_nums,
+                                 varstat.confidence_interval_high_nums],
+                                color='C0', alpha=0.3)
+            if length(nums) in (2, 3):  # Sided Order Statistics
                 ax.fill_between(xlim, nums[0], nums[-1], color='C0', alpha=0.3)
         plt.ylabel(var.name)
         plt.xlabel(ylabeltext)
@@ -506,13 +517,18 @@ def plot_2d_line(varx : InVar | OutVar,
                  linestyle='-', color='C1', alpha=0.9, **plotkwargs)
 
     for varstat in vary.varstats:
-        if length(varstat.nums[0]) == 1:
+        if length(varstat.nums[0]) == 1:  # Single Statistic
             plt.plot(varx_points[0], varstat.nums[:],
                      linestyle='-', color='C0', alpha=0.9, **plotkwargs)
-        elif length(varstat.nums[0]) == 3:
+        elif length(varstat.nums[0]) == 3:  # Sided Order Statistic
             plt.plot(varx_points[0], varstat.nums[:, 1],
                      linestyle='-', color='C0', alpha=0.9, **plotkwargs)
-        if length(varstat.nums[0]) in (2, 3):
+        if varstat.bootstrap:
+            ax.fill_between(varx_points[0],
+                            varstat.confidence_interval_low_nums,
+                            varstat.confidence_interval_high_nums,
+                            color='C0', alpha=0.3)
+        if length(varstat.nums[0]) in (2, 3):  # Sided Order Statistic
             ax.fill_between(varx_points[0], varstat.nums[:, 0], varstat.nums[:, -1],
                             color='C0', alpha=0.3)
 
