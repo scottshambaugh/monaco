@@ -7,7 +7,6 @@
 - Run on remote server (AWS, etc)
 - Polynomial approximations
 - Sensitivity Indices (Sobol's Method)
-- Get working in jupyter notebooks
 ### Later:
 - Get custom distributions working
 - Tornado plots
@@ -26,6 +25,7 @@
 * Plots of all the example statistical distributions
 * Bootstrapping confidence interval for a VarStat
 * Plot bootstrapped confidence intervals
+* Copy of template in jupyter notebook format
 ### Changed    
 * Change color palette to match matplotlib defaults
 * Discrete InVar plots show stem pmfs

@@ -4,7 +4,7 @@
 This directory contains a template you can use as a basis for building your Monte Carlo simulation. The simulation is of a series of weighted coin flips that comes up 70% heads. By default, the simulation executes 500 draws, and tries to calculate a guess at what the coin's weighting is. These files should be very well commented, and hopefully gives you a sense of how a simulation is set up and run.
 
 ### Running
-After installing `monaco`, download the two python files here and execute `template_monte_carlo_sim.py` in a terminal window. 
+After installing `monaco`, download the two *.py python files here and execute `template_monte_carlo_sim.py` in a terminal window. Or, download the `jupyter_template.ipynb` jupyter notebook and step through that.
 
 ### Learning
 Here's some things to try out:
