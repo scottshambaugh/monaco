@@ -29,16 +29,20 @@ class Var(ABC):
         The name of this value.
     ndraws : int
         The number of random draws.
+    seed : int
+        The random seed to use for bootstrapping.
     firstcaseismedian : bool
         Whether the first case represents the median case.
     """
     def __init__(self,
                  name              : str,
                  ndraws            : int,
+                 seed              : int,
                  firstcaseismedian : bool,
                  ):
         self.name = name
         self.ndraws = ndraws
+        self.seed = seed
         self.firstcaseismedian = firstcaseismedian
 
         self.ncases = ndraws + 1
@@ -86,9 +90,13 @@ class Var(ABC):
 
 
     def addVarStat(self,
-                   stat       : VarStatType | Callable,
-                   statkwargs : dict[str, Any] = None,
-                   name       : str = None,
+                   stat        : VarStatType | Callable,
+                   statkwargs  : dict[str, Any] = None,
+                   bootstrap   : bool = False,
+                   bootstrap_k : int = 10,
+                   conf        : float = 0.95,
+                   seed        : int = None,
+                   name        : str = None,
                    ) -> None:
         """
         Add a variable statistic to this variable.
@@ -99,13 +107,20 @@ class Var(ABC):
             The type of variable statistic to add.
         statkwargs : dict[str, Any]
             Keyword arguments for the specified variable stastistic.
+        seed : int
+            The random seed to use for bootstrapping.
         name : str
             The name of the variable statistic to add.
         """
         if statkwargs is None:
             statkwargs = dict()
-        self.varstats.append(VarStat(var=self, stat=stat,
-                                     statkwargs=statkwargs, name=name))
+        if seed is None:
+            # seed is dependent on the order added
+            seed = (self.seed + 1 + len(self.varstats)) % 2**32
+
+        self.varstats.append(VarStat(var=self, stat=stat, statkwargs=statkwargs,
+                                     bootstrap=bootstrap, bootstrap_k=bootstrap_k,
+                                     conf=conf, seed=seed, name=name))
 
 
     def clearVarStats(self) -> None:
@@ -170,7 +185,7 @@ class InVar(Var):
     ninvar : int
         The number of the input variable this is.
     seed : int, default: np.random.get_state(legacy=False)['state']['key'][0]
-        The random seed for drawing this variable.
+        The random seed for drawing this variable and bootstrapping.
     firstcaseismedian : bool, default: False
         Whether the first case represents the median case.
     autodraw : bool, default: True
@@ -207,7 +222,8 @@ class InVar(Var):
                  firstcaseismedian : bool             = False,
                  autodraw          : bool             = True,
                  ):
-        super().__init__(name=name, ndraws=ndraws, firstcaseismedian=firstcaseismedian)
+        super().__init__(name=name, ndraws=ndraws, seed=seed,
+                         firstcaseismedian=firstcaseismedian)
 
         self.dist = dist
         if distkwargs is None:
@@ -215,7 +231,6 @@ class InVar(Var):
         self.distkwargs = distkwargs
         self.samplemethod = samplemethod
         self.ninvar = ninvar
-        self.seed = seed
         self.nummap = None
         if nummap is not None:
             self.nummap = nummap
@@ -392,6 +407,8 @@ class OutVar(Var):
         A dictionary mapping nonnumeric values to numbers.
     ndraws : int
         The number of random draws.
+    seed : int, default: np.random.get_state(legacy=False)['state']['key'][0]
+        The random seed for bootstrapping.
     firstcaseismedian : bool, default: False
         Whether the first case represents the median case.
 
@@ -415,6 +432,7 @@ class OutVar(Var):
                  vals              : list[Any],
                  valmap            : dict = None,
                  ndraws            : int  = None,
+                 seed              : int = np.random.get_state(legacy=False)['state']['key'][0],
                  firstcaseismedian : bool = False,
                  ):
         if ndraws is None:
@@ -422,7 +440,8 @@ class OutVar(Var):
             if firstcaseismedian:
                 ndraws = ndraws - 1
 
-        super().__init__(name=name, ndraws=ndraws, firstcaseismedian=firstcaseismedian)
+        super().__init__(name=name, ndraws=ndraws, seed=seed,
+                         firstcaseismedian=firstcaseismedian)
         self.vals = vals
         self.valmap = valmap
         if valmap is None:

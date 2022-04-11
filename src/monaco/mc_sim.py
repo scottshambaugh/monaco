@@ -64,6 +64,8 @@ class Sim:
         The filepath to the simulation .mcsim datafile.
     invarseeds : list[int]
         The random seeds for each of the input variables.
+    outvarseeds : list[int]
+        The random seeds for each of the input variables.
     caseseeds : list[int]
         The random seeds for each of the cases.
     inittime : datetime.datetime
@@ -148,8 +150,9 @@ class Sim:
         if self.savesimdata:
             self.filepath = self.resultsdir / f'{self.name}.mcsim'
 
-        self.invarseeds : list[int] = []
-        self.caseseeds  : list[int] = []
+        self.invarseeds  : list[int] = []
+        self.outvarseeds : list[int] = []
+        self.caseseeds   : list[int] = []
 
         self.inittime  : datetime = datetime.now()
         self.starttime : datetime = None
@@ -265,7 +268,8 @@ class Sim:
         """
         self.ninvars += 1
         if seed is None:
-            seed = (self.seed + self.ninvars) % 2**32  # seed is dependent on the order added
+            # seed is dependent on the order added
+            seed = (self.seed + self.ninvars) % 2**32
         self.invarseeds.append(seed)
         invar = InVar(name=name, dist=dist, distkwargs=distkwargs, ndraws=self.ndraws,
                       nummap=nummap, samplemethod=self.samplemethod, ninvar=self.ninvars,
@@ -716,7 +720,11 @@ class Sim:
 
     def genOutVars(self) -> None:
         """Generate the output variables."""
-        for varname in self.cases[0].outvals.keys():
+        for i_var, varname in enumerate(self.cases[0].outvals.keys()):
+            # seed is dependent on the order added
+            seed = (self.seed - 1 - i_var) % 2**32
+            self.outvarseeds.append(seed)
+
             vals = []
             for i in range(self.ncases):
                 vals.append(self.cases[i].outvals[varname].val)
@@ -737,8 +745,8 @@ class Sim:
                 valmap = self.cases[0].outvals[varname].valmap
 
             self.outvars[varname] = OutVar(name=varname, vals=vals, valmap=valmap,
-                                               ndraws=self.ndraws,
-                                               firstcaseismedian=self.firstcaseismedian)
+                                           ndraws=self.ndraws, seed=seed,
+                                           firstcaseismedian=self.firstcaseismedian)
             for i in range(self.ncases):
                 self.cases[i].outvars[varname] = self.outvars[varname]
 

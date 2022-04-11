@@ -9,10 +9,12 @@ if TYPE_CHECKING:
 import numpy as np
 from copy import copy
 from statistics import mode
+from scipy.stats import bootstrap
 from scipy.stats.mstats import gmean
 from monaco.helper_functions import get_list
 from monaco.gaussian_statistics import pct2sig, sig2pct
-from monaco.order_statistics import (order_stat_P_k, order_stat_TI_k, get_iP)
+from monaco.order_statistics import (order_stat_TI_n, order_stat_TI_k,
+                                     order_stat_P_k, get_iP)
 from monaco.mc_enums import StatBound, VarStatType, VarStatSide
 from typing import Any, Callable
 
@@ -26,18 +28,40 @@ class VarStat:
     var : monaco.mc_var.Var
         The variable to generate statistics for.
     stat : monaco.mc_enums.VarStatType | Callable
-        The statistic to generate. Can be custom.
+        The statistic to generate. Can be custom. If custom, must be able to
+        accept an "axis" kwarg for bootstrap vectorization.
     statkwargs : dict[str:Any]
         The keyword arguments for the variable statistic.
+    bootstrap : bool (default: True)
+        Whether to use bootstrapping to generate confidence intervals for the
+        statistic.
+    bootstrap_k : int (default: 10)
+        The k'th order statistic to determine the number of bootstrap draws for
+        the given confidence level. Must be >= 1. Set higher for a smoother
+        bootstrap distribution.
+    conf : float (default: 0.95)
+        The confidence level for the confidence interval.
+    seed : int (default: np.random.get_state(legacy=False)['state']['key'][0])
+        The random seed to use for bootstrapping.
     name : str
-        The name of this variable statistic.
+        The name of the variable statistic.
 
     Attributes
     ----------
     nums : numpy.ndarray
         The output of the variable statistic function applied to `var.nums`
+    confidence_interval_low_nums : numpy.ndarray
+        The nums for the low side of the confidence interval (None if no CI).
+    confidence_interval_high_nums : numpy.ndarray
+        The nums for the high side of the confidence interval (None if no CI).
     vals : list[Any]
         The values for the `nums` as determined by `var.nummap`
+    confidence_interval_low_vals : list[Any]
+        The values for `confidence_interval_low_nums` via `var.nummap`
+    confidence_interval_high_vals : list[Any]
+        The values for `confidence_interval_high_nums` via `var.nummap`
+    bootstrap_n : int
+        The number of bootstrap samples.
 
     Notes
     -----
@@ -85,11 +109,11 @@ class VarStat:
                  var         : Var,
                  stat        : VarStatType | Callable,
                  statkwargs  : dict[str, Any] = None,
-                 bootstrap   : bool = False,
+                 bootstrap   : bool = True,
                  bootstrap_k : int = 10,
                  conf        : float = 0.95,
-                 name        : str = None,
                  seed        : int = np.random.get_state(legacy=False)['state']['key'][0],
+                 name        : str = None,
                  ):
 
         self.var = var
@@ -103,29 +127,37 @@ class VarStat:
         self.name = name
 
         self.bootstrap = bootstrap
+        if bootstrap_k < 1:
+            raise ValueError(f'bootstrap_k = {bootstrap_k} must be >= 1')
         self.bootstrap_k = bootstrap_k
         self.conf = conf
+        self.confidence_interval_low_nums : np.ndarray = None
+        self.confidence_interval_high_nums : np.ndarray = None
+        self.confidence_interval_low_vals : list[Any] | np.ndarray = []
+        self.confidence_interval_high_vals : list[Any] | np.ndarray = []
+        self.bootstrap_n = None
+        self.seed = seed
 
         if isinstance(stat, Callable):
-            self.setName(str(stat))
+            self.setName(f'{self.var.name} {str(stat)}')
             self.genStatsFunction(fcn=stat, fcnkwargs=statkwargs)
         elif stat == VarStatType.MAX:
-            self.setName('Max')
+            self.setName(f'{self.var.name} Max')
             self.genStatsFunction(fcn=np.max)
         elif stat == VarStatType.MIN:
-            self.setName('Min')
+            self.setName(f'{self.var.name} Min')
             self.genStatsFunction(fcn=np.min)
         elif stat == VarStatType.MEDIAN:
-            self.setName('Median')
+            self.setName(f'{self.var.name} Median')
             self.genStatsFunction(fcn=np.median)
         elif stat == VarStatType.MEAN:
-            self.setName('Mean')
+            self.setName(f'{self.var.name} Mean')
             self.genStatsFunction(fcn=np.mean)
         elif stat == VarStatType.GEOMEAN:
-            self.setName('Geometric Mean')
+            self.setName(f'{self.var.name} Geometric Mean')
             self.genStatsFunction(fcn=gmean)
         elif stat == VarStatType.MODE:
-            self.setName('Mode')
+            self.setName(f'{self.var.name} Mode')
             self.genStatsFunction(fcn=mode)
         elif stat == VarStatType.SIGMA:
             self.genStatsSigma()
@@ -157,8 +189,8 @@ class VarStat:
 
         self.sig = self.statkwargs['sig']
         self.p = sig2pct(self.sig, bound=self.bound)
-        self.setName(f'{self.sig} Sigma')
-        self.genStatsFunction(self.sigma)
+        self.setName(f'{self.var.name} {self.sig} Sigma')
+        self.genStatsFunction(self.sigma, {'sig': self.sig})
 
 
     def genStatsGaussianP(self) -> None:
@@ -175,12 +207,14 @@ class VarStat:
 
         self.p = self.statkwargs['p']
         self.sig = pct2sig(self.p, bound=self.bound)
-        self.setName(f'Guassian {self.p*100}%')
-        self.genStatsFunction(self.sigma)
+        self.setName(f'{self.var.name} Guassian {self.p*100}%')
+        self.genStatsFunction(self.sigma, {'sig': self.sig})
 
 
     def sigma(self,
               x,  # TODO: explicit typing here
+              sig  : float,
+              axis : float = None,
               ) -> float:
         """
         Calculate the sigma value of a normally distributed list of numbers.
@@ -189,9 +223,32 @@ class VarStat:
         ----------
         x : TODO typing
             The numbers to calculate the sigma value for.
+        sig : float
+            The sigma value.
+        axis : int (default: None)
+            The axis of x to calculate along.
         """
-        std = np.std(x)
-        return np.mean(x) + self.sig*std
+        std = np.std(x, axis=axis)
+        return np.mean(x, axis=axis) + sig*std
+
+
+    def statsFunctionWrapper(self,
+                             x : Any,
+                             axis : int = None,  # Needed for bootstrap vectorization
+                             ) -> Callable:
+        """
+        A wrapper function to allow using a bootstrap function that uses kwargs.
+        Relies on self.fcn and self.fcnkwargs already being set. Note that fcn
+        must accept an `axis` kwarg if bootstrapping.
+
+        Parameters
+        ----------
+        x : Any
+            The input for the function.
+        axis : int (default: None)
+            The axis of x to calculate along.
+        """
+        return self.fcn(x, **self.fcnkwargs, axis=axis)
 
 
     def genStatsFunction(self,
@@ -208,33 +265,75 @@ class VarStat:
         fcnkwargs : dict[str, Any]
             The keyword arguments for the function.
         """
+        self.fcn = fcn
         if fcnkwargs is None:
             fcnkwargs = dict()
+        self.fcnkwargs = fcnkwargs
+        if self.bootstrap:
+            self.bootstrap_n = order_stat_TI_n(self.bootstrap_k, p=0.5, c=self.conf)
 
+        # Scalar Variables
         if self.var.isscalar:
-            self.nums = fcn(self.var.nums, **fcnkwargs)
+            # Calculate nums and confidence interval for each point in the sequence
+            self.nums = self.statsFunctionWrapper(self.var.nums)
+            if self.bootstrap:
+                # Switch to method='Bca' once https://github.com/scipy/scipy/issues/15883 resolved
+                res = bootstrap((np.array(self.var.nums),), self.statsFunctionWrapper,
+                                confidence_level=self.conf,
+                                n_resamples=self.bootstrap_n,
+                                random_state=self.seed, method='basic')
+                self.confidence_interval_low_nums = res.confidence_interval.low
+                self.confidence_interval_high_nums = res.confidence_interval.high
+
+            # Calculate the corresponding vals based on the nummap
             self.vals = copy(self.nums)
+            if self.bootstrap:
+                self.confidence_interval_low_vals = copy(self.confidence_interval_low_nums)
+                self.confidence_interval_high_vals = copy(self.confidence_interval_high_nums)
             if self.var.nummap is not None:
                 self.vals = [self.var.nummap[num] for num in self.nums]
-            '''
-            if self.bootstrap:
-                from scipy.stats import bootstrap
-                n = order_stat_TI_n(self.bootstrap_k, p=0.5, c=self.conf)
-                res = bootstrap(self.var.nums, fcn, **fcnkwargs,
-                                 confidence_level=self.conf, n_resamples=n,
-                                 random_state=self.var.seed)
-            '''
+                if self.bootstrap:
+                    self.confidence_interval_low_vals = \
+                        [self.var.nummap[num] for num in self.confidence_interval_low_nums]
+                    self.confidence_interval_high_vals = \
+                        [self.var.nummap[num] for num in self.confidence_interval_high_nums]
 
+        # 1-D Variables
         elif self.var.maxdim == 1:
             nums_list = get_list(self.var.nums)
             npoints = max(len(x) for x in nums_list)
             self.nums = np.empty(npoints)
+            if self.bootstrap:
+                self.confidence_interval_low_nums = np.empty(npoints)
+                self.confidence_interval_high_nums = np.empty(npoints)
+
+            # Calculate nums and confidence interval for each point in the sequence
             for i in range(npoints):
-                numsatidx = [x[i] for x in nums_list if len(x) > i]
-                self.nums[i] = fcn(numsatidx, **fcnkwargs)
+                numsatidx = np.array([x[i] for x in nums_list if len(x) > i])
+                self.nums[i] = self.statsFunctionWrapper(numsatidx)
+                if self.bootstrap:
+                    # Switch to Bca once https://github.com/scipy/scipy/issues/15883 resolved
+                    res = bootstrap((numsatidx,), self.statsFunctionWrapper,
+                                    confidence_level=self.conf,
+                                    n_resamples=self.bootstrap_n,
+                                    random_state=self.seed, method='basic')
+                    self.confidence_interval_low_nums[i] = res.confidence_interval.low
+                    self.confidence_interval_high_nums[i] = res.confidence_interval.high
+
+            # Calculate the corresponding vals based on the nummap
             self.vals = copy(self.nums)
+            if self.bootstrap:
+                self.confidence_interval_low_vals = copy(self.confidence_interval_low_nums)
+                self.confidence_interval_high_vals = copy(self.confidence_interval_high_nums)
             if self.var.nummap is not None:
-                self.vals = np.array([[self.var.nummap[x] for x in y] for y in self.nums])
+                self.vals = [[self.var.nummap[x] for x in y] for y in self.nums]
+                if self.bootstrap:
+                    self.confidence_interval_low_vals \
+                        = [[self.var.nummap[x] for x in y]
+                           for y in self.confidence_interval_low_nums]
+                    self.confidence_interval_low_vals \
+                        = [[self.var.nummap[x] for x in y]
+                           for y in self.confidence_interval_high_nums]
 
         else:
             # Suppress warning since this will become valid when Var is split
@@ -258,7 +357,8 @@ class VarStat:
         else:
             raise ValueError(f'{self.bound} is not a valid bound for genStatsOrderStatTI')
 
-        self.setName(f'{self.bound} P{round(self.p*100,4)}/{round(self.c*100,4)}% ' +
+        self.setName(f'{self.var.name} ' +
+                     f'{self.bound} P{round(self.p*100,4)}/{round(self.c*100,4)}% ' +
                       'Confidence Interval')
 
         self.k = order_stat_TI_k(n=self.var.ncases, p=self.p, c=self.c, bound=self.bound)
@@ -330,7 +430,8 @@ class VarStat:
         elif self.bound in (StatBound.NEAREST, StatBound.ALL):
             bound = StatBound.TWOSIDED
 
-        self.setName(f'{self.bound} {self.c*100}% Confidence Bound around ' +
+        self.setName(f'{self.var.name} ' +
+                     f'{self.bound} {self.c*100}% Confidence Bound around ' +
                      f'{self.p*100}th Percentile')
 
         self.k = order_stat_P_k(n=self.var.ncases, P=self.p, c=self.c, bound=bound)
