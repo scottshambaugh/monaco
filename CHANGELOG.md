@@ -23,6 +23,7 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+* For all datafiles, switch from `dill` to `cloudpickle` for pickling.
 ### Removed    
 
 ## [0.4.0] - 2022-04-22

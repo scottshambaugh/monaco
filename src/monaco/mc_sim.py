@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import os
 import numpy as np
-import dill
+import cloudpickle
 import pathlib
 from datetime import datetime, timedelta
 from monaco.mc_case import Case
@@ -632,7 +632,7 @@ class Sim:
                 except FileNotFoundError:
                     pass
                 with open(filepath, 'wb') as file:
-                    dill.dump(case, file, protocol=dill.HIGHEST_PROTOCOL)
+                    cloudpickle.dump(case, file)
 
             self.casesrun.add(case.ncase)
 
@@ -893,7 +893,7 @@ class Sim:
                 pass
             self.filepath.touch()
             with open(self.filepath, 'wb') as file:
-                dill.dump(self, file, protocol=dill.HIGHEST_PROTOCOL)
+                cloudpickle.dump(self, file)
 
 
     def loadCases(self) -> None:
@@ -914,7 +914,7 @@ class Sim:
             try:
                 with open(filepath, 'rb') as file:
                     try:
-                        case = dill.load(file)
+                        case = cloudpickle.load(file)
                         if (not case.haspreprocessed) \
                             or (not case.hasrun) \
                             or (case.runtime is None):  # only load case if it completed running

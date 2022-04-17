@@ -3,7 +3,7 @@
 import pytest
 from monaco.mc_sim import Sim
 from monaco.mc_enums import SimFunctions
-import dill
+import cloudpickle
 import os
 
 
@@ -40,7 +40,7 @@ def sim_without_1_2(sim):
     os.remove(sim.resultsdir / 'sim_io_test_2.mccase')
     with open(sim.resultsdir / 'sim_io_test.mcsim', 'rb') as file:
         with pytest.warns(UserWarning) as log:
-            sim = dill.load(file)
+            sim = cloudpickle.load(file)
     return (sim, log)
 
 
@@ -73,7 +73,7 @@ def test_sim_load_stale(sim_without_1_2):
     sim.runSim([1, 2])
     with open(sim.resultsdir / 'sim_io_test.mcsim', 'rb') as file:
         with pytest.warns(UserWarning) as log:
-            dill.load(file)
+            cloudpickle.load(file)
             expectedwarning = 'The following cases were loaded but may be stale: ' + \
                               '[0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]'
             assert expectedwarning in log[-1].message.args[0]
@@ -92,7 +92,7 @@ def test_sim_find_extra_files(sim_with_extra_files):
                           'results directory, run removeExtraResultsFiles() to clean them up: ' + \
                           '[dummyfile.mccase, dummyfile.mcsim]'
         with pytest.warns(UserWarning) as log:
-            dill.load(file)
+            cloudpickle.load(file)
             assert expectedwarning in log[0].message.args[0]
 
 
@@ -100,5 +100,5 @@ def test_sim_remove_extra_files(sim_with_extra_files):
     sim_with_extra_files.removeExtraResultsFiles()
     with open(sim_with_extra_files.resultsdir / 'sim_io_test.mcsim', 'rb') as file:
         with pytest.warns(None) as log:
-            dill.load(file)
+            cloudpickle.load(file)
             assert not log
