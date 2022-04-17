@@ -37,3 +37,6 @@ setup.py
 
 # Jupyter cache
 *.ipynb_checkpoints
+
+# Dask
+dask-worker-space/
