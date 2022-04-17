@@ -66,10 +66,10 @@ def test_invar_getVal(invar_custom_dist):
     assert invar_custom_dist.getVal(0).val == 5
 
 def test_invar_getMean(invar_lognorm_random):
-    assert pytest.approx(invar_lognorm_random.getDistMean(), lognorm_mu + lognorm_sigma**2 / 2)
+    pytest.approx(invar_lognorm_random.getDistMean(), lognorm_mu + lognorm_sigma**2 / 2)
 
 def test_invar_getMedian(invar_lognorm_random):
-    assert pytest.approx(invar_lognorm_random.getDistMedian(), lognorm_mu)
+    pytest.approx(invar_lognorm_random.getDistMedian(), lognorm_mu)
 
 def test_invar_nummap():
     invar = InVar('map', ndraws=10, dist=custom_dist, distkwargs=dict(),

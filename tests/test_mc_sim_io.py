@@ -5,6 +5,7 @@ from monaco.mc_sim import Sim
 from monaco.mc_enums import SimFunctions
 import cloudpickle
 import os
+import warnings
 
 
 ndraws = 16
@@ -99,6 +100,6 @@ def test_sim_find_extra_files(sim_with_extra_files):
 def test_sim_remove_extra_files(sim_with_extra_files):
     sim_with_extra_files.removeExtraResultsFiles()
     with open(sim_with_extra_files.resultsdir / 'sim_io_test.mcsim', 'rb') as file:
-        with pytest.warns(None) as log:
+        with warnings.catch_warnings() as log:
             cloudpickle.load(file)
             assert not log
