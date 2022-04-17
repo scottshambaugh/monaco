@@ -28,7 +28,8 @@ def sim():
 
     sim = Sim(name='Sim', ndraws=16, fcns=fcns(), firstcaseismedian=True,
               verbose=False, samplemethod=SampleMethod.RANDOM,
-              seed=seed, debug=True, cores=1)
+              seed=seed, debug=True, cores=1,
+              savesimdata=False, savecasedata=False)
     sim.addInVar(name='Var1', dist=randint, distkwargs={'low': 1, 'high': 6})
     sim.addInVar(name='Var2', dist=norm, distkwargs={'loc': 10, 'scale': 4})
     sim.runSim()

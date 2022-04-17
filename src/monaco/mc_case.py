@@ -141,6 +141,6 @@ class Case():
         """
 
         self.outvals[name] = OutVal(name=name, ncase=self.ncase, val=val,
-                                        valmap=valmap, ismedian=self.ismedian)
+                                    valmap=valmap, ismedian=self.ismedian)
         if split:
             self.outvals.update(self.outvals[name].split())

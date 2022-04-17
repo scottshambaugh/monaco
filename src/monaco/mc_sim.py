@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import os
 import numpy as np
+import dask
+from dask.distributed import Client
 import cloudpickle
 import pathlib
 from datetime import datetime, timedelta
@@ -10,9 +12,9 @@ from monaco.mc_case import Case
 from monaco.mc_var import InVar, OutVar
 from monaco.mc_enums import SimFunctions, SampleMethod
 from monaco.helper_functions import (get_list, slice_by_index, vprint, vwarn,
-                                     vwrite, hash_str_repeatable)
+                                     hash_str_repeatable)
+from monaco.case_runners import (pre_process_case, run_case, post_process_case)
 from psutil import cpu_count
-from pathos.pools import ThreadPool as Pool
 from tqdm import tqdm
 from typing import Callable, Any, Iterable
 from scipy.stats import rv_continuous, rv_discrete
@@ -184,10 +186,19 @@ class Sim:
         self.setFirstCaseMedian(firstcaseismedian)
         self.setNDraws(self.ndraws)  # will regen runsimid
 
+        self.client = Client()
+        self.cluster = self.client.cluster
+
+
+    def __del__(self):
+        self.client.shutdown()
+
 
     def __getstate__(self):
         """Function for pickling self to save to file."""
         state = self.__dict__.copy()
+        # state['client'] = None  # don't save cluster to file
+        # state['cluster'] = None  # don't save cluster to file
         state['cases'] = []  # don't save case data when pickling self
         return state
 
@@ -197,6 +208,10 @@ class Sim:
         self.__dict__.update(state)
         if self.savecasedata:
             self.loadCases()
+
+        # Start new dask client
+        # self.client = Client()
+        # self.cluster = self.client.cluster
 
 
     def checkFcnsInput(self,
@@ -404,9 +419,30 @@ class Sim:
 
         self.drawVars()
         self.genCases(cases=casestogenerate)
-        self.preProcessCases(cases=casestopreprocess)
-        self.runCases(cases=casestorun, calledfromrunsim=True)
-        self.postProcessCases(cases=casestopostprocess)
+        preprocessedcases = []
+        runcases = []
+        postprocessedcases = []
+        for case in self.cases:
+            if case.ncase in casestopreprocess:
+                preproc_delayed = dask.delayed(pre_process_case)(
+                    self.fcns[SimFunctions.PREPROCESS], case,
+                    self.debug, self.verbose)
+                preprocessedcases.append(preproc_delayed)
+            if case.ncase in casestorun:
+                run_delayed = dask.delayed(run_case)(
+                    self.fcns[SimFunctions.RUN], preproc_delayed,
+                    self.debug, self.verbose, self.runsimid)
+                runcases.append(run_delayed)
+            if case.ncase in casestopostprocess:
+                postproc_delayed = dask.delayed(post_process_case)(
+                    self.fcns[SimFunctions.POSTPROCESS], run_delayed,
+                    self.debug, self.verbose)
+                postprocessedcases.append(postproc_delayed)
+        preprocessedcases = dask.compute(*preprocessedcases)
+        runcases = dask.compute(*runcases)
+        postprocessedcases = dask.compute(*postprocessedcases)
+        for case in postprocessedcases:
+            self.cases[case.ncase] = case
         self.genOutVars()
 
         self.endtime = datetime.now()
@@ -497,7 +533,7 @@ class Sim:
                 self.preProcessCase(case=self.cases[ncase])
 
         else:
-            p = Pool(self.cores)
+            p = None  # Pool(self.cores)
             try:
                 cases_downselect = set(slice_by_index(self.cases, cases_downselect))
                 cases = p.imap(self.preProcessCase, cases_downselect)
@@ -515,37 +551,6 @@ class Sim:
             self.pbar0 = None
 
 
-    def preProcessCase(self,
-                       case : Case,
-                       ) -> Case:
-        """
-        Preprocess a single Monte Carlo case.
-
-        Parameters
-        ----------
-        case : monaco.mc_case.Case
-            The case to preprocess.
-
-        Returns
-        -------
-        case : monaco.mc_case.Case
-            The same case, preprocessed.
-        """
-        try:
-            case.siminput = self.fcns[SimFunctions.PREPROCESS](case)
-            self.casespreprocessed.add(case.ncase)
-            case.haspreprocessed = True
-
-        except Exception:
-            if self.debug:
-                raise
-            else:
-                vwarn(self.verbose, f'\nPreprocessing case {case.ncase} failed')
-
-        if self.pbar0 is not None:
-            self.pbar0.update(1)
-
-        return case
 
 
     def runCases(self,
@@ -577,7 +582,7 @@ class Sim:
                 self.runCase(case=self.cases[ncase])
 
         else:
-            p = Pool(self.cores)
+            p = None  # Pool(self.cores)
             try:
                 cases_downselect = set(slice_by_index(self.cases, cases_downselect))
                 casesrun = p.imap(self.runCase, cases_downselect)
@@ -598,51 +603,6 @@ class Sim:
         if self.savecasedata:
             vprint(self.verbose, f"\nRaw case results saved in '{self.resultsdir}'",
                    end='', flush=True)
-
-
-    def runCase(self,
-                case : Case,
-                ) -> None:
-        """
-        Run a single Monte Carlo case.
-
-        Parameters
-        ----------
-        case : monaco.mc_case.Case
-            The case to run.
-
-        Returns
-        -------
-        case : monaco.mc_case.Case
-            The same case, ran.
-        """
-        try:
-            case.starttime = datetime.now()
-            case.simrawoutput = self.fcns[SimFunctions.RUN](*get_list(case.siminput))
-            case.endtime = datetime.now()
-            case.runtime = case.endtime - case.starttime
-            case.runsimid = self.runsimid
-            case.hasrun = True
-
-            if self.savecasedata:
-                filepath = self.resultsdir / f'{self.name}_{case.ncase}.mccase'
-                case.filepath = filepath
-                try:
-                    filepath.unlink()
-                except FileNotFoundError:
-                    pass
-                with open(filepath, 'wb') as file:
-                    cloudpickle.dump(case, file)
-
-            self.casesrun.add(case.ncase)
-
-        except Exception:
-            if self.debug:
-                raise
-            vwrite(self.verbose, f'\nRunning case {case.ncase} failed')
-
-        if self.pbar1 is not None:
-            self.pbar1.update(1)
 
 
     def postProcessCases(self,
@@ -668,7 +628,7 @@ class Sim:
                 self.postProcessCase(case=self.cases[ncase])
 
         else:
-            p = Pool(self.cores)
+            p = None  # Pool(self.cores)
             try:
                 cases_downselect = set(slice_by_index(self.cases, cases_downselect))
                 casespostprocessed = p.imap(self.postProcessCase, cases_downselect)
@@ -685,37 +645,6 @@ class Sim:
             self.pbar2.refresh()
             self.pbar2.close()
             self.pbar2 = None
-
-
-    def postProcessCase(self,
-                        case : Case,
-                        ) -> None:
-        """
-        Postprocess a single Monte Carlo case.
-
-        Parameters
-        ----------
-        case : monaco.mc_case.Case
-            The case to postprocess.
-
-        Returns
-        -------
-        case : monaco.mc_case.Case
-            The same case, postprocessed.
-        """
-        try:
-            self.fcns[SimFunctions.POSTPROCESS](case, *get_list(case.simrawoutput))
-            self.casespostprocessed.add(case.ncase)
-            case.haspostprocessed = True
-
-        except Exception:
-            if self.debug:
-                raise
-            else:
-                vwrite(self.verbose, f'\nPostprocessing case {case.ncase} failed')
-
-        if self.pbar2 is not None:
-            self.pbar2.update(1)
 
 
     def genOutVars(self) -> None:
