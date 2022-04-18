@@ -55,7 +55,7 @@ def main():
            'postprocess':vars_postprocess}
 
     ndraws = 512
-    sim = mc.Sim(name='dvars', ndraws=ndraws, fcns=fcns, firstcaseismedian=False, seed=3462356, cores=1, samplemethod='random', savecasedata=False, savesimdata=False, verbose=True, debug=True)
+    sim = mc.Sim(name='dvars', ndraws=ndraws, fcns=fcns, firstcaseismedian=False, seed=3462356, singlethreaded=False, daskkwargs=dict(), samplemethod='random', savecasedata=False, savesimdata=False, verbose=True, debug=True)
 
     varnames = ['x1', 'x2', 'x3', 'x4', 'x5', 'x6']
     d = len(varnames)

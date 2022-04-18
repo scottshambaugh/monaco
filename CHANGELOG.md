@@ -22,9 +22,15 @@
 
 ## [Unreleased]
 ### Added    
+* Added `singlethreaded` kwarg to `Sim` initialization.
+* Added `daskkwargs` kwarg to `Sim` initialization.
 ### Changed    
 * For all datafiles, switch from `dill` to `cloudpickle` for pickling.
+* Parallel processing backend moved from `pathos` to `dask`.
+* `Sim.PreProcessCase`, `Sim.RunCase`, and `Sim.PostProcessCase` broken out to
+`case_runners.py` functions.
 ### Removed    
+* Removed `cores` kwarg from `Sim` initialization.
 
 ## [0.4.0] - 2022-04-22
 ### Added    
@@ -40,7 +46,7 @@
 
 ## [0.3.1] - 2022-01-29
 ### Added    
-* Vars get their own plot() method as a shorthand
+* Vars get their own `plot()` method as a shorthand
 * Baseball example
 ### Changed    
 ### Removed    
@@ -50,7 +56,7 @@
 ## [0.3.0] - 2022-01-22
 ### Added    
 * Experimental D-VARS sensitivity analysis
-* Sim.scalarOutVars() dict and Sim.noutvars
+* `Sim.scalarOutVars()` dict and `Sim.noutvars`
 * You can specify a custom varstat
 * You can plot plot in percentile space rather than nums
 ### Changed    

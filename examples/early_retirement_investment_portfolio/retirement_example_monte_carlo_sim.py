@@ -17,7 +17,7 @@ def retirement_example_monte_carlo_sim():
 
     sim = mc.Sim(name='retirement', ndraws=ndraws, fcns=fcns,
                  firstcaseismedian=True, samplemethod='sobol_random',
-                 seed=seed, cores=4,
+                 seed=seed, singlethreaded=False,
                  savecasedata=False,
                  verbose=True, debug=True)
 

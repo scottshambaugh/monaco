@@ -11,10 +11,8 @@ from datetime import datetime, timedelta
 from monaco.mc_case import Case
 from monaco.mc_var import InVar, OutVar
 from monaco.mc_enums import SimFunctions, SampleMethod
-from monaco.helper_functions import (get_list, slice_by_index, vprint, vwarn,
-                                     hash_str_repeatable)
-from monaco.case_runners import (pre_process_case, run_case, post_process_case)
-from psutil import cpu_count
+from monaco.helper_functions import get_list, vprint, vwarn, hash_str_repeatable
+from monaco.case_runners import pre_process_case, run_case, post_process_case
 from tqdm import tqdm
 from typing import Callable, Any, Iterable
 from scipy.stats import rv_continuous, rv_discrete
@@ -41,9 +39,11 @@ class Sim:
         The random sampling method to use.
     seed : int, default: np.random.get_state(legacy=False)['state']['key'][0]
         The random number to seed the simulation.
-    cores : int, default: psutil.cpu_count(logical=False)
-        The number of cores to use for running the simulation. Defaults to the
-        number of physical cores on the machine.
+    singlethreaded : bool, default: False
+        Whether to run single threaded rather than using dask.
+    daskkwargs : dict, default: dict()
+        Kwargs to pass to the dask Client constructor, see:
+        https://distributed.dask.org/en/stable/api.html#client
     verbose : bool, default: True
         Whether to print out warning and status messages.
     debug : bool, default: False
@@ -120,7 +120,8 @@ class Sim:
                  firstcaseismedian : bool = False,
                  samplemethod      : SampleMethod = SampleMethod.SOBOL_RANDOM,
                  seed              : int  = np.random.get_state(legacy=False)['state']['key'][0],
-                 cores             : int  = cpu_count(logical=False),
+                 singlethreaded    : bool = False,
+                 daskkwargs        : dict  = dict(),
                  verbose           : bool = True,
                  debug             : bool = False,
                  savesimdata       : bool = True,
@@ -138,7 +139,8 @@ class Sim:
         self.firstcaseismedian = firstcaseismedian
         self.samplemethod = samplemethod
         self.seed = seed
-        self.cores = cores
+        self.singlethreaded = singlethreaded
+        self.daskkwargs = daskkwargs
         self.savesimdata = savesimdata
         self.savecasedata = savecasedata
 
@@ -186,8 +188,10 @@ class Sim:
         self.setFirstCaseMedian(firstcaseismedian)
         self.setNDraws(self.ndraws)  # will regen runsimid
 
-        self.client = Client()
-        self.cluster = self.client.cluster
+        self.client = None
+        self.cluster = None
+        if not self.singlethreaded:
+            self.initDaskClient()
 
 
     def __del__(self):
@@ -197,8 +201,8 @@ class Sim:
     def __getstate__(self):
         """Function for pickling self to save to file."""
         state = self.__dict__.copy()
-        # state['client'] = None  # don't save cluster to file
-        # state['cluster'] = None  # don't save cluster to file
+        state['client'] = None  # don't save cluster to file
+        state['cluster'] = None  # don't save cluster to file
         state['cases'] = []  # don't save case data when pickling self
         return state
 
@@ -208,10 +212,8 @@ class Sim:
         self.__dict__.update(state)
         if self.savecasedata:
             self.loadCases()
-
-        # Start new dask client
-        # self.client = Client()
-        # self.cluster = self.client.cluster
+        if not self.singlethreaded:
+            self.initDaskClient()
 
 
     def checkFcnsInput(self,
@@ -255,6 +257,15 @@ class Sim:
         if self.invars != dict():
             for invar in self.invars.values():
                 invar.setFirstCaseMedian(firstcaseismedian)
+
+
+    def initDaskClient(self):
+        """
+        Initialize the dask distributed client.
+        """
+        if not self.singlethreaded:
+            self.client = Client(**self.daskkwargs)
+            self.cluster = self.client.cluster
 
 
     def addInVar(self,
@@ -419,30 +430,9 @@ class Sim:
 
         self.drawVars()
         self.genCases(cases=casestogenerate)
-        preprocessedcases = []
-        runcases = []
-        postprocessedcases = []
-        for case in self.cases:
-            if case.ncase in casestopreprocess:
-                preproc_delayed = dask.delayed(pre_process_case)(
-                    self.fcns[SimFunctions.PREPROCESS], case,
-                    self.debug, self.verbose)
-                preprocessedcases.append(preproc_delayed)
-            if case.ncase in casestorun:
-                run_delayed = dask.delayed(run_case)(
-                    self.fcns[SimFunctions.RUN], preproc_delayed,
-                    self.debug, self.verbose, self.runsimid)
-                runcases.append(run_delayed)
-            if case.ncase in casestopostprocess:
-                postproc_delayed = dask.delayed(post_process_case)(
-                    self.fcns[SimFunctions.POSTPROCESS], run_delayed,
-                    self.debug, self.verbose)
-                postprocessedcases.append(postproc_delayed)
-        preprocessedcases = dask.compute(*preprocessedcases)
-        runcases = dask.compute(*runcases)
-        postprocessedcases = dask.compute(*postprocessedcases)
-        for case in postprocessedcases:
-            self.cases[case.ncase] = case
+        self.preProcessCases(cases=casestopreprocess)
+        self.runCases(cases=casestorun, calledfromrunsim=True)
+        self.postProcessCases(cases=casestopostprocess)
         self.genOutVars()
 
         self.endtime = datetime.now()
@@ -450,10 +440,13 @@ class Sim:
 
         vprint(self.verbose, f'Simulation complete! Runtime: {self.runtime}', flush=True)
 
+        if self.savecasedata:
+            vprint(self.verbose, 'Saving cases to file...', flush=True)
+            self.saveCasesToFile()
+
         if self.savesimdata:
             vprint(self.verbose, 'Saving sim results to file...', flush=True)
             self.saveSimToFile()
-            vprint(self.verbose, f"Sim results saved in '{self.filepath}'", flush=True)
 
 
     def genRunSimID(self) -> None:
@@ -528,29 +521,40 @@ class Sim:
             self.pbar0 = tqdm(total=len(cases_downselect), desc='Preprocessing cases',
                               unit=' cases', position=0)
 
-        if self.cores == 1:
-            for ncase in cases_downselect:
-                self.preProcessCase(case=self.cases[ncase])
+        self.preprocessedcases = []
 
+        # Single-threaded for loop
+        if self.singlethreaded:
+            for case in self.cases:
+                if case.ncase in cases_downselect:
+                    case.haspreprocessed = False
+                    case = pre_process_case(self.fcns[SimFunctions.PREPROCESS],
+                                            case, self.debug, self.verbose)
+                    self.preprocessedcases.append(case)
+
+        # Dask parallel processing
         else:
-            p = None  # Pool(self.cores)
             try:
-                cases_downselect = set(slice_by_index(self.cases, cases_downselect))
-                cases = p.imap(self.preProcessCase, cases_downselect)
-                cases = list(cases)
-                p.terminate()
-                p.restart()
+                for case in self.cases:
+                    if case.ncase in cases_downselect:
+                        case.haspreprocessed = False
+                        case_delayed = dask.delayed(pre_process_case)(
+                            self.fcns[SimFunctions.PREPROCESS], case,
+                            self.debug, self.verbose)
+                        self.preprocessedcases.append(case_delayed)
+
             except KeyboardInterrupt:
-                p.terminate()
-                p.restart()
                 raise
 
-        if self.verbose:
-            self.pbar0.refresh()
-            self.pbar0.close()
-            self.pbar0 = None
+            self.preprocessedcases = dask.compute(*self.preprocessedcases)
 
+        # Save out results
+        for case in self.preprocessedcases:
+            if case.haspreprocessed:
+                self.cases[case.ncase] = case
+                self.casespreprocessed.add(case.ncase)
 
+        self.preprocessedcases = []  # Free up memory
 
 
     def runCases(self,
@@ -577,32 +581,45 @@ class Sim:
             self.pbar1 = tqdm(total=len(cases_downselect), desc='Running cases',
                               unit=' cases', position=0)
 
-        if self.cores == 1:
-            for ncase in cases_downselect:
-                self.runCase(case=self.cases[ncase])
+        self.runcases = []
 
+        # Single-threaded for loop
+        if self.singlethreaded:
+            for case in self.cases:
+                if case.ncase in cases_downselect:
+                    case.hasrun = False
+                    case = run_case(self.fcns[SimFunctions.RUN],
+                                    case, self.debug, self.verbose)
+                    self.runcases.append(case)
+
+        # Dask parallel processing
         else:
-            p = None  # Pool(self.cores)
             try:
-                cases_downselect = set(slice_by_index(self.cases, cases_downselect))
-                casesrun = p.imap(self.runCase, cases_downselect)
-                # below is a dummy function to ensure we wait for imap to finish
-                casesrun = list(casesrun)
-                p.terminate()
-                p.restart()
+                for case in self.cases:
+                    if case.ncase in cases_downselect:
+                        case.hasrun = False
+                        case_delayed = dask.delayed(run_case)(
+                            self.fcns[SimFunctions.RUN], case,
+                            self.debug, self.verbose, self.runsimid)
+                        self.runcases.append(case_delayed)
+
             except KeyboardInterrupt:
-                p.terminate()
-                p.restart()
                 raise
+
+            self.runcases = dask.compute(*self.runcases)
+
+        # Save out results
+        for case in self.runcases:
+            if case.hasrun:
+                self.cases[case.ncase] = case
+                self.casesrun.add(case.ncase)
+
+        self.runcases = []  # Free up memory
 
         if self.verbose:
             self.pbar1.refresh()
             self.pbar1.close()
             self.pbar1 = None
-
-        if self.savecasedata:
-            vprint(self.verbose, f"\nRaw case results saved in '{self.resultsdir}'",
-                   end='', flush=True)
 
 
     def postProcessCases(self,
@@ -623,23 +640,40 @@ class Sim:
             self.pbar2 = tqdm(total=len(cases_downselect), desc='Postprocessing cases',
                               unit=' cases', position=0)
 
-        if self.cores == 1:
-            for ncase in cases_downselect:
-                self.postProcessCase(case=self.cases[ncase])
+        self.postprocessedcases = []
 
+        # Single-threaded for loop
+        if self.singlethreaded:
+            for case in self.cases:
+                if case.ncase in cases_downselect:
+                    case.haspostprocessed = False
+                    case = post_process_case(self.fcns[SimFunctions.POSTPROCESS],
+                                            case, self.debug, self.verbose)
+                    self.postprocessedcases.append(case)
+
+        # Dask parallel processing
         else:
-            p = None  # Pool(self.cores)
             try:
-                cases_downselect = set(slice_by_index(self.cases, cases_downselect))
-                casespostprocessed = p.imap(self.postProcessCase, cases_downselect)
-                # below is a dummy function to ensure we wait for imap to finish
-                casespostprocessed = list(casespostprocessed)
-                p.terminate()
-                p.restart()
+                for case in self.cases:
+                    if case.ncase in cases_downselect:
+                        case.haspostprocessed = False
+                        case_delayed = dask.delayed(post_process_case)(
+                            self.fcns[SimFunctions.POSTPROCESS], case,
+                            self.debug, self.verbose)
+                        self.postprocessedcases.append(case_delayed)
+
             except KeyboardInterrupt:
-                p.terminate()
-                p.restart()
                 raise
+
+            self.postprocessedcases = dask.compute(*self.postprocessedcases)
+
+        # Save out results
+        for case in self.postprocessedcases:
+            if case.haspostprocessed:
+                self.cases[case.ncase] = case
+                self.casespostprocessed.add(case.ncase)
+
+        self.postprocessedcases = []  # Free up memory
 
         if self.verbose:
             self.pbar2.refresh()
@@ -823,6 +857,36 @@ class Sim:
             self.filepath.touch()
             with open(self.filepath, 'wb') as file:
                 cloudpickle.dump(self, file)
+
+        vprint(self.verbose, f"Sim results saved in '{self.filepath}'", flush=True)
+
+
+    def saveCasesToFile(self,
+                        cases : None | int | Iterable[int] = None,
+                        ) -> None:
+        """
+        Save the specified cases to .mccase files.
+
+        Parameters
+        ----------
+        cases : None | int | Iterable[int]
+            The cases to save. If None, save all cases.
+        """
+        cases_downselect = self.downselectCases(cases=cases)
+
+        if self.savecasedata:
+            for case in cases_downselect:
+                filepath = self.resultsdir / f'{self.name}_{case.ncase}.mccase'
+                case.filepath = filepath
+                try:
+                    filepath.unlink()
+                except FileNotFoundError:
+                    pass
+                with open(filepath, 'wb') as file:
+                    cloudpickle.dump(case, file)
+
+        vprint(self.verbose, f"\nRaw case results saved in '{self.resultsdir}'",
+                end='', flush=True)
 
 
     def loadCases(self) -> None:

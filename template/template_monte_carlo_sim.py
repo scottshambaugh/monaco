@@ -25,11 +25,12 @@ firstcaseismedian = False
 # Setting a known random seed is recommended for repeatability of random draws.
 seed = 12362398
 
-# The number of processor cores to run on. If 1 then the simulation will run
-# single-threaded in a 'for' loop, and if more than 1 then the pathos multiprocessing
-# module will be used for running concurrent threads. The overhead of multithreading
-# may make it slower than single-threaded execution for runs that execute quickly.
-cores = 1
+# Whether to run the simulation in a single thread. If True then the simulation
+# will run single-threaded in a 'for' loop, and if False then the dask parallel
+# processing module will be used for running concurrent threads. The overhead of
+# dask may make it slower than single-threaded execution for runs that execute
+# quickly.
+singlethreaded = True
 
 # If you want, you can save all the results from each case to file, or just the
 # postprocessed simulation results. This can be incredibly useful for examining
@@ -44,7 +45,8 @@ savesimdata = True
 def template_monte_carlo_sim():
     # We first initialize the sim with a name of our choosing
     sim = mc.Sim(name='Coin Flip', ndraws=ndraws, fcns=fcns,
-                 firstcaseismedian=firstcaseismedian, seed=seed, cores=cores,
+                 firstcaseismedian=firstcaseismedian, seed=seed,
+                 singlethreaded=singlethreaded,
                  savecasedata=savecasedata, savesimdata=savesimdata,
                  verbose=True, debug=False)
 

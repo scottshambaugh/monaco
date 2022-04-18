@@ -5,7 +5,8 @@ from monaco.mc_case import Case
 from monaco.helper_functions import vwrite, vwarn, get_list
 from datetime import datetime
 
-def pre_process_case(preProcFcn: Callable,
+
+def pre_process_case(preprocfcn: Callable,
                      case : Case,
                      debug : bool,
                      verbose : bool,
@@ -25,7 +26,7 @@ def pre_process_case(preProcFcn: Callable,
     """
     case = copy(case)
     try:
-        case.siminput = preProcFcn(case)
+        case.siminput = preprocfcn(case)
         # self.casespreprocessed.add(case.ncase)
         case.haspreprocessed = True
 
@@ -39,7 +40,7 @@ def pre_process_case(preProcFcn: Callable,
 
 
 
-def run_case(runFcn: Callable,
+def run_case(runfcn: Callable,
              case : Case,
              debug : bool,
              verbose : bool,
@@ -62,23 +63,11 @@ def run_case(runFcn: Callable,
 
     try:
         case.starttime = datetime.now()
-        case.simrawoutput = runFcn(*get_list(case.siminput))
+        case.simrawoutput = runfcn(*get_list(case.siminput))
         case.endtime = datetime.now()
         case.runtime = case.endtime - case.starttime
         case.runsimid = runsimid
         case.hasrun = True
-
-        '''
-        if self.savecasedata:
-            filepath = self.resultsdir / f'{self.name}_{case.ncase}.mccase'
-            case.filepath = filepath
-            try:
-                filepath.unlink()
-            except FileNotFoundError:
-                pass
-            with open(filepath, 'wb') as file:
-                cloudpickle.dump(case, file)
-        '''
 
         # self.casesrun.add(case.ncase)
 
@@ -89,7 +78,7 @@ def run_case(runFcn: Callable,
 
     return case
 
-def post_process_case(postProcFcn: Callable,
+def post_process_case(postprocfcn: Callable,
                       case : Case,
                       debug : bool,
                       verbose : bool,
@@ -109,7 +98,7 @@ def post_process_case(postProcFcn: Callable,
     """
     case = copy(case)
     try:
-        postProcFcn(case, *get_list(case.simrawoutput))
+        postprocfcn(case, *get_list(case.simrawoutput))
         # self.casespostprocessed.add(case.ncase)
         case.haspostprocessed = True
 

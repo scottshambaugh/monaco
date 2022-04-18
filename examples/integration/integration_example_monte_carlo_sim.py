@@ -69,7 +69,7 @@ def integration_example_monte_carlo_sim():
 
     sim = mc.Sim(name='integration', ndraws=ndraws, fcns=fcns,
                  firstcaseismedian=firstcaseismedian, samplemethod=samplemethod,
-                 seed=seed, cores=4,
+                 seed=seed, singlethreaded=False,
                  savecasedata=savecasedata, savesimdata=False,
                  verbose=True, debug=True)
 

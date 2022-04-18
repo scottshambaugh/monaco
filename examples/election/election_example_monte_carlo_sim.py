@@ -17,7 +17,7 @@ seed = 12362397
 
 def election_example_monte_carlo_sim():
     sim = mc.Sim(name='election', ndraws=ndraws, fcns=fcns,
-                 firstcaseismedian=False, seed=seed, cores=4,
+                 firstcaseismedian=False, seed=seed, singlethreaded=False,
                  samplemethod='random', savecasedata=False,
                  verbose=True, debug=False)
 
