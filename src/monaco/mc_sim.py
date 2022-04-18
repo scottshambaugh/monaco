@@ -588,8 +588,8 @@ class Sim:
             for case in self.cases:
                 if case.ncase in cases_downselect:
                     case.hasrun = False
-                    case = run_case(self.fcns[SimFunctions.RUN],
-                                    case, self.debug, self.verbose)
+                    case = run_case(self.fcns[SimFunctions.RUN], case,
+                                    self.debug, self.verbose, self.runsimid)
                     self.runcases.append(case)
 
         # Dask parallel processing
