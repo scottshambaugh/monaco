@@ -1,4 +1,5 @@
-# dask_runners.py
+# case_runners.py
+
 from typing import Callable
 from copy import copy
 from monaco.mc_case import Case
@@ -6,11 +7,11 @@ from monaco.helper_functions import vwrite, vwarn, get_list
 from datetime import datetime
 
 
-def pre_process_case(preprocfcn: Callable,
-                     case : Case,
-                     debug : bool,
-                     verbose : bool,
-                     ) -> Case:
+def preprocess_case(preprocfcn: Callable,
+                    case : Case,
+                    debug : bool,
+                    verbose : bool,
+                    ) -> Case:
     """
     Preprocess a single Monte Carlo case.
 
@@ -36,7 +37,6 @@ def pre_process_case(preprocfcn: Callable,
             vwarn(verbose, f'\nPreprocessing case {case.ncase} failed')
 
     return case
-
 
 
 def run_case(runfcn: Callable,
@@ -75,11 +75,12 @@ def run_case(runfcn: Callable,
 
     return case
 
-def post_process_case(postprocfcn: Callable,
-                      case : Case,
-                      debug : bool,
-                      verbose : bool,
-                      ) -> None:
+
+def postprocess_case(postprocfcn: Callable,
+                     case : Case,
+                     debug : bool,
+                     verbose : bool,
+                     ) -> None:
     """
     Postprocess a single Monte Carlo case.
 

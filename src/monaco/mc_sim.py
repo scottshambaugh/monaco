@@ -12,7 +12,8 @@ from monaco.mc_case import Case
 from monaco.mc_var import InVar, OutVar
 from monaco.mc_enums import SimFunctions, SampleMethod
 from monaco.helper_functions import get_list, vprint, vwarn, hash_str_repeatable
-from monaco.case_runners import pre_process_case, run_case, post_process_case
+from monaco.case_runners import preprocess_case, run_case, postprocess_case
+from monaco.tqdm_dask_distributed import tqdm_dask
 from tqdm import tqdm
 from typing import Callable, Any, Iterable
 from scipy.stats import rv_continuous, rv_discrete
@@ -102,12 +103,6 @@ class Sim:
         The covariance matrix between all of the scalar variables.
     covvarlist : list[str]
         The names of all the scalar variables.
-    pbar0 : tqdm.tqdm
-        Handle for the preprocessing progress bar.
-    pbar1 : tqdm.tqdm
-        Handle for the running progress bar.
-    pbar2 : tqdm.tqdm
-        Handle for the postprocessing progress bar.
     runsimid : int
         The unique ID for a particular run of this simulation.
     ncases : int
@@ -177,10 +172,6 @@ class Sim:
         self.corrcoeffs : np.ndarray = None
         self.covs       : np.ndarray = None
         self.covvarlist : list[str] = None
-
-        self.pbar0 : tqdm = None
-        self.pbar1 : tqdm = None
-        self.pbar2 : tqdm = None
 
         self.runsimid : int = None
 
@@ -519,18 +510,22 @@ class Sim:
         cases_downselect = self.downselectCases(cases=cases)
         preprocessedcases = []
 
-        # if self.verbose:
-        #     self.pbar0 = tqdm(total=len(cases_downselect), desc='Preprocessing cases',
-        #                       unit=' cases', position=0)
-
         # Single-threaded for loop
         if self.singlethreaded:
+            if self.verbose:
+                pbar = tqdm(total=len(cases_downselect), desc='Preprocessing cases',
+                            unit=' cases', position=0)
             for case in self.cases:
                 if case.ncase in cases_downselect:
                     case.haspreprocessed = False
-                    case = pre_process_case(self.fcns[SimFunctions.PREPROCESS],
+                    case = preprocess_case(self.fcns[SimFunctions.PREPROCESS],
                                             case, self.debug, self.verbose)
                     preprocessedcases.append(case)
+                    if self.verbose:
+                        pbar.update(1)
+            if self.verbose:
+                pbar.refresh()
+                pbar.close()
 
         # Dask parallel processing
         else:
@@ -538,15 +533,22 @@ class Sim:
                 for case in self.cases:
                     if case.ncase in cases_downselect:
                         case.haspreprocessed = False
-                        case_delayed = dask.delayed(pre_process_case)(
+                        case_delayed = dask.delayed(preprocess_case)(
                             self.fcns[SimFunctions.PREPROCESS], case,
                             self.debug, self.verbose)
                         preprocessedcases.append(case_delayed)
 
+                if self.verbose:
+                    x = dask.persist(preprocessedcases)
+                    tqdm_dask(x, total=len(cases_downselect),
+                              desc='Preprocessing cases',
+                              unit=' cases', position=0)
+                    preprocessedcases = dask.compute(*x)[0]
+                else:
+                    preprocessedcases = dask.compute(*preprocessedcases)
+
             except KeyboardInterrupt:
                 raise
-
-            preprocessedcases = dask.compute(*preprocessedcases)
 
         # Save out results
         for case in preprocessedcases:
@@ -576,18 +578,22 @@ class Sim:
         if not calledfromrunsim:
             self.runsimid = self.genID()
 
-        # if self.verbose:
-        #     self.pbar1 = tqdm(total=len(cases_downselect), desc='Running cases',
-        #                       unit=' cases', position=0)
-
         # Single-threaded for loop
         if self.singlethreaded:
+            if self.verbose:
+                pbar = tqdm(total=len(cases_downselect), desc='Running cases',
+                            unit=' cases', position=0)
             for case in self.cases:
                 if case.ncase in cases_downselect:
                     case.hasrun = False
                     case = run_case(self.fcns[SimFunctions.RUN], case,
                                     self.debug, self.verbose, self.runsimid)
                     runcases.append(case)
+                    if self.verbose:
+                        pbar.update(1)
+            if self.verbose:
+                pbar.refresh()
+                pbar.close()
 
         # Dask parallel processing
         else:
@@ -600,21 +606,23 @@ class Sim:
                             self.debug, self.verbose, self.runsimid)
                         runcases.append(case_delayed)
 
+                if self.verbose:
+                    x = dask.persist(runcases)
+                    tqdm_dask(x, total=len(cases_downselect),
+                              desc='Running cases',
+                              unit=' cases', position=0)
+                    runcases = dask.compute(*x)[0]
+                else:
+                    runcases = dask.compute(*runcases)
+
             except KeyboardInterrupt:
                 raise
-
-            runcases = dask.compute(*runcases)
 
         # Save out results
         for case in runcases:
             if case.hasrun:
                 self.cases[case.ncase] = case
                 self.casesrun.add(case.ncase)
-
-        # if self.verbose:
-        #     self.pbar1.refresh()
-        #     self.pbar1.close()
-        #     self.pbar1 = None
 
 
     def postProcessCases(self,
@@ -632,18 +640,22 @@ class Sim:
         cases_downselect = self.downselectCases(cases=cases)
         postprocessedcases = []
 
-        # if self.verbose:
-        #     self.pbar2 = tqdm(total=len(cases_downselect), desc='Postprocessing cases',
-        #                       unit=' cases', position=0)
-
         # Single-threaded for loop
         if self.singlethreaded:
+            if self.verbose:
+                pbar = tqdm(total=len(cases_downselect), desc='Preprocessing cases',
+                            unit=' cases', position=0)
             for case in self.cases:
                 if case.ncase in cases_downselect:
                     case.haspostprocessed = False
-                    case = post_process_case(self.fcns[SimFunctions.POSTPROCESS],
+                    case = postprocess_case(self.fcns[SimFunctions.POSTPROCESS],
                                             case, self.debug, self.verbose)
                     postprocessedcases.append(case)
+                    if self.verbose:
+                        pbar.update(1)
+            if self.verbose:
+                pbar.refresh()
+                pbar.close()
 
         # Dask parallel processing
         else:
@@ -651,26 +663,28 @@ class Sim:
                 for case in self.cases:
                     if case.ncase in cases_downselect:
                         case.haspostprocessed = False
-                        case_delayed = dask.delayed(post_process_case)(
+                        case_delayed = dask.delayed(postprocess_case)(
                             self.fcns[SimFunctions.POSTPROCESS], case,
                             self.debug, self.verbose)
                         postprocessedcases.append(case_delayed)
 
+                if self.verbose:
+                    x = dask.persist(postprocessedcases)
+                    tqdm_dask(x, total=len(cases_downselect),
+                              desc='Postprocessing cases',
+                              unit=' cases', position=0)
+                    postprocessedcases = dask.compute(*x)[0]
+                else:
+                    postprocessedcases = dask.compute(*postprocessedcases)
+
             except KeyboardInterrupt:
                 raise
-
-            postprocessedcases = dask.compute(*postprocessedcases)
 
         # Save out results
         for case in postprocessedcases:
             if case.haspostprocessed:
                 self.cases[case.ncase] = case
                 self.casespostprocessed.add(case.ncase)
-
-        # if self.verbose:
-        #     self.pbar2.refresh()
-        #     self.pbar2.close()
-        #     self.pbar2 = None
 
 
     def genOutVars(self) -> None:
@@ -881,8 +895,8 @@ class Sim:
                 with open(filepath, 'wb') as file:
                     cloudpickle.dump(self.cases[ncase], file)
 
-            vprint(self.verbose, f"\nRaw case results saved in '{self.resultsdir}'",
-                    end='', flush=True)
+            vprint(self.verbose, f"Raw case results saved in '{self.resultsdir}'",
+                   flush=True)
 
 
     def loadCases(self) -> None:
