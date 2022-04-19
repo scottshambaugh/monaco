@@ -194,8 +194,9 @@ class Sim:
             self.initDaskClient()
 
 
-    def __del__(self):
-        self.client.close()
+    def __del__(self) -> None:
+        if not self.singlethreaded:
+            self.client.close()
 
 
     def __getstate__(self):
@@ -516,12 +517,11 @@ class Sim:
             preprocessed.
         """
         cases_downselect = self.downselectCases(cases=cases)
+        preprocessedcases = []
 
         if self.verbose:
             self.pbar0 = tqdm(total=len(cases_downselect), desc='Preprocessing cases',
                               unit=' cases', position=0)
-
-        self.preprocessedcases = []
 
         # Single-threaded for loop
         if self.singlethreaded:
@@ -530,7 +530,7 @@ class Sim:
                     case.haspreprocessed = False
                     case = pre_process_case(self.fcns[SimFunctions.PREPROCESS],
                                             case, self.debug, self.verbose)
-                    self.preprocessedcases.append(case)
+                    preprocessedcases.append(case)
 
         # Dask parallel processing
         else:
@@ -541,20 +541,18 @@ class Sim:
                         case_delayed = dask.delayed(pre_process_case)(
                             self.fcns[SimFunctions.PREPROCESS], case,
                             self.debug, self.verbose)
-                        self.preprocessedcases.append(case_delayed)
+                        preprocessedcases.append(case_delayed)
 
             except KeyboardInterrupt:
                 raise
 
-            self.preprocessedcases = dask.compute(*self.preprocessedcases)
+            preprocessedcases = dask.compute(*preprocessedcases)
 
         # Save out results
-        for case in self.preprocessedcases:
+        for case in preprocessedcases:
             if case.haspreprocessed:
                 self.cases[case.ncase] = case
                 self.casespreprocessed.add(case.ncase)
-
-        self.preprocessedcases = []  # Free up memory
 
 
     def runCases(self,
@@ -573,6 +571,7 @@ class Sim:
             this simulation run is generated.
         """
         cases_downselect = self.downselectCases(cases=cases)
+        runcases = []
 
         if not calledfromrunsim:
             self.runsimid = self.genID()
@@ -581,8 +580,6 @@ class Sim:
             self.pbar1 = tqdm(total=len(cases_downselect), desc='Running cases',
                               unit=' cases', position=0)
 
-        self.runcases = []
-
         # Single-threaded for loop
         if self.singlethreaded:
             for case in self.cases:
@@ -590,7 +587,7 @@ class Sim:
                     case.hasrun = False
                     case = run_case(self.fcns[SimFunctions.RUN], case,
                                     self.debug, self.verbose, self.runsimid)
-                    self.runcases.append(case)
+                    runcases.append(case)
 
         # Dask parallel processing
         else:
@@ -601,20 +598,18 @@ class Sim:
                         case_delayed = dask.delayed(run_case)(
                             self.fcns[SimFunctions.RUN], case,
                             self.debug, self.verbose, self.runsimid)
-                        self.runcases.append(case_delayed)
+                        runcases.append(case_delayed)
 
             except KeyboardInterrupt:
                 raise
 
-            self.runcases = dask.compute(*self.runcases)
+            runcases = dask.compute(*runcases)
 
         # Save out results
-        for case in self.runcases:
+        for case in runcases:
             if case.hasrun:
                 self.cases[case.ncase] = case
                 self.casesrun.add(case.ncase)
-
-        self.runcases = []  # Free up memory
 
         if self.verbose:
             self.pbar1.refresh()
@@ -635,12 +630,11 @@ class Sim:
             postprocessed.
         """
         cases_downselect = self.downselectCases(cases=cases)
+        postprocessedcases = []
 
         if self.verbose:
             self.pbar2 = tqdm(total=len(cases_downselect), desc='Postprocessing cases',
                               unit=' cases', position=0)
-
-        self.postprocessedcases = []
 
         # Single-threaded for loop
         if self.singlethreaded:
@@ -649,7 +643,7 @@ class Sim:
                     case.haspostprocessed = False
                     case = post_process_case(self.fcns[SimFunctions.POSTPROCESS],
                                             case, self.debug, self.verbose)
-                    self.postprocessedcases.append(case)
+                    postprocessedcases.append(case)
 
         # Dask parallel processing
         else:
@@ -660,20 +654,18 @@ class Sim:
                         case_delayed = dask.delayed(post_process_case)(
                             self.fcns[SimFunctions.POSTPROCESS], case,
                             self.debug, self.verbose)
-                        self.postprocessedcases.append(case_delayed)
+                        postprocessedcases.append(case_delayed)
 
             except KeyboardInterrupt:
                 raise
 
-            self.postprocessedcases = dask.compute(*self.postprocessedcases)
+            postprocessedcases = dask.compute(*postprocessedcases)
 
         # Save out results
-        for case in self.postprocessedcases:
+        for case in postprocessedcases:
             if case.haspostprocessed:
                 self.cases[case.ncase] = case
                 self.casespostprocessed.add(case.ncase)
-
-        self.postprocessedcases = []  # Free up memory
 
         if self.verbose:
             self.pbar2.refresh()
