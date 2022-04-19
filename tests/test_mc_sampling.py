@@ -13,7 +13,7 @@ seeds = generator.randint(0, 2**31-1, size=10)
     (SampleMethod.SOBOL,           2, seeds[1], 0.0      ),
     (SampleMethod.SOBOL_RANDOM,    2, seeds[2], 0.0952614),
     (SampleMethod.HALTON,          2, seeds[3], 0.0      ),
-    (SampleMethod.HALTON_RANDOM,   2, seeds[4], 0.9198435),
+    (SampleMethod.HALTON_RANDOM,   2, seeds[4], 0.8681508),
     (SampleMethod.LATIN_HYPERCUBE, 2, seeds[5], 0.3522243),
 ])
 def test_mc_sampling(method, ninvar, seed, ans):
@@ -33,8 +33,9 @@ def test_mc_sampling_errors(method, ninvar, seed):
 
 ### Plot Testing ###
 def plot_testing():
+    import matplotlib.pyplot as plt
+
     def plot_sampling_test(ndraws, method, seeds, genplot=True):
-        import matplotlib.pyplot as plt
         import scipy.stats
 
         pcts = np.array([sampling(ndraws=ndraws, method=method,
@@ -99,6 +100,7 @@ def plot_testing():
     plot_sampling_test(ndraws=ndraws, method=SampleMethod.HALTON_RANDOM,   seeds=seeds)
     plot_sampling_test(ndraws=ndraws, method=SampleMethod.LATIN_HYPERCUBE, seeds=seeds)
     # print(cached_pcts.cache_info())  # Can only check caching when run in main file
+    plt.show()
 
 
 if __name__ == '__main__':
