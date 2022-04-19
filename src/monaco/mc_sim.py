@@ -195,7 +195,7 @@ class Sim:
 
 
     def __del__(self):
-        self.client.shutdown()
+        self.client.close()
 
 
     def __getstate__(self):
