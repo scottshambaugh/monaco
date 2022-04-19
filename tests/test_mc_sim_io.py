@@ -29,7 +29,7 @@ def sim(tmp_path):
         return fcns
 
     sim = Sim(name='sim_io_test', ndraws=ndraws, fcns=fcns(),
-              firstcaseismedian=False, seed=seed, singlethreaded=False,
+              firstcaseismedian=False, seed=seed, singlethreaded=True,
               verbose=True, resultsdir=tmp_path)
     sim.runSim()
     return sim

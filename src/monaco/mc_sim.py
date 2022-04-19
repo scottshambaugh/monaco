@@ -127,7 +127,7 @@ class Sim:
                  savesimdata       : bool = True,
                  savecasedata      : bool = True,
                  resultsdir        : str | pathlib.Path = None,
-                 ):
+                 ) -> None:
 
         self.checkFcnsInput(fcns)
 
@@ -199,7 +199,7 @@ class Sim:
             self.client.close()
 
 
-    def __getstate__(self):
+    def __getstate__(self) -> dict():
         """Function for pickling self to save to file."""
         state = self.__dict__.copy()
         state['client'] = None  # don't save cluster to file
@@ -208,7 +208,9 @@ class Sim:
         return state
 
 
-    def __setstate__(self, state):
+    def __setstate__(self,
+                     state: dict,
+                     ) -> None:
         """Function to unpickle self when loading from file."""
         self.__dict__.update(state)
         if self.savecasedata:
@@ -442,11 +444,9 @@ class Sim:
         vprint(self.verbose, f'Simulation complete! Runtime: {self.runtime}', flush=True)
 
         if self.savecasedata:
-            vprint(self.verbose, 'Saving cases to file...', flush=True)
             self.saveCasesToFile()
 
         if self.savesimdata:
-            vprint(self.verbose, 'Saving sim results to file...', flush=True)
             self.saveSimToFile()
 
 
@@ -519,9 +519,9 @@ class Sim:
         cases_downselect = self.downselectCases(cases=cases)
         preprocessedcases = []
 
-        if self.verbose:
-            self.pbar0 = tqdm(total=len(cases_downselect), desc='Preprocessing cases',
-                              unit=' cases', position=0)
+        # if self.verbose:
+        #     self.pbar0 = tqdm(total=len(cases_downselect), desc='Preprocessing cases',
+        #                       unit=' cases', position=0)
 
         # Single-threaded for loop
         if self.singlethreaded:
@@ -576,9 +576,9 @@ class Sim:
         if not calledfromrunsim:
             self.runsimid = self.genID()
 
-        if self.verbose:
-            self.pbar1 = tqdm(total=len(cases_downselect), desc='Running cases',
-                              unit=' cases', position=0)
+        # if self.verbose:
+        #     self.pbar1 = tqdm(total=len(cases_downselect), desc='Running cases',
+        #                       unit=' cases', position=0)
 
         # Single-threaded for loop
         if self.singlethreaded:
@@ -611,10 +611,10 @@ class Sim:
                 self.cases[case.ncase] = case
                 self.casesrun.add(case.ncase)
 
-        if self.verbose:
-            self.pbar1.refresh()
-            self.pbar1.close()
-            self.pbar1 = None
+        # if self.verbose:
+        #     self.pbar1.refresh()
+        #     self.pbar1.close()
+        #     self.pbar1 = None
 
 
     def postProcessCases(self,
@@ -632,9 +632,9 @@ class Sim:
         cases_downselect = self.downselectCases(cases=cases)
         postprocessedcases = []
 
-        if self.verbose:
-            self.pbar2 = tqdm(total=len(cases_downselect), desc='Postprocessing cases',
-                              unit=' cases', position=0)
+        # if self.verbose:
+        #     self.pbar2 = tqdm(total=len(cases_downselect), desc='Postprocessing cases',
+        #                       unit=' cases', position=0)
 
         # Single-threaded for loop
         if self.singlethreaded:
@@ -667,10 +667,10 @@ class Sim:
                 self.cases[case.ncase] = case
                 self.casespostprocessed.add(case.ncase)
 
-        if self.verbose:
-            self.pbar2.refresh()
-            self.pbar2.close()
-            self.pbar2 = None
+        # if self.verbose:
+        #     self.pbar2.refresh()
+        #     self.pbar2.close()
+        #     self.pbar2 = None
 
 
     def genOutVars(self) -> None:
@@ -842,6 +842,8 @@ class Sim:
     def saveSimToFile(self) -> None:
         """Save the simulation to a .mcsim file"""
         if self.savesimdata:
+            vprint(self.verbose, 'Saving sim results to file...', flush=True)
+
             try:
                 self.filepath.unlink()
             except FileNotFoundError:
@@ -850,7 +852,7 @@ class Sim:
             with open(self.filepath, 'wb') as file:
                 cloudpickle.dump(self, file)
 
-        vprint(self.verbose, f"Sim results saved in '{self.filepath}'", flush=True)
+            vprint(self.verbose, f"Sim results saved in '{self.filepath}'", flush=True)
 
 
     def saveCasesToFile(self,
@@ -867,18 +869,20 @@ class Sim:
         cases_downselect = self.downselectCases(cases=cases)
 
         if self.savecasedata:
-            for case in cases_downselect:
-                filepath = self.resultsdir / f'{self.name}_{case.ncase}.mccase'
-                case.filepath = filepath
+            vprint(self.verbose, 'Saving cases to file...', flush=True)
+
+            for ncase in cases_downselect:
+                filepath = self.resultsdir / f'{self.name}_{ncase}.mccase'
+                self.cases[ncase].filepath = filepath
                 try:
                     filepath.unlink()
                 except FileNotFoundError:
                     pass
                 with open(filepath, 'wb') as file:
-                    cloudpickle.dump(case, file)
+                    cloudpickle.dump(self.cases[ncase], file)
 
-        vprint(self.verbose, f"\nRaw case results saved in '{self.resultsdir}'",
-                end='', flush=True)
+            vprint(self.verbose, f"\nRaw case results saved in '{self.resultsdir}'",
+                    end='', flush=True)
 
 
     def loadCases(self) -> None:
@@ -892,7 +896,7 @@ class Sim:
         casesnotloaded        = self.allCases()
         casesnotpostprocessed = self.allCases()
 
-        pbar = tqdm(total=len(self.casesrun), unit=' cases', desc='Loading', position=0)
+        # pbar = tqdm(total=len(self.casesrun), unit=' cases', desc='Loading', position=0)
 
         for ncase in self.casesrun:
             filepath = self.resultsdir / f'{self.name}_{ncase}.mccase'
@@ -917,17 +921,19 @@ class Sim:
                             casesnotloaded.remove(ncase)
                             if ncase in self.casespostprocessed:
                                 casesnotpostprocessed.remove(ncase)
+
                     except Exception:
                         vwarn(self.verbose, f'Unknown error loading {filepath.name}')
+
             except FileNotFoundError:
                 vwarn(self.verbose, f'{filepath.name} expected but not found')
-            pbar.update(1)
+            # pbar.update(1)
 
         self.casespreprocessed  = set(casesloaded)
         self.casesrun           = set(casesloaded)
         self.casespostprocessed = set(casesloaded) - casesnotpostprocessed
-        pbar.refresh()
-        pbar.close()
+        # pbar.refresh()
+        # pbar.close()
         vprint(self.verbose, f'\nData for {len(casesloaded)}/{self.ncases} cases loaded from disk',
                flush=True)
 

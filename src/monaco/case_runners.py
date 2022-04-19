@@ -27,7 +27,6 @@ def pre_process_case(preprocfcn: Callable,
     case = copy(case)
     try:
         case.siminput = preprocfcn(case)
-        # self.casespreprocessed.add(case.ncase)
         case.haspreprocessed = True
 
     except Exception:
@@ -57,7 +56,7 @@ def run_case(runfcn: Callable,
     Returns
     -------
     case : monaco.mc_case.Case
-        The same case, ran.
+        The same case, run.
     """
     case = copy(case)
 
@@ -68,8 +67,6 @@ def run_case(runfcn: Callable,
         case.runtime = case.endtime - case.starttime
         case.runsimid = runsimid
         case.hasrun = True
-
-        # self.casesrun.add(case.ncase)
 
     except Exception:
         if debug:
@@ -99,7 +96,6 @@ def post_process_case(postprocfcn: Callable,
     case = copy(case)
     try:
         postprocfcn(case, *get_list(case.simrawoutput))
-        # self.casespostprocessed.add(case.ncase)
         case.haspostprocessed = True
 
     except Exception:
