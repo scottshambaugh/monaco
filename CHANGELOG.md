@@ -31,6 +31,7 @@
 `case_runners.py` functions.
 ### Removed    
 * Removed `cores` kwarg from `Sim` initialization.
+* Removed python 3.7 support, to align with dask.
 
 ## [0.4.0] - 2022-04-22
 ### Added    
