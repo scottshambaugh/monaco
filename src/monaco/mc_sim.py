@@ -261,6 +261,14 @@ class Sim:
             self.client = Client(**self.daskkwargs)
             self.cluster = self.client.cluster
 
+            nworkers = len(self.cluster.workers)
+            nthreads = nworkers * self.cluster.worker_spec[0]['options']['nthreads']
+            memory = nworkers * self.cluster.worker_spec[0]['options']['memory_limit']
+            vprint(self.verbose,
+                   f'Dask cluster initiated with {nworkers} workers,' +
+                   f'{nthreads} threads, {memory/2**30:0.2f} GiB memory.')
+            vprint(self.verbose, f'Dask dashboard link: {self.cluster.dashboard_link}')
+
 
     def addInVar(self,
                  name       : str,
