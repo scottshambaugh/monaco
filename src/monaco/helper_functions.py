@@ -280,15 +280,12 @@ def flatten(nested_x : Iterable[Any]) -> list[Any]:
     flattened_x : list
         The nested iterable flattened into a list.
     """
-    def flatten_generator(x) -> Any:
-        if isinstance(x, (str, bytes)):
-            yield x
-        else:
-            for element in x:
-                try:
-                    yield from flatten(element)
-                except TypeError:
-                    yield element
+    def flatten_generator(x):
+        for element in x:
+            if isinstance(element, Iterable) and not isinstance(element, (str, bytes)):
+                yield from flatten(element)
+            else:
+                yield element
 
     flattened_x = list(flatten_generator(nested_x))
     return flattened_x
