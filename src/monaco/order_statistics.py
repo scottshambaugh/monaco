@@ -70,14 +70,14 @@ def order_stat_TI_n(k     : int,
     elif bound == StatBound.ONESIDED:
         l = 0
     else:
-        raise ValueError(f"bound={bound} must be {StatBound.ONESIDED} or {StatBound.TWOSIDED}")
+        raise ValueError(f"{bound=} must be {StatBound.ONESIDED} or {StatBound.TWOSIDED}")
 
     # use bisection to get minimum n (secant method is unstable due to flat portions of curve)
     n = [1, nmax]
     maxsteps = 100  # nmax hard limit of 2^100
     u = n[1] + 1 - k
     if EPTI(n[1], l, u, p) < c:
-        raise ValueError(f'n exceeded nmax={nmax} for P{100*p}/{c*100}. ' +
+        raise ValueError(f'n exceeded {nmax=} for P{100*p}/{c*100}. ' +
                           'Increase nmax or loosen constraints.')
 
     for i in range(maxsteps):
@@ -91,8 +91,8 @@ def order_stat_TI_n(k     : int,
                 n[0] = ntemp
             else:
                 n[1] = ntemp
-    raise ValueError(f'With n={n}, could not converge in maxsteps={maxsteps} steps. ' +
-                      'Is nmax={nmax} > 2^{maxsteps}?')
+    raise ValueError(f'With {n=}, could not converge in {maxsteps=} steps. ' +
+                    f'Is {nmax=} > 2^{maxsteps}?')
 
 
 
@@ -132,7 +132,7 @@ def order_stat_TI_p(n     : int,
     elif bound == StatBound.ONESIDED:
         l = 0
     else:
-        raise ValueError(f"bound={bound} must be {StatBound.ONESIDED} or {StatBound.TWOSIDED}")
+        raise ValueError(f"{bound=} must be {StatBound.ONESIDED} or {StatBound.TWOSIDED}")
     u = n + 1 - k
 
     # use bisection to get n (secant method is unstable due to flat portions of curve)
@@ -148,7 +148,7 @@ def order_stat_TI_p(n     : int,
                 p[0] = ptemp
             else:
                 p[1] = ptemp
-    raise ValueError(f'With p={p}, could not converge under ptol={ptol} in {maxsteps} steps.')
+    raise ValueError(f'With {p=}, could not converge under {ptol=} in {maxsteps} steps.')
 
 
 
@@ -184,10 +184,10 @@ def order_stat_TI_k(n     : int,
     elif bound == StatBound.ONESIDED:
         l = 0
     else:
-        raise ValueError(f"bound={bound} must be {StatBound.ONESIDED} or {StatBound.TWOSIDED}")
+        raise ValueError(f"{bound=} must be {StatBound.ONESIDED} or {StatBound.TWOSIDED}")
 
     if EPTI(n, l, n, p) < c:
-        raise ValueError(f'n={n} is too small to meet p={p} at c={c} for {bound} ' +
+        raise ValueError(f'{n=} is too small to meet {p=} at {c=} for {bound} ' +
                           'tolerance interval at any order statistic')
 
     # use bisection to get n (secant method is unstable due to flat portions of curve)
@@ -209,7 +209,7 @@ def order_stat_TI_k(n     : int,
                 k[0] = ktemp
             else:
                 k[1] = ktemp
-    raise ValueError(f'With n={n}, could not converge in {maxsteps} steps. Is n > 2^{maxsteps}?')
+    raise ValueError(f'With {n=}, could not converge in {maxsteps} steps. Is n > 2^{maxsteps}?')
 
 
 
@@ -245,7 +245,7 @@ def order_stat_TI_c(n     : int,
     elif bound == StatBound.ONESIDED:
         l = 0
     else:
-        raise ValueError(f"bound={bound} must be {StatBound.ONESIDED} or {StatBound.TWOSIDED}")
+        raise ValueError(f"{bound=} must be {StatBound.ONESIDED} or {StatBound.TWOSIDED}")
 
     u = n + 1 - k
 
@@ -324,22 +324,22 @@ def order_stat_P_n(k     : int,
         l = iPl - k + 1  # we won't be using assymmetrical order stats
         u = iPu + k - 1
         if l <= 0 or u >= n[1] + 1 or EPYP(n[0], l, u, P) < c:
-            raise ValueError(f'n ouside bounds of nmin={nmin}:nmax={nmax} for P={P} with k={k} ' +
-                              'at c={c}. Increase nmax, raise k, or loosen constraints.')
+            raise ValueError(f'n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} ' +
+                             f'at {c=}. Increase nmax, raise k, or loosen constraints.')
     elif bound == StatBound.ONESIDED_UPPER:
         l = 0
         u = iPu + k - 1
         if u >= n[1] + 1 or EPYP(n[0], l, u, P) < c:
-            raise ValueError(f'n ouside bounds of nmin={nmin}:nmax={nmax} for P={P} with k={k} ' +
-                              'at c={c}. Increase nmax, raise k, or loosen constraints.')
+            raise ValueError(f'n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} ' +
+                             f'at {c=}. Increase nmax, raise k, or loosen constraints.')
     elif bound == StatBound.ONESIDED_LOWER:
         l = iPl - k + 1
         u = n[0] + 1
         if l <= 0 or EPYP(n[0], l, u, P) < c:
-            raise ValueError(f'n ouside bounds of nmin={nmin}:nmax={nmax} for P={P} with k={k} ' +
-                              'at c={c}. Increase nmax, raise k, or loosen constraints.')
+            raise ValueError(f'n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} ' +
+                             f'at {c=}. Increase nmax, raise k, or loosen constraints.')
     else:
-        raise ValueError(f'bound={bound} must be {StatBound.ONESIDED_UPPER}, ' +
+        raise ValueError(f'{bound=} must be {StatBound.ONESIDED_UPPER}, ' +
                          f'{StatBound.ONESIDED_LOWER}, or {StatBound.TWOSIDED}')
 
     for i in range(maxsteps):
@@ -363,8 +363,8 @@ def order_stat_P_n(k     : int,
             else:
                 n[1] = ntemp
         # print(ntemp, ':', EPYP(ntemp, l, u, P), l, iP, u, n, step)
-    raise ValueError(f'With n={n}, could not converge in maxsteps={maxsteps} steps. ' +
-                     f'Is nmax={nmax} > 2^{maxsteps}?')
+    raise ValueError(f'With {n=}, could not converge in {maxsteps=} steps. ' +
+                     f'Is {nmax=} > 2^{maxsteps}?')
 
 
 
@@ -402,7 +402,7 @@ def order_stat_P_k(n     : int,
         l = iPl - k[1] + 1  # we won't be using assymmetrical order stats
         u = iPu + k[1] - 1
         if l <= 0 or u >= n+1 or EPYP(n, l, u, P) < c:
-            raise ValueError(f'n={n} is too small to meet P={P} at c={c} for {bound} percentile ' +
+            raise ValueError(f'{n=} is too small to meet {P=} at {c=} for {bound} percentile ' +
                               'confidence interval at any order statistic')
 
     elif bound == StatBound.ONESIDED_UPPER:
@@ -410,7 +410,7 @@ def order_stat_P_k(n     : int,
         l = 0
         u = iPu + k[1] - 1
         if u >= n + 1 or EPYP(n, l, u, P) < c:
-            raise ValueError(f'n={n} is too small to meet P={P} at c={c} for {bound} percentile ' +
+            raise ValueError(f'{n=} is too small to meet {P=} at {c=} for {bound} percentile ' +
                               'confidence interval at any order statistic')
 
     elif bound == StatBound.ONESIDED_LOWER:
@@ -418,10 +418,10 @@ def order_stat_P_k(n     : int,
         l = iPl - k[1] + 1
         u = n + 1
         if EPYP(n, l, u, P) < c:
-            raise ValueError(f'n={n} is too small to meet P={P} at c={c} for {bound} percentile ' +
+            raise ValueError(f'{n=} is too small to meet {P=} at {c=} for {bound} percentile ' +
                               'confidence interval at any order statistic')
     else:
-        raise ValueError(f'bound={bound} must be {StatBound.ONESIDED_UPPER}, ' +
+        raise ValueError(f'{bound=} must be {StatBound.ONESIDED_UPPER}, ' +
                          f'{StatBound.ONESIDED_LOWER}, or {StatBound.TWOSIDED}')
 
     # use bisection to get n (secant method is unstable due to flat portions of curve)
@@ -449,7 +449,7 @@ def order_stat_P_k(n     : int,
             else:
                 k[0] = ktemp
 
-    raise ValueError(f'With n={n}, could not converge in {maxsteps} steps. Is n > 2^{maxsteps}?')
+    raise ValueError(f'With {n=}, could not converge in {maxsteps} steps. Is n > 2^{maxsteps}?')
 
 
 
@@ -490,12 +490,12 @@ def order_stat_P_c(n     : int,
         l = iPl - k
         u = n + 1
     else:
-        raise ValueError(f'bound={bound} must be {StatBound.ONESIDED_UPPER}, ' +
+        raise ValueError(f'{bound=} must be {StatBound.ONESIDED_UPPER}, ' +
                          f'{StatBound.ONESIDED_LOWER}, or {StatBound.TWOSIDED}')
 
     if l < 0 or u > n+1:
-        raise ValueError(f'l={l} or u={u} are outside the valid bounds of (0, {n+1}) ' +
-                         f'(check: iP={iP}, k={k})')
+        raise ValueError(f'{l=} or {u=} are outside the valid bounds of (0, {n+1}) ' +
+                         f'(check: {iP=}, {k=})')
 
     c = EPYP(n, l, u, P)
     return c
@@ -600,18 +600,18 @@ def order_stat_var_check(n    : int   = None,
     Check the validity of the inputs to the order statistic functions.
     """
     if n is not None and n < 1:
-        raise ValueError(f'n={n} must be >= 1')
+        raise ValueError(f'{n=} must be >= 1')
     if l is not None and l < 0:
-        raise ValueError(f'l={l} must be >= 0')
+        raise ValueError(f'{l=} must be >= 0')
     if u is not None and n is not None and u > n+1:
-        raise ValueError(f'u={u} must be >= {n+1}')
+        raise ValueError(f'{u=} must be >= {n+1}')
     if u is not None and l is not None and u < l:
-        raise ValueError(f'u={u} must be >= l={l}')
+        raise ValueError(f'{u=} must be >= {l=}')
     if p is not None and (p <= 0 or p >= 1):
-        raise ValueError(f'p={p} must be in the range 0 < p < 1')
+        raise ValueError(f'{p=} must be in the range 0 < p < 1')
     if k is not None and k < 1:
-        raise ValueError(f'k={k} must be >= 1')
+        raise ValueError(f'{k=} must be >= 1')
     if c is not None and (c <= 0 or c >= 1):
-        raise ValueError(f'c={c} must be in the range 0 < c < 1')
+        raise ValueError(f'{c=} must be in the range 0 < c < 1')
     if nmax is not None and nmax < 1:
-        raise ValueError(f'nmax={nmax} must be >= 1')
+        raise ValueError(f'{nmax=} must be >= 1')

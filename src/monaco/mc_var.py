@@ -307,15 +307,15 @@ class InVar(Var):
 
         if any(np.isinf(self.nums)):
             warn( 'Infinite value drawn. Check distribution and parameters: ' +
-                 f'dist={self.dist}, distkwargs={self.distkwargs}')
+                 f'{self.dist=}, {self.distkwargs=}')
             if self.samplemethod in (SampleMethod.SOBOL, SampleMethod.HALTON):
-                warn(f'Infinite value draw may happen with dist={self.dist} for the ' +
+                warn(f'Infinite value draw may happen with {self.dist=} for the ' +
                      f'first point of the {self.samplemethod} sampling method. ' +
                      f'Consider using {SampleMethod.SOBOL_RANDOM} instead.')
 
         if any(np.isnan(num) for num in self.nums):
             raise ValueError( 'Invalid draw. Check distribution and parameters: ' +
-                             f'dist={self.dist}, distkwargs={self.distkwargs}')
+                             f'{self.dist=}, {self.distkwargs=}')
 
         self.mapNums()
 

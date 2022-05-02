@@ -224,11 +224,11 @@ class Sim:
         """
         if set(fcns.keys()) \
            != {SimFunctions.PREPROCESS, SimFunctions.RUN, SimFunctions.POSTPROCESS}:
-            raise ValueError(f'Sim argument fcns={fcns} must have keys ' +
+            raise ValueError(f'Sim argument {fcns=} must have keys ' +
                              f'{SimFunctions.PREPROCESS}, {SimFunctions.RUN}, ' +
                              f'and {SimFunctions.POSTPROCESS}')
         if any(not callable(f) for f in fcns.values()):
-            raise ValueError(f'Sim argument fcns={fcns} must contain functions as values')
+            raise ValueError(f'Sim argument {fcns=} must contain functions as values')
 
 
     def setFirstCaseMedian(self,

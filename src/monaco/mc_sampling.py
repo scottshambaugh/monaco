@@ -47,10 +47,10 @@ def sampling(ndraws     : int,
     elif method in (SampleMethod.SOBOL, SampleMethod.SOBOL_RANDOM,
                     SampleMethod.HALTON, SampleMethod.HALTON_RANDOM, SampleMethod.LATIN_HYPERCUBE):
         if ninvar is None:
-            raise ValueError(f'ninvar={ninvar} must defined for the {method} method')
+            raise ValueError(f'{ninvar=} must defined for the {method} method')
         elif (not 1 <= ninvar <= 21201) and method in (SampleMethod.SOBOL,
                                                        SampleMethod.SOBOL_RANDOM):
-            raise ValueError(f'ninvar={ninvar} must be between 1 and 21201 for the {method} method')
+            raise ValueError(f'{ninvar=} must be between 1 and 21201 for the {method} method')
 
         scramble = False
         if method in (SampleMethod.SOBOL_RANDOM, SampleMethod.HALTON_RANDOM):
@@ -63,7 +63,7 @@ def sampling(ndraws     : int,
         pcts = all_pcts[:, ninvar-1]  # ninvar will always be >= 1
 
     else:
-        raise ValueError("".join([f'method={method} must be one of the following: ' +
+        raise ValueError("".join([f'{method=} must be one of the following: ' +
                                   f'{SampleMethod.RANDOM}, {SampleMethod.SOBOL}, ' +
                                   f'{SampleMethod.SOBOL_RANDOM}, {SampleMethod.HALTON}, ' +
                                   f'{SampleMethod.HALTON_RANDOM}, {SampleMethod.LATIN_HYPERCUBE}']))

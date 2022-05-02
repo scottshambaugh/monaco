@@ -172,7 +172,7 @@ class VarStat:
         elif stat == VarStatType.ORDERSTATP:
             self.genStatsOrderStatP()
         else:
-            raise ValueError(f'stat={stat} must be callable, or one of the following: ' +
+            raise ValueError(f'{stat=} must be callable, or one of the following: ' +
                              f'{VarStatType.MAX}, {VarStatType.MIN}, {VarStatType.MEDIAN}, ' +
                              f'{VarStatType.MEAN}, {VarStatType.GEOMEAN}, {VarStatType.MODE}, ' +
                              f'{VarStatType.PERCENTILE}, {VarStatType.SIGMA}, ' +
