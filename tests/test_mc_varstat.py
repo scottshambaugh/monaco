@@ -31,13 +31,13 @@ bound = StatBound.ONESIDED
     (VarStatType.GAUSSIANP  , {'p': sig2pct(-3, bound), 'bound': bound},
      -2.9930052, -3.0218270, -2.9478346),
     (VarStatType.SIGMA      , {'sig': 3, 'bound': bound}, 3.0002124, 2.9639949, 3.034664),
+    (VarStatType.PERCENTILE , {'p': 0.5}, -0.0052538, -0.0383748, 0.01420399),
     (VarStatType.MEAN       , dict(), 0.0036036, -0.0204179, 0.0167662),
     (np.mean                , dict(), 0.0036036, -0.0204179, 0.0167662),
 ])
 def test_invarstat(stat, statkwargs, vals, cihigh, cilow, invar):
     invarstat = VarStat(invar, stat=stat, statkwargs=statkwargs,
                         bootstrap=True, bootstrap_k=10, conf=0.95, seed=0)
-    print(invarstat.confidence_interval_low_vals, invarstat.confidence_interval_high_vals)
     assert np.allclose(invarstat.vals, vals)
     assert np.allclose(invarstat.confidence_interval_low_vals, cilow)
     assert np.allclose(invarstat.confidence_interval_high_vals, cihigh)

@@ -3,8 +3,6 @@
 ## Future Work
 ### Before SciPy 2022:
 - 2D Scatter Statistics
-- Migrate to dask as parallel processing backend
-- Run on remote server (AWS, etc)
 - Polynomial approximations
 - Sensitivity Indices (Sobol's Method)
 ### Later:
@@ -15,6 +13,8 @@
 - Correlated inputs
 - Ability to plot derived data in addition to vars
 - Star Sampling
+- Try out actually chaining the dask task graph
+- Demo running on remote server (AWS, etc)
 - Variogram Sensitivity Analysis
 ### Known Bugs:
 - Cannot plot a varstat in percentile space
@@ -24,6 +24,7 @@
 ### Added    
 * Added `singlethreaded` kwarg to `Sim` initialization.
 * Added `daskkwargs` kwarg to `Sim` initialization.
+* Added `percentile` varstat.
 ### Changed    
 * For all datafiles, switch from `dill` to `cloudpickle` for pickling.
 * Parallel processing backend moved from `pathos` to `dask`.

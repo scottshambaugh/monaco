@@ -79,6 +79,8 @@ class VarStat:
         No kwargs
     mode()
         No kwargs
+    percentile()
+        `p` is the percentile, `0 < p < 1`.
     sigma(sig : float, bound : monaco.mc_enums.StatBound)
         `sig` is the gaussian sigma value, `-inf < sig < inf`.
 
@@ -159,6 +161,8 @@ class VarStat:
         elif stat == VarStatType.MODE:
             self.setName(f'{self.var.name} Mode')
             self.genStatsFunction(fcn=mode)
+        elif stat == VarStatType.PERCENTILE:
+            self.genStatsPercentile()
         elif stat == VarStatType.SIGMA:
             self.genStatsSigma()
         elif stat == VarStatType.GAUSSIANP:
@@ -171,8 +175,21 @@ class VarStat:
             raise ValueError(f'stat={stat} must be callable, or one of the following: ' +
                              f'{VarStatType.MAX}, {VarStatType.MIN}, {VarStatType.MEDIAN}, ' +
                              f'{VarStatType.MEAN}, {VarStatType.GEOMEAN}, {VarStatType.MODE}, ' +
-                             f'{VarStatType.SIGMA}, {VarStatType.GAUSSIANP}, ' +
-                             f'{VarStatType.ORDERSTATTI}, {VarStatType.ORDERSTATP}')
+                             f'{VarStatType.PERCENTILE}, {VarStatType.SIGMA}, ' +
+                             f'{VarStatType.GAUSSIANP}, {VarStatType.ORDERSTATTI}, ' +
+                             f'{VarStatType.ORDERSTATP}')
+
+
+    def genStatsPercentile(self) -> None:
+        """
+        Get the value of the variable at the inputted percentile.
+        """
+        if 'p' not in self.statkwargs:
+            raise ValueError(f'{self.stat} requires the kwarg ''p''')
+
+        self.p = self.statkwargs['p']
+        self.setName(f'{self.var.name} {self.p*100}% Percentile')
+        self.genStatsFunction(np.quantile, {'q': self.p})
 
 
     def genStatsSigma(self) -> None:
