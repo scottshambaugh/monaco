@@ -44,7 +44,7 @@ def run_case(runfcn: Callable,
              debug : bool,
              verbose : bool,
              runsimid : int,
-             ) -> None:
+             ) -> Case:
     """
     Run a single Monte Carlo case.
 
@@ -80,7 +80,7 @@ def postprocess_case(postprocfcn: Callable,
                      case : Case,
                      debug : bool,
                      verbose : bool,
-                     ) -> None:
+                     ) -> Case:
     """
     Postprocess a single Monte Carlo case.
 

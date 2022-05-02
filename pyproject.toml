@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "monaco"
-version = "0.4.0"
+version = "0.5.0"
 description = "Quantify uncertainty and sensitivities in your computer models with an industry-grade Monte Carlo framework."
 authors = ["Scott Shambaugh <scott@theshamblog.com>"]
 license = "GPL-3.0-or-later"

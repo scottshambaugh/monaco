@@ -4,13 +4,14 @@
 ### Before SciPy 2022:
 - 2D Scatter Statistics
 - Polynomial approximations
-- Sensitivity Indices (Sobol's Method)
+- Sensitivity Indices (DVARS)
 ### Later:
 - Get custom distributions working
 - Tornado plots
 - Example: Evidence-Based Scheduling
 - 2D/3D Line statistics
 - Correlated inputs
+- Switch from prints to logging
 - Ability to plot derived data in addition to vars
 - Star Sampling
 - Try out actually chaining the dask task graph
@@ -21,6 +22,11 @@
 ----
 
 ## [Unreleased]
+### Added    
+### Changed    
+### Removed    
+
+## [0.5.0] - 2022-05-01
 ### Added    
 * Added `singlethreaded` kwarg to `Sim` initialization.
 * Added `daskkwargs` kwarg to `Sim` initialization.

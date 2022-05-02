@@ -186,11 +186,11 @@ class Sim:
 
 
     def __del__(self) -> None:
-        if not self.singlethreaded:
+        if self.client is not None:
             self.client.close()
 
 
-    def __getstate__(self) -> dict():
+    def __getstate__(self) -> dict:
         """Function for pickling self to save to file."""
         state = self.__dict__.copy()
         state['client'] = None  # don't save cluster to file
