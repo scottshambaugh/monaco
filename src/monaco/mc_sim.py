@@ -116,7 +116,7 @@ class Sim:
                  samplemethod      : SampleMethod = SampleMethod.SOBOL_RANDOM,
                  seed              : int  = np.random.get_state(legacy=False)['state']['key'][0],
                  singlethreaded    : bool = False,
-                 daskkwargs        : dict  = dict(),
+                 daskkwargs        : dict = dict(),
                  verbose           : bool = True,
                  debug             : bool = False,
                  savesimdata       : bool = True,

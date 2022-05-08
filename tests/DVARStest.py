@@ -12,10 +12,7 @@ Multi-SQP is replaced with scipy's minimize function implementing L-BFGS-B.
 
 import monaco as mc
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.stats import uniform
-from scipy.optimize import minimize
-from numba import jit
 np.set_printoptions(suppress=True, precision=6)
 
 def vars_preprocess(case):
@@ -42,7 +39,6 @@ def g6(x):
 
 def vars_run(x1, x2, x3, x4, x5, x6):
     f = g1(x1) + g2(x2) + g3(x3) + g4(x4) + g5(x5) + g6(x6)
-    #f = np.sin(np.pi*(0.2-x1))
     return (f,)
 
 def vars_postprocess(case, f):
@@ -55,7 +51,7 @@ def main():
            'postprocess':vars_postprocess}
 
     ndraws = 512
-    sim = mc.Sim(name='dvars', ndraws=ndraws, fcns=fcns, firstcaseismedian=False, seed=3462356, singlethreaded=False, daskkwargs=dict(), samplemethod='random', savecasedata=False, savesimdata=False, verbose=True, debug=True)
+    sim = mc.Sim(name='dvars', ndraws=ndraws, fcns=fcns, firstcaseismedian=False, seed=3462356, singlethreaded=True, daskkwargs=dict(), samplemethod='random', savecasedata=False, savesimdata=False, verbose=True, debug=True)
 
     varnames = ['x1', 'x2', 'x3', 'x4', 'x5', 'x6']
     d = len(varnames)
@@ -63,33 +59,19 @@ def main():
         sim.addInVar(name=varname, dist=uniform, distkwargs={'loc':0, 'scale':1})
     sim.runSim()
 
-    #for varname in varnames:
-    #    plt.scatter(sim.invars[varname].nums, sim.outvars['f'].nums)
+    # for varname in varnames:
+    #     mc.plot(sim.invars[varname], sim.outvars['f'])
 
     dh = 1e-3
-    Hj_min = 0.1
-    phi_opt = mc.calc_phi_opt(sim, Hj_min)
+    dH = 0.05
+    phi_opt = mc.calc_phi_opt(sim, dH)
     variance = np.var(np.array([sim.outvars['f'].nums]))
-    for Hj in np.arange(0.1, 1.1, 0.1):
+    for Hj in np.arange(dH, 1+dH, dH):
         Gamma = []
         for j in range(d):
             Gamma.append(mc.calc_Gammaj(Hj, dh, phi_opt[j], variance))
         Gamma = np.array(Gamma)/sum(Gamma)
         print(f'Hj = {Hj:0.2f}, Γ = {Gamma}')
-
-    #'''
-    '''
-    nL = 1000
-    phis = np.zeros((nL, sim.ninvars))
-    Ls = np.zeros((nL, 1))
-    for j in range(sim.ninvars):
-        phis[:,j] = phi_min + (phi_max-phi_min)*mc.sampling(ndraws=nL, method='random', ninvar=j, ninvar_max=sim.ninvars, seed=j)
-    for i in range(nL):
-        Ls[i] = L_runner(phis[i,:], X, Y)
-
-    plt.hist(Ls, bins=20)
-    plt.show(block=True)
-    #'''
 
     return sim
 

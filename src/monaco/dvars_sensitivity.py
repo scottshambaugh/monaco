@@ -49,9 +49,8 @@ def calc_Ruw(phi : np.ndarray,
 @jit(nopython=True)
 def calc_R(phi : np.ndarray,
            X   : np.ndarray,
-           Y   : np.ndarray
            ) -> np.ndarray:
-    m = len(Y)
+    m = X.shape[0]
     R = np.ones((m, m))
     for u in range(m):
         # do lower triangle only and duplicate across diag
@@ -70,14 +69,14 @@ def calc_L(phi : np.ndarray,
            ) -> float:
     m = len(Y)
     M = np.ones((m, 1))
-    R = calc_R(phi, X, Y)
+    R = calc_R(phi, X)
     Rinv = np.linalg.inv(R)
-    Rdet = max(np.linalg.det(R), 1e-9)  # Protect for poor conditioning
+    Rdet = max(np.linalg.det(R), 1e-12)  # Protect for poor conditioning
 
     mu = np.linalg.inv(M.T @ Rinv @ M) @ (M.T @ Rinv @ Y)
 
     L_inner = Y - M*mu
-    L = np.log(Rdet) + m*np.log(L_inner.T @ Rinv @ L_inner)
+    L = np.log(Rdet)/m + m*np.log(L_inner.T @ Rinv @ L_inner)
     L = L[0][0]
     return L
 
@@ -100,8 +99,9 @@ def calc_Gammaj(Hj       : float,
     Gamma = 0
     q = int(np.floor(Hj/dh))
     for t in range(1, q+1):
+        # Trapezoidal integration
         Gamma = Gamma + ((1-calc_rj(dh*(t-1), phij)) + (1-calc_rj(dh*t, phij)))
-    Gamma = Gamma * dh/2 * variance
+    Gamma = Gamma * dh / 2 * variance
     return Gamma
 
 
@@ -109,7 +109,7 @@ def calc_phi_opt(sim    : Sim,
                  Hj_min : float
                  ) -> np.ndarray:
     phi_max = 1/Hj_min
-    phi_min = 1e-6
+    phi_min = 0
 
     phi0 = [1, 1, 1, 1, 1, 1]
     bounds = []
@@ -117,7 +117,8 @@ def calc_phi_opt(sim    : Sim,
     verbose = True
     for j in range(sim.ninvars):
         bounds.append((phi_min, phi_max))
-    res = minimize(L_runner, phi0, args=(X, Y, verbose), bounds=bounds, tol=1e-6)
+    method = 'L-BFGS-B'
+    res = minimize(L_runner, phi0, args=(X, Y, verbose), bounds=bounds, tol=1e-6, method=method)
     phi_opt = res.x
 
     return phi_opt
