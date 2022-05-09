@@ -12,6 +12,7 @@ Multi-SQP is replaced with scipy's minimize function implementing L-BFGS-B.
 
 import monaco as mc
 import numpy as np
+import matplotlib.pyplot as plt
 from scipy.stats import uniform
 np.set_printoptions(suppress=True, precision=6)
 
@@ -29,13 +30,13 @@ def g1(x):
 def g2(x):
     return -0.76*np.sin(np.pi*(x-0.2)) - 0.315
 def g3(x):
-    return -0.12*np.sin(1.05*np.pi*(x-0.2)) - 0.2*np.sin(95.24*np.pi*x) - 0.96
+    return -0.12*np.sin(1.05*np.pi*(x-0.2)) - 0.02*np.sin(95.24*np.pi*x) - 0.96
 def g4(x):
     return -0.12*np.sin(1.05*np.pi*(x-0.2)) - 0.96
 def g5(x):
     return -0.05*np.sin(np.pi*(x - 0.2)) - 1.02
 def g6(x):
-    return -1.08
+    return 0*x - 1.08
 
 def vars_run(x1, x2, x3, x4, x5, x6):
     f = g1(x1) + g2(x2) + g3(x3) + g4(x4) + g5(x5) + g6(x6)
@@ -45,13 +46,29 @@ def vars_postprocess(case, f):
     case.addOutVal(name='f', val=f)
 
 
+def plot_gs():
+    dx = 0.001
+    x = np.arange(0, 1+dx, dx)
+    fig, ax = plt.subplots(1, 1)
+    ax.plot(x, g1(x))
+    ax.plot(x, g2(x))
+    ax.plot(x, g3(x))
+    ax.plot(x, g4(x))
+    ax.plot(x, g5(x))
+    ax.plot(x, g6(x))
+    plt.legend(['g1', 'g2', 'g3', 'g4', 'g5', 'g6'])
+    plt.show(block=False)
+
+
 def main():
     fcns ={'preprocess' :vars_preprocess,   \
            'run'        :vars_run,          \
            'postprocess':vars_postprocess}
 
     ndraws = 512
-    sim = mc.Sim(name='dvars', ndraws=ndraws, fcns=fcns, firstcaseismedian=False, seed=3462356, singlethreaded=True, daskkwargs=dict(), samplemethod='random', savecasedata=False, savesimdata=False, verbose=True, debug=True)
+    sim = mc.Sim(name='dvars', ndraws=ndraws, fcns=fcns, firstcaseismedian=False,
+                 seed=3462356, singlethreaded=True, daskkwargs=dict(), samplemethod='random',
+                 savecasedata=False, savesimdata=False, verbose=True, debug=True)
 
     varnames = ['x1', 'x2', 'x3', 'x4', 'x5', 'x6']
     d = len(varnames)
@@ -62,18 +79,17 @@ def main():
     # for varname in varnames:
     #     mc.plot(sim.invars[varname], sim.outvars['f'])
 
-    dh = 1e-3
-    dH = 0.05
-    phi_opt = mc.calc_phi_opt(sim, dH)
-    variance = np.var(np.array([sim.outvars['f'].nums]))
-    for Hj in np.arange(dH, 1+dH, dH):
-        Gamma = []
-        for j in range(d):
-            Gamma.append(mc.calc_Gammaj(Hj, dh, phi_opt[j], variance))
-        Gamma = np.array(Gamma)/sum(Gamma)
-        print(f'Hj = {Hj:0.2f}, Γ = {Gamma}')
+    Gammas, ratios = mc.calc_sensitivities(sim, 'f', Hj=1, tol=1e-6)
+    make_plots = True
+    if make_plots:
+        fig, ax = plt.subplots(1, 1)
+        plt.title('Hj = 1')
+        plt.ylabel('Ratio of factor sensitivity')
+        plt.bar(varnames, ratios)
+        plt.show(block=False)
 
     return sim
 
 if __name__ == '__main__':
+    plot_gs()
     sim = main()

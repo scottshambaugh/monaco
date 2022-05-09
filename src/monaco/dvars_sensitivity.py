@@ -16,13 +16,14 @@ from scipy.optimize import minimize
 from numba import jit
 
 
-def full_states(sim : Sim) -> tuple:
+def full_states(sim : Sim,
+                outvarname: str,
+                ) -> tuple:
     X = np.zeros((sim.ncases, sim.ninvars))
     Y = np.zeros((sim.ncases, 1))
     for i, varname in enumerate(sim.invars):
         X[:, i] = sim.invars[varname].pcts
-    for i, varname in enumerate(sim.outvars):
-        Y[:, i] = sim.outvars[varname].nums
+    Y[:, 0] = sim.outvars[outvarname].nums
     return X, Y
 
 
@@ -30,7 +31,9 @@ def full_states(sim : Sim) -> tuple:
 def calc_rj(hj   : float,
             phij : float
             ) -> float:
-    r_j = max(0, 1-phij*abs(hj))
+    r_j = max(0, 1-phij*abs(hj))  # linear covariance function
+    # r_j = np.exp(-(abs(hj)/phij))  # exponential covariance function
+    # r_j = np.exp(-(hj/phij)**2)  # squared exponential covariance function
     return r_j
 
 
@@ -52,10 +55,10 @@ def calc_R(phi : np.ndarray,
            ) -> np.ndarray:
     m = X.shape[0]
     R = np.ones((m, m))
-    for u in range(m):
+    for u in range(1, m):
         # do lower triangle only and duplicate across diag
         # diag will be all 1s
-        for w in range(u):
+        for w in range(1, u):
             Ruw = calc_Ruw(phi, X[u, :], X[w, :])
             R[u, w] = Ruw
             R[w, u] = Ruw
@@ -91,34 +94,59 @@ def L_runner(phi     : np.ndarray,
     return L
 
 
+def calc_phi_opt(sim        : Sim,
+                 outvarname : str,
+                 tol        : float = 1e-6,
+                 ) -> np.ndarray:
+    phi_max = 1e6
+    phi_min = 0
+    phi0 = 1
+
+    phi0s = [phi0, phi0, phi0, phi0, phi0, phi0]
+    bounds = []
+    for _ in range(sim.ninvars):
+        bounds.append((phi_min, phi_max))
+
+    vprint(sim.verbose, 'Calculating optimal covariance hyperparameters Φ for ' +
+                       f"'{outvarname}' covariances...")
+    X, Y = full_states(sim, outvarname)
+    method = 'L-BFGS-B'
+    res = minimize(L_runner, phi0s, args=(X, Y, sim.verbose), bounds=bounds,
+                   tol=tol, method=method)
+    phi_opt = res.x
+    vprint(sim.verbose, 'Done calculating optimal hyperparameters')
+
+    return phi_opt
+
+
 def calc_Gammaj(Hj       : float,
-                dh       : float,
                 phij     : np.ndarray,
                 variance : float
                 ) -> float:
-    Gamma = 0
+
+    dh = 1e-3
     q = int(np.floor(Hj/dh))
-    for t in range(1, q+1):
-        # Trapezoidal integration
-        Gamma = Gamma + ((1-calc_rj(dh*(t-1), phij)) + (1-calc_rj(dh*t, phij)))
-    Gamma = Gamma * dh / 2 * variance
+    rjs = []
+    for i in range(q+1):
+        rjs.append(calc_rj(dh*i, phij))
+    rjs = np.array(rjs)
+
+    Gamma = np.trapz(1 - rjs) * dh * variance
+
     return Gamma
 
 
-def calc_phi_opt(sim    : Sim,
-                 Hj_min : float
-                 ) -> np.ndarray:
-    phi_max = 1/Hj_min
-    phi_min = 0
-
-    phi0 = [1, 1, 1, 1, 1, 1]
-    bounds = []
-    X, Y = full_states(sim)
-    verbose = True
+def calc_sensitivities(sim        : Sim,
+                       outvarname : str,
+                       Hj         : float = 1.0,
+                       tol        : float = 1e-6,
+                       ) -> np.ndarray:
+    phi_opt = calc_phi_opt(sim, outvarname, tol)
+    variance = np.var(np.array([sim.outvars[outvarname].nums]))
+    sensitivities = []
     for j in range(sim.ninvars):
-        bounds.append((phi_min, phi_max))
-    method = 'L-BFGS-B'
-    res = minimize(L_runner, phi0, args=(X, Y, verbose), bounds=bounds, tol=1e-6, method=method)
-    phi_opt = res.x
+        sensitivities.append(calc_Gammaj(Hj, phi_opt[j], variance))
+    sensitivities = np.array(sensitivities)
+    ratios = sensitivities/sum(sensitivities)
 
-    return phi_opt
+    return sensitivities, ratios
