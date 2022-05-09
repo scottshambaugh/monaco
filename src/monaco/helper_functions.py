@@ -142,6 +142,8 @@ def get_list(x : Any) -> list[Any]:
     """
     if x is None:
         return list()
+    elif isinstance(x, str):
+        return [x, ]
     elif pd and isinstance(x, pd.DataFrame):
         return [x, ]
     elif isinstance(x, Iterable):
