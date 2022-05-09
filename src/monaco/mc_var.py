@@ -8,9 +8,9 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from monaco.mc_val import Val, InVal, OutVal
 from monaco.mc_varstat import VarStat
-from monaco.mc_enums import SampleMethod, VarStatType, InVarSpace
+from monaco.mc_enums import SampleMethod, Sensitivities, VarStatType, InVarSpace
 from monaco.mc_sampling import sampling
-from monaco.mc_plot import plot
+from monaco.mc_plot import plot, plot_sensitivities
 from monaco.helper_functions import empty_list, hashable_val
 from copy import copy
 from typing import Any, Callable, Iterable, Optional
@@ -449,6 +449,8 @@ class OutVar(Var):
         self.genNumMap()
         self.mapVals()
         self.genMaxDim()
+        self.sensitivity_indices : None | dict = None
+        self.sensitivity_ratios  : None | dict = None
 
 
     def genMaxDim(self) -> None:
@@ -570,3 +572,17 @@ class OutVar(Var):
                                           statkwargs=varstat.statkwargs,
                                           name=varstat.name)
         return vars
+
+
+    def plotSensitivities(self,
+                          sensitivities : Sensitivities = Sensitivities.RATIOS,
+                          ax            : Optional[Axes] = None,
+                          title         : str            = '',
+                          ) -> tuple[Figure, Axes]:
+        """
+        Plot the sensitivity indices for this variable.
+        See monaco.mc_plot.plot_sensitivities() for API details.
+        """
+        fig, ax = plot_sensitivities(outvar=self, sensitivities=sensitivities,
+                                     ax=ax, title=title)
+        return fig, ax

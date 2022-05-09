@@ -32,14 +32,3 @@ def baseball_example_postprocess(case, t, pos, vel, acc):
     distance = np.sqrt(pos[0, :]**2 + pos[1, :]**2)
     case.addOutVal('Distance [m]', distance)
     case.addOutVal('Landing Dist [m]', distance[-1])
-
-    quadrant = None
-    if pos[0, -1] >= 0 and pos[1, -1] >= 0:
-        quadrant = 'I'
-    elif pos[0, -1] <= 0 and pos[1, -1] >= 0:
-        quadrant = 'II'
-    elif pos[0, -1] <= 0 and pos[1, -1] <= 0:
-        quadrant = 'III'
-    elif pos[0, -1] >= 0 and pos[1, -1] <= 0:
-        quadrant = 'IV'
-    case.addOutVal('Landing Quadrant', quadrant)

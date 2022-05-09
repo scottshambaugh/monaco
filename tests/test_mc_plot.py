@@ -29,7 +29,7 @@ def plot_testing():
     from monaco.mc_var import InVar, OutVar
     from monaco.mc_plot import (plot, plot_hist, plot_cdf,
                                 plot_cov_corr, plot_integration_convergence,
-                                plot_integration_error)
+                                plot_integration_error, plot_sensitivities)
     from monaco.mc_enums import SampleMethod
 
     generator = np.random.RandomState(74494861)
@@ -54,6 +54,7 @@ def plot_testing():
                             samplemethod=SampleMethod.RANDOM, seed=invarseeds[2])
     outvars = dict()
     outvars['test'] = OutVar(name='test', vals=[1, 0, 2, 2], firstcaseismedian=True)
+    outvars['test'].sensitivity_ratios = {'a': 0.15, 'b': 0.35, 'c': 0.4}
 
     f, (ax1, ax2) = plt.subplots(2, 1)
     plot_hist(invars['randint'], ax=ax1, orientation='horizontal')        # plot_hist
@@ -62,6 +63,8 @@ def plot_testing():
     plot_hist(outvars['test'], orientation='horizontal', rug_plot=False)  # plot_hist
     plot_cdf(invars['norm'], orientation='horizontal')                    # plot_cdf
     plot_cdf(outvars['test'])                                             # plot_cdf
+
+    plot_sensitivities(outvars['test'], sensitivities='ratios')           # plot_sensitivities
 
     plot(invars['randint'], invars['norm'],
          cases=None, highlight_cases=range(10, 30),

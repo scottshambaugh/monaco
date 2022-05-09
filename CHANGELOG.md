@@ -4,7 +4,6 @@
 ### Before SciPy 2022:
 - 2D Scatter Statistics
 - Polynomial approximations
-- Sensitivity Indices (DVARS)
 ### Later:
 - Get custom distributions working
 - Tornado plots
@@ -17,12 +16,15 @@
 - Try out actually chaining the dask task graph
 - Demo running on remote server (AWS, etc)
 - Variogram Sensitivity Analysis
+- Chain pre/run/post dask runs
 ### Known Bugs:
 - Cannot plot a varstat in percentile space
 ----
 
 ## [Unreleased]
 ### Added    
+* DVARS fleshed out, moved out of alpha
+* Can now plot sensitivity indices
 ### Changed    
 ### Removed    
 

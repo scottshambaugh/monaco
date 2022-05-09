@@ -14,6 +14,7 @@ from monaco.mc_enums import SimFunctions, SampleMethod
 from monaco.helper_functions import get_list, vprint, vwarn, hash_str_repeatable
 from monaco.case_runners import preprocess_case, run_case, postprocess_case
 from monaco.tqdm_dask_distributed import tqdm_dask
+from monaco.dvars_sensitivity import calc_sensitivities
 from tqdm import tqdm
 from typing import Callable, Any, Iterable
 from scipy.stats import rv_continuous, rv_discrete
@@ -741,6 +742,40 @@ class Sim:
                     scalaroutvars[name] = outvar
 
         return scalaroutvars
+
+
+    def calcSensitivities(self,
+                          outvarnames: None | str | Iterable[str] = None,
+                          ) -> None:
+        """
+        Calculate the sensitivity indices for the specified outvars.
+
+        Parameters
+        ----------
+        outvarnames : None | str | Iterable[str] (default: None)
+            The outvar names to calculate sensitivity indices for. If None,
+            then calculates sensitivities for all scalar outvars.
+        """
+        if outvarnames is None:
+            outvarname = list(self.scalarOutVars.keys())
+        outvarnames = get_list(outvarnames)
+
+        for outvarname in outvarnames:
+            if not self.outvars[outvarname].isscalar:
+                vwarn(self.verbose, f"Output variable '{outvarname}' is not scalar," +
+                                     'skipping sensitivity calculations.')
+            else:
+                vprint(self.verbose, f"Calculating sensitivity indices for '{outvarname}'.")
+                sensitivities, ratios = calc_sensitivities(self, outvarname)
+
+                sensitivities_dict = dict()
+                ratios_dict = dict()
+                for i, name in enumerate(self.invars.keys()):
+                    sensitivities_dict[name] = sensitivities[i]
+                    ratios_dict[name] = ratios[i]
+
+                self.outvars[outvarname].sensitivity_indices = sensitivities_dict
+                self.outvars[outvarname].sensitivity_ratios = ratios_dict
 
 
     def genCovarianceMatrix(self) -> None:

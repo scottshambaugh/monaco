@@ -10,3 +10,6 @@ aerodynamic drag and the magnus effect from topspin. Home runs are highlighted.
 <img width="330" height="330" src="./baseball_trajectory.png">
 <img width="420" height="315" src="./launch_angle_vs_landing.png">
 </p>
+<p float="left" align="center">
+<img width="500" height="200" src="./landing_dist_sensitivities.png">
+</p>

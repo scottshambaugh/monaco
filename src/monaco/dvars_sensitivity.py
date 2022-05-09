@@ -9,14 +9,18 @@ data." Geophysical Research Letters 47.20 (2020): e2020GL089829.
 Multi-SQP is replaced with scipy's minimize function implementing L-BFGS-B.
 '''
 
-from monaco.mc_sim import Sim
+# Somewhat hacky type checking to avoid circular imports:
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from monaco.mc_sim import Sim
+
 from monaco.helper_functions import vprint
 import numpy as np
 from scipy.optimize import minimize
 from numba import jit
 
 
-def full_states(sim : Sim,
+def full_states(sim : 'Sim',
                 outvarname: str,
                 ) -> tuple:
     X = np.zeros((sim.ncases, sim.ninvars))
@@ -94,7 +98,7 @@ def L_runner(phi     : np.ndarray,
     return L
 
 
-def calc_phi_opt(sim        : Sim,
+def calc_phi_opt(sim        : 'Sim',
                  outvarname : str,
                  tol        : float = 1e-6,
                  ) -> np.ndarray:
@@ -102,19 +106,20 @@ def calc_phi_opt(sim        : Sim,
     phi_min = 0
     phi0 = 1
 
-    phi0s = [phi0, phi0, phi0, phi0, phi0, phi0]
+    phi0s = []
     bounds = []
     for _ in range(sim.ninvars):
+        phi0s.append(phi0)
         bounds.append((phi_min, phi_max))
 
-    vprint(sim.verbose, 'Calculating optimal covariance hyperparameters Φ for ' +
+    vprint(sim.verbose, 'Calculating optimal hyperparameters Φ for ' +
                        f"'{outvarname}' covariances...")
     X, Y = full_states(sim, outvarname)
     method = 'L-BFGS-B'
     res = minimize(L_runner, phi0s, args=(X, Y, sim.verbose), bounds=bounds,
                    tol=tol, method=method)
     phi_opt = res.x
-    vprint(sim.verbose, 'Done calculating optimal hyperparameters')
+    vprint(sim.verbose, 'Done calculating optimal hyperparameters.')
 
     return phi_opt
 
@@ -136,11 +141,11 @@ def calc_Gammaj(Hj       : float,
     return Gamma
 
 
-def calc_sensitivities(sim        : Sim,
+def calc_sensitivities(sim        : 'Sim',
                        outvarname : str,
                        Hj         : float = 1.0,
                        tol        : float = 1e-6,
-                       ) -> np.ndarray:
+                       ) -> tuple[np.ndarray]:
     phi_opt = calc_phi_opt(sim, outvarname, tol)
     variance = np.var(np.array([sim.outvars[outvarname].nums]))
     sensitivities = []

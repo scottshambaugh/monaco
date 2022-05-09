@@ -79,14 +79,8 @@ def main():
     # for varname in varnames:
     #     mc.plot(sim.invars[varname], sim.outvars['f'])
 
-    Gammas, ratios = mc.calc_sensitivities(sim, 'f', Hj=1, tol=1e-6)
-    make_plots = True
-    if make_plots:
-        fig, ax = plt.subplots(1, 1)
-        plt.title('Hj = 1')
-        plt.ylabel('Ratio of factor sensitivity')
-        plt.bar(varnames, ratios)
-        plt.show(block=False)
+    sim.calcSensitivities('f')
+    sim.outvars['f'].plotSensitivities()
 
     return sim
 

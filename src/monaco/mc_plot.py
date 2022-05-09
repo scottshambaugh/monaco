@@ -17,7 +17,7 @@ from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 from monaco.helper_functions import get_list, slice_by_index, length, empty_list
 from monaco.gaussian_statistics import conf_ellipsoid_sig2pct
 from monaco.integration_statistics import integration_error
-from monaco.mc_enums import SampleMethod, PlotOrientation, InVarSpace
+from monaco.mc_enums import SampleMethod, PlotOrientation, InVarSpace, Sensitivities
 from copy import copy
 from typing import Optional, Iterable
 
@@ -852,6 +852,55 @@ def plot_integration_error(outvar       : OutVar,
     return fig, ax
 
 
+def plot_sensitivities(outvar        : OutVar,
+                       sensitivities : Sensitivities  = Sensitivities.RATIOS,
+                       ax            : Optional[Axes] = None,
+                       title         : str            = '',
+                       plotkwargs    : dict           = dict(),
+                       ) -> tuple[Figure, Axes]:
+    """
+    For a Monte Carlo integration where the reference value is known, plot the
+    running integration error along with error bounds for a given confidence
+    level.
+
+    Parameters
+    ----------
+    outvar : monaco.mc_var.OutVar
+        The variable representing the integration estimate.
+    sensitivities : monaco.mc_enums.Sensitivities (default: 'ratios')
+        The sensitivities to plot. Either 'ratios' or 'indices'.
+    ax : matplotlib.axes.Axes, default: None
+        The axes handle to plot in. If None, a new figure is created.
+    title : str, default: ''
+        The figure title.
+
+    Returns
+    -------
+    (fig, ax) : (matplotlib.figure.Figure, matplotlib.axes.Axes)
+        fig is the figure handle for the plot.
+        ax is the axes handle for the plot.
+    """
+    fig, ax = manage_axis(ax, is3d=False)
+    fig.set_tight_layout(True)
+
+    if sensitivities == Sensitivities.RATIOS:
+        sensitivities_dict = outvar.sensitivity_ratios
+        ax.set_xlabel(f"Sensitivity Ratio for '{outvar.name}'")
+
+    elif sensitivities == Sensitivities.INDICES:
+        sensitivities_dict = outvar.sensitivity_indices
+        ax.set_xlabel(f"Sensitivity Index for '{outvar.name}'")
+
+    sorted_tuples = sorted(sensitivities_dict.items(), key=lambda item: item[1])
+    invarnames = [invarname for invarname, _ in sorted_tuples]
+    sensitivities_vals = [val for _, val in sorted_tuples]
+    y_pos = np.arange(len(invarnames))
+
+    ax.barh(y_pos, sensitivities_vals, facecolor='k', alpha=0.5, tick_label=invarnames)
+    plt.title(title)
+
+    return fig, ax
+
 
 def manage_axis(ax   : Optional[Axes],
                 is3d : bool = False,
@@ -924,7 +973,6 @@ def apply_category_labels(ax   : Axes,
             ax.set_zticklabels(list(varz.nummap.values()))
         except Exception:
             pass
-
 
 
 def get_hist_lim(ax          : Axes,

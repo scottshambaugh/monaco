@@ -95,3 +95,11 @@ class InVarSpace(str, Enum):
     """
     NUMS = 'nums'
     PCTS = 'pcts'
+
+
+class Sensitivities(str, Enum):
+    """
+    Enum for whether to plot invars in number or percentile space.
+    """
+    INDICES = 'indices'
+    RATIOS = 'ratios'

@@ -65,6 +65,13 @@ def baseball_example_monte_carlo_sim():
                              highlight_cases=homerun_indices)
     # fig.set_size_inches(8.8, 6.6)
     # plt.savefig('launch_angle_vs_landing.png', dpi=100)
+    plt.show(block=False)
+
+    ## Calculate and plot sensitivity indices
+    sim.calcSensitivities('Landing Dist [m]')
+    fig, ax = sim.outvars['Landing Dist [m]'].plotSensitivities()
+    # fig.set_size_inches(10, 4)
+    # plt.savefig('landing_dist_sensitivities.png', dpi=100)
     plt.show()
 
     return sim
