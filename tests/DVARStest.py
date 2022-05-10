@@ -71,7 +71,6 @@ def main():
                  savecasedata=False, savesimdata=False, verbose=True, debug=True)
 
     varnames = ['x1', 'x2', 'x3', 'x4', 'x5', 'x6']
-    d = len(varnames)
     for varname in varnames:
         sim.addInVar(name=varname, dist=uniform, distkwargs={'loc':0, 'scale':1})
     sim.runSim()
