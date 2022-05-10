@@ -68,10 +68,9 @@ def calc_sensitivities(sim        : 'Sim',
     phi_opt = calc_phi_opt(sim, outvarname, tol)
 
     variance = np.var(np.array([sim.outvars[outvarname].nums]))
-    sensitivities = []
+    sensitivities = np.zeros(sim.ninvars)
     for j in range(sim.ninvars):
-        sensitivities.append(calc_Gammaj(Hj, phi_opt[j], variance))
-    sensitivities = np.array(sensitivities)
+        sensitivities[j] = calc_Gammaj(Hj, phi_opt[j], variance)
     ratios = sensitivities/sum(sensitivities)
 
     return sensitivities, ratios
@@ -184,10 +183,9 @@ def calc_Gammaj(Hj       : float,
     """
     dh = 1e-3
     q = int(np.floor(Hj/dh))
-    rjs = []
+    rjs = np.zeros(q+1)
     for i in range(q+1):
-        rjs.append(calc_rj(dh*i, phij))
-    rjs = np.array(rjs)
+        rjs[i] = calc_rj(dh*i, phij)
 
     Gammaj = np.trapz(1 - rjs) * dh * variance
     return Gammaj
