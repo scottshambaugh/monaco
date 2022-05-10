@@ -146,10 +146,10 @@ def full_states(sim : 'Sim',
         The output variable's nums.
     """
     X = np.zeros((sim.ncases, sim.ninvars))
-    Y = np.zeros(sim.ncases)
+    Y = np.zeros((sim.ncases, 1))
     for i, varname in enumerate(sim.invars):
         X[:, i] = sim.invars[varname].pcts
-    Y[:] = sim.outvars[outvarname].nums
+    Y[:, 0] = sim.outvars[outvarname].nums
     return X, Y
 
 

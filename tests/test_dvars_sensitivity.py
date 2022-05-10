@@ -1,14 +1,4 @@
-# DVARStest.py
-# flake8: noqa
-
-'''
-Implements the D-VARS algorithm as dscribed in:
-Sheikholeslami, Razi, and Saman Razavi. "A fresh look at variography: measuring
-dependence and possible sensitivities across geophysical systems from any given
-data." Geophysical Research Letters 47.20 (2020): e2020GL089829.
-
-Multi-SQP is replaced with scipy's minimize function implementing L-BFGS-B.
-'''
+# test_dvars_sensitivity.py
 
 import monaco as mc
 import numpy as np
@@ -60,29 +50,24 @@ def plot_gs():
     plt.show(block=False)
 
 
-def main():
-    fcns ={'preprocess' :vars_preprocess,   \
-           'run'        :vars_run,          \
-           'postprocess':vars_postprocess}
+def test_calc_sensitivities():
+    fcns = {'preprocess' : vars_preprocess,
+            'run'        : vars_run,
+            'postprocess': vars_postprocess}
 
-    ndraws = 512
+    ndraws = 128
     sim = mc.Sim(name='dvars', ndraws=ndraws, fcns=fcns, firstcaseismedian=False,
                  seed=3462356, singlethreaded=True, daskkwargs=dict(), samplemethod='random',
-                 savecasedata=False, savesimdata=False, verbose=True, debug=True)
+                 savecasedata=False, savesimdata=False, verbose=False, debug=True)
 
     varnames = ['x1', 'x2', 'x3', 'x4', 'x5', 'x6']
     for varname in varnames:
-        sim.addInVar(name=varname, dist=uniform, distkwargs={'loc':0, 'scale':1})
+        sim.addInVar(name=varname, dist=uniform, distkwargs={'loc': 0, 'scale': 1})
     sim.runSim()
 
-    # for varname in varnames:
-    #     mc.plot(sim.invars[varname], sim.outvars['f'])
-
     sim.calcSensitivities('f')
-    sim.outvars['f'].plotSensitivities()
+    # sim.outvars['f'].plotSensitivities()
 
-    return sim
-
-if __name__ == '__main__':
-    plot_gs()
-    sim = main()
+    calculated_ratios = list(sim.outvars['f'].sensitivity_ratios.values())
+    expected_ratios = [0.471030, 0.361213, 0.062541, 0.074203, 0.030412, 0.000598]
+    assert np.allclose(calculated_ratios, expected_ratios, atol=1e-6)
