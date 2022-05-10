@@ -193,7 +193,7 @@ def order_stat_TI_k(n     : int,
     # use bisection to get n (secant method is unstable due to flat portions of curve)
     k = [1, np.ceil(n/2)]
     maxsteps = 100  # nmax hard limit of 2^100
-    for i in range(maxsteps):
+    for _ in range(maxsteps):
         step = (k[1]-k[0])/2
         ktemp = k[0] + np.ceil(step)
         if step < 1:
@@ -426,7 +426,7 @@ def order_stat_P_k(n     : int,
 
     # use bisection to get n (secant method is unstable due to flat portions of curve)
     maxsteps = 100  # nmax hard limit of 2^100
-    for i in range(maxsteps):
+    for _ in range(maxsteps):
         step = (k[1]-k[0])/2
         ktemp = k[0] + np.ceil(step)
 
