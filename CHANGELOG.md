@@ -23,8 +23,13 @@
 
 ## [Unreleased]
 ### Added    
+### Changed    
+### Removed    
+
+## [0.6.0] - 2022-05-09
+### Added    
 * DVARS fleshed out, moved out of alpha
-* Can now plot sensitivity indices
+* Can now plot sensitivity indices and ratios
 ### Changed    
 ### Removed    
 
