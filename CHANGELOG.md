@@ -23,6 +23,7 @@
 
 ## [Unreleased]
 ### Added    
+* Choose whether to sort sensisitivities while plotting.
 ### Changed    
 ### Removed    
 

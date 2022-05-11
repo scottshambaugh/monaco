@@ -64,7 +64,7 @@ def plot_testing():
     plot_cdf(invars['norm'], orientation='horizontal')                    # plot_cdf
     plot_cdf(outvars['test'])                                             # plot_cdf
 
-    plot_sensitivities(outvars['test'], sensitivities='ratios')           # plot_sensitivities
+    plot_sensitivities(outvars['test'], sensitivities='ratios', sort=True)  # plot_sensitivities
 
     plot(invars['randint'], invars['norm'],
          cases=None, highlight_cases=range(10, 30),

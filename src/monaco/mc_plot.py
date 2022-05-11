@@ -854,6 +854,7 @@ def plot_integration_error(outvar       : OutVar,
 
 def plot_sensitivities(outvar        : OutVar,
                        sensitivities : Sensitivities  = Sensitivities.RATIOS,
+                       sort          : bool           = True,
                        ax            : Optional[Axes] = None,
                        title         : str            = '',
                        plotkwargs    : dict           = dict(),
@@ -867,8 +868,10 @@ def plot_sensitivities(outvar        : OutVar,
     ----------
     outvar : monaco.mc_var.OutVar
         The variable representing the integration estimate.
-    sensitivities : monaco.mc_enums.Sensitivities (default: 'ratios')
+    sensitivities : monaco.mc_enums.Sensitivities, default: 'ratios'
         The sensitivities to plot. Either 'ratios' or 'indices'.
+    sort : bool, default: True
+        Whether to show the sensitivity indices sorted from greatest to least.
     ax : matplotlib.axes.Axes, default: None
         The axes handle to plot in. If None, a new figure is created.
     title : str, default: ''
@@ -891,10 +894,14 @@ def plot_sensitivities(outvar        : OutVar,
         sensitivities_dict = outvar.sensitivity_indices
         ax.set_xlabel(f"Sensitivity Index for '{outvar.name}'")
 
-    sorted_tuples = sorted(sensitivities_dict.items(), key=lambda item: item[1])
-    invarnames = [invarname for invarname, _ in sorted_tuples]
-    sensitivities_vals = [val for _, val in sorted_tuples]
-    y_pos = np.arange(len(invarnames))
+    y_pos = np.arange(len(sensitivities_dict))
+    if sort:
+        sens_tuples = sorted(sensitivities_dict.items(), key=lambda item: item[1])
+    else:
+        sens_tuples = sensitivities_dict.items()
+        y_pos = np.flipud(y_pos)
+    invarnames = [invarname for invarname, _ in sens_tuples]
+    sensitivities_vals = [val for _, val in sens_tuples]
 
     ax.barh(y_pos, sensitivities_vals, facecolor='k', alpha=0.5, tick_label=invarnames)
     plt.title(title)
