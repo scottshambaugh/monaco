@@ -4,9 +4,11 @@ from __future__ import annotations
 import os
 import numpy as np
 import dask
-from dask.distributed import Client
+import csv
+import json
 import cloudpickle
 import pathlib
+from dask.distributed import Client
 from datetime import datetime, timedelta
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
@@ -962,6 +964,58 @@ class Sim:
         """
         allCases = set(range(self.ncases))
         return allCases
+
+
+    def exportInVarNums(self,
+                        filename : Optional[str | pathlib.Path] = None,
+                        ) -> None:
+        """
+        Export the drawn nums for all the invars to file for use externally.
+
+        Parameters
+        ----------
+        filename : Optional[str | pathlib.Path]
+            The file to save to. Must be a csv or json.
+            If a str, then will save in the resultsdir.
+            If None, then will save to '{self.name}_invarnums.csv'.
+        """
+        vprint(self.verbose, 'Exporting InVar draws to file...', flush=True)
+
+        if filename is None:
+            filepath = self.resultsdir / f'{self.name}_invarnums.csv'
+        elif isinstance(filename, str):
+            filepath = self.resultsdir / filename
+        elif isinstance(filename, pathlib.Path):
+            filepath = filename
+
+        if filepath.suffix.lower() not in ('.csv', '.json'):
+            raise ValueError(f"'{filename}' must be a .csv or .json file.")
+        if filepath.exists():
+            vwarn(self.verbose, f'{filepath.name} already exists, overwriting.')
+
+        if filepath.suffix.lower() == '.csv':
+            invarnames = list(self.invars.keys())
+            for i, invar in enumerate(self.invars.values()):
+                if i == 0:
+                    data = np.array(invar.nums)
+                else:
+                    data = np.vstack([data, np.array(invar.nums)])
+
+            with open(filepath, 'w') as f:
+                writer = csv.writer(f)
+                writer.writerow(invarnames)
+                for i in range(self.ncases):
+                    writer.writerow(data[:, i])
+
+        elif filepath.suffix.lower() == '.json':
+            data = dict()
+            for invarname, invar in self.invars.items():
+                data[invarname] = np.array(invar.nums).tolist()
+
+            with open(filepath, 'w') as f:
+                json.dump(data, f, indent=0)
+
+        vprint(self.verbose, f"InVar draws saved in '{filepath.name}'", flush=True)
 
 
     def saveSimToFile(self) -> None:

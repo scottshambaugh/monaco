@@ -24,6 +24,7 @@
 ### Added    
 * Choose whether to sort sensisitivities while plotting.
 * Added Sim.plot() method
+* Export invar nums to a csv or json file with sim.exportInVarNums
 ### Changed    
 * Prevent overwriting existing InVars or OutVals with an already used name.
 ### Removed    

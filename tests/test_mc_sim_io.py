@@ -1,11 +1,13 @@
 # test_mc_sim_io.py
 
 import pytest
-from monaco.mc_sim import Sim
-from monaco.mc_enums import SimFunctions
 import cloudpickle
 import os
 import warnings
+import hashlib
+from monaco.mc_sim import Sim
+from monaco.mc_enums import SimFunctions
+from scipy.stats import norm, randint
 
 
 ndraws = 16
@@ -31,6 +33,8 @@ def sim(tmp_path):
     sim = Sim(name='sim_io_test', ndraws=ndraws, fcns=fcns(),
               firstcaseismedian=False, seed=seed, singlethreaded=True,
               verbose=True, resultsdir=tmp_path)
+    sim.addInVar(name='Var1', dist=randint, distkwargs={'low': 1, 'high': 6})
+    sim.addInVar(name='Var2', dist=norm, distkwargs={'loc': 10, 'scale': 4})
     sim.runSim()
     return sim
 
@@ -103,3 +107,17 @@ def test_sim_remove_extra_files(sim_with_extra_files):
         with warnings.catch_warnings() as log:
             cloudpickle.load(file)
             assert not log
+
+
+def test_sim_export_invar_nums(sim):
+    with pytest.raises(ValueError):
+        sim.exportInVarNums('invars')
+
+    hashes = ('30b32f2a37093e6b962eea6553d8597e', 'c55f69893622935ae8d9bd1974adb1f2')
+    for i, filename in enumerate(['invars.csv', 'invars.json']):
+        sim.exportInVarNums(filename)
+        hash = hashlib.md5()
+        with open(sim.resultsdir / filename, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash.update(chunk)
+        assert hashes[i] == hash.hexdigest()
