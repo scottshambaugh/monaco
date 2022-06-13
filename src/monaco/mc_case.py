@@ -139,6 +139,8 @@ class Case():
         valmap : dict[Any, float], default: None
             A valmap dict mapping nonnumeric values to numbers.
         """
+        if name in self.outvals.keys():
+            raise ValueError(f"'{name}' is already an OutVal")
 
         self.outvals[name] = OutVal(name=name, ncase=self.ncase, val=val,
                                     valmap=valmap, ismedian=self.ismedian)

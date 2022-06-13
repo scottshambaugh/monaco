@@ -299,6 +299,9 @@ class Sim:
             The random seed for this variable. If None, a seed will be assigned
             based on the order added.
         """
+        if name in self.invars.keys():
+            raise ValueError(f"'{name}' is already an InVar")
+
         self.ninvars += 1
         if seed is None:
             # seed is dependent on the order added

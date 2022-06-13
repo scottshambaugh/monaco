@@ -25,6 +25,7 @@
 * Choose whether to sort sensisitivities while plotting.
 * Added Sim.plot() method
 ### Changed    
+* Prevent overwriting existing InVars or OutVals with an already used name.
 ### Removed    
 
 ## [0.6.0] - 2022-05-09
