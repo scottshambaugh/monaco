@@ -8,16 +8,20 @@ from dask.distributed import Client
 import cloudpickle
 import pathlib
 from datetime import datetime, timedelta
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes
+from tqdm import tqdm
+from typing import Callable, Any, Iterable, Optional
+from scipy.stats import rv_continuous, rv_discrete
 from monaco.mc_case import Case
-from monaco.mc_var import InVar, OutVar
+from monaco.mc_var import InVar, OutVar, InVarSpace
 from monaco.mc_enums import SimFunctions, SampleMethod
-from monaco.helper_functions import get_list, vprint, vwarn, hash_str_repeatable
+from monaco.helper_functions import (get_list, vprint, vwarn, empty_list,
+                                     hash_str_repeatable)
 from monaco.case_runners import preprocess_case, run_case, postprocess_case
 from monaco.tqdm_dask_distributed import tqdm_dask
 from monaco.dvars_sensitivity import calc_sensitivities
-from tqdm import tqdm
-from typing import Callable, Any, Iterable
-from scipy.stats import rv_continuous, rv_discrete
+from monaco.mc_multi_plot import multi_plot
 
 
 class Sim:
@@ -831,6 +835,67 @@ class Sim:
         """
         self.genCovarianceMatrix()
         return self.covs, self.covvarlist
+
+
+    def plot(self,
+             scalarvars  : Optional[list[InVar | OutVar]] = None,
+             cases           : None | int | Iterable[int] = None,
+             highlight_cases : None | int | Iterable[int] = empty_list(),
+             rug_plot    : bool   = True,
+             cov_plot    : bool   = True,
+             cov_p       : None | float | Iterable[float] = None,
+             invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
+             fig         : Figure = None,
+             title       : str    = '',
+             plotkwargs  : dict   = dict(),
+             ) -> tuple[Figure, tuple[Axes, ...]]:
+        """
+        Plot all the scalar variables against each other in a grid.
+
+        Parameters
+        ----------
+        scalarvars : list[monaco.mc_var.InVar | monaco.mc_var.OutVar]
+            The variables to plot. If None, then grabs all the input variables
+            and scalar output variables.
+        cases : None | int | Iterable[int], default: None
+            The cases to plot. If None, then all cases are plotted.
+        highlight_cases : None | int | Iterable[int], default: []
+            The cases to highlight. If [], then no cases are highlighted.
+        rug_plot : bool, default: True
+            Whether to plot rug marks.
+        cov_plot : bool, default: False
+            Whether to plot a covariance ellipse at a certain gaussian percentile
+            level.
+        cov_p : None | float | Iterable[float], default: None
+            The gaussian percentiles for the covariance plot.
+        invar_space : monaco.InVarSpace | Iterable[InVarSpace], default: 'nums'
+            The space to plot invars in, either 'nums' or 'pcts'. If an iterable,
+            specifies this individually for each of varx, vary, and varz.
+        fig : matplotlib.figure.Figure, default: None
+            The figure handle to plot in. If None, a new figure is created.
+        title : str, default: ''
+            The figure title.
+
+        Returns
+        -------
+        (fig, axes) : (matplotlib.figure.Figure, (matplotlib.axes.Axes, ...))
+            fig is the figure handle for the plot.
+            axes is a tuple of the axes handles for the plots.
+        """
+        if scalarvars is None:
+            scalarvars = []
+            for invar in self.invars.values():
+                scalarvars.append(invar)
+            for scalaroutvar in self.scalarOutVars().values():
+                scalarvars.append(scalaroutvar)
+
+        fig, axs = multi_plot(vars=scalarvars,
+                              cases=cases, highlight_cases=highlight_cases,
+                              rug_plot=rug_plot,
+                              cov_plot=cov_plot, cov_p=cov_p,
+                              invar_space=invar_space,
+                              fig=fig, title=title, plotkwargs=plotkwargs)
+        return fig, axs
 
 
     def clearResults(self) -> None:

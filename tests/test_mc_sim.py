@@ -1,32 +1,33 @@
 # test_mc_sim.py
 
 import pytest
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import norm, randint
 from monaco.mc_sim import Sim
 from monaco.mc_enums import SimFunctions, SampleMethod
-import numpy as np
 
-seed = 74494861
+
+def sim_testing_preprocess(case):
+    return ([True, ])
+
+def sim_testing_run(inputs):
+    return (True)
+
+def sim_testing_postprocess(case, output):
+    case.addOutVal('casenum', case.ncase)
+
+def sim_testing_fcns():
+    fcns = {SimFunctions.PREPROCESS : sim_testing_preprocess,
+            SimFunctions.RUN        : sim_testing_run,
+            SimFunctions.POSTPROCESS: sim_testing_postprocess}
+    return fcns
+
 
 @pytest.fixture
 def sim():
-    from scipy.stats import norm, randint
-
-    def testing_preprocess(case):
-        return ([True, ])
-
-    def testing_run(inputs):
-        return (True)
-
-    def testing_postprocess(case, output):
-        case.addOutVal('casenum', case.ncase)
-
-    def fcns():
-        fcns = {SimFunctions.PREPROCESS : testing_preprocess,
-                SimFunctions.RUN        : testing_run,
-                SimFunctions.POSTPROCESS: testing_postprocess}
-        return fcns
-
-    sim = Sim(name='Sim', ndraws=16, fcns=fcns(), firstcaseismedian=True,
+    seed = 74494861
+    sim = Sim(name='Sim', ndraws=16, fcns=sim_testing_fcns(), firstcaseismedian=True,
               verbose=False, samplemethod=SampleMethod.RANDOM,
               seed=seed, debug=True, singlethreaded=True, daskkwargs=dict(),
               savesimdata=False, savecasedata=False)
@@ -69,3 +70,21 @@ def test_sim_corr_cov(sim_singlethreaded, sim_parallel):
             == pytest.approx(np.array([[2.05882353,  2.44162274, -1.3125],
                                        [2.44162274, 14.47837096, -0.35929331],
                                        [-1.3125   , -0.35929331, 25.5]]))
+
+
+def plot_testing():
+    seed = 74494861
+    sim = Sim(name='Sim', ndraws=16, fcns=sim_testing_fcns(), firstcaseismedian=True,
+              verbose=False, samplemethod=SampleMethod.RANDOM,
+              seed=seed, debug=True, singlethreaded=True, daskkwargs=dict(),
+              savesimdata=False, savecasedata=False)
+    sim.addInVar(name='Var1', dist=randint, distkwargs={'low': 1, 'high': 6})
+    sim.addInVar(name='Var2', dist=norm, distkwargs={'loc': 10, 'scale': 4})
+    sim.runSim()
+
+    sim.plot()
+
+
+if __name__ == '__main__':
+    plot_testing()
+    plt.show()

@@ -39,9 +39,9 @@ def plot_testing():
         import scipy.stats
 
         pcts = np.array([sampling(ndraws=ndraws, method=method,
-                                     ninvar=1, ninvar_max=2, seed=seeds[0]),
+                                  ninvar=1, ninvar_max=2, seed=seeds[0]),
                          sampling(ndraws=ndraws, method=method,
-                                     ninvar=2, ninvar_max=2, seed=seeds[1])])
+                                  ninvar=2, ninvar_max=2, seed=seeds[1])])
 
         if genplot:
             fig, axs = plt.subplots(1, 3)
@@ -73,17 +73,18 @@ def plot_testing():
             ndraws_freq = 10000
             # ndraws_freq = 1000000  # For better frequency plots
             n_freq_grid = 2**8
+            f_max = n_freq_grid/2
             pcts_freq = np.array([sampling(ndraws=ndraws_freq, method=method,
-                                              ninvar=1, ninvar_max=2, seed=seeds[0]),
+                                           ninvar=1, ninvar_max=2, seed=seeds[0]),
                                   sampling(ndraws=ndraws_freq, method=method,
-                                              ninvar=2, ninvar_max=2, seed=seeds[1])])
+                                           ninvar=2, ninvar_max=2, seed=seeds[1])])
             pcts_freq_int = np.round(pcts_freq*(n_freq_grid - 1)).astype(int)
             S = np.zeros([n_freq_grid, n_freq_grid])
             for i in range(ndraws_freq):
                 S[pcts_freq_int[0, i], pcts_freq_int[1, i]] += 1
             FS = np.fft.fft2(S)
             axs[2].imshow(np.log(np.abs(np.fft.fftshift(FS))**2), cmap='Blues_r',
-                          extent=[-n_freq_grid/2, n_freq_grid/2, -n_freq_grid/2, n_freq_grid/2],
+                          extent=[-f_max, f_max, -f_max, f_max],
                           aspect="equal")
 
             # fig.savefig(f'../docs/{method}_sampling.png')

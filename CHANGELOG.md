@@ -16,7 +16,6 @@
 - Try out actually chaining the dask task graph
 - Demo running on remote server (AWS, etc)
 - Variogram Sensitivity Analysis
-- Chain pre/run/post dask runs
 ### Known Bugs:
 - Cannot plot a varstat in percentile space
 ----
@@ -24,6 +23,7 @@
 ## [Unreleased]
 ### Added    
 * Choose whether to sort sensisitivities while plotting.
+* Added Sim.plot() method
 ### Changed    
 ### Removed    
 
