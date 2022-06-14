@@ -411,6 +411,9 @@ class OutVar(Var):
         The random seed for bootstrapping.
     firstcaseismedian : bool, default: False
         Whether the first case represents the median case.
+    datasource : str, default: None
+        If the outvals were imported from a file, this is the filepath. If
+        generated through monaco, then None.
 
     Attributes
     ----------
@@ -434,6 +437,7 @@ class OutVar(Var):
                  ndraws            : int  = None,
                  seed              : int = np.random.get_state(legacy=False)['state']['key'][0],
                  firstcaseismedian : bool = False,
+                 datasource        : Optional[str] = None,
                  ):
         if ndraws is None:
             ndraws = len(vals)
@@ -451,6 +455,7 @@ class OutVar(Var):
         self.genMaxDim()
         self.sensitivity_indices : None | dict = None
         self.sensitivity_ratios  : None | dict = None
+        self.datasource = datasource
 
 
     def genMaxDim(self) -> None:

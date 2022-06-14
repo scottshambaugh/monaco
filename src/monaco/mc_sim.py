@@ -705,10 +705,20 @@ class Sim:
                 self.casespostprocessed.add(case.ncase)
 
 
-    def genOutVars(self) -> None:
-        """Generate the output variables."""
+    def genOutVars(self,
+                   datasource : Optional[str] = None,
+                   ) -> None:
+        """
+        Generate the output variables.
+
+        Parameters
+        ----------
+        datasource : str, default: None
+            If the outvals were imported from a file, this is the filepath. If
+            generated through monaco, then None.
+        """
         for i_var, varname in enumerate(self.cases[0].outvals.keys()):
-            # seed is dependent on the order added
+            # seed is dependent on the order added, used for bootstrapping
             seed = (self.seed - 1 - i_var) % 2**32
             self.outvarseeds.append(seed)
 
@@ -733,7 +743,8 @@ class Sim:
 
             self.outvars[varname] = OutVar(name=varname, vals=vals, valmap=valmap,
                                            ndraws=self.ndraws, seed=seed,
-                                           firstcaseismedian=self.firstcaseismedian)
+                                           firstcaseismedian=self.firstcaseismedian,
+                                           datasource=datasource)
             for i in range(self.ncases):
                 self.cases[i].outvars[varname] = self.outvars[varname]
 
@@ -754,7 +765,9 @@ class Sim:
 
 
     def calcSensitivities(self,
-                          outvarnames: None | str | Iterable[str] = None,
+                          outvarnames : None | str | Iterable[str] = None,
+                          tol         : float = 1e-6,
+                          verbose     : bool = False,
                           ) -> None:
         """
         Calculate the sensitivity indices for the specified outvars.
@@ -977,12 +990,12 @@ class Sim:
         filename : Optional[str | pathlib.Path]
             The file to save to. Must be a csv or json.
             If a str, then will save in the resultsdir.
-            If None, then will save to '{self.name}_invarnums.csv'.
+            If None, then will save to '{self.name}_invarnums.json'.
         """
         vprint(self.verbose, 'Exporting InVar draws to file...', flush=True)
 
         if filename is None:
-            filepath = self.resultsdir / f'{self.name}_invarnums.csv'
+            filepath = self.resultsdir / f'{self.name}_invarnums.json'
         elif isinstance(filename, str):
             filepath = self.resultsdir / filename
         elif isinstance(filename, pathlib.Path):
@@ -1002,8 +1015,9 @@ class Sim:
                     data = np.vstack([data, np.array(invar.nums)])
 
             with open(filepath, 'w') as f:
-                writer = csv.writer(f)
+                writer = csv.writer(f, csv.QUOTE_NONE)
                 writer.writerow(invarnames)
+                writer = csv.writer(f, csv.QUOTE_NONNUMERIC)
                 for i in range(self.ncases):
                     writer.writerow(data[:, i])
 
@@ -1016,6 +1030,57 @@ class Sim:
                 json.dump(data, f, indent=0)
 
         vprint(self.verbose, f"InVar draws saved in '{filepath.name}'", flush=True)
+
+
+    def importOutVals(self,
+                      filepath : str | pathlib.Path,
+                      valmap   : dict[Any, float] = None,
+                      ) -> None:
+        """
+        Import results from an external file as OutVals, convert to OutVars.
+
+        Parameters
+        ----------
+        filepath : str | pathlib.Path
+            The file to load from. Must be a csv or json.
+        valmap : dict[Any, float], default: None
+            A valmap dict mapping nonnumeric values to numbers.
+        """
+        vprint(self.verbose, 'Importing OutVals from file...', flush=True)
+
+        if isinstance(filepath, str):
+            filepath = pathlib.Path(filepath)
+
+        if filepath.suffix.lower() not in ('.csv', '.json'):
+            raise ValueError(f"'{filepath.name}' must be a .csv or .json file.")
+
+        if self.cases == []:
+            self.genCases()
+
+        data = dict()
+        if filepath.suffix.lower() == '.csv':
+            with open(filepath, 'r') as f:
+                reader = csv.reader(f, quoting=csv.QUOTE_NONE)
+                headers = next(reader)
+                reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+                for outvalname in headers:
+                    data[outvalname] = []
+                for row in reader:
+                    for outvalname, vals in zip(headers, row):
+                        data[outvalname].append(vals)
+
+        elif filepath.suffix.lower() == '.json':
+            with open(filepath, 'r') as f:
+                data = json.load(f)
+
+        for case in self.cases:
+            for outvalname, vals in data.items():
+                case.addOutVal(outvalname, vals[case.ncase], valmap=valmap)
+
+        self.genOutVars(datasource=filepath.resolve())
+
+        vprint(self.verbose, f"OutVals loaded from '{filepath.name}' and converted to variables",
+               flush=True)
 
 
     def saveSimToFile(self) -> None:

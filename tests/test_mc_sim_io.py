@@ -121,3 +121,14 @@ def test_sim_export_invar_nums(sim):
             for chunk in iter(lambda: f.read(4096), b""):
                 hash.update(chunk)
         assert hashes[i] == hash.hexdigest()
+
+
+def test_sim_import_outvals(sim):
+    for filename in ['invars.csv', 'invars.json']:
+        filepath = sim.resultsdir / filename
+        sim.exportInVarNums(filename)
+        sim.clearResults()
+        sim.importOutVals(filepath)
+        assert sim.invars['Var1'].nums == sim.outvars['Var1'].nums
+        assert sim.invars['Var2'].nums == sim.outvars['Var2'].nums
+        assert sim.outvars['Var1'].datasource == filepath.resolve()
