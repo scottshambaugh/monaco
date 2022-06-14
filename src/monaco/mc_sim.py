@@ -126,8 +126,8 @@ class Sim:
                  daskkwargs        : dict = dict(),
                  verbose           : bool = True,
                  debug             : bool = False,
-                 savesimdata       : bool = True,
-                 savecasedata      : bool = True,
+                 savesimdata       : bool = False,
+                 savecasedata      : bool = False,
                  resultsdir        : str | pathlib.Path = None,
                  ) -> None:
 
