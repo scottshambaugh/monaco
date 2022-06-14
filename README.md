@@ -8,7 +8,7 @@
 [![Docs](https://readthedocs.org/projects/monaco/badge/?version=latest)](https://monaco.readthedocs.io/en/latest/?badge=latest)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/monaco)
 
-Quantify uncertainty and sensitivities in your computer models with an industry-grade Monte Carlo framework.
+Quantify uncertainty and sensitivities in your computer models with an industry-grade Monte Carlo library.
 
 ### Overview
 

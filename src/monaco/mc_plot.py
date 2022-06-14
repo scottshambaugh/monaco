@@ -8,8 +8,10 @@ if TYPE_CHECKING:
 import monaco.mc_var
 
 import numpy as np
-from scipy.stats import rv_continuous, rv_discrete, chi2, mode
 import matplotlib.pyplot as plt
+from scipy.stats import rv_continuous, rv_discrete, chi2, mode
+from copy import copy, deepcopy
+from typing import Optional, Iterable
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib.patches import Ellipse
@@ -18,8 +20,6 @@ from monaco.helper_functions import get_list, slice_by_index, length, empty_list
 from monaco.gaussian_statistics import conf_ellipsoid_sig2pct
 from monaco.integration_statistics import integration_error
 from monaco.mc_enums import SampleMethod, PlotOrientation, InVarSpace, Sensitivities
-from copy import copy, deepcopy
-from typing import Optional, Iterable
 
 
 # If cases or highlight_cases are None, will plot all. Set to [] to plot none.
@@ -73,10 +73,11 @@ def plot(varx   : InVar | OutVar,
         fig is the figure handle for the plot.
         ax is the axes handle for the plot.
     """
-    # Split larger vars
+    # Split single vars that are 2D or 3D vectors
     if vary is None and varz is None:
         if varx.maxdim not in (0, 1, 2):
             raise ValueError(f'Invalid variable dimension: {varx.name}: {varx.maxdim}')
+
         elif varx.maxdim == 2 and isinstance(varx, monaco.mc_var.OutVar):
             varx_split = varx.split()  # split only defined for OutVar
             origname = varx.name
@@ -88,7 +89,7 @@ def plot(varx   : InVar | OutVar,
                 raise ValueError('Can only split a single variable into 3 vectors:' +
                                  f'{origname}: {len(varx_split)}')
 
-
+    # Split one of two vars that is a 2D vector
     elif vary is not None and varz is None:
         if varx.maxdim == 2 and vary.maxdim == 0 and isinstance(varx, monaco.mc_var.OutVar):
             varx_split = varx.split()  # split only defined for OutVar
@@ -99,6 +100,7 @@ def plot(varx   : InVar | OutVar,
             if len(varx_split) > 2:
                 raise ValueError('Can only split one of two variables into 2 vectors:' +
                                  f'{origname}: {len(varx_split)}')
+
         elif varx.maxdim == 0 and vary.maxdim == 2 and isinstance(vary, monaco.mc_var.OutVar):
             vary_split = vary.split()  # split only defined for OutVar
             origname = vary.name
@@ -1265,7 +1267,7 @@ def get_plot_points(var         : InVar | OutVar,
 
 def get_var_steps(var : InVar | OutVar) -> OutVar:
     '''
-    For a 1-D variable, get an OutVar that has as values the simulation sets.
+    For a 1D variable, get an OutVar that has as values the simulation sets.
 
     Parameters
     ----------
