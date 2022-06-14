@@ -73,6 +73,7 @@ def plot_testing():
          cases=[], highlight_cases=range(10, 30))  # plot_3d_scatter
 
     v = np.array([-2, -1, 2, 3, 4, 5])
+    var0 = OutVar(name='testscalar', vals=[1, 2, 3, 4, 5], firstcaseismedian=True)
     var1 = OutVar(name='testx', vals=[v, v, v, v, v], firstcaseismedian=True)
     var2 = OutVar(name='testy', vals=[1*v, 2*v, 0*v, -1*v, -2*v], firstcaseismedian=True)
     var3 = OutVar(name='testz', vals=[1*v, 2*v, 0*v, -1*v, -2*v], firstcaseismedian=True)
@@ -83,11 +84,17 @@ def plot_testing():
 
     plot(var2, highlight_cases=None)               # plot_2d_line
     plot(var1, var2, highlight_cases=[0, 1])       # plot_2d_line
+    plot(var0, var1)                               # plot_2p5d_line
     plot(var1, var2, var3, highlight_cases=[0, ])  # plot_3d_line
+    plot(var0, var1, var2)                         # plot_2p5d_line
 
     m = np.eye(3)
     var4 = OutVar(name='testm', vals=[1*m, 2*m, 0*m, -1*m, -2*m])
     plot(var4, highlight_cases=[])                 # plot_3d_line
+
+    n = np.eye(2)
+    var5 = OutVar(name='testn', vals=[1*n, 2*n, 0*n, -1*n, -2*n])
+    plot(var0, var5)                               # plot_3d_line
 
     plot_cov_corr(np.array([[2, 0.1111, np.nan], [-0.19, -1, np.nan], [np.nan, np.nan, np.nan]]),
                   ['Test1', 'Test2', 'Test3'])

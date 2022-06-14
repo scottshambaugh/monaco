@@ -26,6 +26,7 @@
 * Added `Sim.plot()` method
 * Export invar nums to a csv or json file with `sim.exportInVarNums`
 * Import outvals from a csv or json with `sim.importOutVals`, and convert to outvars
+* 2.5d plotting (scalar vs vectors)
 ### Changed    
 * Prevent overwriting existing InVars or OutVals with an already used name.
 * Do not save sim and case data by default

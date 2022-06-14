@@ -18,7 +18,7 @@ from monaco.helper_functions import get_list, slice_by_index, length, empty_list
 from monaco.gaussian_statistics import conf_ellipsoid_sig2pct
 from monaco.integration_statistics import integration_error
 from monaco.mc_enums import SampleMethod, PlotOrientation, InVarSpace, Sensitivities
-from copy import copy
+from copy import copy, deepcopy
 from typing import Optional, Iterable
 
 
@@ -76,7 +76,7 @@ def plot(varx   : InVar | OutVar,
     # Split larger vars
     if vary is None and varz is None:
         if varx.maxdim not in (0, 1, 2):
-            raise ValueError(f'Invalid variable dimension: {varx.name} ({varx.maxdim})')
+            raise ValueError(f'Invalid variable dimension: {varx.name}: {varx.maxdim}')
         elif varx.maxdim == 2 and isinstance(varx, monaco.mc_var.OutVar):
             varx_split = varx.split()  # split only defined for OutVar
             origname = varx.name
@@ -84,19 +84,29 @@ def plot(varx   : InVar | OutVar,
             vary = varx_split[origname + ' [1]']
             if len(varx_split) == 3:
                 varz = varx_split[origname + ' [2]']
+            elif len(varx_split) > 3:
+                raise ValueError('Can only split a single variable into 3 vectors:' +
+                                 f'{origname}: {len(varx_split)}')
+
 
     elif vary is not None and varz is None:
-        if varx.maxdim == 1 and vary.maxdim == 0 and isinstance(varx, monaco.mc_var.OutVar):
+        if varx.maxdim == 2 and vary.maxdim == 0 and isinstance(varx, monaco.mc_var.OutVar):
             varx_split = varx.split()  # split only defined for OutVar
             origname = varx.name
             varz = vary
             varx = varx_split[origname + ' [0]']
             vary = varx_split[origname + ' [1]']
-        elif varx.maxdim == 0 and vary.maxdim == 1 and isinstance(vary, monaco.mc_var.OutVar):
+            if len(varx_split) > 2:
+                raise ValueError('Can only split one of two variables into 2 vectors:' +
+                                 f'{origname}: {len(varx_split)}')
+        elif varx.maxdim == 0 and vary.maxdim == 2 and isinstance(vary, monaco.mc_var.OutVar):
             vary_split = vary.split()  # split only defined for OutVar
             origname = vary.name
             vary = vary_split[origname + ' [0]']
             varz = vary_split[origname + ' [1]']
+            if len(vary_split) > 2:
+                raise ValueError('Can only split one of two variables into 2 vectors:' +
+                                 f'{origname}: {len(vary_split)}')
 
     # Single Variable Plots
     if vary is None and varz is None:
@@ -105,11 +115,9 @@ def plot(varx   : InVar | OutVar,
                                 rug_plot=rug_plot, invar_space=invar_space, ax=ax, title=title,
                                 plotkwargs=plotkwargs)
         else:
-            vary = copy(varx)
-            steps = np.arange(max(len(num) for num in vary.nums))
-            vals = [steps for _ in range(varx.ncases)]
-            varsteps = monaco.mc_var.OutVar(name='Simulation Steps', vals=vals)
-            fig, ax = plot_2d_line(varx=varsteps, vary=vary,
+            var1 = copy(varx)
+            var0 = get_var_steps(varx)
+            fig, ax = plot_2d_line(varx=var0, vary=var1,
                                    highlight_cases=highlight_cases,
                                    invar_space=invar_space,
                                    ax=ax, title=title, plotkwargs=plotkwargs)
@@ -128,10 +136,24 @@ def plot(varx   : InVar | OutVar,
                                    cases=cases, highlight_cases=highlight_cases,
                                    invar_space=invar_space,
                                    ax=ax, title=title, plotkwargs=plotkwargs)
+
+        elif varx.maxdim in (0, 1) and vary.maxdim in (0, 1):
+            var2 = copy(vary)
+            if varx.maxdim == 1:
+                var1 = varx
+                var0 = get_var_steps(varx)
+            elif vary.maxdim == 1:
+                var1 = get_var_steps(vary)
+                var0 = varx
+            fig, ax = plot_2p5d_line(varx=var0, vary=var1, varz=var2,
+                                     cases=cases, highlight_cases=highlight_cases,
+                                     invar_space=invar_space,
+                                     ax=ax, title=title, plotkwargs=plotkwargs)
+
         else:
-            raise ValueError( 'Variables have inconsistent dimensions: ' +
-                             f'{varx.name}:{varx.maxdim}, ' +
-                             f'{vary.name}:{vary.maxdim}')
+            raise ValueError( 'Invalid variable dimension: ' +
+                             f'{varx.name}: {varx.maxdim}, ' +
+                             f'{vary.name}: {vary.maxdim}')
 
     # Three Variable Plots
     else:
@@ -147,11 +169,17 @@ def plot(varx   : InVar | OutVar,
                                    invar_space=invar_space,
                                    ax=ax, title=title, plotkwargs=plotkwargs)
 
+        elif varx.maxdim in (0, 1) and vary.maxdim in (0, 1) and varz.maxdim in (0, 1):
+            fig, ax = plot_2p5d_line(varx=varx, vary=vary, varz=varz,
+                                     cases=cases, highlight_cases=highlight_cases,
+                                     invar_space=invar_space,
+                                     ax=ax, title=title, plotkwargs=plotkwargs)
+
         else:
-            raise ValueError( 'Variables have inconsistent dimensions: ' +
-                             f'{varx.name}:{varx.maxdim}, ' +
-                             f'{vary.name}:{vary.maxdim}, ' +
-                             f'{varz.name}:{varz.maxdim}')
+            raise ValueError( 'Invalid variable dimension: ' +
+                             f'{varx.name}: {varx.maxdim}, ' +
+                             f'{vary.name}: {vary.maxdim}, ' +
+                             f'{varz.name}: {varz.maxdim}')
 
     return fig, ax
 
@@ -605,6 +633,69 @@ def plot_3d_scatter(varx : InVar | OutVar,
     ax.set_zlabel(varz.name)
     apply_category_labels(ax, varx, vary, varz)
     plt.title(title)
+
+    return fig, ax
+
+
+
+def plot_2p5d_line(varx : InVar | OutVar,
+                   vary : InVar | OutVar,
+                   varz : InVar | OutVar,
+                   cases           : None | int | Iterable[int] = None,
+                   highlight_cases : None | int | Iterable[int] = empty_list(),
+                   invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
+                   ax     : Optional[Axes] = None,
+                   title  : str            = '',
+                   plotkwargs : dict       = dict(),
+                   ) -> tuple[Figure, Axes]:
+    """
+    Plot an ensemble of 2.5D lines for one scalar and two nonscalar variables.
+
+    Parameters
+    ----------
+    varx : monaco.mc_var.InVar | monaco.mc_var.OutVar
+        The x variable to plot.
+    vary : monaco.mc_var.InVar | monaco.mc_var.OutVar
+        The y variable to plot.
+    varz : monaco.mc_var.InVar | monaco.mc_var.OutVar
+        The z variable to plot.
+    cases : None | int | Iterable[int], default: None
+        The cases to plot. If None, then all cases are highlighted.
+    highlight_cases : None | int | Iterable[int], default: []
+        The cases to highlight. If [], then no cases are highlighted.
+    invar_space : monaco.InVarSpace | Iterable[InVarSpace], default: 'nums'
+        The space to plot invars in, either 'nums' or 'pcts'. If an iterable,
+        specifies this individually for each of varx, vary, and varz.
+    ax : matplotlib.axes.Axes, default: None
+        The axes handle to plot in. If None, a new figure is created.
+    title : str, default: ''
+        The figure title.
+
+    Returns
+    -------
+    (fig, ax) : (matplotlib.figure.Figure, matplotlib.axes.Axes)
+        fig is the figure handle for the plot.
+        ax is the axes handle for the plot.
+    """
+    var0 = deepcopy(varx)
+    var1 = deepcopy(vary)
+    var2 = deepcopy(varz)
+    npoints = 0
+    for var in (var0, var1, var2):
+        if var.maxdim == 1:
+            npoints = max(npoints, max(len(num) for num in var.nums))
+    for var in (var0, var1, var2):
+        if var.maxdim == 0:
+            for i in range(var.ncases):
+                var.nums[i] = np.array([var.nums[i] for _ in range(npoints)])
+                if isinstance(var, monaco.mc_var.InVar):
+                    var.pcts[i] = np.array([var.pcts[i] for _ in range(npoints)])
+            var.maxdim = 1
+
+    fig, ax = plot_3d_line(varx=var0, vary=var1, varz=var2,
+                           cases=cases, highlight_cases=highlight_cases,
+                           invar_space=invar_space,
+                           ax=ax, title=title, plotkwargs=plotkwargs)
 
     return fig, ax
 
@@ -1169,3 +1260,24 @@ def get_plot_points(var         : InVar | OutVar,
     if isinstance(var, monaco.mc_var.InVar) and invar_space == InVarSpace.PCTS:
         plot_points = var.pcts
     return plot_points
+
+
+
+def get_var_steps(var : InVar | OutVar) -> OutVar:
+    '''
+    For a 1-D variable, get an OutVar that has as values the simulation sets.
+
+    Parameters
+    ----------
+    var : InVar | OutVar
+        The target variable.
+
+    Returns
+    -------
+    varsteps : OutVar
+        The variable with simulation steps as values.
+    '''
+    steps = np.arange(max(len(num) for num in var.nums))
+    vals = [steps for _ in range(var.ncases)]
+    varsteps = monaco.mc_var.OutVar(name='Simulation Steps', vals=vals)
+    return varsteps
