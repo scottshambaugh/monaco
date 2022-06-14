@@ -32,6 +32,7 @@ def sim(tmp_path):
 
     sim = Sim(name='sim_io_test', ndraws=ndraws, fcns=fcns(),
               firstcaseismedian=False, seed=seed, singlethreaded=True,
+              savecasedata=True, savesimdata=True,
               verbose=True, resultsdir=tmp_path)
     sim.addInVar(name='Var1', dist=randint, distkwargs={'low': 1, 'high': 6})
     sim.addInVar(name='Var2', dist=norm, distkwargs={'loc': 10, 'scale': 4})
