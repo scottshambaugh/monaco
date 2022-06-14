@@ -232,7 +232,7 @@ def plot_hist(var         : InVar | OutVar,
     fig, ax = manage_axis(ax, is3d=False)
     invar_space = manage_invar_space(invar_space=invar_space, nvars=1)
 
-    bins = 'auto'
+    bins : str | np.ndarray = 'auto'
     if 'bins' in plotkwargs:
         bins = plotkwargs['bins']
         del(plotkwargs['bins'])
@@ -691,7 +691,7 @@ def plot_2p5d_line(varx : InVar | OutVar,
             for i in range(var.ncases):
                 var.nums[i] = np.array([var.nums[i] for _ in range(npoints)])
                 if isinstance(var, monaco.mc_var.InVar):
-                    var.pcts[i] = np.array([var.pcts[i] for _ in range(npoints)])
+                    var.pcts[i] = [var.pcts[i] for _ in range(npoints)]
             var.maxdim = 1
 
     fig, ax = plot_3d_line(varx=var0, vary=var1, varz=var2,

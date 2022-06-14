@@ -114,7 +114,7 @@ def test_sim_export_invar_nums(sim):
     with pytest.raises(ValueError):
         sim.exportInVarNums('invars')
 
-    hashes = ('30b32f2a37093e6b962eea6553d8597e', 'c55f69893622935ae8d9bd1974adb1f2')
+    hashes = ('f5280c4fb5340d9ba657190751a4c367', 'c55f69893622935ae8d9bd1974adb1f2')
     for i, filename in enumerate(['invars.csv', 'invars.json']):
         sim.exportInVarNums(filename)
         hash = hashlib.md5()
@@ -132,4 +132,4 @@ def test_sim_import_outvals(sim):
         sim.importOutVals(filepath)
         assert sim.invars['Var1'].nums == sim.outvars['Var1'].nums
         assert sim.invars['Var2'].nums == sim.outvars['Var2'].nums
-        assert sim.outvars['Var1'].datasource == filepath.resolve()
+        assert sim.outvars['Var1'].datasource == str(filepath.resolve())

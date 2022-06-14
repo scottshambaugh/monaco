@@ -784,7 +784,7 @@ class Sim:
             Whether to print diagnostic information.
         """
         if outvarnames is None:
-            outvarname = list(self.scalarOutVars.keys())
+            outvarnames = list(self.scalarOutVars().keys())
         outvarnames = get_list(outvarnames)
 
         for outvarname in outvarnames:
@@ -1016,24 +1016,23 @@ class Sim:
             invarnames = list(self.invars.keys())
             for i, invar in enumerate(self.invars.values()):
                 if i == 0:
-                    data = np.array(invar.nums)
+                    data_csv = np.array(invar.nums)
                 else:
-                    data = np.vstack([data, np.array(invar.nums)])
+                    data_csv = np.vstack([data_csv, np.array(invar.nums)])
 
             with open(filepath, 'w') as f:
-                writer = csv.writer(f, csv.QUOTE_NONE)
+                writer = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
                 writer.writerow(invarnames)
-                writer = csv.writer(f, csv.QUOTE_NONNUMERIC)
                 for i in range(self.ncases):
-                    writer.writerow(data[:, i])
+                    writer.writerow(data_csv[:, i])
 
         elif filepath.suffix.lower() == '.json':
-            data = dict()
+            data_json = dict()
             for invarname, invar in self.invars.items():
-                data[invarname] = np.array(invar.nums).tolist()
+                data_json[invarname] = np.array(invar.nums).tolist()
 
             with open(filepath, 'w') as f:
-                json.dump(data, f, indent=0)
+                json.dump(data_json, f, indent=0)
 
         vprint(self.verbose, f"InVar draws saved in '{filepath.name}'", flush=True)
 
@@ -1063,12 +1062,11 @@ class Sim:
         if self.cases == []:
             self.genCases()
 
-        data = dict()
+        data : dict[str, list] = dict()
         if filepath.suffix.lower() == '.csv':
             with open(filepath, 'r') as f:
-                reader = csv.reader(f, quoting=csv.QUOTE_NONE)
-                headers = next(reader)
                 reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+                headers = next(reader)
                 for outvalname in headers:
                     data[outvalname] = []
                 for row in reader:
@@ -1083,7 +1081,7 @@ class Sim:
             for outvalname, vals in data.items():
                 case.addOutVal(outvalname, vals[case.ncase], valmap=valmap)
 
-        self.genOutVars(datasource=filepath.resolve())
+        self.genOutVars(datasource=str(filepath.resolve()))
 
         vprint(self.verbose, f"OutVals loaded from '{filepath.name}' and converted to variables",
                flush=True)
