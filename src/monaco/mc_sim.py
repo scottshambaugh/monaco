@@ -777,6 +777,11 @@ class Sim:
         outvarnames : None | str | Iterable[str] (default: None)
             The outvar names to calculate sensitivity indices for. If None,
             then calculates sensitivities for all scalar outvars.
+        tol : float, default 1e-6
+            The convergence tolerance for scipy's minimize function acting on the
+            negative log likelihood function.
+        verbose : bool, default False
+            Whether to print diagnostic information.
         """
         if outvarnames is None:
             outvarname = list(self.scalarOutVars.keys())
@@ -788,7 +793,8 @@ class Sim:
                                      'skipping sensitivity calculations.')
             else:
                 vprint(self.verbose, f"Calculating sensitivity indices for '{outvarname}'.")
-                sensitivities, ratios = calc_sensitivities(self, outvarname)
+                sensitivities, ratios = calc_sensitivities(self, outvarname,
+                                                           tol=tol, verbose=verbose)
 
                 sensitivities_dict = dict()
                 ratios_dict = dict()

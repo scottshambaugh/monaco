@@ -16,6 +16,7 @@ def calc_sensitivities(sim        : 'Sim',
                        outvarname : str,
                        Hj         : float = 1.0,
                        tol        : float = 1e-6,
+                       verbose    : bool  = False,
                        ) -> tuple[np.ndarray, np.ndarray]:
     """
     Calculates the global sensitivity indices and ratios for a specific output
@@ -44,6 +45,8 @@ def calc_sensitivities(sim        : 'Sim',
     tol : float, default 1e-6
         The convergence tolerance for scipy's minimize function acting on the
         negative log likelihood function.
+    verbose : bool, default False
+        Whether to print diagnostic information.
 
     Returns
     -------
@@ -65,7 +68,7 @@ def calc_sensitivities(sim        : 'Sim',
            comprehensive, robust, and efficient global sensitivity analysis:
            1. Theory." Water Resources Research 52.1 (2016): 423-439.
     """
-    phi_opt = calc_phi_opt(sim, outvarname, tol)
+    phi_opt = calc_phi_opt(sim, outvarname, tol, verbose)
 
     variance = np.var(np.array([sim.outvars[outvarname].nums]))
     sensitivities = np.zeros(sim.ninvars)
@@ -79,6 +82,7 @@ def calc_sensitivities(sim        : 'Sim',
 def calc_phi_opt(sim        : 'Sim',
                  outvarname : str,
                  tol        : float = 1e-6,
+                 verbose    : bool = False
                  ) -> np.ndarray:
     """
     Calculate the optimal hyperparameters for the covariance functions between
@@ -96,6 +100,8 @@ def calc_phi_opt(sim        : 'Sim',
     tol : float, default 1e-6
         The convergence tolerance for scipy's minimize function acting on the
         negative log likelihood function.
+    verbose : bool, default False
+        Whether to print diagnostic information.
 
     Returns
     -------
