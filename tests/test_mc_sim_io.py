@@ -124,12 +124,28 @@ def test_sim_export_invar_nums(sim):
         assert hashes[i] == hash.hexdigest()
 
 
+def test_sim_import_invals(sim):
+    var1_nums = sim.invars['Var1'].nums
+    var2_nums = sim.invars['Var2'].nums
+    for filename in ['invars.csv', 'invars.json']:
+        filepath = sim.resultsdir / filename
+        sim.exportInVarNums(filename)
+        sim.reset()
+        sim.importInVals(filepath)
+        assert sim.invars['Var1'].nums == var1_nums
+        assert sim.invars['Var2'].nums == var2_nums
+        assert sim.invars['Var1'].datasource == str(filepath.resolve())
+
+    sim.runSim()
+    assert sim.outvars['casenum'].vals == list(range(sim.ncases))
+
+
 def test_sim_import_outvals(sim):
     for filename in ['invars.csv', 'invars.json']:
         filepath = sim.resultsdir / filename
         sim.exportInVarNums(filename)
         sim.clearResults()
         sim.importOutVals(filepath)
-        assert sim.invars['Var1'].nums == sim.outvars['Var1'].nums
-        assert sim.invars['Var2'].nums == sim.outvars['Var2'].nums
+        assert sim.outvars['Var1'].nums == sim.invars['Var1'].nums
+        assert sim.outvars['Var2'].nums == sim.invars['Var2'].nums
         assert sim.outvars['Var1'].datasource == str(filepath.resolve())

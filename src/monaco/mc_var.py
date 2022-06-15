@@ -33,17 +33,22 @@ class Var(ABC):
         The random seed to use for bootstrapping.
     firstcaseismedian : bool
         Whether the first case represents the median case.
+    datasource : str
+        If the vals were imported from a file, this is the filepath. If
+        generated through monaco, then None.
     """
     def __init__(self,
                  name              : str,
                  ndraws            : int,
                  seed              : int,
                  firstcaseismedian : bool,
+                 datasource        : Optional[str],
                  ):
         self.name = name
         self.ndraws = ndraws
         self.seed = seed
         self.firstcaseismedian = firstcaseismedian
+        self.datasource = datasource
 
         self.ncases = ndraws + 1
         self.setFirstCaseMedian(firstcaseismedian)
@@ -190,6 +195,9 @@ class InVar(Var):
         Whether the first case represents the median case.
     autodraw : bool, default: True
         Whether to draw the random values when this variable is created.
+    datasource : str, default: None
+        If the invals were imported from a file, this is the filepath. If
+        generated through monaco, then None.
 
     Attributes
     ----------
@@ -221,9 +229,11 @@ class InVar(Var):
                  seed              : int = np.random.get_state(legacy=False)['state']['key'][0],
                  firstcaseismedian : bool             = False,
                  autodraw          : bool             = True,
+                 datasource        : Optional[str]    = None,
                  ):
         super().__init__(name=name, ndraws=ndraws, seed=seed,
-                         firstcaseismedian=firstcaseismedian)
+                         firstcaseismedian=firstcaseismedian,
+                         datasource=datasource)
 
         self.dist = dist
         if distkwargs is None:
@@ -445,7 +455,8 @@ class OutVar(Var):
                 ndraws = ndraws - 1
 
         super().__init__(name=name, ndraws=ndraws, seed=seed,
-                         firstcaseismedian=firstcaseismedian)
+                         firstcaseismedian=firstcaseismedian,
+                         datasource=datasource)
         self.vals = vals
         self.valmap = valmap
         if valmap is None:
@@ -455,7 +466,6 @@ class OutVar(Var):
         self.genMaxDim()
         self.sensitivity_indices : None | dict = None
         self.sensitivity_ratios  : None | dict = None
-        self.datasource = datasource
 
 
     def genMaxDim(self) -> None:

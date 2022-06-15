@@ -283,6 +283,7 @@ class Sim:
                  distkwargs : dict[str, Any],
                  nummap     : dict[float, Any] = None,
                  seed       : int = None,
+                 datasource : Optional[str] = None,
                  ) -> None:
         """
         Add an input variable to the simulation.
@@ -294,12 +295,16 @@ class Sim:
         dist : scipy.stats.rv_discrete | scipy.stats.rv_continuous
             The statistical distribution to draw from.
         distkwargs : dict
-            The keyword argument pairs for the statistical distribution function.
+            The keyword argument pairs for the statistical distribution
+            function.
         nummap : dict[float, Any], default: None
             A dictionary mapping numbers to nonnumeric values.
         seed : int
             The random seed for this variable. If None, a seed will be assigned
             based on the order added.
+        datasource : str, default: None
+            If the invals were imported from a file, this is the filepath. If
+            generated through monaco, then None.
         """
         if name in self.invars.keys():
             raise ValueError(f"'{name}' is already an InVar")
@@ -311,7 +316,8 @@ class Sim:
         self.invarseeds.append(seed)
         invar = InVar(name=name, dist=dist, distkwargs=distkwargs, ndraws=self.ndraws,
                       nummap=nummap, samplemethod=self.samplemethod, ninvar=self.ninvars,
-                      seed=seed, firstcaseismedian=self.firstcaseismedian, autodraw=False)
+                      seed=seed, firstcaseismedian=self.firstcaseismedian, autodraw=False,
+                      datasource=datasource)
         self.invars[name] = invar
 
 
@@ -358,7 +364,8 @@ class Sim:
             vprint(self.verbose, f"Drawing random samples for {self.ninvars} input variables " +
                                  f"via the '{self.samplemethod}' method...", flush=True)
         for invar in self.invars.values():
-            invar.draw(ninvar_max=self.ninvars)
+            if invar.datasource is None:
+                invar.draw(ninvar_max=self.ninvars)
 
 
     def runSim(self,
@@ -1080,7 +1087,44 @@ class Sim:
             with open(filepath, 'r') as f:
                 data = json.load(f)
 
+        for vals in data.values():
+            if len(vals) != self.ncases:
+                raise ValueError(f'Length of data ({len(vals)}) must match the ' +
+                                 f'number of sim cases ({self.ncases}).')
+
         return data, filepath
+
+
+    def importInVals(self,
+                     filepath : str | pathlib.Path,
+                     nummap   : dict[Any, float] = None,
+                     ) -> None:
+        """
+        Import draws from an external file as InVals.
+
+        Parameters
+        ----------
+        filepath : str | pathlib.Path
+            The file to load from. Must be a csv or json.
+        nummap : dict[Any, float], default: None
+            A nummap dict mapping numbers to nonnumeric values.
+        """
+        vprint(self.verbose, 'Importing InVals from file...', flush=True)
+
+        data, filepath = self.importVals(filepath)
+
+        pcts = [None for _ in range(self.ncases)]
+        for valname, nums in data.items():
+            self.addInVar(name=valname, dist=None, distkwargs=dict(), nummap=nummap,
+                          seed=None, datasource=str(filepath.resolve()))
+            nums = [np.array(num) for num in nums]
+            self.invars[valname].nums = nums
+            self.invars[valname].pcts = pcts
+            self.invars[valname].mapNums()
+
+
+        vprint(self.verbose, f"InVals loaded from '{filepath.name}' and converted to variables",
+               flush=True)
 
 
     def importOutVals(self,
@@ -1102,8 +1146,8 @@ class Sim:
         data, filepath = self.importVals(filepath)
 
         for case in self.cases:
-            for outvalname, vals in data.items():
-                case.addOutVal(outvalname, vals[case.ncase], valmap=valmap)
+            for valname, vals in data.items():
+                case.addOutVal(valname, vals[case.ncase], valmap=valmap)
 
         self.genOutVars(datasource=str(filepath.resolve()))
 

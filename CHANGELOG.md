@@ -22,6 +22,7 @@
 
 ## [Unreleased]
 ### Added    
+* Import invals from a csv or json with `sim.importInVals`, and convert to invars
 ### Changed    
 ### Removed    
 
@@ -70,7 +71,6 @@
 * Discrete InVar plots show stem pmfs
 ### Removed    
 
-
 ## [0.3.1] - 2022-01-29
 ### Added    
 * Vars get their own `plot()` method as a shorthand
@@ -78,7 +78,6 @@
 ### Changed    
 ### Removed    
 * Rocket example
-
 
 ## [0.3.0] - 2022-01-22
 ### Added    
@@ -89,13 +88,11 @@
 ### Changed    
 * Removed mc_ and MC prefixes from all functions and classes
 
-
 ## [0.2.3] - 2021-12-18
 ### Added    
 * Python 3.7.0 support (pandas testing made optional)
 ### Changed    
 * All functions are now imported into top-level package, so you don't need to dig through modules
-
 
 ## [0.2.2] - 2021-12-07
 ### Added    
@@ -116,7 +113,6 @@
 * Made all modules lowercase
 * pandas is now an optional dependency
 
-
 ## [0.2.0] - 2021-11-30
 ### Added    
 * Documentation is now [up on readthedocs](https://monaco.readthedocs.io/en/latest/)!
@@ -126,7 +122,6 @@
 ### Changed    
 * Documentation and images were moved around.
 ### Removed    
-
 
 ## [0.1.2] - 2021-11-15
 ### Added    
