@@ -1037,22 +1037,25 @@ class Sim:
         vprint(self.verbose, f"InVar draws saved in '{filepath.name}'", flush=True)
 
 
-    def importOutVals(self,
-                      filepath : str | pathlib.Path,
-                      valmap   : dict[Any, float] = None,
-                      ) -> None:
+    def importVals(self,
+                   filepath : str | pathlib.Path,
+                   ) -> tuple[dict[str, list[Any]], pathlib.Path]:
         """
-        Import results from an external file as OutVals, convert to OutVars.
+        Import values from an external file.
 
         Parameters
         ----------
         filepath : str | pathlib.Path
             The file to load from. Must be a csv or json.
-        valmap : dict[Any, float], default: None
-            A valmap dict mapping nonnumeric values to numbers.
-        """
-        vprint(self.verbose, 'Importing OutVals from file...', flush=True)
 
+        Returns
+        -------
+        data : dict[str, Any]
+            A dictionary where the keys are the variable name and the values
+            are a list of the vals.
+        filepath : pathlib.Path
+            The full filepath for the file which was loaded from.
+        """
         if isinstance(filepath, str):
             filepath = pathlib.Path(filepath)
 
@@ -1076,6 +1079,27 @@ class Sim:
         elif filepath.suffix.lower() == '.json':
             with open(filepath, 'r') as f:
                 data = json.load(f)
+
+        return data, filepath
+
+
+    def importOutVals(self,
+                      filepath : str | pathlib.Path,
+                      valmap   : dict[Any, float] = None,
+                      ) -> None:
+        """
+        Import results from an external file as OutVals, convert to OutVars.
+
+        Parameters
+        ----------
+        filepath : str | pathlib.Path
+            The file to load from. Must be a csv or json.
+        valmap : dict[Any, float], default: None
+            A valmap dict mapping nonnumeric values to numbers.
+        """
+        vprint(self.verbose, 'Importing OutVals from file...', flush=True)
+
+        data, filepath = self.importVals(filepath)
 
         for case in self.cases:
             for outvalname, vals in data.items():
