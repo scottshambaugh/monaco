@@ -23,6 +23,7 @@
 ## [Unreleased]
 ### Added    
 * Import invals from a csv or json with `sim.importInVals`, and convert to invars
+* Optionally plot a contour underneath a 2D scatter plot with a third variable
 ### Changed    
 ### Removed    
 

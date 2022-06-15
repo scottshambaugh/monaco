@@ -9,6 +9,7 @@ import monaco.mc_var
 
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.interpolate import griddata
 from scipy.stats import rv_continuous, rv_discrete, chi2, mode
 from copy import copy, deepcopy
 from typing import Optional, Iterable
@@ -410,6 +411,7 @@ def plot_cdf(var       : InVar | OutVar,
 
 def plot_2d_scatter(varx   : InVar | OutVar,
                     vary   : InVar | OutVar,
+                    varz   : InVar | OutVar = None,
                     cases           : None | int | Iterable[int] = None,
                     highlight_cases : None | int | Iterable[int] = empty_list(),
                     rug_plot : bool           = False,
@@ -418,7 +420,7 @@ def plot_2d_scatter(varx   : InVar | OutVar,
                     invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
                     ax       : Optional[Axes] = None,
                     title    : str            = '',
-                    plotkwargs  : dict        = dict(),
+                    plotkwargs : dict         = dict(),
                     ) -> tuple[Figure, Axes]:
     """
     Plot a scatter plot of two variables.
@@ -429,6 +431,8 @@ def plot_2d_scatter(varx   : InVar | OutVar,
         The x variable to plot.
     vary : monaco.mc_var.InVar | monaco.mc_var.OutVar
         The y variable to plot.
+    varz : monaco.mc_var.InVar | monaco.mc_var.OutVar, default: None
+        If not None, then sets the values for the underlying contour plot.
     cases : None | int | Iterable[int], default: None
         The cases to plot. If None, then all cases are highlighted.
     highlight_cases : None | int | Iterable[int], default: []
@@ -454,14 +458,31 @@ def plot_2d_scatter(varx   : InVar | OutVar,
         fig is the figure handle for the plot.
         ax is the axes handle for the plot.
     """
+    nvars = 2
+    if varz is not None:
+        nvars = 3
+
     fig, ax = manage_axis(ax, is3d=False)
-    invar_space = manage_invar_space(invar_space=invar_space, nvars=2)
+    invar_space = manage_invar_space(invar_space=invar_space, nvars=nvars)
 
     cases_list = get_cases(varx.ncases, cases)
     highlight_cases_list = get_cases(varx.ncases, highlight_cases)
     reg_cases = set(cases_list) - set(highlight_cases_list)
     varx_points = get_plot_points(varx, invar_space[0])
     vary_points = get_plot_points(vary, invar_space[1])
+
+    if varz is not None:
+        ngrid = 200
+        cmap = 'viridis'
+        levels = 21
+
+        xi = np.linspace(min(varx_points), max(varx_points), ngrid)
+        yi = np.linspace(min(vary_points), max(vary_points), ngrid)
+        varz_points = get_plot_points(varz, invar_space[2])
+        zi = griddata((varx_points, vary_points), varz_points,
+                      (xi[None, :], yi[:, None]), method='linear')
+        contour = ax.contourf(xi, yi, zi, levels=levels, cmap=cmap)
+        fig.colorbar(contour, ax=ax, label=varz.name)
 
     if reg_cases:
         plt.scatter(slice_by_index(varx_points, reg_cases),

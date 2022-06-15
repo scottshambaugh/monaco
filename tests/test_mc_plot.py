@@ -1,7 +1,7 @@
 # test_mc_plot.py
 
 import pytest
-from monaco.mc_plot import get_cases, manage_invar_space
+from monaco.mc_plot import get_cases, manage_invar_space, plot_2d_scatter
 from monaco.mc_enums import InVarSpace
 
 @pytest.mark.parametrize("ncases, cases, ans", [
@@ -71,6 +71,7 @@ def plot_testing():
          rug_plot=True, cov_plot=True, cov_p=[0.90, 0.95, 0.99])  # plot_2d_scatter
     plot(invars['randint'], invars['norm'], invars['norm2'],
          cases=[], highlight_cases=range(10, 30))  # plot_3d_scatter
+    plot_2d_scatter(invars['randint'], invars['norm'], invars['norm2'])  # plot_2d_scatter
 
     v = np.array([-2, -1, 2, 3, 4, 5])
     var0 = OutVar(name='testscalar', vals=[1, 2, 3, 4, 5], firstcaseismedian=True)
