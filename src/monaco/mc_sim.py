@@ -992,9 +992,70 @@ class Sim:
         return allCases
 
 
-    def exportInVarNums(self,
-                        filename : Optional[str | pathlib.Path] = None,
-                        ) -> None:
+    def exportVars(self,
+                   vars : list[InVar | OutVar],
+                   filename : Optional[str | pathlib.Path],
+                   ) -> None:
+        """
+        Export the nums for the selected to file for use externally.
+
+        Parameters
+        ----------
+        vars : list[InVar | OutVar]
+            The vars to save to file.
+        filename : Optional[str | pathlib.Path]
+            The file to save to. Must be a csv or json.
+            If a str, then will save in the resultsdir.
+
+        Returns
+        -------
+        filepath : pathlib.Path
+            The filepath the vars were saved to.
+        """
+        if vars == []:
+            raise ValueError('No vars to save to file.')
+
+        if isinstance(filename, str):
+            filepath = self.resultsdir / filename
+        elif isinstance(filename, pathlib.Path):
+            filepath = filename
+
+        if filepath.suffix.lower() not in ('.csv', '.json'):
+            raise ValueError(f"'{filename}' must be a .csv or .json file.")
+        if filepath.exists():
+            vwarn(self.verbose, f'{filepath.name} already exists, overwriting.')
+
+        if filepath.suffix.lower() == '.csv':
+            varnames = list(vars.keys())
+            for i, var in enumerate(vars.values()):
+                if i == 0:
+                    data_csv = np.array(var.nums)
+                else:
+                    data_csv = np.vstack([data_csv, np.array(var.nums)])
+
+            with open(filepath, 'w') as f:
+                writer = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
+                writer.writerow(varnames)
+                for i in range(self.ncases):
+                    if len(data_csv.shape) == 1:
+                        writer.writerow((data_csv[i], ))
+                    else:
+                        writer.writerow(data_csv[:, i])
+
+        elif filepath.suffix.lower() == '.json':
+            data_json = dict()
+            for varname, var in vars.items():
+                data_json[varname] = np.array(var.nums).tolist()
+
+            with open(filepath, 'w') as f:
+                json.dump(data_json, f, indent=0)
+
+        return filepath
+
+
+    def exportInVars(self,
+                     filename : Optional[str | pathlib.Path] = None,
+                     ) -> None:
         """
         Export the drawn nums for all the invars to file for use externally.
 
@@ -1008,43 +1069,37 @@ class Sim:
         vprint(self.verbose, 'Exporting InVar draws to file...', flush=True)
 
         if filename is None:
-            filepath = self.resultsdir / f'{self.name}_invarnums.json'
-        elif isinstance(filename, str):
-            filepath = self.resultsdir / filename
-        elif isinstance(filename, pathlib.Path):
-            filepath = filename
+            filename = self.resultsdir / f'{self.name}_invarnums.json'
 
-        if filepath.suffix.lower() not in ('.csv', '.json'):
-            raise ValueError(f"'{filename}' must be a .csv or .json file.")
-        if filepath.exists():
-            vwarn(self.verbose, f'{filepath.name} already exists, overwriting.')
+        filepath = self.exportVars(self.invars, filename)
 
-        if filepath.suffix.lower() == '.csv':
-            invarnames = list(self.invars.keys())
-            for i, invar in enumerate(self.invars.values()):
-                if i == 0:
-                    data_csv = np.array(invar.nums)
-                else:
-                    data_csv = np.vstack([data_csv, np.array(invar.nums)])
-
-            with open(filepath, 'w') as f:
-                writer = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
-                writer.writerow(invarnames)
-                for i in range(self.ncases):
-                    writer.writerow(data_csv[:, i])
-
-        elif filepath.suffix.lower() == '.json':
-            data_json = dict()
-            for invarname, invar in self.invars.items():
-                data_json[invarname] = np.array(invar.nums).tolist()
-
-            with open(filepath, 'w') as f:
-                json.dump(data_json, f, indent=0)
-
-        vprint(self.verbose, f"InVar draws saved in '{filepath.name}'", flush=True)
+        vprint(self.verbose, f"InVar nums saved in '{filepath.name}'", flush=True)
 
 
-    def importVals(self,
+    def exportOutVars(self,
+                      filename : Optional[str | pathlib.Path] = None,
+                      ) -> None:
+        """
+        Export the nums for all the outvars to file for use externally.
+
+        Parameters
+        ----------
+        filename : Optional[str | pathlib.Path]
+            The file to save to. Must be a csv or json.
+            If a str, then will save in the resultsdir.
+            If None, then will save to '{self.name}_outvarnums.json'.
+        """
+        vprint(self.verbose, 'Exporting InVar draws to file...', flush=True)
+
+        if filename is None:
+            filename = self.resultsdir / f'{self.name}_outvarnums.json'
+
+        filepath = self.exportVars(self.outvars, filename)
+
+        vprint(self.verbose, f"OutVar nums saved in '{filepath.name}'", flush=True)
+
+
+    def importVars(self,
                    filepath : str | pathlib.Path,
                    ) -> tuple[dict[str, list[Any]], pathlib.Path]:
         """
@@ -1095,7 +1150,7 @@ class Sim:
         return data, filepath
 
 
-    def importInVals(self,
+    def importInVars(self,
                      filepath : str | pathlib.Path,
                      nummap   : dict[Any, float] = None,
                      ) -> None:
@@ -1111,7 +1166,7 @@ class Sim:
         """
         vprint(self.verbose, 'Importing InVals from file...', flush=True)
 
-        data, filepath = self.importVals(filepath)
+        data, filepath = self.importVars(filepath)
 
         pcts = [None for _ in range(self.ncases)]
         for valname, nums in data.items():
@@ -1127,7 +1182,7 @@ class Sim:
                flush=True)
 
 
-    def importOutVals(self,
+    def importOutVars(self,
                       filepath : str | pathlib.Path,
                       valmap   : dict[Any, float] = None,
                       ) -> None:
@@ -1143,7 +1198,7 @@ class Sim:
         """
         vprint(self.verbose, 'Importing OutVals from file...', flush=True)
 
-        data, filepath = self.importVals(filepath)
+        data, filepath = self.importVars(filepath)
 
         for case in self.cases:
             for valname, vals in data.items():

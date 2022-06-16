@@ -110,13 +110,13 @@ def test_sim_remove_extra_files(sim_with_extra_files):
             assert not log
 
 
-def test_sim_export_invar_nums(sim):
+def test_sim_export_invars(sim):
     with pytest.raises(ValueError):
-        sim.exportInVarNums('invars')
+        sim.exportInVars('invars')
 
     hashes = ('f5280c4fb5340d9ba657190751a4c367', 'c55f69893622935ae8d9bd1974adb1f2')
     for i, filename in enumerate(['invars.csv', 'invars.json']):
-        sim.exportInVarNums(filename)
+        sim.exportInVars(filename)
         hash = hashlib.md5()
         with open(sim.resultsdir / filename, "rb") as f:
             for chunk in iter(lambda: f.read(4096), b""):
@@ -124,14 +124,28 @@ def test_sim_export_invar_nums(sim):
         assert hashes[i] == hash.hexdigest()
 
 
-def test_sim_import_invals(sim):
+def test_sim_export_outvars(sim):
+    with pytest.raises(ValueError):
+        sim.exportOutVars('outvars')
+
+    hashes = ('51a78ae66543a9655499fe5a17781e0c', '4443c042ec0ebec1489745f85aa90d6d')
+    for i, filename in enumerate(['outvars.csv', 'outvars.json']):
+        sim.exportOutVars(filename)
+        hash = hashlib.md5()
+        with open(sim.resultsdir / filename, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash.update(chunk)
+        assert hashes[i] == hash.hexdigest()
+
+
+def test_sim_import_invars(sim):
     var1_nums = sim.invars['Var1'].nums
     var2_nums = sim.invars['Var2'].nums
     for filename in ['invars.csv', 'invars.json']:
         filepath = sim.resultsdir / filename
-        sim.exportInVarNums(filename)
+        sim.exportInVars(filename)
         sim.reset()
-        sim.importInVals(filepath)
+        sim.importInVars(filepath)
         assert sim.invars['Var1'].nums == var1_nums
         assert sim.invars['Var2'].nums == var2_nums
         assert sim.invars['Var1'].datasource == str(filepath.resolve())
@@ -140,12 +154,12 @@ def test_sim_import_invals(sim):
     assert sim.outvars['casenum'].vals == list(range(sim.ncases))
 
 
-def test_sim_import_outvals(sim):
+def test_sim_import_outvars(sim):
     for filename in ['invars.csv', 'invars.json']:
         filepath = sim.resultsdir / filename
-        sim.exportInVarNums(filename)
+        sim.exportInVars(filename)
         sim.clearResults()
-        sim.importOutVals(filepath)
+        sim.importOutVars(filepath)
         assert sim.outvars['Var1'].nums == sim.invars['Var1'].nums
         assert sim.outvars['Var2'].nums == sim.invars['Var2'].nums
         assert sim.outvars['Var1'].datasource == str(filepath.resolve())

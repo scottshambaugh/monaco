@@ -22,9 +22,12 @@
 
 ## [Unreleased]
 ### Added    
-* Import invals from a csv or json with `sim.importInVals`, and convert to invars
+* Export outvar nums to a csv or json file with `sim.exportOutVars`
+* Import invars from a csv or json with `sim.importInVars`
 * Optionally plot a contour underneath a 2D scatter plot with a third variable
 ### Changed    
+* `sim.exportInVarNums` renamed to `sim.exportInVars`
+* `sim.importOutVals` renamed to `sim.importOutVars`
 ### Removed    
 
 ## [0.7.0] - 2022-06-13
