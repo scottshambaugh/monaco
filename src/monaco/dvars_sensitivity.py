@@ -226,7 +226,7 @@ def L_runner(phi     : np.ndarray,
     return L
 
 
-@jit(nopython=True)
+@jit(nopython=True, cache=True)
 def calc_L(phi : np.ndarray,
            X   : np.ndarray,
            Y   : np.ndarray
@@ -263,7 +263,7 @@ def calc_L(phi : np.ndarray,
     return L
 
 
-@jit(nopython=True)
+@jit(nopython=True, cache=True)
 def calc_R(phi : np.ndarray,
            X   : np.ndarray,
            ) -> np.ndarray:
@@ -295,7 +295,7 @@ def calc_R(phi : np.ndarray,
     return R
 
 
-@jit(nopython=True)
+@jit(nopython=True, cache=True)
 def calc_Ruw(phi : np.ndarray,
              Xu  : np.ndarray,
              Xw  : np.ndarray
@@ -325,7 +325,7 @@ def calc_Ruw(phi : np.ndarray,
     return Ruw
 
 
-@jit(nopython=True)
+@jit(nopython=True, cache=True)
 def calc_rj(hj   : float,
             phij : float
             ) -> float:
