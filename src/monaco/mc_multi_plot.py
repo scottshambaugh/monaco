@@ -14,7 +14,7 @@ from typing import Optional, Iterable
 def multi_plot(vars        : list[InVar | OutVar],
                cases           : None | int | Iterable[int] = None,
                highlight_cases : None | int | Iterable[int] = empty_list(),
-               rug_plot    : bool   = True,
+               rug_plot    : bool   = False,
                cov_plot    : bool   = True,
                cov_p       : None | float | Iterable[float] = None,
                invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
@@ -33,7 +33,7 @@ def multi_plot(vars        : list[InVar | OutVar],
         The cases to plot. If None, then all cases are plotted.
     highlight_cases : None | int | Iterable[int], default: []
         The cases to highlight. If [], then no cases are highlighted.
-    rug_plot : bool, default: True
+    rug_plot : bool, default: False
         Whether to plot rug marks.
     cov_plot : bool, default: False
         Whether to plot a covariance ellipse at a certain gaussian percentile
@@ -99,7 +99,7 @@ def multi_plot_2d_scatter_hist(varx     : InVar | OutVar,
                                vary     : InVar | OutVar,
                                cases           : None | int | Iterable[int] = None,
                                highlight_cases : None | int | Iterable[int] = empty_list(),
-                               rug_plot   : bool   = True,
+                               rug_plot   : bool   = False,
                                cov_plot   : bool   = True,
                                cov_p      : None | float | Iterable[float] = None,
                                cumulative : bool   = False,
@@ -122,7 +122,7 @@ def multi_plot_2d_scatter_hist(varx     : InVar | OutVar,
         The cases to plot. If None, then all cases are plotted.
     highlight_cases : None | int | Iterable[int], default: []
         The cases to highlight. If [], then no cases are highlighted.
-    rug_plot : bool, default: True
+    rug_plot : bool, default: False
         Whether to plot rug marks.
     cov_plot : bool, default: False
         Whether to plot a covariance ellipse at a certain gaussian percentile
@@ -184,7 +184,7 @@ def multi_plot_2d_scatter_hist(varx     : InVar | OutVar,
 def multi_plot_2d_scatter_grid(vars     : list[InVar | OutVar],
                                cases           : None | int | Iterable[int] = None,
                                highlight_cases : None | int | Iterable[int] = empty_list(),
-                               rug_plot   : bool   = True,
+                               rug_plot   : bool   = False,
                                cov_plot   : bool   = True,
                                cov_p      : None | float | Iterable[float] = None,
                                cumulative : bool   = False,
@@ -206,7 +206,7 @@ def multi_plot_2d_scatter_grid(vars     : list[InVar | OutVar],
         The cases to plot. If None, then all cases are plotted.
     highlight_cases : None | int | Iterable[int], default: []
         The cases to highlight. If [], then no cases are highlighted.
-    rug_plot : bool, default: True
+    rug_plot : bool, default: False
         Whether to plot rug marks.
     cov_plot : bool, default: False
         Whether to plot a covariance ellipse at a certain gaussian percentile
