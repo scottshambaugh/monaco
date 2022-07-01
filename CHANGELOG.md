@@ -25,6 +25,8 @@
 * Export outvar nums to a csv or json file with `sim.exportOutVars`
 * Import invars from a csv or json with `sim.importInVars`
 * Optionally plot a contour underneath a 2D scatter plot with a third variable
+* Flags to keep or discard siminput and simrawoutput for each case (default True)
+* Added Sim.vars to reference all invars and outvars
 ### Changed    
 * `sim.exportInVarNums` renamed to `sim.exportInVars`
 * `sim.importOutVals` renamed to `sim.importOutVars`

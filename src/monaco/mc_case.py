@@ -22,6 +22,10 @@ class Case():
         A dict pointing to all of the input variables.
     constvals : dict[str, Any], default: None
         A dict of any constant values common to all cases.
+    keepsiminput : bool, default: True
+        Whether to keep the siminput after running.
+    keepsimrawoutput : bool, default: True
+        Whether to keep the simrawoutput after postprocessing.
     seed : int, default: np.random.get_state(legacy=False)['state']['key'][0]
         The random seed to pass to the run function for this case. Not used in
         as part of any Monte Carlo sampling.
@@ -54,11 +58,13 @@ class Case():
         The non-postprocessed outputs from the run function for this case.
     """
     def __init__(self,
-                 ncase     : int,
-                 ismedian  : bool,
-                 invars    : dict[str, InVar],
-                 constvals : dict[str, Any] = None,
-                 seed      : int = np.random.get_state(legacy=False)['state']['key'][0],
+                 ncase            : int,
+                 ismedian         : bool,
+                 invars           : dict[str, InVar],
+                 constvals        : dict[str, Any] = None,
+                 keepsiminput     : bool = True,
+                 keepsimrawoutput : bool = True,
+                 seed             : int = np.random.get_state(legacy=False)['state']['key'][0],
                  ):
 
         self.ncase = ncase
@@ -68,6 +74,8 @@ class Case():
             constvals = dict()
         self.constvals = constvals
         self.outvars : dict[str, OutVar] = dict()
+        self.keepsiminput = keepsiminput
+        self.keepsimrawoutput = keepsimrawoutput
         self.seed = seed
 
         self.starttime : datetime = None

@@ -19,7 +19,7 @@ mph2mps = 0.44704
 def baseball_example_monte_carlo_sim():
     ## Define sim
     sim = mc.Sim(name='baseball', ndraws=ndraws, fcns=fcns, firstcaseismedian=True,
-                 seed=seed, singlethreaded=False, verbose=True, debug=True,
+                 seed=seed, singlethreaded=True, verbose=True, debug=True,
                  savecasedata=False, savesimdata=False)
 
     ## Define input variables
@@ -60,16 +60,19 @@ def baseball_example_monte_carlo_sim():
                s=2, c='k', alpha=0.9, marker='o')
     # fig.set_size_inches(7.0, 7.0)
     # plt.savefig('baseball_trajectory.png', dpi=100)
+
+    sim.plot(highlight_cases=homerun_indices)
+
     fig, axs = mc.multi_plot([sim.invars['Launch Angle [deg]'], sim.outvars['Landing Dist [m]']],
-                             cov_p=0.95, title='Launch Angle vs Landing Distance w/ 95% CI',
+                             title='Launch Angle vs Landing Distance', cov_plot=False,
                              highlight_cases=homerun_indices)
     # fig.set_size_inches(8.8, 6.6)
     # plt.savefig('launch_angle_vs_landing.png', dpi=100)
     plt.show(block=False)
 
     ## Calculate and plot sensitivity indices
-    sim.calcSensitivities('Landing Dist [m]')
-    fig, ax = sim.outvars['Landing Dist [m]'].plotSensitivities()
+    sim.calcSensitivities('Home Run')
+    fig, ax = sim.outvars['Home Run'].plotSensitivities()
     # fig.set_size_inches(10, 4)
     # plt.savefig('landing_dist_sensitivities.png', dpi=100)
     plt.show()

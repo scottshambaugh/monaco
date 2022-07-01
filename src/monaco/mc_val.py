@@ -259,5 +259,5 @@ class OutVal(Val):
             for i in range(self.shape[0]):
                 name = self.name + f' [{i}]'
                 vals[name] = OutVal(name=name, ncase=self.ncase, val=self.val[i],
-                                        valmap=self.valmap, ismedian=self.ismedian)
+                                    valmap=self.valmap, ismedian=self.ismedian)
         return vals

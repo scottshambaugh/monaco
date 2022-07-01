@@ -67,6 +67,8 @@ def run_case(runfcn: Callable,
         case.runtime = case.endtime - case.starttime
         case.runsimid = runsimid
         case.hasrun = True
+        if not case.keepsiminput:
+            case.siminput = ()
 
     except Exception:
         if debug:
@@ -98,6 +100,8 @@ def postprocess_case(postprocfcn: Callable,
     try:
         postprocfcn(case, *get_list(case.simrawoutput))
         case.haspostprocessed = True
+        if not case.keepsimrawoutput:
+            case.simrawoutput = ()
 
     except Exception:
         if debug:

@@ -57,6 +57,10 @@ class Sim:
     debug : bool, default: False
         If False, cases that fail while running will be skipped over. If True,
         cases that fail will raise an exception.
+    keepsiminput : bool, default: True
+        Whether to keep the siminput for each case after running.
+    keepsimrawoutput : bool, default: True
+        Whether to keep the simrawoutput for each case after postprocessing.
     savesimdata : bool, default: True
         Whether to save the simulation data to disk as a .mcsim file.
     savecasedata : bool, default: True
@@ -92,6 +96,8 @@ class Sim:
         The case numbers which were sucessfully run.
     casespostprocessed : set[int]
         The case numbers which were sucessfully postprocessed.
+    vars : dict[str, monaco.mc_var.InVar]
+        All Variables.
     invars : dict[str, monaco.mc_var.InVar]
         The Monte Carlo Input Variables.
     outvars : dict[str, monaco.mc_var.OutVar]
@@ -126,6 +132,8 @@ class Sim:
                  daskkwargs        : dict = dict(),
                  verbose           : bool = True,
                  debug             : bool = False,
+                 keepsiminput      : bool = True,
+                 keepsimrawoutput  : bool = True,
                  savesimdata       : bool = False,
                  savecasedata      : bool = False,
                  resultsdir        : str | pathlib.Path = None,
@@ -143,6 +151,8 @@ class Sim:
         self.seed = seed
         self.singlethreaded = singlethreaded
         self.daskkwargs = daskkwargs
+        self.keepsiminput = keepsiminput
+        self.keepsimrawoutput = keepsimrawoutput
         self.savesimdata = savesimdata
         self.savecasedata = savecasedata
 
@@ -169,6 +179,7 @@ class Sim:
         self.casesrun           : set[int] = set()
         self.casespostprocessed : set[int] = set()
 
+        self.vars    : dict[str, InVar | OutVar] = dict()
         self.invars  : dict[str, InVar] = dict()
         self.outvars : dict[str, OutVar] = dict()
         self.constvals : dict[str, Any] = dict()
@@ -306,8 +317,8 @@ class Sim:
             If the invals were imported from a file, this is the filepath. If
             generated through monaco, then None.
         """
-        if name in self.invars.keys():
-            raise ValueError(f"'{name}' is already an InVar")
+        if name in self.vars.keys():
+            raise ValueError(f"'{name}' is already a Variable")
 
         self.ninvars += 1
         if seed is None:
@@ -319,6 +330,7 @@ class Sim:
                       seed=seed, firstcaseismedian=self.firstcaseismedian, autodraw=False,
                       datasource=datasource)
         self.invars[name] = invar
+        self.vars[name] = invar
 
 
     def addConstVal(self,
@@ -510,7 +522,9 @@ class Sim:
             if self.firstcaseismedian and ncase == 0:
                 ismedian = True
             self.cases.append(Case(ncase=ncase, ismedian=ismedian, invars=self.invars,
-                                   constvals=self.constvals, seed=int(self.caseseeds[ncase])))
+                                   constvals=self.constvals, keepsiminput=self.keepsiminput,
+                                   keepsimrawoutput=self.keepsimrawoutput,
+                                   seed=int(self.caseseeds[ncase])))
         self.cases.sort(key=lambda case: case.ncase)
 
 
@@ -668,7 +682,7 @@ class Sim:
         # Single-threaded for loop
         if self.singlethreaded:
             if self.verbose:
-                pbar = tqdm(total=len(cases_downselect), desc='Preprocessing cases',
+                pbar = tqdm(total=len(cases_downselect), desc='Postprocessing cases',
                             unit=' cases', position=0)
             for case in self.cases:
                 if case.ncase in cases_downselect:
@@ -725,6 +739,9 @@ class Sim:
             generated through monaco, then None.
         """
         for i_var, varname in enumerate(self.cases[0].outvals.keys()):
+            if varname in self.vars.keys():
+                raise ValueError(f"'{varname}' is already a Variable")
+
             # seed is dependent on the order added, used for bootstrapping
             seed = (self.seed - 1 - i_var) % 2**32
             self.outvarseeds.append(seed)
@@ -748,12 +765,14 @@ class Sim:
             else:
                 valmap = self.cases[0].outvals[varname].valmap
 
-            self.outvars[varname] = OutVar(name=varname, vals=vals, valmap=valmap,
-                                           ndraws=self.ndraws, seed=seed,
-                                           firstcaseismedian=self.firstcaseismedian,
-                                           datasource=datasource)
+            outvar = OutVar(name=varname, vals=vals, valmap=valmap,
+                            ndraws=self.ndraws, seed=seed,
+                            firstcaseismedian=self.firstcaseismedian,
+                            datasource=datasource)
+            self.outvars[varname] = outvar
+            self.vars[varname] = outvar
             for i in range(self.ncases):
-                self.cases[i].outvars[varname] = self.outvars[varname]
+                self.cases[i].outvars[varname] = outvar
 
         self.noutvars = len(self.outvars)
 
@@ -820,14 +839,10 @@ class Sim:
         """
         self.covvarlist = []
         allnums = []
-        for var in self.invars.keys():
-            if self.invars[var].isscalar:
+        for var in self.vars.keys():
+            if self.vars[var].isscalar:
                 allnums.append(self.invars[var].nums)
                 self.covvarlist.append(self.invars[var].name)
-        for var in self.outvars.keys():
-            if self.outvars[var].isscalar:
-                allnums.append(self.outvars[var].nums)
-                self.covvarlist.append(self.outvars[var].name)
         self.covs = np.cov(np.array(allnums))
         self.corrcoeffs = np.corrcoef(np.array(allnums))
 
@@ -931,6 +946,9 @@ class Sim:
 
     def clearResults(self) -> None:
         """Clear all the simulation results."""
+        for varname in self.outvars.keys():
+            if varname in self.vars.keys():
+                del self.vars[varname]
         self.cases = []
         self.outvars = dict()
         self.casespreprocessed = set()
@@ -947,6 +965,7 @@ class Sim:
     def reset(self) -> None:
         """Completely reset the simulation to the default object state."""
         self.clearResults()
+        self.vars = dict()
         self.invars = dict()
         self.constvals = dict()
         self.ninvars = 0
