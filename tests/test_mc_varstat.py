@@ -33,7 +33,9 @@ bound = StatBound.ONESIDED
     (VarStatType.SIGMA      , {'sig': 3, 'bound': bound}, 3.0002124, 2.9639949, 3.034664),
     (VarStatType.PERCENTILE , {'p': 0.5}, -0.0052538, -0.0383748, 0.01420399),
     (VarStatType.MOMENT     , {'n': 2}, 0.9977405, 0.973526, 1.0164285),
-    (VarStatType.VARIANCE   , dict(),   0.9977405, 0.973526, 1.0164285),
+    (VarStatType.KURTOSIS   , dict(), 0.0363506, -0.0786222, 0.1464540),
+    (VarStatType.SKEWNESS   , dict(), -0.0144037, -0.0546733, 0.0270948),
+    (VarStatType.VARIANCE   , dict(), 0.9977405, 0.973526, 1.0164285),
     (VarStatType.MEAN       , dict(), 0.0036036, -0.0204179, 0.0167662),
     (np.mean                , dict(), 0.0036036, -0.0204179, 0.0167662),
 ])

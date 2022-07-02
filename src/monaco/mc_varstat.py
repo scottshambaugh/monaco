@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 import numpy as np
 from copy import copy
 from statistics import mode
-from scipy.stats import bootstrap, moment
+from scipy.stats import bootstrap, moment, skew, kurtosis
 from scipy.stats.mstats import gmean
 from monaco.helper_functions import get_list
 from monaco.gaussian_statistics import pct2sig, sig2pct
@@ -80,6 +80,10 @@ class VarStat:
     mode()
         No kwargs
     variance()
+        No kwargs
+    skewness()
+        No kwargs
+    kurtosis()
         No kwargs
     moment(n : int)
         `n` is the n'th moment, `n > 0`.
@@ -168,6 +172,12 @@ class VarStat:
         elif stat == VarStatType.VARIANCE:
             self.setName(f'{self.var.name} Variance')
             self.genStatsFunction(fcn=np.var)
+        elif stat == VarStatType.SKEWNESS:
+            self.setName(f'{self.var.name} Skewness')
+            self.genStatsFunction(fcn=skew)
+        elif stat == VarStatType.KURTOSIS:
+            self.setName(f'{self.var.name} Kurtosis')
+            self.genStatsFunction(fcn=kurtosis)
         elif stat == VarStatType.MOMENT:
             self.genStatsMoment()
         elif stat == VarStatType.PERCENTILE:

@@ -27,7 +27,7 @@
 * Optionally plot a contour underneath a 2D scatter plot with a third variable
 * Flags to keep siminput and simrawoutput for each case (default True)
 * Added Sim.vars to reference all invars and outvars
-* Variance and moment added as varstats
+* Variance, skewness, kurtosis, and moment added as varstats
 ### Changed    
 * `sim.exportInVarNums` renamed to `sim.exportInVars`
 * `sim.importOutVals` renamed to `sim.importOutVars`
