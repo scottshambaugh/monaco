@@ -63,6 +63,8 @@ class VarStatType(str, Enum):
     MEAN        = 'mean'
     GEOMEAN     = 'geomean'
     MODE        = 'mode'
+    VARIANCE    = 'variance'
+    MOMENT      = 'moment'
     PERCENTILE  = 'percentile'
     SIGMA       = 'sigma'
     GAUSSIANP   = 'gaussianP'

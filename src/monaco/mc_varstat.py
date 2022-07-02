@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 import numpy as np
 from copy import copy
 from statistics import mode
-from scipy.stats import bootstrap
+from scipy.stats import bootstrap, moment
 from scipy.stats.mstats import gmean
 from monaco.helper_functions import get_list
 from monaco.gaussian_statistics import pct2sig, sig2pct
@@ -79,7 +79,11 @@ class VarStat:
         No kwargs
     mode()
         No kwargs
-    percentile()
+    variance()
+        No kwargs
+    moment(n : int)
+        `n` is the n'th moment, `n > 0`.
+    percentile(p : float)
         `p` is the percentile, `0 < p < 1`.
     sigma(sig : float, bound : monaco.mc_enums.StatBound)
         `sig` is the gaussian sigma value, `-inf < sig < inf`.
@@ -161,6 +165,11 @@ class VarStat:
         elif stat == VarStatType.MODE:
             self.setName(f'{self.var.name} Mode')
             self.genStatsFunction(fcn=mode)
+        elif stat == VarStatType.VARIANCE:
+            self.setName(f'{self.var.name} Variance')
+            self.genStatsFunction(fcn=np.var)
+        elif stat == VarStatType.MOMENT:
+            self.genStatsMoment()
         elif stat == VarStatType.PERCENTILE:
             self.genStatsPercentile()
         elif stat == VarStatType.SIGMA:
@@ -178,6 +187,18 @@ class VarStat:
                              f'{VarStatType.PERCENTILE}, {VarStatType.SIGMA}, ' +
                              f'{VarStatType.GAUSSIANP}, {VarStatType.ORDERSTATTI}, ' +
                              f'{VarStatType.ORDERSTATP}')
+
+
+    def genStatsMoment(self) -> None:
+        """
+        Get the n'th moment about the mean of the variable.
+        """
+        if 'n' not in self.statkwargs:
+            raise ValueError(f'{self.stat} requires the kwarg ''n''')
+
+        self.n = self.statkwargs['n']
+        self.setName(f'{self.var.name} {self.n}''th Moment')
+        self.genStatsFunction(moment, {'moment': self.n})
 
 
     def genStatsPercentile(self) -> None:

@@ -60,8 +60,8 @@ def order_stat_TI_n(k     : int,
 
     References
     ----------
-    .. [1] Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A
-       Guide for Practitioners." Germany, Wiley, 1991.
+    .. [1] Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A
+       Guide for Practitioners." Germany, Wiley, 1991.
     """
     order_stat_var_check(p=p, k=k, c=c, nmax=nmax)
 
@@ -308,8 +308,8 @@ def order_stat_P_n(k     : int,
 
     References
     ----------
-    .. [2] Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A
-       Guide for Practitioners." Germany, Wiley, 1991.
+    .. [2] Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A
+       Guide for Practitioners." Germany, Wiley, 1991.
     """
     order_stat_var_check(p=P, k=k, c=c, nmax=nmax)
 

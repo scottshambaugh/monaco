@@ -9,8 +9,8 @@ from monaco.mc_enums import StatBound
 
 '''
 Reference:
-Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A Guide for
-    Practitioners." Germany, Wiley, 1991.
+Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A Guide for
+    Practitioners." Germany, Wiley, 1991.
 '''
 
 # Order Statistic Tolerance Interval Functions
