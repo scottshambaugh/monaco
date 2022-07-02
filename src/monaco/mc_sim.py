@@ -739,7 +739,7 @@ class Sim:
             generated through monaco, then None.
         """
         for i_var, varname in enumerate(self.cases[0].outvals.keys()):
-            if varname in self.vars.keys():
+            if varname in self.invars.keys():
                 raise ValueError(f"'{varname}' is already a Variable")
 
             # seed is dependent on the order added, used for bootstrapping
@@ -841,8 +841,8 @@ class Sim:
         allnums = []
         for var in self.vars.keys():
             if self.vars[var].isscalar:
-                allnums.append(self.invars[var].nums)
-                self.covvarlist.append(self.invars[var].name)
+                allnums.append(self.vars[var].nums)
+                self.covvarlist.append(self.vars[var].name)
         self.covs = np.cov(np.array(allnums))
         self.corrcoeffs = np.corrcoef(np.array(allnums))
 
