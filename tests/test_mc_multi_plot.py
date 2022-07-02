@@ -27,19 +27,19 @@ def plot_testing():
                             dist=norm, distkwargs={'loc': 5, 'scale': 2},
                             seed=invarseeds[3], samplemethod=SampleMethod.RANDOM)
 
-    multi_plot([invars['norm1'], invars['norm2']],
-               highlight_cases=range(10, 30),
-               rug_plot=True,
-               cov_plot=True, cov_p=0.95,
-               title='test')  # multi_plot_2d_scatter_hist
+    fig, axs = multi_plot([invars['norm1'], invars['norm2']],
+                          highlight_cases=range(10, 30),
+                          rug_plot=True,
+                          cov_plot=True, cov_p=0.95,
+                          title='test')  # multi_plot_2d_scatter_hist
 
-    multi_plot([invars['norm1'], invars['norm2'], invars['norm3']],
-               highlight_cases=range(10, 30),
-               rug_plot=True,
-               cov_plot=True, cov_p=0.95,
-               title='test')  # multi_plot_2d_scatter_grid
+    fig, axs = multi_plot([invars['norm1'], invars['norm2'], invars['norm3']],
+                           highlight_cases=range(10, 30),
+                           rug_plot=True,
+                           cov_plot=True, cov_p=0.95,
+                           title='test')  # multi_plot_2d_scatter_grid
 
-    plt.show()
+    plt.show(block=True)
 
 
 if __name__ == '__main__':

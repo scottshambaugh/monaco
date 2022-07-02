@@ -30,6 +30,7 @@
 ### Changed    
 * `sim.exportInVarNums` renamed to `sim.exportInVars`
 * `sim.importOutVals` renamed to `sim.importOutVars`
+* Refined and removed upper triangle of multiplot grid
 ### Removed    
 
 ## [0.7.0] - 2022-06-13

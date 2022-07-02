@@ -235,13 +235,16 @@ def multi_plot_2d_scatter_grid(vars     : list[InVar | OutVar],
     nvars = len(vars)
     axs = fig.subplots(nvars, nvars, sharex='col')
     for i in range(nvars):
-        row_scatter_axs = [ax for k, ax in enumerate(axs[i]) if k != i]
+        row_scatter_axs = [ax for k, ax in enumerate(axs[i]) if k < i]
         for j in range(nvars):
             ax = axs[i][j]
             if i == j:
                 plot_hist(vars[i], cases=cases, highlight_cases=highlight_cases,
                           cumulative=cumulative, rug_plot=False, invar_space=invar_space,
                           ax=ax, title='', plotkwargs=plotkwargs)
+                ax.yaxis.tick_right()
+            elif j > i:
+                fig.delaxes(ax)
             else:
                 ax.get_shared_y_axes().join(*row_scatter_axs)  # Don't link the histogram y axis
                 plot_2d_scatter(vars[j], vars[i],
@@ -249,6 +252,8 @@ def multi_plot_2d_scatter_grid(vars     : list[InVar | OutVar],
                                 rug_plot=rug_plot, cov_plot=cov_plot, cov_p=cov_p,
                                 invar_space=invar_space,
                                 ax=ax, title='', plotkwargs=plotkwargs)
+                if j > 0:
+                    ax.set_yticklabels([])
 
             ax.set_xlabel('')
             ax.set_ylabel('')
@@ -257,7 +262,8 @@ def multi_plot_2d_scatter_grid(vars     : list[InVar | OutVar],
             if i == nvars-1:
                 ax.set_xlabel(vars[j].name)
 
-    plt.suptitle(title)
+    fig.subplots_adjust(wspace=0.075, hspace=0.075)
+    fig.suptitle(title)
 
     return fig, axs
 
