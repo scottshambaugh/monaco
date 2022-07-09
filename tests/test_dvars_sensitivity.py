@@ -4,6 +4,7 @@ import monaco as mc
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import uniform
+
 np.set_printoptions(suppress=True, precision=6)
 
 def vars_preprocess(case):

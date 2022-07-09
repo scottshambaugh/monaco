@@ -1,12 +1,13 @@
 # Changelog
 
 ## Future Work
-### Before SciPy 2022:
-- 2D Scatter Statistics
-- Polynomial approximations
 ### Later:
+- 2D Scatter Statistics
+- Regressions (linear, poly, custom)
+- Contribution to sample mean and contribution to sample variance
 - Get custom distributions working
-- Tornado plots
+- Tornado plots (?)
+- Variable contribution plots
 - Example: Evidence-Based Scheduling
 - 2D/3D Line statistics
 - Correlated inputs
@@ -21,6 +22,11 @@
 ----
 
 ## [Unreleased]
+### Added    
+### Changed    
+### Removed    
+
+## [0.8.0] - 2022-07-09
 ### Added    
 * Export outvar nums to a csv or json file with `sim.exportOutVars`
 * Import invars from a csv or json with `sim.importInVars`
