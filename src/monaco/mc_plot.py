@@ -712,7 +712,7 @@ def plot_2p5d_line(varx : InVar | OutVar,
             for i in range(var.ncases):
                 var.nums[i] = np.array([var.nums[i] for _ in range(npoints)])
                 if isinstance(var, monaco.mc_var.InVar):
-                    var.pcts[i] = [var.pcts[i] for _ in range(npoints)]
+                    var.pcts[i] = [float(var.pcts[i]) for _ in range(npoints)]
             var.maxdim = 1
 
     fig, ax = plot_3d_line(varx=var0, vary=var1, varz=var2,
@@ -1012,7 +1012,7 @@ def plot_sensitivities(outvar        : OutVar,
     if sort:
         sens_tuples = sorted(sensitivities_dict.items(), key=lambda item: item[1])
     else:
-        sens_tuples = sensitivities_dict.items()
+        sens_tuples = list(sensitivities_dict.items())
         y_pos = np.flipud(y_pos)
     invarnames = [invarname for invarname, _ in sens_tuples]
     sensitivities_vals = [val for _, val in sens_tuples]

@@ -1012,15 +1012,15 @@ class Sim:
 
 
     def exportVars(self,
-                   vars : list[InVar | OutVar],
+                   vars : dict[str, InVar | OutVar],
                    filename : Optional[str | pathlib.Path],
-                   ) -> None:
+                   ) -> pathlib.Path:
         """
         Export the nums for the selected to file for use externally.
 
         Parameters
         ----------
-        vars : list[InVar | OutVar]
+        vars : dict[str, InVar | OutVar]
             The vars to save to file.
         filename : Optional[str | pathlib.Path]
             The file to save to. Must be a csv or json.
@@ -1161,10 +1161,10 @@ class Sim:
             with open(filepath, 'r') as f:
                 data = json.load(f)
 
-        for vals in data.values():
-            if len(vals) != self.ncases:
-                raise ValueError(f'Length of data ({len(vals)}) must match the ' +
-                                 f'number of sim cases ({self.ncases}).')
+        for vals_list in data.values():
+            if len(vals_list) != self.ncases:
+                raise ValueError(f'Length of data ({len(vals_list)}) must match ' +
+                                 f'the number of sim cases ({self.ncases}).')
 
         return data, filepath
 
