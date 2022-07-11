@@ -23,7 +23,9 @@
 
 ## [Unreleased]
 ### Added    
+* mc_multi_plot.multi_plot_grid_rect
 ### Changed    
+* mc_multi_plot.multi_plot_2d_scatter_grid renamed to multi_plot_grid_tri
 ### Removed    
 
 ## [0.8.0] - 2022-07-09

@@ -8,7 +8,7 @@ def plot_testing():
     from scipy.stats import norm
     import matplotlib.pyplot as plt
     from monaco.mc_var import InVar
-    from monaco.mc_multi_plot import multi_plot
+    from monaco.mc_multi_plot import multi_plot, multi_plot_grid_rect
     from monaco.mc_enums import SampleMethod
 
     plt.close('all')
@@ -37,7 +37,13 @@ def plot_testing():
                            highlight_cases=range(10, 30),
                            rug_plot=True,
                            cov_plot=True, cov_p=0.95,
-                           title='test')  # multi_plot_2d_scatter_grid
+                           title='test')  # multi_plot_grid_tri
+
+    fig, axs = multi_plot_grid_rect([invars['norm1'], invars['norm2']], invars['norm3'],
+                                    highlight_cases=range(10, 30),
+                                    rug_plot=True,
+                                    cov_plot=True, cov_p=0.95,
+                                    title='test')  # multi_plot_grid_rect
 
     plt.show(block=True)
 

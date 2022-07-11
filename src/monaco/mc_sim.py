@@ -23,7 +23,7 @@ from monaco.helper_functions import (get_list, vprint, vwarn, empty_list,
 from monaco.case_runners import preprocess_case, run_case, postprocess_case
 from monaco.tqdm_dask_distributed import tqdm_dask
 from monaco.dvars_sensitivity import calc_sensitivities
-from monaco.mc_multi_plot import multi_plot
+from monaco.mc_multi_plot import multi_plot_grid_rect
 
 
 class Sim:
@@ -937,12 +937,13 @@ class Sim:
             for scalaroutvar in self.scalarOutVars().values():
                 scalarvars.append(scalaroutvar)
 
-        fig, axs = multi_plot(vars=scalarvars,
-                              cases=cases, highlight_cases=highlight_cases,
-                              rug_plot=rug_plot,
-                              cov_plot=cov_plot, cov_p=cov_p,
-                              invar_space=invar_space,
-                              fig=fig, title=title, plotkwargs=plotkwargs)
+        fig, axs = multi_plot_grid_rect(varsx=list(self.invars.values()),
+                                        varsy=list(self.scalarOutVars().values()),
+                                        cases=cases, highlight_cases=highlight_cases,
+                                        rug_plot=rug_plot,
+                                        cov_plot=cov_plot, cov_p=cov_p,
+                                        invar_space=invar_space,
+                                        fig=fig, title=title, plotkwargs=plotkwargs)
         return fig, axs
 
 
