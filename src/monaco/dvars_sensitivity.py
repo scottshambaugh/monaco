@@ -121,7 +121,7 @@ def calc_phi_opt(sim        : 'Sim',
     vprint(sim.verbose, 'Calculating optimal hyperparameters Φ for ' +
                        f"'{outvarname}' covariances...")
     X, Y = full_states(sim, outvarname)
-    res = minimize(L_runner, phi0s, args=(X, Y, sim.verbose), bounds=bounds,
+    res = minimize(L_runner, phi0s, args=(X, Y, verbose), bounds=bounds,
                    tol=tol, method='L-BFGS-B')
     phi_opt = res.x
     vprint(sim.verbose, 'Done calculating optimal hyperparameters.')

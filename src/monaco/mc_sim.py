@@ -283,7 +283,7 @@ class Sim:
             nthreads = nworkers * self.cluster.worker_spec[0]['options']['nthreads']
             memory = nworkers * self.cluster.worker_spec[0]['options']['memory_limit']
             vprint(self.verbose,
-                   f'Dask cluster initiated with {nworkers} workers,' +
+                   f'Dask cluster initiated with {nworkers} workers, ' +
                    f'{nthreads} threads, {memory/2**30:0.2f} GiB memory.')
             vprint(self.verbose, f'Dask dashboard link: {self.cluster.dashboard_link}')
 
@@ -374,10 +374,11 @@ class Sim:
         """Draw the random values for all the input variables."""
         if self.ninvars > 0:
             vprint(self.verbose, f"Drawing random samples for {self.ninvars} input variables " +
-                                 f"via the '{self.samplemethod}' method...", flush=True)
-        for invar in self.invars.values():
-            if invar.datasource is None:
-                invar.draw(ninvar_max=self.ninvars)
+                                 f"via the '{self.samplemethod}' method...", end=' ', flush=True)
+            for invar in self.invars.values():
+                if invar.datasource is None:
+                    invar.draw(ninvar_max=self.ninvars)
+            vprint(self.verbose, 'Done', flush=True)
 
 
     def runSim(self,
@@ -509,7 +510,7 @@ class Sim:
             The case numbers to generate. If None, then all cases are
             generated.
         """
-        vprint(self.verbose, 'Generating cases...', flush=True)
+        vprint(self.verbose, 'Generating cases...', end=' ', flush=True)
         self.genCaseSeeds()
 
         # If we are rerunning partial cases we don't want to reset this
@@ -526,6 +527,7 @@ class Sim:
                                    keepsimrawoutput=self.keepsimrawoutput,
                                    seed=int(self.caseseeds[ncase])))
         self.cases.sort(key=lambda case: case.ncase)
+        vprint(self.verbose, 'Done', flush=True)
 
 
     def genCaseSeeds(self) -> None:
@@ -888,7 +890,7 @@ class Sim:
              cases           : None | int | Iterable[int] = None,
              highlight_cases : None | int | Iterable[int] = empty_list(),
              rug_plot    : bool   = False,
-             cov_plot    : bool   = True,
+             cov_plot    : bool   = False,
              cov_p       : None | float | Iterable[float] = None,
              invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
              fig         : Figure = None,
