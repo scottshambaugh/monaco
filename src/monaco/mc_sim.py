@@ -820,7 +820,7 @@ class Sim:
                 vwarn(self.verbose, f"Output variable '{outvarname}' is not scalar," +
                                      'skipping sensitivity calculations.')
             else:
-                vprint(self.verbose, f"Calculating sensitivity indices for '{outvarname}'.")
+                vprint(self.verbose, f"Calculating sensitivity indices for '{outvarname}'...")
                 sensitivities, ratios = calc_sensitivities(self, outvarname,
                                                            tol=tol, verbose=verbose)
 
@@ -832,6 +832,7 @@ class Sim:
 
                 self.outvars[outvarname].sensitivity_indices = sensitivities_dict
                 self.outvars[outvarname].sensitivity_ratios = ratios_dict
+                vprint(self.verbose, "Done calculating sensitivity indices.")
 
 
     def genCovarianceMatrix(self) -> None:

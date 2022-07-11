@@ -95,6 +95,11 @@ class Case():
         self.simrawoutput : tuple[Any] = None
 
 
+    def __repr__(self):
+        return (f"{self.__class__.__name__}(ncase={self.ncase},\n  invals={self.invals} " +
+                f"\n  outvals={self.outvals})")
+
+
     def getInVals(self) -> dict[str, InVal]:
         """
         From all the InVar's, extract the vals for this case.

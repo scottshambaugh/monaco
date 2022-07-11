@@ -101,6 +101,11 @@ class InVal(Val):
         self.genValMap()
 
 
+    def __repr__(self):
+        return (f"{self.__class__.__name__}('{self.name}', ncase={self.ncase}, " +
+                f"val={self.val} ({self.num}), pct={self.pct:0.4f})")
+
+
     def mapNum(self) -> None:
         """
         Generate `val` based on the drawn number and the nummap.
@@ -175,6 +180,11 @@ class OutVal(Val):
             self.valmapsource = 'assigned'
         self.mapVal()
         self.genNumMap()
+
+
+    def __repr__(self):
+        return (f"{self.__class__.__name__}('{self.name}', ncase={self.ncase}, " +
+                f"val={self.val} ({self.num}))")
 
 
     def convertPandas(self) -> None:
