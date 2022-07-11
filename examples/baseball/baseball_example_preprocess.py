@@ -4,7 +4,7 @@ def baseball_example_preprocess(case):
     initial_conditions = {
         'z_init': case.invals['Z Init [m]'].val,  # Height off the ground inside the strike zone [m]
         'y_init': case.invals['Y Init [m]'].val,  # Side-to-side location inside the strike zone [m]
-        'speed': case.invals['Speed [m/s]'].val,  # Initial speed [m/s]
+        'speed': case.invals['Speed Init [m/s]'].val,  # Initial speed [m/s]
         'launch_angle': case.invals['Launch Angle [deg]'].val,  # Vertical launch angle [deg]
         'side_angle': case.invals['Side Angle [deg]'].val,      # Side-to-side launch angle [deg]
         'topspin': case.invals['Topspin [rpm]'].val,            # Topspin [rpm]

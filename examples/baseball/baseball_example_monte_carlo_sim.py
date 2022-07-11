@@ -27,7 +27,8 @@ def baseball_example_monte_carlo_sim():
                  distkwargs={'loc': -19.94*in2m/2, 'scale': 19.94*in2m})
     sim.addInVar(name='Z Init [m]', dist=uniform,
                  distkwargs={'loc': 18.29*in2m, 'scale': 25.79*in2m})
-    sim.addInVar(name='Speed [m/s]', dist=norm, distkwargs={'loc': 90*mph2mps, 'scale': 5*mph2mps})
+    sim.addInVar(name='Speed Init [m/s]', dist=norm,
+                 distkwargs={'loc': 90*mph2mps, 'scale': 5*mph2mps})
     sim.addInVar(name='Launch Angle [deg]', dist=norm, distkwargs={'loc': 10, 'scale': 20})
     sim.addInVar(name='Side Angle [deg]', dist=norm, distkwargs={'loc': 0, 'scale': 30})
     sim.addInVar(name='Topspin [rpm]', dist=norm, distkwargs={'loc': 80, 'scale': 500})
