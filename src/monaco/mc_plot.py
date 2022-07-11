@@ -1300,7 +1300,6 @@ def get_var_steps(var : InVar | OutVar) -> OutVar:
     varsteps : OutVar
         The variable with simulation steps as values.
     '''
-    steps = np.arange(max(len(num) for num in var.nums))
-    vals = [steps for _ in range(var.ncases)]
+    vals = [np.arange(len(num)) for num in var.nums]
     varsteps = monaco.mc_var.OutVar(name='Simulation Steps', vals=vals)
     return varsteps
