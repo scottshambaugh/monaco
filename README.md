@@ -40,8 +40,22 @@ Documentation is being built up - read the docs here: https://monaco.readthedocs
 Currently there is a complete [API reference](https://monaco.readthedocs.io/en/latest/api_reference.html), more detailed [installation, test, and publishing](https://monaco.readthedocs.io/en/latest/installation.html) instructions, an overview of the [basic architecture](https://monaco.readthedocs.io/en/latest/basic_architecture.html) and [basic workflow](https://monaco.readthedocs.io/en/latest/basic_workflow.html), and some details on [statistical distributions](https://monaco.readthedocs.io/en/latest/statistical_distributions.html) and [sampling methods](https://monaco.readthedocs.io/en/latest/sampling_methods.html). 
 
 ### License / Citation
-Copyright 2020-2022 Scott Shambaugh, distributed under [the GPLv3.0 (or later) license](LICENSE.md).    
-If you use `monaco` to do research that gets published, please cite [the monaco github page](https://github.com/scottshambaugh/monaco).
+Copyright 2020-2022 Scott Shambaugh, distributed under [the GPLv3.0 (or later) license](LICENSE.md).
+
+If you use `monaco` to do research that gets published, please cite [the paper](https://conference.scipy.org/proceedings/scipy2022/pdfs/scott_shambaugh.pdf):    
+> W. Scott Shambaugh (2022). Monaco: A Monte Carlo Library for Performing Uncertainty and Sensitivity Analyses. *In Proceedings of the 21st Python in Science Conference* (pp. 202 - 208).
+
+```
+@InProceedings{ scott_shambaugh-proc-scipy-2022,
+  author    = { W. Scott Shambaugh },
+  title     = { Monaco: A Monte Carlo Library for Performing Uncertainty and Sensitivity Analyses },
+  booktitle = { Proceedings of the 21st Python in Science Conference },
+  pages     = { 202 - 208 },
+  year      = { 2022 },
+  editor    = { Meghann Agarwal and Chris Calloway and Dillon Niederhut and David Shupe },
+  doi       = {  }
+}
+```
 
 ### Further Reading
 * [Hanson, J. M., and B. B. Beard. "Applying Monte Carlo simulation to launch vehicle design and requirements analysis." National Aeronautics and Space Administration, Marshall Space Flight Center, 1 September 2010.](https://ntrs.nasa.gov/citations/20100038453)
