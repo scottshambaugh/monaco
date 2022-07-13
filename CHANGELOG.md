@@ -30,6 +30,13 @@
 
 ## [0.8.1] - 2022-07-13
 ### Added    
+### Changed    
+* Fixed bug generating and plotting percentile ranges from mixed-length data
+### Removed    
+
+
+## [0.8.1] - 2022-07-13
+### Added    
 * `mc_multi_plot.multi_plot_grid_rect` plotting, made default for `mc.plot`
 * `__repr__` for Cases and Vals
 ### Changed    

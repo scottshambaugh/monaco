@@ -574,13 +574,17 @@ def plot_2d_line(varx : InVar | OutVar,
         elif length(varstat.nums[0]) == 3:  # Sided Order Statistic
             plt.plot(varx_points[0], varstat.nums[:, 1],
                      linestyle='-', color='C0', alpha=0.9, **plotkwargs)
+
+        varx_points_max = max(varx_points, key=len)
         if varstat.confidence_interval_high_nums is not None:
-            ax.fill_between(varx_points[0],
+            ax.fill_between(varx_points_max,
                             varstat.confidence_interval_low_nums,
                             varstat.confidence_interval_high_nums,
                             color='C0', alpha=0.3)
         if length(varstat.nums[0]) in (2, 3):  # Sided Order Statistic
-            ax.fill_between(varx_points[0], varstat.nums[:, 0], varstat.nums[:, -1],
+            ax.fill_between(varx_points_max,
+                            np.array(varstat.nums)[:, 0],
+                            np.array(varstat.nums)[:, -1],
                             color='C0', alpha=0.3)
 
     plt.xlabel(varx.name)

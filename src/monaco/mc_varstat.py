@@ -350,23 +350,27 @@ class VarStat:
         elif self.var.maxdim == 1:
             nums_list = get_list(self.var.nums)
             npoints = max(len(x) for x in nums_list)
-            self.nums = np.empty(npoints)
             if self.bootstrap:
-                self.confidence_interval_low_nums = np.empty(npoints)
-                self.confidence_interval_high_nums = np.empty(npoints)
+                confidence_interval_low_nums = []
+                confidence_interval_high_nums = []
 
             # Calculate nums and confidence interval for each point in the sequence
+            nums = []
             for i in range(npoints):
                 numsatidx = np.array([x[i] for x in nums_list if len(x) > i])
-                self.nums[i] = self.statsFunctionWrapper(numsatidx)
+                nums.append(self.statsFunctionWrapper(numsatidx))
                 if self.bootstrap:
                     # Switch to Bca once https://github.com/scipy/scipy/issues/15883 resolved
                     res = bootstrap((numsatidx,), self.statsFunctionWrapper,
                                     confidence_level=self.conf,
                                     n_resamples=self.bootstrap_n,
                                     random_state=self.seed, method='basic')
-                    self.confidence_interval_low_nums[i] = res.confidence_interval.low
-                    self.confidence_interval_high_nums[i] = res.confidence_interval.high
+                    confidence_interval_low_nums.append(res.confidence_interval.low)
+                    confidence_interval_high_nums.append(res.confidence_interval.high)
+            self.nums = nums
+            if self.bootstrap:
+                self.confidence_interval_low_nums = confidence_interval_low_nums
+                self.confidence_interval_high_nums = confidence_interval_high_nums
 
             # Calculate the corresponding vals based on the nummap
             self.vals = copy(self.nums)
