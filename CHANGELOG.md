@@ -17,15 +17,19 @@
 - Try out actually chaining the dask task graph
 - Demo running on remote server (AWS, etc)
 - Variogram Sensitivity Analysis
+- repr's for all main objects
 ### Known Bugs:
 - Cannot plot a varstat in percentile space
 ----
 
 ## [Unreleased]
 ### Added    
-* mc_multi_plot.multi_plot_grid_rect
+* `mc_multi_plot.multi_plot_grid_rect` plotting, made default for `mc.plot`
+* `__repr__` for Cases and Vals
 ### Changed    
-* mc_multi_plot.multi_plot_2d_scatter_grid renamed to multi_plot_grid_tri
+* `mc_multi_plot.multi_plot_2d_scatter_grid` renamed to `multi_plot_grid_tri`
+* Fixed bug when plotting against simulation steps of different lengths
+* Make Sims singlethreaded by default
 ### Removed    
 
 ## [0.8.0] - 2022-07-09

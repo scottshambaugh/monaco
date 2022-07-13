@@ -128,7 +128,7 @@ class Sim:
                  firstcaseismedian : bool = False,
                  samplemethod      : SampleMethod = SampleMethod.SOBOL_RANDOM,
                  seed              : int  = np.random.get_state(legacy=False)['state']['key'][0],
-                 singlethreaded    : bool = False,
+                 singlethreaded    : bool = True,
                  daskkwargs        : dict = dict(),
                  verbose           : bool = True,
                  debug             : bool = False,
