@@ -28,7 +28,7 @@
 ### Removed    
 
 
-## [0.8.1] - 2022-07-13
+## [0.8.2] - 2022-07-13
 ### Added    
 ### Changed    
 * Fixed bug generating and plotting percentile ranges from mixed-length data
