@@ -28,6 +28,13 @@
 ### Removed    
 
 
+## [0.8.3] - 2022-07-13
+### Added    
+### Changed    
+* Fixed another bug generating and plotting varstat ranges from mixed-length data
+### Removed    
+
+
 ## [0.8.2] - 2022-07-13
 ### Added    
 ### Changed    
