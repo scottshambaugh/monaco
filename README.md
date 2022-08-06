@@ -34,28 +34,19 @@ Then, copy the two files from the [template directory](https://github.com/scotts
 
 After working through the template exercises, check out the other [examples](https://github.com/scottshambaugh/monaco/tree/main/examples) for inspiration and more in-depth usage of `monaco`'s features.
 
-### Documentation / API Reference
+### Documentation / API Reference / SciPy 2022 Talk
+
 Documentation is being built up - read the docs here: https://monaco.readthedocs.io
 
 Currently there is a complete [API reference](https://monaco.readthedocs.io/en/latest/api_reference.html), more detailed [installation, test, and publishing](https://monaco.readthedocs.io/en/latest/installation.html) instructions, an overview of the [basic architecture](https://monaco.readthedocs.io/en/latest/basic_architecture.html) and [basic workflow](https://monaco.readthedocs.io/en/latest/basic_workflow.html), and some details on [statistical distributions](https://monaco.readthedocs.io/en/latest/statistical_distributions.html) and [sampling methods](https://monaco.readthedocs.io/en/latest/sampling_methods.html). 
 
+Monaco was presented at the SciPy 2022 Conference, and these should give another good overview of the library. Check out [the paper](https://conference.scipy.org/proceedings/scipy2022/pdfs/scott_shambaugh.pdf), [the video of the talk](https://www.youtube.com/watch?v=yB539OIol_s), and [the talk's slides and notebooks](https://github.com/scottshambaugh/monaco-scipy2022).
+
 ### License / Citation
 Copyright 2020-2022 Scott Shambaugh, distributed under [the GPLv3.0 (or later) license](LICENSE.md).
 
-If you use `monaco` to do research that gets published, please cite [the paper](https://conference.scipy.org/proceedings/scipy2022/pdfs/scott_shambaugh.pdf):    
+If you use `monaco` to do research that gets published, please cite the conference paper using the below or [monaco.bib](monaco.bib):    
 > W. Scott Shambaugh (2022). Monaco: A Monte Carlo Library for Performing Uncertainty and Sensitivity Analyses. *In Proceedings of the 21st Python in Science Conference* (pp. 202 - 208).
-
-```
-@InProceedings{ scott_shambaugh-proc-scipy-2022,
-  author    = { W. Scott Shambaugh },
-  title     = { Monaco: A Monte Carlo Library for Performing Uncertainty and Sensitivity Analyses },
-  booktitle = { Proceedings of the 21st Python in Science Conference },
-  pages     = { 202 - 208 },
-  year      = { 2022 },
-  editor    = { Meghann Agarwal and Chris Calloway and Dillon Niederhut and David Shupe },
-  doi       = {  }
-}
-```
 
 ### Further Reading
 * [Hanson, J. M., and B. B. Beard. "Applying Monte Carlo simulation to launch vehicle design and requirements analysis." National Aeronautics and Space Administration, Marshall Space Flight Center, 1 September 2010.](https://ntrs.nasa.gov/citations/20100038453)
