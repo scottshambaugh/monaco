@@ -53,7 +53,7 @@ If you use `monaco` to do research that gets published, please cite [the paper](
   pages     = { 202 - 208 },
   year      = { 2022 },
   editor    = { Meghann Agarwal and Chris Calloway and Dillon Niederhut and David Shupe },
-  doi       = {  }
+  doi       = { 10.25080/majora-212e5952-024 }
 }
 ```
 
