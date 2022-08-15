@@ -40,7 +40,7 @@ Documentation is being built up - read the docs here: https://monaco.readthedocs
 
 Currently there is a complete [API reference](https://monaco.readthedocs.io/en/latest/api_reference.html), more detailed [installation, test, and publishing](https://monaco.readthedocs.io/en/latest/installation.html) instructions, an overview of the [basic architecture](https://monaco.readthedocs.io/en/latest/basic_architecture.html) and [basic workflow](https://monaco.readthedocs.io/en/latest/basic_workflow.html), and some details on [statistical distributions](https://monaco.readthedocs.io/en/latest/statistical_distributions.html) and [sampling methods](https://monaco.readthedocs.io/en/latest/sampling_methods.html). 
 
-Monaco was presented at the SciPy 2022 Conference, and these should give another good overview of the library. Check out [the paper](https://conference.scipy.org/proceedings/scipy2022/pdfs/scott_shambaugh.pdf), [the video of the talk](https://www.youtube.com/watch?v=yB539OIol_s), and [the talk's slides and notebooks](https://github.com/scottshambaugh/monaco-scipy2022).
+Monaco was presented at the SciPy 2022 Conference, and the conference resources should give another good overview of the library. Check out [the paper](https://conference.scipy.org/proceedings/scipy2022/pdfs/scott_shambaugh.pdf), [the video of the talk](https://www.youtube.com/watch?v=yB539OIol_s), and [the talk's slides and notebooks](https://github.com/scottshambaugh/monaco-scipy2022).
 
 ### License / Citation
 Copyright 2020-2022 Scott Shambaugh, distributed under [the GPLv3.0 (or later) license](LICENSE.md).
