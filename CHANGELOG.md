@@ -14,7 +14,6 @@
 - Switch from prints to logging
 - Ability to plot derived data in addition to vars
 - Star Sampling
-- Try out actually chaining the dask task graph
 - Demo running on remote server (AWS, etc)
 - Variogram Sensitivity Analysis
 - repr's for all main objects
@@ -25,6 +24,8 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+* Parallel processing now chains preprocessing, running, and postprocessing into
+a single dask task graph via Sim.executeAllFcns()
 ### Removed    
 
 

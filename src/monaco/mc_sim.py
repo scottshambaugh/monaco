@@ -462,9 +462,10 @@ class Sim:
 
         self.drawVars()
         self.genCases(cases=casestogenerate)
-        self.preProcessCases(cases=casestopreprocess)
-        self.runCases(cases=casestorun, calledfromrunsim=True)
-        self.postProcessCases(cases=casestopostprocess)
+        self.executeAllFcns(casestopreprocess=casestopreprocess,
+                            casestorun=casestorun,
+                            casestopostprocess=casestopostprocess,
+                            calledfromrunsim=True)
         self.genOutVars()
 
         self.endtime = datetime.now()
@@ -534,6 +535,104 @@ class Sim:
         """Generate the random seeds for each of the random cases."""
         generator = np.random.RandomState(self.seed)
         self.caseseeds = list(generator.randint(0, 2**31-1, size=self.ncases))
+
+
+    def executeAllFcns(self,
+                       casestopreprocess : None | int | Iterable[int],
+                       casestorun : None | int | Iterable[int],
+                       casestopostprocess : None | int | Iterable[int],
+                       calledfromrunsim : bool = False
+                       ):
+        """
+        Preprocess, run, and postprocess all the Monte Carlo cases.
+
+        Parameters
+        ----------
+        casestopreprocess : None | int | Iterable[int]
+            The case numbers to preprocess. If None, then all cases are
+            preprocessed.
+        casestorun : None | int | Iterable[int]
+            The case numbers to run. If None, then all cases are run.
+        casestopostprocess : None | int | Iterable[int]
+            The case numbers to postprocess. If None, then all cases are
+            postprocessed.
+        calledfromrunsim : bool, default: False
+            Whether this was called from self.runSim(). If False, a new ID for
+            this simulation run is generated.
+        """
+        if self.singlethreaded:
+            self.preProcessCases(cases=casestopreprocess)
+            self.runCases(cases=casestorun, calledfromrunsim=calledfromrunsim)
+            self.postProcessCases(cases=casestopostprocess)
+        else:
+            casestopreprocess_downselect = self.downselectCases(cases=casestopreprocess)
+            casestorun_downselect = self.downselectCases(cases=casestorun)
+            casestopostprocess_downselect = self.downselectCases(cases=casestopostprocess)
+
+            preprocessedcases = dict()
+            runcases = dict()
+            postprocessedcases = dict()
+            try:
+                for case in self.cases:
+                    if case.ncase in casestopreprocess_downselect:
+                        case.haspreprocessed = False
+                    if case.ncase in casestorun_downselect:
+                        case.hasrun = False
+                    if case.ncase in casestopostprocess_downselect:
+                        case.haspostprocessed = False
+
+                    if case.ncase in casestopreprocess_downselect:
+                        casepreprocessed_delayed = dask.delayed(preprocess_case)(
+                            self.fcns[SimFunctions.PREPROCESS], case,
+                            self.debug, self.verbose)
+                        preprocessedcases[case.ncase] = casepreprocessed_delayed
+
+                    if case.ncase in casestorun_downselect:
+                        if case.haspreprocessed:
+                            case_to_delay = case
+                        else:
+                            case_to_delay = preprocessedcases[case.ncase]
+                        caserun_delayed = dask.delayed(run_case)(
+                            self.fcns[SimFunctions.RUN], case_to_delay,
+                            self.debug, self.verbose, self.runsimid)
+                        runcases[case.ncase] = caserun_delayed
+
+                    if case.ncase in casestopostprocess_downselect:
+                        if case.hasrun:
+                            case_to_delay = case
+                        else:
+                            case_to_delay = runcases[case.ncase]
+                        casepostprocessed_delayed = dask.delayed(postprocess_case)(
+                            self.fcns[SimFunctions.POSTPROCESS], case_to_delay,
+                            self.debug, self.verbose)
+                        postprocessedcases[case.ncase] = casepostprocessed_delayed
+
+
+                if self.verbose:
+                    x = dask.persist(*postprocessedcases.values())
+                    n_tasks = (len(casestopreprocess_downselect)
+                              + len(casestorun_downselect)
+                              + len(casestopostprocess_downselect))
+                    tqdm_dask(x, total=n_tasks,
+                              desc='Preprocessing, running, and postprocessing cases',
+                              unit=' cases', position=0)
+                    fullyexecutedcases = dask.compute(*x)
+                else:
+                    fullyexecutedcases = dask.compute(*postprocessedcases.values())
+
+            except KeyboardInterrupt:
+                raise
+
+            # Save out results
+            for case in fullyexecutedcases:
+                if any([case.haspreprocessed, case.hasrun, case.haspostprocessed]):
+                    self.cases[case.ncase] = case
+                if case.haspreprocessed:
+                    self.casespreprocessed.add(case.ncase)
+                if case.hasrun:
+                    self.casesrun.add(case.ncase)
+                if case.haspostprocessed:
+                    self.casespostprocessed.add(case.ncase)
 
 
     def preProcessCases(self,
