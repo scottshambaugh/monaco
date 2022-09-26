@@ -47,20 +47,32 @@ def sim_parallel(sim):
     sim.runSim()
     return sim
 
+@pytest.fixture
+def sim_parallel_expanded(sim_parallel):
+    sim = sim_parallel
+    sim.clearResults()
+    sim.drawVars()
+    sim.genCases()
+    sim.preProcessCases()
+    sim.runCases()
+    sim.postProcessCases()
+    sim.genOutVars()
+    return sim
 
-def test_sim_dist_draws(sim_singlethreaded, sim_parallel):
-    for sim in (sim_singlethreaded, sim_parallel):
+
+def test_sim_dist_draws(sim_singlethreaded, sim_parallel, sim_parallel_expanded):
+    for sim in (sim_singlethreaded, sim_parallel, sim_parallel_expanded):
         assert sim.cases[0].invals['Var1'].val == pytest.approx(3)
         assert sim.cases[1].invals['Var2'].val == pytest.approx(9.98228884)
 
 
-def test_sim_scalaroutvars(sim_singlethreaded, sim_parallel):
-    for sim in (sim_singlethreaded, sim_parallel):
+def test_sim_scalaroutvars(sim_singlethreaded, sim_parallel, sim_parallel_expanded):
+    for sim in (sim_singlethreaded, sim_parallel, sim_parallel_expanded):
         assert len(sim.scalarOutVars()) == 1
 
 
-def test_sim_corr_cov(sim_singlethreaded, sim_parallel):
-    for sim in (sim_singlethreaded, sim_parallel):
+def test_sim_corr_cov(sim_singlethreaded, sim_parallel, sim_parallel_expanded):
+    for sim in (sim_singlethreaded, sim_parallel, sim_parallel_expanded):
         # Convert to numpy arrays because pytest.approx doesn't work on nested lists
         assert np.array(sim.corr()[0]) \
             == pytest.approx(np.array([[ 1,           0.44720757, -0.18114221],
