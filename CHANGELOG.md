@@ -26,6 +26,7 @@
 ### Changed    
 * Parallel processing now chains preprocessing, running, and postprocessing into
 a single dask task graph via Sim.executeAllFcns()
+* Sim functions that take in cases default to None (all cases)
 ### Removed    
 
 

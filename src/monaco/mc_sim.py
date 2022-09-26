@@ -538,9 +538,9 @@ class Sim:
 
 
     def executeAllFcns(self,
-                       casestopreprocess : None | int | Iterable[int],
-                       casestorun : None | int | Iterable[int],
-                       casestopostprocess : None | int | Iterable[int],
+                       casestopreprocess : None | int | Iterable[int] = None,
+                       casestorun : None | int | Iterable[int] = None,
+                       casestopostprocess : None | int | Iterable[int] = None,
                        calledfromrunsim : bool = False
                        ):
         """
@@ -636,7 +636,7 @@ class Sim:
 
 
     def preProcessCases(self,
-                        cases : None | int | Iterable[int],
+                        cases : None | int | Iterable[int] = None,
                         ) -> None:
         """
         Preprocess all the Monte Carlo cases.
@@ -698,7 +698,7 @@ class Sim:
 
 
     def runCases(self,
-                 cases            : None | int | Iterable[int],
+                 cases            : None | int | Iterable[int] = None,
                  calledfromrunsim : bool = False,
                  ) -> None:
         """
@@ -766,7 +766,7 @@ class Sim:
 
 
     def postProcessCases(self,
-                         cases : None | int | Iterable[int],
+                         cases : None | int | Iterable[int] = None,
                          ) -> None:
         """
         Postprocess all the Monte Carlo cases.
