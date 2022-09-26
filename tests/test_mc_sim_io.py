@@ -111,8 +111,8 @@ def test_sim_remove_extra_files(sim_with_extra_files):
 
 
 @pytest.mark.parametrize("filename, expected_hash", [
-    ('invars.csv', 'f5280c4fb5340d9ba657190751a4c367'),
-    ('invars.json', 'c55f69893622935ae8d9bd1974adb1f2'),
+    ('invars.csv', 'aa6f66046f235fe1a05743b34a87ca87'),
+    ('invars.json', '8cbe1328474349a7bf2ab5145a31ea46'),
 ])
 def test_sim_export_invars(sim, filename, expected_hash):
     with pytest.raises(ValueError):
