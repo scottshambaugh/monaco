@@ -245,7 +245,7 @@ def plot_hist(var         : InVar | OutVar,
     nums = slice_by_index(points, cases_list)
     counts, bins = np.histogram(nums, bins=bins)
     binwidth = mode(np.diff(bins), keepdims=False)[0]
-    bins = np.concatenate((bins - binwidth/2, bins[-1] + binwidth/2))
+    bins = np.append(bins - binwidth/2, bins[-1] + binwidth/2)
     counts, bins = np.histogram(nums, bins=bins)
 
     if isinstance(var, monaco.mc_var.InVar):

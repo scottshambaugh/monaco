@@ -1,7 +1,7 @@
 # Changelog
 
 ## Future Work
-### Later:
+### Features & Maintenance:
 - 2D Scatter Statistics
 - Regressions (linear, poly, custom)
 - Contribution to sample mean and contribution to sample variance
@@ -25,8 +25,9 @@
 ### Added    
 ### Changed    
 * Parallel processing now chains preprocessing, running, and postprocessing into
-a single dask task graph via Sim.executeAllFcns()
+a single dask task graph via Sim.executeAllFcns(), giving large speed boost
 * Sim functions that take in cases default to None (all cases)
+* Fixed bug plotting histograms
 ### Removed    
 
 
