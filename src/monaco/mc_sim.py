@@ -1155,7 +1155,7 @@ class Sim:
                 else:
                     data_csv = np.vstack([data_csv, np.array(var.nums)])
 
-            with open(filepath, 'w') as f:
+            with open(filepath, 'w', newline='') as f:
                 writer = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
                 writer.writerow(varnames)
                 for i in range(self.ncases):
@@ -1169,7 +1169,7 @@ class Sim:
             for varname, var in vars.items():
                 data_json[varname] = np.array(var.nums).tolist()
 
-            with open(filepath, 'w') as f:
+            with open(filepath, 'w', newline='') as f:
                 json.dump(data_json, f, indent=0)
 
         return filepath
