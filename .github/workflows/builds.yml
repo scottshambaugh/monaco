@@ -16,6 +16,9 @@ jobs:
         os: [Ubuntu, MacOS, Windows]
         python-version: ['3.8', '3.9', '3.10']
     continue-on-error: ${{ matrix.python-version == '' }}
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
@@ -52,12 +55,7 @@ jobs:
         run: poetry install --extras "pandas"
 
       - name: Activate Environment
-        if: matrix.os == 'Windows'
-        run: .venv/scripts/activate
-
-      - name: Activate Environment
-        if: matrix.os != 'Windows'
-        run: source .venv/bin/activate
+        run: source $VENV
 
       - name: Build package
         run: |
