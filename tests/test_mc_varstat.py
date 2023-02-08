@@ -64,16 +64,16 @@ def test_outvarstat_2d(v):
     outvarstat2 = VarStat(outvar, stat=VarStatType.MIN,
                           bootstrap=True, bootstrap_k=10, conf=0.95, seed=0)
 
-    assert(np.allclose(outvarstat1.vals, [[-4, -2, 4], [-2, -1, 2], [-4, -2, 4],
-                                          [-6, -3, 6], [-8, -4, 8], [-10, -5, 10]]))
+    assert np.allclose(outvarstat1.vals, [[-4, -2, 4], [-2, -1, 2], [-4, -2, 4],
+                                          [-6, -3, 6], [-8, -4, 8], [-10, -5, 10]])
     assert outvarstat1.confidence_interval_low_nums is None
     assert outvarstat1.confidence_interval_high_nums is None
 
-    assert(np.allclose(outvarstat2.vals, [ -4, -2, -4, -6, -8, -10.]))
-    assert(np.allclose(outvarstat2.confidence_interval_low_nums,
-                       [-8.0, -4.0, -7.5, -11.25, -15.0, -18.75]))
-    assert(np.allclose(outvarstat2.confidence_interval_high_nums,
-                       [-4.0, -2.0, -4.0, -6.0, -8.0, -10.0]))
+    assert np.allclose(outvarstat2.vals, [ -4, -2, -4, -6, -8, -10.])
+    assert np.allclose(outvarstat2.confidence_interval_low_nums,
+                       [-8.0, -4.0, -7.5, -11.25, -15.0, -18.75])
+    assert np.allclose(outvarstat2.confidence_interval_high_nums,
+                       [-4.0, -2.0, -4.0, -6.0, -8.0, -10.0])
 
 
 def test_outvarstat_2d_irregular(v):
@@ -81,15 +81,15 @@ def test_outvarstat_2d_irregular(v):
     outvar = OutVar('test', [[0, 0], 1*v, 2*v, 0*v, -1*v, [0, 0]], firstcaseismedian=True)
     outvarstat1 = VarStat(outvar, stat=VarStatType.MIN,
                           bootstrap=True, bootstrap_k=10, conf=0.95, seed=0)
-    assert(np.allclose(outvarstat1.vals, [-4, -2, -2, -3, -4, -5.]))
-    assert(np.allclose(outvarstat1.confidence_interval_low_nums, [-8, -4, -6, -9, -12, -15.]))
-    assert(np.allclose(outvarstat1.confidence_interval_high_nums, [-4, -2, -2, -3, -4, -5.]))
+    assert np.allclose(outvarstat1.vals, [-4, -2, -2, -3, -4, -5.])
+    assert np.allclose(outvarstat1.confidence_interval_low_nums, [-8, -4, -6, -9, -12, -15.])
+    assert np.allclose(outvarstat1.confidence_interval_high_nums, [-4, -2, -2, -3, -4, -5.])
 
     outvarstat2 = VarStat(outvar, stat=VarStatType.PERCENTILE, statkwargs={'p': [0.25, 0.75]},
                           bootstrap=True, bootstrap_k=10, conf=0.95, seed=0)
-    assert(np.allclose(outvarstat2.vals,
-                       [[-1.5, 0], [-0.75, 0], [-0.5, 2.5], [-0.75, 3.75], [-1., 5.], [-1.25, 6.25]]))  # noqa: E501
-    assert(np.allclose(outvarstat2.confidence_interval_low_nums,
-                       [[-3, -1.875], [-1.5, -0.9375], [-4.25, 1], [-6.375, 1.5 ], [-8.5, 2], [-10.625, 2.5]]))  # noqa: E501
-    assert(np.allclose(outvarstat2.confidence_interval_high_nums,
-                       [[0.5, 0.875], [0.25, 0.4375], [1, 6.25], [1.5, 9.375], [2, 12.5], [2.5, 15.625]]))  # noqa: E501
+    assert np.allclose(outvarstat2.vals,
+                       [[-1.5, 0], [-0.75, 0], [-0.5, 2.5], [-0.75, 3.75], [-1., 5.], [-1.25, 6.25]])  # noqa: E501
+    assert np.allclose(outvarstat2.confidence_interval_low_nums,
+                       [[-3, -1.875], [-1.5, -0.9375], [-4.25, 1], [-6.375, 1.5 ], [-8.5, 2], [-10.625, 2.5]])  # noqa: E501
+    assert np.allclose(outvarstat2.confidence_interval_high_nums,
+                       [[0.5, 0.875], [0.25, 0.4375], [1, 6.25], [1.5, 9.375], [2, 12.5], [2.5, 15.625]])  # noqa: E501

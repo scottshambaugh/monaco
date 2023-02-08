@@ -236,7 +236,7 @@ def plot_hist(var         : InVar | OutVar,
     bins : str | np.ndarray = 'auto'
     if 'bins' in plotkwargs:
         bins = plotkwargs['bins']
-        del(plotkwargs['bins'])
+        del plotkwargs['bins']
 
     # Histogram generation
     cases_list = get_cases(var.ncases, cases)
@@ -1002,7 +1002,7 @@ def plot_sensitivities(outvar        : OutVar,
         ax is the axes handle for the plot.
     """
     fig, ax = manage_axis(ax, is3d=False)
-    fig.set_tight_layout(True)
+    fig.set_layout_engine('tight')
 
     if sensitivities == Sensitivities.RATIOS:
         sensitivities_dict = outvar.sensitivity_ratios
