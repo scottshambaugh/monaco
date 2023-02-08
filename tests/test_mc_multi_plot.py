@@ -2,8 +2,13 @@
 
 # import pytest
 
+# Does not test the plot appearances, but does check that the codepaths can run
+def test_gen_plots():
+    plot_testing(show=False)
+    assert True
+
 ### Plot Testing ###
-def plot_testing():
+def plot_testing(show=False):
     import numpy as np
     from scipy.stats import norm
     import matplotlib.pyplot as plt
@@ -45,8 +50,9 @@ def plot_testing():
                                     cov_plot=True, cov_p=0.95,
                                     title='test')  # multi_plot_grid_rect
 
-    plt.show(block=True)
+    if show:
+        plt.show(block=True)
 
 
 if __name__ == '__main__':
-    plot_testing()
+    plot_testing(show=True)

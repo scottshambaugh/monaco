@@ -21,8 +21,13 @@ def test_manage_invar_space():
         manage_invar_space(invar_space=['pcts', 'nums'], nvars=3)
 
 
+# Does not test the plot appearances, but does check that the codepaths can run
+def test_gen_plots():
+    plot_testing(show=False)
+    assert True
+
 ### Plot Testing ###
-def plot_testing():
+def plot_testing(show=False):
     import numpy as np
     import matplotlib.pyplot as plt
     from scipy.stats import randint, norm
@@ -107,8 +112,10 @@ def plot_testing():
                                  refval=0.5, conf=0.95)
     plot_integration_error(invars['randint2'], volume=1, dimension=1,
                            refval=0.5, conf=0.95)
-    plt.show()
+
+    if show:
+        plt.show(block=True)
 
 
 if __name__ == '__main__':
-    plot_testing()
+    plot_testing(show=True)

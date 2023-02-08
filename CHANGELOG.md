@@ -29,6 +29,7 @@
 
 ## [0.9.0] - 2023-02-08
 ### Added    
+* Automated testing for plots and multiplots.
 ### Changed    
 * Parallel processing now chains preprocessing, running, and postprocessing into
 a single dask task graph via Sim.executeAllFcns(), giving large speed boost
