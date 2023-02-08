@@ -17,32 +17,33 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.8.0,<3.11"
-numpy = "^1.21"
-scipy = "^1.7"
-matplotlib = "^3.3.0"
+numpy = "^1.22"
+scipy = "^1.10"
+matplotlib = "^3.6"
 tqdm = "^4.0"
-psutil = "^5.0.0"
-numba = "^0.55.0"
-distributed = "^2022.4.1"
-cloudpickle = "^2.0.0"
+psutil = "^5.0"
+numba = "^0.55"
+distributed = "^2022"
+cloudpickle = "^2.0"
 
-pandas = {version = "^1.3", optional = true}
+pandas = {version = "^1.5", optional = true}
 
 sphinx = {version = "^4.2", optional = true}
 sphinx_rtd_theme = {version = "^1.0", optional = true}
 myst-parser = {version = ">=0.15", optional = true}
 
 [tool.poetry.dev-dependencies]
-pytest = "^6.0.0"
-coverage = "^6.0"
-mypy = ">=0.900"
-flake8 = "^4.000"
-pre-commit = "^2.0"
+pytest = ">=5.0"
+coverage = "^7.0"
+mypy = ">=1.0"
+flake8 = "^5.000"
+pre-commit = "^3.0"
+requests = "^2.0"
 
 [tool.poetry.extras]
 pandas = ["pandas"]
 docs = ["sphinx", "sphinx_rtd_theme", "myst-parser"]
 
 [build-system]
-requires = ["setuptools", "poetry-core>=1.1.0a7"]
+requires = ["setuptools", "poetry-core"]
 build-backend = "poetry.core.masonry.api"
