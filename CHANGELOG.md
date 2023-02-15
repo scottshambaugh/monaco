@@ -23,8 +23,9 @@
 
 ## [Unreleased]
 ### Added    
+* Python 3.11 support
 ### Changed    
-* numba is now an optional dependency
+* `numba` is now an optional dependency
 ### Removed    
 
 
