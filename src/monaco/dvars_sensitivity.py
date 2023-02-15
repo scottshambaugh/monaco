@@ -6,10 +6,25 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from monaco.mc_sim import Sim
 
-from monaco.helper_functions import vprint
 import numpy as np
+from monaco.helper_functions import vprint
 from scipy.optimize import minimize
-from numba import jit
+from warnings import warn
+
+# numba is recommended for speed, as this will be very slow otherwise
+try:
+    from numba import jit
+except ImportError:
+    warn("Consider installing numba for better performance", UserWarning)
+    # create a dummy decorator
+    def jit(f=None, *args, **kwargs):
+        def decorator(func):
+            return func 
+
+        if callable(f):
+            return f
+        else:
+            return decorator
 
 
 def calc_sensitivities(sim        : 'Sim',

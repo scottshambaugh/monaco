@@ -24,6 +24,7 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+* numba is now an optional dependency
 ### Removed    
 
 
