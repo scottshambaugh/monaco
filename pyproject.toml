@@ -17,7 +17,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.8.0,<3.12"
-numpy = "^1.22"
+numpy = "^1.23"
 scipy = "^1.10"
 matplotlib = "^3.6"
 tqdm = "^4.0"
@@ -28,7 +28,7 @@ pillow = ">=9.3.0"
 
 pandas = {version = "^1.5", optional = true}
 
-numba = {version = "^0.55", optional = true}
+numba = {version = "^0.56", python = "<3.11", optional = true}
 
 sphinx = {version = "^4.2", optional = true}
 sphinx_rtd_theme = {version = "^1.0", optional = true}
