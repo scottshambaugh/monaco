@@ -9,6 +9,7 @@ Here are the tests which generate plots that may need to be reviewed manually:
 * test_mc_var
 * test_mc_sampling
 * test_integration_statistics
+* test_dvars_sensitivity
 
 Here are the tests which are diagnostic but do not test functionality:
 * pooling_speed_testing

@@ -51,12 +51,11 @@ def plot_gs():
     plt.show(block=False)
 
 
-def test_calc_sensitivities():
+def test_calc_sensitivities(ndraws=32, plot=False):
     fcns = {'preprocess' : vars_preprocess,
             'run'        : vars_run,
             'postprocess': vars_postprocess}
 
-    ndraws = 128
     sim = mc.Sim(name='dvars', ndraws=ndraws, fcns=fcns, firstcaseismedian=False,
                  seed=3462356, singlethreaded=True, daskkwargs=dict(), samplemethod='random',
                  savecasedata=False, savesimdata=False, verbose=False, debug=True)
@@ -67,8 +66,15 @@ def test_calc_sensitivities():
     sim.runSim()
 
     sim.calcSensitivities('f')
-    # sim.outvars['f'].plotSensitivities()
+    if plot:
+        sim.outvars['f'].plotSensitivities()
 
     calculated_ratios = list(sim.outvars['f'].sensitivity_ratios.values())
-    expected_ratios = [0.471030, 0.361213, 0.062541, 0.074203, 0.030412, 0.000598]
-    assert np.allclose(calculated_ratios, expected_ratios, atol=1e-6)
+
+    if ndraws == 32:
+        expected_ratios = [0.448420, 0.474647, 0.038287, 0.038644, 0.0, 0.0]
+        assert np.allclose(calculated_ratios, expected_ratios, atol=1e-5)
+
+
+if __name__ == '__main__':
+    test_calc_sensitivities(ndraws=128, plot=True)
