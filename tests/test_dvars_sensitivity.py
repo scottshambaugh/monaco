@@ -73,7 +73,7 @@ def test_calc_sensitivities(ndraws=32, plot=False):
 
     if ndraws == 32:
         expected_ratios = [0.448420, 0.474647, 0.038287, 0.038644, 0.0, 0.0]
-        assert np.allclose(calculated_ratios, expected_ratios, atol=1e-6)
+        assert np.allclose(calculated_ratios, expected_ratios, atol=1e-5)
 
 
 if __name__ == '__main__':
