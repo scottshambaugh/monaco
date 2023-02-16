@@ -409,8 +409,13 @@ class VarStat:
         else:
             raise ValueError(f'{self.bound} is not a valid bound for genStatsOrderStatTI')
 
+        if isinstance(self.bound, StatBound):
+            bound_str = self.bound.value
+        else:
+            bound_str = self.bound
+
         self.setName(f'{self.var.name} ' +
-                     f'{self.bound} P{round(self.p*100,4)}/{round(self.c*100,4)}% ' +
+                     f'{bound_str} P{round(self.p*100,4)}/{round(self.c*100,4)}% ' +
                       'Confidence Interval')
 
         self.k = order_stat_TI_k(n=self.var.ncases, p=self.p, c=self.c, bound=self.bound)
