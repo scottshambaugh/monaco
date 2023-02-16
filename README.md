@@ -43,7 +43,7 @@ Currently there is a complete [API reference](https://monaco.readthedocs.io/en/l
 Monaco was presented at the SciPy 2022 Conference, and the conference resources should give another good overview of the library. Check out [the paper](https://conference.scipy.org/proceedings/scipy2022/pdfs/scott_shambaugh.pdf), [the video of the talk](https://www.youtube.com/watch?v=yB539OIol_s), and [the talk's slides and notebooks](https://github.com/scottshambaugh/monaco-scipy2022).
 
 ### License / Citation
-Copyright 2020-2022 Scott Shambaugh, distributed under [the GPLv3.0 (or later) license](LICENSE.md).
+Copyright 2020-2023 Scott Shambaugh, distributed under [the GPLv3.0 (or later) license](LICENSE.md).
 
 If you use `monaco` to do research that gets published, please cite the conference paper using the below or [monaco.bib](monaco.bib):    
 > W. Scott Shambaugh (2022). Monaco: A Monte Carlo Library for Performing Uncertainty and Sensitivity Analyses. *In Proceedings of the 21st Python in Science Conference* (pp. 202 - 208).

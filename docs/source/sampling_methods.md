@@ -37,7 +37,7 @@ For integration, random sampling will converge at a big O rate of <img src="http
 <img width="440" height="300" src="https://raw.githubusercontent.com/scottshambaugh/monaco/main/docs/images/random_vs_sobol_error.png">
 </p>
 
-### Comparison Plots
+## Comparison Plots
 <p float="left" align="center">
 <img width="768" height="240" src="https://raw.githubusercontent.com/scottshambaugh/monaco/main/docs/images/random_sampling.png">  
 </br>
@@ -52,7 +52,7 @@ For integration, random sampling will converge at a big O rate of <img src="http
 <img width="768" height="240" src="https://raw.githubusercontent.com/scottshambaugh/monaco/main/docs/images/latin_hypercube_sampling.png">
 </p>
 
-### Further Reading
+## Further Reading
 * [Roberts, Martin. "The Unreasonable Effectiveness of Quasirandom Sequences." Extreme Learning, 25 April 2018](http://extremelearning.com.au/unreasonable-effectiveness-of-quasirandom-sequences/)
 * [Perrier, Hélène, et al. "Sequences with low‐discrepancy blue‐noise 2‐D projections." Computer Graphics Forum. Vol. 37. No. 2. 2018.](https://onlinelibrary.wiley.com/doi/abs/10.1111/cgf.13366)
 * [Owen, Art B. "On dropping the first Sobol'point." arXiv preprint arXiv:2008.08051 (2020).](https://arxiv.org/abs/2008.08051)
