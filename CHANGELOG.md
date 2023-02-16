@@ -23,6 +23,12 @@
 
 ## [Unreleased]
 ### Added    
+### Changed    
+### Removed    
+
+
+## [0.9.1] - 2023-02-16
+### Added    
 * Python 3.11 support
 ### Changed    
 * `numba` is now an optional dependency

@@ -50,7 +50,7 @@ poetry run make clean && poetry run make html
 3) Update and install the package
     ```
     poetry update
-    poetry install --extras "pandas"
+    poetry install --extras "pandas" "numba"
     ```
 4) Run tests, type checking, and linting locally
     ```
