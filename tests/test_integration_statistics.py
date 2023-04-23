@@ -1,6 +1,9 @@
 # test_integration_statistics.py
 
 import pytest
+import numpy as np
+import matplotlib.pyplot as plt
+from monaco.mc_sampling import sampling
 from monaco.gaussian_statistics import pct2sig
 from monaco.integration_statistics import (integration_error, integration_n_from_err,
                                            integration_args_check, max_variance, max_stdev)
@@ -49,12 +52,13 @@ def test_max_stdev():
     assert max_stdev(low=0, high=1) == pytest.approx(0.5)
 
 
-### Plot Testing ###
-def plot_testing():
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from monaco.mc_sampling import sampling
+# Does not test the plot appearances, but does check that the codepaths can run
+def test_gen_plots():
+    plot_testing(show=False)
+    assert True
 
+
+def plot_testing(show=False):
     n = int(2**15)
     conf = 0.95
     seed = 25106011
@@ -93,6 +97,9 @@ def plot_testing():
     plt.legend([h3, h1, h4, h2],
                ['Random Error Bound', 'Random True Error', 'Sobol Error Bound', 'Sobol True Error'])
 
+    if show:
+        plt.show(block=True)
+
 
 if __name__ == '__main__':
-    plot_testing()
+    plot_testing(show=True)

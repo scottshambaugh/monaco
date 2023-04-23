@@ -2,6 +2,7 @@
 
 import pytest
 import numpy as np
+import matplotlib.pyplot as plt
 from monaco.mc_sampling import sampling
 from monaco.mc_enums import SampleMethod
 
@@ -31,10 +32,13 @@ def test_mc_sampling_errors(method, ninvar, seed):
         sampling(ndraws=512, method=method, ninvar=ninvar, ninvar_max=None, seed=seed)
 
 
-### Plot Testing ###
-def plot_testing():
-    import matplotlib.pyplot as plt
+# Does not test the plot appearances, but does check that the codepaths can run
+def test_gen_plots():
+    plot_testing(show=False)
+    assert True
 
+
+def plot_testing(show=False):
     def plot_sampling_test(ndraws, method, seeds, genplot=True):
         import scipy.stats
 
@@ -101,8 +105,10 @@ def plot_testing():
     plot_sampling_test(ndraws=ndraws, method=SampleMethod.HALTON_RANDOM,   seeds=seeds)
     plot_sampling_test(ndraws=ndraws, method=SampleMethod.LATIN_HYPERCUBE, seeds=seeds)
     # print(cached_pcts.cache_info())  # Can only check caching when run in main file
-    plt.show()
+
+    if show:
+        plt.show(block=True)
 
 
 if __name__ == '__main__':
-    plot_testing()
+    plot_testing(show=True)

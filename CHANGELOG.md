@@ -23,6 +23,7 @@
 
 ## [Unreleased]
 ### Added    
+* More plotting test coverage.
 ### Changed    
 * License changed to MIT (up till now a single author project).
 ### Removed    

@@ -121,16 +121,23 @@ def test_outvar_split_orderstat(outvars_split):
     assert outvars_split['test [0]'].varstats[0].vals == pytest.approx([1, 1])
 
 
-### Plot Testing ###
-def plot_testing():
+# Does not test the plot appearances, but does check that the codepaths can run
+def test_gen_plots():
+    plot_testing(show=False)
+    assert True
+
+
+def plot_testing(show=False):
     from scipy.stats import norm
     invar = InVar('norm', ndraws=1000,
                   dist=norm, distkwargs={'loc': 10, 'scale': 4},
                   seed=invarseeds[1], samplemethod=SampleMethod.RANDOM,
                   firstcaseismedian=False)
+
     fig, ax = invar.plot()
-    plt.show()
+    if show:
+        plt.show(block=True)
 
 
 if __name__ == '__main__':
-    plot_testing()
+    plot_testing(show=True)

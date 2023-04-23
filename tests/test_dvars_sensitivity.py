@@ -51,7 +51,7 @@ def plot_gs():
     plt.show(block=False)
 
 
-def test_calc_sensitivities(ndraws=32, plot=False):
+def test_calc_sensitivities(ndraws=32, show=False):
     fcns = {'preprocess' : vars_preprocess,
             'run'        : vars_run,
             'postprocess': vars_postprocess}
@@ -66,8 +66,12 @@ def test_calc_sensitivities(ndraws=32, plot=False):
     sim.runSim()
 
     sim.calcSensitivities('f')
-    if plot:
-        sim.outvars['f'].plotSensitivities()
+
+    # Does not test the plot appearances, but does check that the codepaths can run
+    sim.outvars['f'].plotSensitivities()
+    if show:
+        plt.show(block=True)
+        assert True
 
     calculated_ratios = list(sim.outvars['f'].sensitivity_ratios.values())
 
@@ -77,4 +81,4 @@ def test_calc_sensitivities(ndraws=32, plot=False):
 
 
 if __name__ == '__main__':
-    test_calc_sensitivities(ndraws=128, plot=True)
+    test_calc_sensitivities(ndraws=128, show=True)

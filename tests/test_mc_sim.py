@@ -84,7 +84,13 @@ def test_sim_corr_cov(sim_singlethreaded, sim_parallel, sim_parallel_expanded):
                                        [-1.3125   , -0.35929331, 25.5]]))
 
 
-def plot_testing():
+# Does not test the plot appearances, but does check that the codepaths can run
+def test_gen_plots():
+    plot_testing(show=False)
+    assert True
+
+
+def plot_testing(show=False):
     seed = 74494861
     sim = Sim(name='Sim', ndraws=16, fcns=sim_testing_fcns(), firstcaseismedian=True,
               verbose=False, samplemethod=SampleMethod.RANDOM,
@@ -94,9 +100,11 @@ def plot_testing():
     sim.addInVar(name='Var2', dist=norm, distkwargs={'loc': 10, 'scale': 4})
     sim.runSim()
 
-    sim.plot()
+    fig, axs = sim.plot()
+    if show:
+        plt.show(block=True)
 
 
 if __name__ == '__main__':
-    plot_testing()
+    plot_testing(show=True)
     plt.show()
