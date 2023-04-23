@@ -24,6 +24,7 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+* License changed to MIT (up till now a single author project).
 ### Removed    
 
 
