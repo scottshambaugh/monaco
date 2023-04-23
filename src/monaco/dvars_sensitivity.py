@@ -16,10 +16,11 @@ try:
     from numba import jit
 except ImportError:
     warn("Consider installing numba for better performance", UserWarning)
+
     # create a dummy decorator
     def jit(f=None, *args, **kwargs):
         def decorator(func):
-            return func 
+            return func
 
         if callable(f):
             return f

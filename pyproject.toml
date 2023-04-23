@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "monaco"
-version = "0.9.1"
+version = "0.10.0"
 description = "Quantify uncertainty and sensitivities in your computer models with an industry-grade Monte Carlo library."
 authors = ["Scott Shambaugh <scott@theshamblog.com>"]
-license = "GPL-3.0-or-later"
+license = "MIT"
 readme = "README.md"
 repository = "https://github.com/scottshambaugh/monaco/"
 classifiers = [

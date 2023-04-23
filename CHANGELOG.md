@@ -23,10 +23,16 @@
 
 ## [Unreleased]
 ### Added    
-* More plotting test coverage.
-* Allow passing in varname strings to `sim.plot`
 ### Changed    
-* License changed to MIT (up till now a single author project).
+### Removed    
+
+
+## [0.10.0] - 2023-04-23
+### Added    
+* More plotting test coverage.
+* Allow passing in varname strings to `sim.plot`.
+### Changed    
+* License changed from GPLv3 to more permissive MIT (ok because single author project).
 * Fix `sim.plot` scalarvars not being used.
 ### Removed    
 
