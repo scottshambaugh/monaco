@@ -986,7 +986,7 @@ class Sim:
 
 
     def plot(self,
-             scalarvars  : Optional[list[InVar | OutVar]] = None,
+             scalarvars  : Optional[list[InVar | OutVar | str]] = None,
              cases           : None | int | Iterable[int] = None,
              highlight_cases : None | int | Iterable[int] = empty_list(),
              rug_plot    : bool   = False,
@@ -1002,7 +1002,7 @@ class Sim:
 
         Parameters
         ----------
-        scalarvars : list[monaco.mc_var.InVar | monaco.mc_var.OutVar]
+        scalarvars : list[monaco.mc_var.InVar | monaco.mc_var.OutVar | str]
             The variables to plot. If None, then grabs all the input variables
             and scalar output variables.
         cases : None | int | Iterable[int], default: None
@@ -1036,6 +1036,12 @@ class Sim:
                 scalarvars.append(invar)
             for scalaroutvar in self.scalarOutVars().values():
                 scalarvars.append(scalaroutvar)
+
+        scalarvars = get_list(scalarvars)
+
+        for i, scalarvar in enumerate(scalarvars):
+            if isinstance(scalarvar, str):
+                scalarvars[i] = self.vars[scalarvar]
 
         invars = []
         scalaroutvars = []

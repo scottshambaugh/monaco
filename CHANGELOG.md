@@ -24,6 +24,7 @@
 ## [Unreleased]
 ### Added    
 * More plotting test coverage.
+* Allow passing in varname strings to `sim.plot`
 ### Changed    
 * License changed to MIT (up till now a single author project).
 * Fix `sim.plot` scalarvars not being used.
