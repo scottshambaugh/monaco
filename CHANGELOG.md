@@ -26,6 +26,7 @@
 * More plotting test coverage.
 ### Changed    
 * License changed to MIT (up till now a single author project).
+* Fix `sim.plot` scalarvars not being used.
 ### Removed    
 
 

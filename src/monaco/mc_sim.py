@@ -1037,8 +1037,16 @@ class Sim:
             for scalaroutvar in self.scalarOutVars().values():
                 scalarvars.append(scalaroutvar)
 
-        fig, axs = multi_plot_grid_rect(varsx=list(self.invars.values()),
-                                        varsy=list(self.scalarOutVars().values()),
+        invars = []
+        scalaroutvars = []
+        for scalarvar in scalarvars:
+            if isinstance(scalarvar, InVar):
+                invars.append(scalarvar)
+            elif isinstance(scalarvar, OutVar) and scalarvar.isscalar:
+                scalaroutvars.append(scalarvar)
+
+        fig, axs = multi_plot_grid_rect(varsx=invars,
+                                        varsy=scalaroutvars,
                                         cases=cases, highlight_cases=highlight_cases,
                                         rug_plot=rug_plot,
                                         cov_plot=cov_plot, cov_p=cov_p,
