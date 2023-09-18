@@ -48,7 +48,7 @@ Enums
    :members:
    :undoc-members:
 
-SimFunctions
+Functions
 ============
 
 helper_functions
