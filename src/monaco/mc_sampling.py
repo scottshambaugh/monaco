@@ -113,7 +113,8 @@ def cached_pcts(ndraws     : int,
             # Suppress the power of 2 warning for sobol / halton sequences
             warnings.simplefilter("ignore", category=UserWarning)
             points = sampler.random(n=ndraws)
+    else:
+        points = sampler.random(n=ndraws)
 
     all_pcts = np.array(points)
-
     return all_pcts

@@ -25,6 +25,7 @@
 ### Added    
 ### Changed    
 * Documentation cleanup
+* Halton sequence seeded draws changed with scipy 1.11, see scipy issue #18079
 ### Removed    
 
 
