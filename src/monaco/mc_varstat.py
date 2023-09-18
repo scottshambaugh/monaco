@@ -68,38 +68,43 @@ class VarStat:
     These are the valid stats with their statkwargs
 
     max()
-        No kwargs
+        'max', no kwargs
     min()
-        No kwargs
+        'min', no kwargs
     median()
-        No kwargs
+        'median', no kwargs
     mean()
-        No kwargs
+        'mean', no kwargs
     geomean()
-        No kwargs
+        'geomean', no kwargs
     mode()
-        No kwargs
+        'mode', no kwargs
     variance()
-        No kwargs
+        'variance', no kwargs
     skewness()
-        No kwargs
+        'skewness', no kwargs
     kurtosis()
-        No kwargs
+        'kurtosis', no kwargs
     moment(n : int)
+        'moment'
         `n` is the n'th moment, `n > 0`.
     percentile(p : float)
+        'percentile'
         `p` is the percentile, `0 < p < 1`.
     sigma(sig : float, bound : monaco.mc_enums.StatBound)
+        'sigma'
         `sig` is the gaussian sigma value, `-inf < sig < inf`.
 
         `bound` is the statistical bound, ether `'1-sided'` or `'2-sided'`.
         Default is `'2-sided'`.
     gaussianP(p : float, bound : monaco.mc_enums.StatBound)
+        'gaussianP'
         `p` is the percentile, `0 < p < 1`.
 
         `bound` is the statistical bound, ether `'1-sided'` or `'2-sided'`.
         Default is `'2-sided'`.
     orderstatTI(p : float, c : float, bound : monaco.mc_enums.StatBound)
+        'orderstatTI'
         `p` is the percentage, `0 < p < 1`
 
         `c` is the confidence, `0 < c < 1`. Default is `0.95`.
@@ -107,6 +112,7 @@ class VarStat:
         `bound` is the statistical bound, ether `'1-sided'`, `'2-sided'`, or
         `'all'`. Default is `'2-sided'`.
     orderstatP(p : float, c : float, bound : monaco.mc_enums.StatBound)
+        'orderstatP'
         `p` is the percentage, `0 < p < 1`
 
         `c` is the confidence, `0 < c < 1`. Default is `0.95`.
@@ -117,7 +123,7 @@ class VarStat:
     """
     def __init__(self,
                  var         : Var,
-                 stat        : VarStatType | Callable,
+                 stat        : str | VarStatType | Callable,
                  statkwargs  : dict[str, Any] = None,
                  bootstrap   : bool = True,
                  bootstrap_k : int = 10,
@@ -127,6 +133,8 @@ class VarStat:
                  ):
 
         self.var = var
+        if isinstance(stat, str):
+            stat = stat.lower()
         self.stat = stat
         if statkwargs is None:
             statkwargs = dict()

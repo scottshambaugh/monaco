@@ -24,6 +24,7 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+* Documentation cleanup
 ### Removed    
 
 

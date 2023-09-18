@@ -26,7 +26,7 @@ class Var(ABC):
     Parameters
     ----------
     name : str
-        The name of this value.
+        The name of this variable.
     ndraws : int
         The number of random draws.
     seed : int
@@ -36,6 +36,42 @@ class Var(ABC):
     datasource : str
         If the vals were imported from a file, this is the filepath. If
         generated through monaco, then None.
+
+    Attributes
+    ----------
+    name : str
+        The name of this variable.
+    ndraws : int
+        The number of random draws.
+    seed : int
+        The random seed to use for bootstrapping.
+    firstcaseismedian : bool
+        Whether the first case represents the median case.
+    datasource : str
+        If the vals were imported from a file, this is the filepath. If
+        generated through monaco, then None.
+    ncases : int
+        The number of cases, which is `ndraws + 1` if `firstcaseismedian` and
+        `ndraws` otherwise.
+    vals : list[Any]
+        The values corresponding to the randomly drawn numbers. If valmap is
+        None, then `vals == nums.tolist()`.
+    valmap : dict[Any, float]
+        A dictionary mapping nonnumeric values to numbers (the inverse of
+        `nummap`).
+    nums : list[np.ndarray]
+        The randomly drawn numbers obtained by feeding `pcts` into `dist`.
+    nummap : dict[float, Any]
+        A dictionary mapping numbers to nonnumeric values (the inverse of
+        `valmap`).
+    pcts : list[float]
+        The randomly drawn percentiles.
+    maxdim : int
+        The maximum dimension of the values.
+    isscalar : bool
+        Whether this is a scalar variable.
+    varstats : list[moncao.mc_varstat.VarStat]
+        A list of all the variable statistics for this variable.
     """
     def __init__(self,
                  name              : str,

@@ -69,9 +69,9 @@ class VarStatType(str, Enum):
     MOMENT      = 'moment'
     PERCENTILE  = 'percentile'
     SIGMA       = 'sigma'
-    GAUSSIANP   = 'gaussianP'
-    ORDERSTATTI = 'orderstatTI'
-    ORDERSTATP  = 'orderstatP'
+    GAUSSIANP   = 'gaussianp'
+    ORDERSTATTI = 'orderstatti'
+    ORDERSTATP  = 'orderstatp'
 
 
 class VarStatSide(str, Enum):
