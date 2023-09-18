@@ -247,7 +247,8 @@ def multi_plot_grid_tri(vars     : list[InVar | OutVar],
             elif j > i:
                 fig.delaxes(ax)
             else:
-                ax.get_shared_y_axes().join(*row_scatter_axs)  # Don't link the histogram y axis
+                # Don't link the histogram y axis
+                ax.get_shared_y_axes()._grouper.join(*row_scatter_axs)
                 plot_2d_scatter(vars[j], vars[i],
                                 cases=cases, highlight_cases=highlight_cases,
                                 rug_plot=rug_plot, cov_plot=cov_plot, cov_p=cov_p,
@@ -347,7 +348,8 @@ def multi_plot_grid_rect(varsx     : InVar | OutVar | list[InVar | OutVar],
                           ax=ax, title='', plotkwargs=plotkwargs)
                 ax.set_xticklabels([])
             else:
-                ax.get_shared_y_axes().join(*row_scatter_axs)  # Don't link the histogram y axis
+                # Don't link the histogram y axis
+                ax.get_shared_y_axes()._grouper.join(*row_scatter_axs)
                 plot_2d_scatter(varsx[j-1], varsy[i],
                                 cases=cases, highlight_cases=highlight_cases,
                                 rug_plot=rug_plot, cov_plot=cov_plot, cov_p=cov_p,

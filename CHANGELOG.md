@@ -26,6 +26,7 @@
 ### Changed    
 * Documentation cleanup
 * Halton sequence seeded draws changed with scipy 1.11, see scipy issue #18079
+* Minimum python version increase from 3.8 to 3.9
 ### Removed    
 
 
