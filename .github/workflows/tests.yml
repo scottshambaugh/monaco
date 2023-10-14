@@ -14,8 +14,8 @@ jobs:
     strategy:
       matrix:
         os: [Ubuntu, MacOS, Windows]
-        python-version: ['3.9', '3.10', '3.11']
-    continue-on-error: ${{ matrix.python-version == '' }}
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+    continue-on-error: ${{ matrix.python-version == '3.12' }}
     defaults:
       run:
         shell: bash
@@ -48,7 +48,9 @@ jobs:
 
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --extras "pandas" --no-root
+        run: |
+          poetry config installer.max-workers 1
+          poetry install --extras "pandas" --no-root
 
       - name: Install library
         run: poetry install --extras "pandas"
