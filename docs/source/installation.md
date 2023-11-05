@@ -12,19 +12,7 @@ pip install monaco
 git clone https://github.com/scottshambaugh/monaco.git
 cd monaco
 pip install poetry
-poetry install --extras "pandas" "numba"
-```
-
-## Installing Local Editable
-
-Shouldn't need this before too long, see discussions
-[here](https://github.com/python-poetry/poetry-core/pull/182) and
-[here](https://github.com/python-poetry/poetry/discussions/1135).
-
-```
-poetry build --format sdist
-tar -xvf dist/*-`poetry version -s`.tar.gz --wildcards -O '*/setup.py' > setup.py
-pip install -e .
+poetry install --extras "pandas numba"
 ```
 
 ## Running Tests and Type Checking
