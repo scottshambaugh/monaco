@@ -23,12 +23,18 @@
 
 ## [Unreleased]
 ### Added    
-* Initial Python 3.12 support
+### Changed    
+### Removed    
+
+
+## [0.11.0] - 2023-11-05
+### Added    
+* Python 3.12 support
 ### Changed    
 * Documentation cleanup
 * Halton sequence seeded draws changed with scipy 1.11, see scipy issue #18079
-* Minimum python version increase from 3.8 to 3.9
 ### Removed    
+* Python 3.8 support
 
 
 ## [0.10.0] - 2023-04-23
