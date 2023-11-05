@@ -61,7 +61,7 @@ class Case():
                  ncase            : int,
                  ismedian         : bool,
                  invars           : dict[str, InVar],
-                 constvals        : dict[str, Any] = None,
+                 constvals        : dict[str, Any] | None = None,
                  keepsiminput     : bool = True,
                  keepsimrawoutput : bool = True,
                  seed             : int = np.random.get_state(legacy=False)['state']['key'][0],
@@ -78,12 +78,12 @@ class Case():
         self.keepsimrawoutput = keepsimrawoutput
         self.seed = seed
 
-        self.starttime : datetime = None
-        self.endtime   : datetime = None
-        self.runtime   : timedelta = None
+        self.starttime : datetime | None = None
+        self.endtime   : datetime | None = None
+        self.runtime   : timedelta | None = None
 
-        self.filepath : Path = None
-        self.runsimid : int = None
+        self.filepath : Path | None = None
+        self.runsimid : int | None = None
         self.haspreprocessed  : bool = False
         self.hasrun           : bool = False
         self.haspostprocessed : bool = False
@@ -91,8 +91,8 @@ class Case():
         self.invals  : dict[str, InVal]  = self.getInVals()
         self.outvals : dict[str, OutVal] = dict()
 
-        self.siminput     : tuple[Any] = None
-        self.simrawoutput : tuple[Any] = None
+        self.siminput     : tuple[Any] | None = None
+        self.simrawoutput : tuple[Any] | None = None
 
 
     def __repr__(self):
@@ -136,7 +136,7 @@ class Case():
                   name   : str,
                   val    : Any,
                   split  : bool = True,
-                  valmap : dict[Any, float] = None
+                  valmap : dict[Any, float] | None = None
                   ) -> None:
         """
         Generate an OutVal and add it to the dict of outvals.

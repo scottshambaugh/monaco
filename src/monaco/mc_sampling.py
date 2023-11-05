@@ -11,8 +11,8 @@ from monaco.mc_enums import SampleMethod
 
 def sampling(ndraws     : int,
              method     : SampleMethod = SampleMethod.SOBOL_RANDOM,
-             ninvar     : int          = None,
-             ninvar_max : int          = None,
+             ninvar     : int | None   = None,
+             ninvar_max : int | None   = None,
              seed       : int          = np.random.get_state(legacy=False)['state']['key'][0],
              ) -> np.ndarray:
     """

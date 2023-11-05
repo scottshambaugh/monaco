@@ -588,13 +588,13 @@ def get_iP(n : int,
 
 
 
-def order_stat_var_check(n    : int   = None,
-                         l    : int   = None,
-                         u    : int   = None,
-                         p    : float = None,
-                         k    : int   = None,
-                         c    : float = None,
-                         nmax : int   = None
+def order_stat_var_check(n    : int | None   = None,
+                         l    : int | None   = None,
+                         u    : int | None   = None,
+                         p    : float | None = None,
+                         k    : int | None   = None,
+                         c    : float | None = None,
+                         nmax : int | None   = None
                          ) -> None:
     """
     Check the validity of the inputs to the order statistic functions.

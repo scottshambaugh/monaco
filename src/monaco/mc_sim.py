@@ -136,7 +136,7 @@ class Sim:
                  keepsimrawoutput  : bool = True,
                  savesimdata       : bool = False,
                  savecasedata      : bool = False,
-                 resultsdir        : str | pathlib.Path = None,
+                 resultsdir        : str | pathlib.Path | None = None,
                  ) -> None:
 
         self.checkFcnsInput(fcns)
@@ -171,9 +171,9 @@ class Sim:
         self.caseseeds   : list[int] = []
 
         self.inittime  : datetime = datetime.now()
-        self.starttime : datetime = None
-        self.endtime   : datetime = None
-        self.runtime   : timedelta = None
+        self.starttime : datetime | None = None
+        self.endtime   : datetime | None = None
+        self.runtime   : timedelta | None = None
 
         self.casespreprocessed  : set[int] = set()
         self.casesrun           : set[int] = set()
@@ -187,11 +187,11 @@ class Sim:
         self.ninvars  : int = 0
         self.noutvars : int = 0
 
-        self.corrcoeffs : np.ndarray = None
-        self.covs       : np.ndarray = None
-        self.covvarlist : list[str] = None
+        self.corrcoeffs : np.ndarray | None = None
+        self.covs       : np.ndarray | None = None
+        self.covvarlist : list[str] | None = None
 
-        self.runsimid : int = None
+        self.runsimid : int | None = None
 
         self.ncases : int = ndraws + 1
         self.setFirstCaseMedian(firstcaseismedian)
@@ -1288,7 +1288,7 @@ class Sim:
 
     def importInVars(self,
                      filepath : str | pathlib.Path,
-                     nummap   : dict[Any, float] = None,
+                     nummap   : dict[Any, float] | None = None,
                      ) -> None:
         """
         Import draws from an external file as InVals.
@@ -1320,7 +1320,7 @@ class Sim:
 
     def importOutVars(self,
                       filepath : str | pathlib.Path,
-                      valmap   : dict[Any, float] = None,
+                      valmap   : dict[Any, float] | None = None,
                       ) -> None:
         """
         Import results from an external file as OutVals, convert to OutVars.

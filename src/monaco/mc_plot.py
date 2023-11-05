@@ -1061,9 +1061,9 @@ def manage_axis(ax   : Optional[Axes],
 
 
 def apply_category_labels(ax   : Axes,
-                          varx : InVar | OutVar = None,
-                          vary : InVar | OutVar = None,
-                          varz : InVar | OutVar = None,
+                          varx : InVar | OutVar | None = None,
+                          vary : InVar | OutVar | None = None,
+                          varz : InVar | OutVar | None = None,
                           ) -> None:
     """
     For nonnumeric Monte Carlo variables, use the `nummap` to label the axes.

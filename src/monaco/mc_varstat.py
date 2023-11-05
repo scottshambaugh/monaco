@@ -124,12 +124,12 @@ class VarStat:
     def __init__(self,
                  var         : Var,
                  stat        : str | VarStatType | Callable,
-                 statkwargs  : dict[str, Any] = None,
+                 statkwargs  : dict[str, Any] | None = None,
                  bootstrap   : bool = True,
                  bootstrap_k : int = 10,
                  conf        : float = 0.95,
                  seed        : int = np.random.get_state(legacy=False)['state']['key'][0],
-                 name        : str = None,
+                 name        : str | None = None,
                  ):
 
         self.var = var
@@ -149,11 +149,11 @@ class VarStat:
             raise ValueError(f'bootstrap_k = {bootstrap_k} must be >= 1')
         self.bootstrap_k = bootstrap_k
         self.conf = conf
-        self.confidence_interval_low_nums : np.ndarray = None
-        self.confidence_interval_high_nums : np.ndarray = None
+        self.confidence_interval_low_nums : list | np.ndarray = None
+        self.confidence_interval_high_nums : list | np.ndarray = None
         self.confidence_interval_low_vals : list[Any] | np.ndarray = []
         self.confidence_interval_high_vals : list[Any] | np.ndarray = []
-        self.bootstrap_n = None
+        self.bootstrap_n : int | None = None
         self.seed = seed
 
         if isinstance(stat, Callable):
@@ -270,7 +270,7 @@ class VarStat:
     def sigma(self,
               x,  # TODO: explicit typing here
               sig  : float,
-              axis : int = None,
+              axis : int | None = None,
               ) -> float:
         """
         Calculate the sigma value of a normally distributed list of numbers.
@@ -290,7 +290,7 @@ class VarStat:
 
     def statsFunctionWrapper(self,
                              x : Any,
-                             axis : int = None,  # Needed for bootstrap vectorization
+                             axis : int | None = None,  # Needed for bootstrap vectorization
                              ) -> Any:
         """
         A wrapper function to allow using a bootstrap function that uses kwargs.

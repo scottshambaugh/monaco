@@ -85,7 +85,7 @@ class InVal(Val):
                  pct      : float,
                  num      : float,
                  dist     : rv_discrete | rv_continuous,
-                 nummap   : dict[float, Any] = None,
+                 nummap   : dict[float, Any] | None = None,
                  ismedian : bool = False,
                  ):
 
@@ -164,7 +164,7 @@ class OutVal(Val):
                  name     : str,
                  ncase    : int,
                  val      : Any,
-                 valmap   : dict[Any, float] = None,
+                 valmap   : dict[Any, float] | None = None,
                  ismedian : bool = False,
                  ):
         super().__init__(name=name, ncase=ncase, ismedian=ismedian)

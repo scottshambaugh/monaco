@@ -132,12 +132,12 @@ class Var(ABC):
 
     def addVarStat(self,
                    stat        : VarStatType | Callable,
-                   statkwargs  : dict[str, Any] = None,
+                   statkwargs  : dict[str, Any] | None = None,
                    bootstrap   : bool = False,
                    bootstrap_k : int = 10,
                    conf        : float = 0.95,
-                   seed        : int = None,
-                   name        : str = None,
+                   seed        : int | None = None,
+                   name        : str | None = None,
                    ) -> None:
         """
         Add a variable statistic to this variable.
@@ -172,8 +172,8 @@ class Var(ABC):
 
 
     def plot(self,
-             vary   : InVar | OutVar = None,
-             varz   : InVar | OutVar = None,
+             vary   : InVar | OutVar | None = None,
+             varz   : InVar | OutVar | None = None,
              cases           : None | int | Iterable[int] = None,
              highlight_cases : None | int | Iterable[int] = empty_list(),
              rug_plot    : bool           = False,

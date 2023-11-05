@@ -104,7 +104,7 @@ def is_num(val : Any) -> bool:
             return True
 
 
-def length(x : Any) -> int:
+def length(x : Any) -> int | None:
     """
     Genericized length function that works on scalars (which have length 1).
 
@@ -116,7 +116,7 @@ def length(x : Any) -> int:
     Returns
     -------
     x_len : int
-        The length of the input.
+        The length of the input. If not a sequence or scalar, returns None.
     """
     if isinstance(x, Sized):
         return len(x)
