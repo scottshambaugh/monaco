@@ -62,7 +62,13 @@ jobs:
         run: |
           poetry run coverage run --source=monaco -m pytest
           poetry run coverage report -m
+          poetry run coverage xml
           poetry run coverage html
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Archive code coverage results
         uses: actions/upload-artifact@v3
