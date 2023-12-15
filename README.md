@@ -5,8 +5,8 @@
 ![Release](https://img.shields.io/github/v/release/scottshambaugh/monaco?sort=semver)
 ![Builds](https://github.com/scottshambaugh/monaco/actions/workflows/builds.yml/badge.svg)
 ![Tests](https://github.com/scottshambaugh/monaco/actions/workflows/tests.yml/badge.svg)
-[![codecov](https://codecov.io/gh/scottshambaugh/monaco/graph/badge.svg?token=FAL47REO7V)](https://codecov.io/gh/scottshambaugh/monaco)
 [![Docs](https://readthedocs.org/projects/monaco/badge/?version=latest)](https://monaco.readthedocs.io/en/latest/?badge=latest)
+[![codecov](https://codecov.io/gh/scottshambaugh/monaco/graph/badge.svg?token=FAL47REO7V)](https://codecov.io/gh/scottshambaugh/monaco)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/monaco)
 
 Quantify uncertainty and sensitivities in your computer models with an industry-grade Monte Carlo library.
