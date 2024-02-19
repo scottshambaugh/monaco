@@ -30,6 +30,7 @@
 ## [0.11.2] - 2024-02-19
 ### Changed    
 * Automated github publishing to PyPI
+* Update github action runners
 
 
 ## [0.11.1] - 2024-02-19
