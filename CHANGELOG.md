@@ -30,6 +30,7 @@
 ## [0.11.1] - 2024-02-19
 ### Changed    
 * Fix underflow issue in dvars
+* Automated github publishing to PyPI
 
 
 ## [0.11.0] - 2023-11-05
