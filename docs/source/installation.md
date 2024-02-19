@@ -60,7 +60,5 @@ poetry run make clean && poetry run make html
     ```
     **Changelog**: https://github.com/scottshambaugh/monaco/blob/main/CHANGELOG.md    
     **Full Diff**: https://github.com/scottshambaugh/monaco/compare/v0.x.x...v0.x.x
-    ```
-11) Build wheels: `poetry build`
-12) Publish to PyPi: `poetry publish`
-13) Wait 10 minutes to check that [the package](https://pypi.org/project/monaco/) has updated
+    ``` 
+    This will automatically publish the release to [PyPI](https://pypi.org/project/monaco/).

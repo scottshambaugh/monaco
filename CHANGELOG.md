@@ -27,6 +27,10 @@
 ### Removed    
 
 
+## [0.11.6] - 2024-02-19
+### Changed    
+* Fix broken docs build
+
 ## [0.11.2] - [0.11.5] - 2024-02-19
 ### Changed    
 * Automated github publishing to PyPI
