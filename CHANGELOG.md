@@ -27,6 +27,11 @@
 ### Removed    
 
 
+## [0.11.1] - 2024-02-19
+### Changed    
+* Fix underflow issue in dvars
+
+
 ## [0.11.0] - 2023-11-05
 ### Added    
 * Python 3.12 support
