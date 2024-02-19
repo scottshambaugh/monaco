@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 import numpy as np
 from monaco.helper_functions import vprint
 from scipy.optimize import minimize
+from scipy.linalg import det
 from warnings import warn
 
 # numba is recommended for speed, as this will be very slow otherwise
@@ -269,7 +270,7 @@ def calc_L(phi : np.ndarray,
     M = np.ones((m, 1))
     R = calc_R(phi, X)
     Rinv = np.linalg.inv(R)
-    Rdet = max(scipy.linalg.det(R), 1e-12)  # Protect for poor conditioning
+    Rdet = max(det(R), 1e-12)  # Protect for poor conditioning
 
     mu = np.linalg.inv(M.T @ Rinv @ M) @ (M.T @ Rinv @ Y)
 
