@@ -73,5 +73,5 @@ jobs:
       - name: Archive code coverage results
         uses: actions/upload-artifact@v4
         with:
-          name: code-coverage-report
+          name: code-coverage-report-${{ runner.os }}-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
           path: htmlcov
