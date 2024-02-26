@@ -249,6 +249,12 @@ def plot_hist(var         : InVar | OutVar,
     counts, bins = np.histogram(nums, bins=bins)
 
     if isinstance(var, monaco.mc_var.InVar):
+        # Loaded from file
+        if var.dist is None:
+            plt.hist(bins[:-1], bins=bins, weights=counts/sum(counts), density=True,
+                     cumulative=cumulative, orientation=orientation, histtype='bar',
+                     facecolor='k', alpha=0.5, **plotkwargs)
+
         # Continuous distribution
         if isinstance(var.dist, rv_continuous):
             plt.hist(bins[:-1], bins=bins, weights=counts/sum(counts), density=True,
