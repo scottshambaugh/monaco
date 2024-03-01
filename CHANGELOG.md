@@ -17,6 +17,8 @@
 - Demo running on remote server (AWS, etc)
 - Variogram Sensitivity Analysis
 - repr's for all main objects
+- Flag on invals to tell if they were loaded from file
+- Specify distribution when loading invars from file, to get pcts
 ### Known Bugs:
 - Cannot plot a varstat in percentile space
 ----
@@ -24,6 +26,7 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+* Fix cases not being populated with invars and invals when loading from file
 ### Removed    
 
 

@@ -1313,6 +1313,10 @@ class Sim:
             self.invars[valname].pcts = pcts
             self.invars[valname].mapNums()
 
+            for case in self.cases:
+                case.invars[valname] = self.invars[valname]
+                case.invals[valname] = self.invars[valname].getVal(case.ncase)
+
 
         vprint(self.verbose, f"InVals loaded from '{filepath.name}' and converted to variables",
                flush=True)
