@@ -5,6 +5,7 @@ import cloudpickle
 import os
 import warnings
 import hashlib
+import numpy as np
 from monaco.mc_sim import Sim
 from monaco.mc_enums import SimFunctions
 from scipy.stats import norm, randint
@@ -34,7 +35,8 @@ def sim(tmp_path):
               firstcaseismedian=False, seed=seed, singlethreaded=True,
               savecasedata=True, savesimdata=True,
               verbose=True, resultsdir=tmp_path)
-    sim.addInVar(name='Var1', dist=randint, distkwargs={'low': 1, 'high': 6})
+    var1_nummap = {1.0: 'a', 2.0: 'b', 3.0: 'c', 4.0: 'd', 5.0: 'e'}
+    sim.addInVar(name='Var1', dist=randint, distkwargs={'low': 1, 'high': 6}, nummap=var1_nummap)
     sim.addInVar(name='Var2', dist=norm, distkwargs={'loc': 10, 'scale': 4})
     sim.runSim()
     return sim
@@ -145,14 +147,23 @@ def test_sim_export_outvars(sim, filename, expected_hash):
 @pytest.mark.parametrize("filename", ['invars.csv', 'invars.json'])
 def test_sim_import_invars(sim, filename):
     filepath = sim.resultsdir / filename
-    var1_nums = sim.invars['Var1'].nums
-    var2_nums = sim.invars['Var2'].nums
+    var1 = sim.invars['Var1']
+    var2 = sim.invars['Var2']
+    dists = [var1.dist, var2.dist]
+    distskwargs = [var1.distkwargs, var2.distkwargs]
+    nummaps = [var1.nummap, None]
 
     sim.exportInVars(filename)
     sim.reset()
-    sim.importInVars(filepath)
-    assert sim.invars['Var1'].nums == var1_nums
-    assert sim.invars['Var2'].nums == var2_nums
+    sim.importInVars(filepath, dists=dists, distskwargs=distskwargs, nummaps=nummaps)
+    assert sim.invars['Var1'].nums == var1.nums
+    assert sim.invars['Var2'].nums == var2.nums
+    assert sim.invars['Var1'].vals == var1.vals
+    assert sim.invars['Var2'].vals == var2.vals
+    # The pcts for the imported Var1 will be different from the original because
+    # the distribution is discrete
+    assert np.allclose(sim.invars['Var1'].pcts, np.ceil(5*np.array(var1.pcts))/5)
+    assert np.allclose(sim.invars['Var2'].pcts, var2.pcts)
     assert sim.invars['Var1'].datasource == str(filepath.resolve())
 
     sim.runSim()

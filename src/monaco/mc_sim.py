@@ -1287,26 +1287,66 @@ class Sim:
 
 
     def importInVars(self,
-                     filepath : str | pathlib.Path,
-                     nummap   : dict[Any, float] | None = None,
+                     filepath     : str | pathlib.Path,
+                     dists        : Optional[list[rv_discrete | rv_continuous]] = None,
+                     distskwargs  : Optional[list[dict[str, Any]]] = None,
+                     nummaps      : Optional[list[dict[Any, float]]] = None,
                      ) -> None:
         """
-        Import draws from an external file as InVals.
+        Import draws from an external file as InVals. For each of the keyword
+        arguments, they must be the same length as the number of invars.
 
         Parameters
         ----------
         filepath : str | pathlib.Path
             The file to load from. Must be a csv or json.
-        nummap : dict[Any, float], default: None
-            A nummap dict mapping numbers to nonnumeric values.
+        dists : list[rv_discrete | rv_continuous], default: None
+            A list of the distribution that was used for the draws. Needed if
+            it is desired to plot the analytical distribution or run a DVARS
+            sensitivity analysis.
+        distskwargs : list[dict[str, Any]], default: None
+            A list of the distribution kwargs that were used for the draws.
+            Needed if it is desired to plot the analytical distribution or run
+            a DVARS sensitivity analysis.
+        nummaps : list[dict[Any, float]], default: None
+            A list of nummap dicts mapping numbers to nonnumeric values.
         """
         vprint(self.verbose, 'Importing InVals from file...', flush=True)
 
         data, filepath = self.importVars(filepath)
 
-        pcts = [None for _ in range(self.ncases)]
-        for valname, nums in data.items():
-            self.addInVar(name=valname, dist=None, distkwargs=dict(), nummap=nummap,
+        if dists is not None and distskwargs is not None:
+            dists = get_list(dists)
+            distskwargs = get_list(distskwargs)
+            if len(dists) != len(data):
+                raise ValueError(f'Length of dists ({len(dists)}) ',
+                                 f'must match the number of invars ({len(data)}).')
+            if len(distskwargs) != len(data):
+                raise ValueError(f'Length of distskwargs ({len(distskwargs)}) ',
+                                 f'must match the number of invars ({len(data)}).')
+        else:
+            dists = [None for _ in range(len(data))]
+            distskwargs = [None for _ in range(len(data))]
+
+        if nummaps is not None:
+            nummaps = get_list(nummaps)
+            if len(nummaps) != len(data):
+                raise ValueError(f'Length of nummaps ({len(nummaps)}) ',
+                                 f'must match the number of invars ({len(data)}).')
+        else:
+            nummaps = [None for _ in range(len(data))]
+
+        for i, (valname, nums) in enumerate(data.items()):
+
+            if dists[i] is None or distskwargs[i] is None:
+                pcts = [None for _ in range(self.ncases)]
+                if distskwargs[i] is None:
+                    distskwargs[i] = dict()
+            else:
+                dist = dists[i](**distskwargs[i])
+                pcts = np.array(dist.cdf(nums))
+
+            self.addInVar(name=valname, dist=dists[i], distkwargs=distskwargs[i], nummap=nummaps[i],
                           seed=None, datasource=str(filepath.resolve()))
             nums = [np.array(num) for num in nums]
             self.invars[valname].nums = nums
