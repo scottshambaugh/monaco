@@ -1138,7 +1138,7 @@ class Sim:
         Parameters
         ----------
         vars : dict[str, InVar | OutVar]
-            The vars to save to file.
+            The vars to save to file. Will export the nums, not the vals.
         filename : Optional[str | pathlib.Path]
             The file to save to. Must be a csv or json.
             If a str, then will save in the resultsdir.
@@ -1364,7 +1364,7 @@ class Sim:
 
     def importOutVars(self,
                       filepath : str | pathlib.Path,
-                      valmap   : dict[Any, float] | None = None,
+                      nummaps  : Optional[list[dict[float, Any]]] = None,
                       ) -> None:
         """
         Import results from an external file as OutVals, convert to OutVars.
@@ -1373,16 +1373,36 @@ class Sim:
         ----------
         filepath : str | pathlib.Path
             The file to load from. Must be a csv or json.
-        valmap : dict[Any, float], default: None
-            A valmap dict mapping nonnumeric values to numbers.
+        nummaps : list[dict[float, Any]], default: None
+            A list of nummap dicts mapping numbers to nonnumeric values. Note
+            that this is reversed from providing valmaps to OutVals.
         """
         vprint(self.verbose, 'Importing OutVals from file...', flush=True)
 
         data, filepath = self.importVars(filepath)
 
-        for case in self.cases:
-            for valname, vals in data.items():
-                case.addOutVal(valname, vals[case.ncase], valmap=valmap)
+        if nummaps is not None:
+            nummaps = get_list(nummaps)
+            if len(nummaps) != len(data):
+                raise ValueError(f'Length of nummaps ({len(nummaps)}) ',
+                                 f'must match the number of outvars ({len(data)}).')
+            valmaps = []
+            for nummap in nummaps:
+                if nummap is not None:
+                    valmaps.append({val: num for num, val in nummap.items()})
+                else:
+                    valmaps.append(None)
+        else:
+            nummaps = [None for _ in range(len(data))]
+            valmaps = [None for _ in range(len(data))]
+
+        for i, (valname, nums) in enumerate(data.items()):
+            if nummaps[i] is None:
+                vals = nums
+            else:
+                vals = [nummaps[i][num] for num in nums]
+            for case in self.cases:
+                case.addOutVal(valname, vals[case.ncase], valmap=valmaps[i])
 
         self.genOutVars(datasource=str(filepath.resolve()))
 

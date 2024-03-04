@@ -173,15 +173,18 @@ def test_sim_import_invars(sim, filename):
 @pytest.mark.parametrize("filename", ['invars.csv', 'invars.json'])
 def test_sim_import_outvars(sim, filename):
     filepath = sim.resultsdir / filename
-    var1_nums = sim.invars['Var1'].nums
-    var2_nums = sim.invars['Var2'].nums
+    var1 = sim.invars['Var1']
+    var2 = sim.invars['Var2']
+    nummaps = [var1.nummap, None]
 
     sim.exportInVars(filename)
     with pytest.raises(ValueError):
         sim.importOutVars(filepath)
 
     sim.reset()
-    sim.importOutVars(filepath)
-    assert sim.outvars['Var1'].nums == var1_nums
-    assert sim.outvars['Var2'].nums == var2_nums
+    sim.importOutVars(filepath, nummaps=nummaps)
+    assert sim.outvars['Var1'].nums == var1.nums
+    assert sim.outvars['Var2'].nums == var2.nums
+    assert sim.outvars['Var1'].vals == var1.vals
+    assert sim.outvars['Var2'].vals == var2.vals
     assert sim.outvars['Var1'].datasource == str(filepath.resolve())
