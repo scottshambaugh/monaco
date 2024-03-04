@@ -1144,7 +1144,7 @@ class Sim:
 
         The format for json will be:
 
-        .. code-block:: json
+        .. code-block:: text
 
             {
                 "vars[0].name": [vars[0].nums],
@@ -1269,7 +1269,7 @@ class Sim:
 
         The format for json must be:
 
-        .. code-block:: json
+        .. code-block:: text
 
             {
                 "vars[0].name": [vars[0].nums],
