@@ -1136,15 +1136,21 @@ class Sim:
         Export the nums for the selected to file for use externally.
 
         The format for csv will be:
-        "vars[0].name", "vars[1].name", "vars[2].name", ...
-        vars[0].nums[0], vars[1].nums[0], vars[2].nums[0], ...
-    
+
+        .. code-block:: text
+
+            "vars[0].name", "vars[1].name", "vars[2].name", ...
+            vars[0].nums[0], vars[1].nums[0], vars[2].nums[0], ...
+
         The format for json will be:
-        {
-        "vars[0].name": [vars[0].nums],
-        "vars[1].name": [vars[1].nums],
-        ...
-        }
+
+        .. code-block:: json
+
+            {
+                "vars[0].name": [vars[0].nums],
+                "vars[1].name": [vars[1].nums],
+                ...
+            }
 
         Parameters
         ----------
@@ -1205,7 +1211,7 @@ class Sim:
                      ) -> None:
         """
         Export the drawn nums for all the invars to file for use externally.
-        See `Sim.exportVars` docstring for csv and json formatting.
+        See `monaco.Sim.exportVars` docstring for csv and json formatting.
 
         Parameters
         ----------
@@ -1229,7 +1235,7 @@ class Sim:
                       ) -> None:
         """
         Export the nums for all the outvars to file for use externally.
-        See `Sim.exportVars` docstring for csv and json formatting.
+        See `monaco.Sim.exportVars` docstring for csv and json formatting.
 
         Parameters
         ----------
@@ -1255,15 +1261,21 @@ class Sim:
         Import values from an external file.
 
         The format for csv must be:
-        "vars[0].name", "vars[1].name", "vars[2].name", ...
-        vars[0].nums[0], vars[1].nums[0], vars[2].nums[0], ...
-    
+
+        .. code-block:: text
+
+            "vars[0].name", "vars[1].name", "vars[2].name", ...
+            vars[0].nums[0], vars[1].nums[0], vars[2].nums[0], ...
+
         The format for json must be:
-        {
-        "vars[0].name": [vars[0].nums],
-        "vars[1].name": [vars[1].nums],
-        ...
-        }
+
+        .. code-block:: json
+
+            {
+                "vars[0].name": [vars[0].nums],
+                "vars[1].name": [vars[1].nums],
+                ...
+            }
 
         Parameters
         ----------
@@ -1319,7 +1331,7 @@ class Sim:
         """
         Import draws from an external file as InVals. For each of the keyword
         arguments, they must be the same length as the number of invars.
-        See `Sim.importVars` docstring for csv and json formatting.
+        See `monaco.Sim.importVars` docstring for csv and json formatting.
 
         Parameters
         ----------
@@ -1328,11 +1340,11 @@ class Sim:
         dists : list[rv_discrete | rv_continuous], default: None
             A list of the distribution that was used for the draws. Needed if
             it is desired to plot the analytical distribution or run a DVARS
-            sensitivity analysis.
+            sensitivity analysis. Note that for discrete distributions, the
+            calcuated percentiles will not likely match the original draws.
         distskwargs : list[dict[str, Any]], default: None
             A list of the distribution kwargs that were used for the draws.
-            Needed if it is desired to plot the analytical distribution or run
-            a DVARS sensitivity analysis.
+            Must be matched with `dists` above.
         nummaps : list[dict[Any, float]], default: None
             A list of nummap dicts mapping numbers to nonnumeric values.
         """
@@ -1393,7 +1405,7 @@ class Sim:
                       ) -> None:
         """
         Import results from an external file as OutVals, convert to OutVars.
-        See `Sim.importVars` docstring for csv and json formatting.
+        See `monaco.Sim.importVars` docstring for csv and json formatting.
 
         Parameters
         ----------
