@@ -31,9 +31,8 @@
 ### Added    
 * Allow specifying `dists` and `distkwargs` for invars loaded from file
 ### Changed    
-* Fix cases not being populated with invars and invals when loading from file
+* Fix cases not being populated with invars and invals when loading from file GH#9
 * Fix nummaps not being per-variable when loading outvars from file
-### Removed    
 
 ## [0.11.7] - 2024-02-19
 ### Changed    
