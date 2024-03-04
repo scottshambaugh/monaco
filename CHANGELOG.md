@@ -27,7 +27,7 @@
 ### Changed    
 ### Removed    
 
-## [0.12.0]
+## [0.12.0] - 2024-03-03
 ### Added    
 * Allow specifying `dists` and `distkwargs` for invars loaded from file
 ### Changed    
