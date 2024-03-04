@@ -18,7 +18,6 @@
 - Variogram Sensitivity Analysis
 - repr's for all main objects
 - Flag on invals to tell if they were loaded from file
-- Specify distribution when loading invars from file, to get pcts
 ### Known Bugs:
 - Cannot plot a varstat in percentile space
 ----
@@ -26,9 +25,15 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
-* Fix cases not being populated with invars and invals when loading from file
 ### Removed    
 
+## [0.12.0]
+### Added    
+* Allow specifying `dists` and `distkwargs` for invars loaded from file
+### Changed    
+* Fix cases not being populated with invars and invals when loading from file
+* Fix nummaps not being per-variable when loading outvars from file
+### Removed    
 
 ## [0.11.7] - 2024-02-19
 ### Changed    
