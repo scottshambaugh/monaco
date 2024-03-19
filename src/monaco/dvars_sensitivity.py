@@ -9,7 +9,6 @@ if TYPE_CHECKING:
 import numpy as np
 from monaco.helper_functions import vprint
 from scipy.optimize import minimize
-from scipy.linalg import det
 from warnings import warn
 
 # numba is recommended for speed, as this will be very slow otherwise
@@ -270,7 +269,7 @@ def calc_L(phi : np.ndarray,
     M = np.ones((m, 1))
     R = calc_R(phi, X)
     Rinv = np.linalg.inv(R)
-    Rdet = max(det(R), 1e-12)  # Protect for poor conditioning
+    Rdet = max(np.linalg.det(R), 1e-12)  # Protect for poor conditioning
 
     mu = np.linalg.inv(M.T @ Rinv @ M) @ (M.T @ Rinv @ Y)
 
@@ -301,7 +300,7 @@ def calc_R(phi : np.ndarray,
         The correlation matrix.
     """
     m = X.shape[0]
-    R = np.ones((m, m))
+    R = np.ones((m, m), dtype=np.float64)
     for u in range(1, m):
         # do lower triangle only and duplicate across diag
         # diag will be all 1s
