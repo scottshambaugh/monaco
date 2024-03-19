@@ -24,9 +24,12 @@
 
 ## [Unreleased]
 ### Added    
-* Numpy 2.0 compatibility
 ### Changed    
 ### Removed    
+
+## [0.12.1] - 2024-03-19
+### Added    
+* Numpy 2.0 compatibility
 
 ## [0.12.0] - 2024-03-03
 ### Added    
