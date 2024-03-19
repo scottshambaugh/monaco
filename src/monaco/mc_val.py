@@ -37,7 +37,7 @@ class Val(ABC):
 
         self.val      : Any
         self.valmap   : dict[Any, float]
-        self.num      : np.float_ | np.ndarray
+        self.num      : np.float64 | np.ndarray
         self.nummap   : dict[float, Any]
         self.isscalar : bool
         self.shape    : tuple[int, ...]
@@ -92,7 +92,7 @@ class InVal(Val):
         super().__init__(name=name, ncase=ncase, ismedian=ismedian)
         self.dist = dist
         self.pct = pct
-        self.num = np.float_(num)
+        self.num = np.float64(num)
         self.nummap = nummap
         self.isscalar = True
         self.shape = ()

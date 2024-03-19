@@ -17,7 +17,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.9.0,<3.13"
-numpy = "^1.26"
+numpy = ">=1.26"
 scipy = "^1.11"
 matplotlib = "^3.6"
 tqdm = "^4.0"
