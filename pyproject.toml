@@ -48,5 +48,5 @@ numba = ["numba"]
 docs = ["sphinx", "sphinx_rtd_theme", "myst-parser"]
 
 [build-system]
-requires = ["setuptools", "poetry-core", "numpy>=2.0.0rc1"]
 build-backend = "poetry.core.masonry.api"
+requires = ["setuptools", "poetry-core", "numpy>=2.0.0rc1"]
