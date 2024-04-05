@@ -24,7 +24,7 @@ tqdm = "^4.0"
 psutil = "^5.0"
 distributed = "^2022"
 cloudpickle = "^2.0"
-pillow = ">=9.3.0"
+pillow = ">=10.3.0"
 
 pandas = {version = "^1.5", optional = true}
 
