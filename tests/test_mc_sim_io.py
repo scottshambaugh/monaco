@@ -167,13 +167,13 @@ def test_sim_export_json(sim):
     filename = 'invars.json'
     sim.exportInVars(filename)
     invars = read_json(filename)
-    assert invars['Var1'] == expected_data['Var1']
-    assert invars['Var2'] == expected_data['Var2']
+    np.testing.assert_allclose(invars['Var1'], expected_data['Var1'])
+    np.testing.assert_allclose(invars['Var2'], expected_data['Var2'])
 
     filename = 'outvars.json'
     sim.exportOutVars(filename)
     outvars = read_json(filename)
-    assert outvars['casenum'] == expected_data['casenum']
+    np.testing.assert_allclose(outvars['casenum'], expected_data['casenum'])
 
 
 @pytest.mark.parametrize("filename", ['invars.csv', 'invars.json'])
