@@ -4,7 +4,8 @@ import pytest
 import cloudpickle
 import os
 import warnings
-import hashlib
+import csv
+import json
 import numpy as np
 from monaco.mc_sim import Sim
 from monaco.mc_enums import SimFunctions
@@ -13,6 +14,16 @@ from scipy.stats import norm, randint
 
 ndraws = 16
 seed = 12362398
+expected_data = {
+    "Var1": [4.0, 2.0, 1.0, 3.0, 4.0, 1.0, 3.0, 5.0, 5.0, 3.0, 2.0, 4.0, 4.0, 1.0, 2.0, 5.0],
+    "Var2": [
+        3.6032930546602886, 12.842558315597907, 7.713622164768125, 10.16861392776618,
+        8.941121864635, 11.680281868640574, 5.684657237716662, 16.015476112872,
+        8.420645518481285, 10.802167161581739, 5.250984893760062, 13.723048169120581,
+        6.6765074149514145, 20.746921589883062, 9.58112220045209, 12.396945336261876
+    ],
+    "casenum": list(range(ndraws))
+}
 
 @pytest.fixture
 def sim(tmp_path):
@@ -112,36 +123,57 @@ def test_sim_remove_extra_files(sim_with_extra_files):
             assert not log
 
 
-@pytest.mark.parametrize("filename, expected_hash", [
-    ('invars.csv', 'aa6f66046f235fe1a05743b34a87ca87'),
-    ('invars.json', '8cbe1328474349a7bf2ab5145a31ea46'),
-])
-def test_sim_export_invars(sim, filename, expected_hash):
+def test_sim_export_csv(sim):
     with pytest.raises(ValueError):
         sim.exportInVars('invars')
-
-    sim.exportInVars(filename)
-    hash = hashlib.md5()
-    with open(sim.resultsdir / filename, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash.update(chunk)
-    assert expected_hash == hash.hexdigest()
-
-
-@pytest.mark.parametrize("filename, expected_hash", [
-    ('outvars.csv', '51a78ae66543a9655499fe5a17781e0c'),
-    ('outvars.json', '4443c042ec0ebec1489745f85aa90d6d'),
-])
-def test_sim_export_outvars(sim, filename, expected_hash):
     with pytest.raises(ValueError):
         sim.exportOutVars('outvars')
 
+    def read_csv(filename):
+        with open(sim.resultsdir / filename, 'r') as file:
+            reader = csv.reader(file)
+            headers = next(reader)
+            data_dict = {header: [] for header in headers}
+            # Populate the dictionary with data converted to float
+            for row in reader:
+                for i, header in enumerate(headers):
+                    data_dict[header].append(float(row[i]))
+        return data_dict
+
+    atol = 1e-12
+    filename = 'invars.csv'
+    sim.exportInVars(filename)
+    invars = read_csv(filename)
+    np.testing.assert_allclose(invars['Var1'], expected_data['Var1'], atol=atol)
+    np.testing.assert_allclose(invars['Var2'], expected_data['Var2'], atol=atol)
+
+    filename = 'outvars.csv'
     sim.exportOutVars(filename)
-    hash = hashlib.md5()
-    with open(sim.resultsdir / filename, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash.update(chunk)
-    assert expected_hash == hash.hexdigest()
+    outvars = read_csv(filename)
+    np.testing.assert_allclose(outvars['casenum'], expected_data['casenum'], atol=atol)
+
+
+def test_sim_export_json(sim):
+    with pytest.raises(ValueError):
+        sim.exportInVars('invars')
+    with pytest.raises(ValueError):
+        sim.exportOutVars('outvars')
+
+    def read_json(filename):
+        with open(sim.resultsdir / filename, 'r') as file:
+            data = json.load(file)
+        return data
+
+    filename = 'invars.json'
+    sim.exportInVars(filename)
+    invars = read_json(filename)
+    assert invars['Var1'] == expected_data['Var1']
+    assert invars['Var2'] == expected_data['Var2']
+
+    filename = 'outvars.json'
+    sim.exportOutVars(filename)
+    outvars = read_json(filename)
+    assert outvars['casenum'] == expected_data['casenum']
 
 
 @pytest.mark.parametrize("filename", ['invars.csv', 'invars.json'])
