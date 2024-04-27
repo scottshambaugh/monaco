@@ -24,7 +24,7 @@
 
 ## [Unreleased]
 ### Added    
-* Testing for partial failures of cases while running with different `debug` flags (gh-10)
+* Testing for partial failures of cases while running with different `debug` flags ([GH-10](https://github.com/scottshambaugh/monaco/issues/10))
 ### Changed    
 ### Removed    
 
@@ -36,12 +36,12 @@
 ### Added    
 * Allow specifying `dists` and `distkwargs` for invars loaded from file
 ### Changed    
-* Fix cases not being populated with invars and invals when loading from file (gh-9)
+* Fix cases not being populated with invars and invals when loading from file ([GH-9](https://github.com/scottshambaugh/monaco/issues/9))
 * Fix nummaps not being per-variable when loading outvars from file
 
 ## [0.11.7] - 2024-02-19
 ### Changed    
-* Fix histogram not plotting for imported invars (gh-8)
+* Fix histogram not plotting for imported invars ([GH-8](https://github.com/scottshambaugh/monaco/issues/8))
 
 ## [0.11.6] - 2024-02-19
 ### Changed    
@@ -55,7 +55,7 @@
 
 ## [0.11.1] - 2024-02-19
 ### Changed    
-* Fix underflow issue in dvars (gh-7)
+* Fix underflow issue in dvars ([GH-7](https://github.com/scottshambaugh/monaco/issues/7))
 
 
 ## [0.11.0] - 2023-11-05
@@ -74,7 +74,7 @@
 * Allow passing in varname strings to `sim.plot`.
 ### Changed    
 * License changed from GPLv3 to more permissive MIT (ok because single author project).
-* Fix `sim.plot` scalarvars not being used (gh-6)
+* Fix `sim.plot` scalarvars not being used ([GH-6](https://github.com/scottshambaugh/monaco/issues/6))
 ### Removed    
 
 
