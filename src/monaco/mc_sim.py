@@ -607,12 +607,11 @@ class Sim:
                             self.debug, self.verbose)
                         postprocessedcases[case.ncase] = casepostprocessed_delayed
 
-
                 if self.verbose:
                     x = dask.persist(*postprocessedcases.values())
                     n_tasks = (len(casestopreprocess_downselect)
-                              + len(casestorun_downselect)
-                              + len(casestopostprocess_downselect))
+                               + len(casestorun_downselect)
+                               + len(casestopostprocess_downselect))
                     tqdm_dask(x, total=n_tasks,
                               desc='Preprocessing, running, and postprocessing cases',
                               unit=' cases', position=0)
@@ -659,7 +658,7 @@ class Sim:
                 if case.ncase in cases_downselect:
                     case.haspreprocessed = False
                     case = preprocess_case(self.fcns[SimFunctions.PREPROCESS],
-                                            case, self.debug, self.verbose)
+                                           case, self.debug, self.verbose)
                     preprocessedcases.append(case)
                     if self.verbose:
                         pbar.update(1)

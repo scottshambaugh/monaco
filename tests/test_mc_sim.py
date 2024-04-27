@@ -9,19 +9,39 @@ from monaco.mc_enums import SimFunctions, SampleMethod
 
 
 def sim_testing_preprocess(case):
-    return ([True, ])
+    return ([case.ncase, ])
 
-def sim_testing_run(inputs):
-    return (True)
+def sim_testing_run(casenum_in):
+    casenum_out = casenum_in
+    return (casenum_out)
 
-def sim_testing_postprocess(case, output):
-    case.addOutVal('casenum', case.ncase)
+def sim_testing_postprocess(case, casenum_out):
+    case.addOutVal('casenum_out', casenum_out)
 
 def sim_testing_fcns():
     fcns = {SimFunctions.PREPROCESS : sim_testing_preprocess,
             SimFunctions.RUN        : sim_testing_run,
             SimFunctions.POSTPROCESS: sim_testing_postprocess}
     return fcns
+
+def sim_testing_preprocess_failure(case):
+    if case.ncase == 0:
+        raise Exception(f'Preprocess testing failed for case {case.ncase}')
+    else:
+        return ([case.ncase, ])
+
+def sim_testing_run_failure(casenum_in):
+    casenum_out = casenum_in
+    if casenum_out == 0:
+        raise Exception(f'Run testing failed for case {casenum_in}')
+    else:
+        return (casenum_out)
+
+def sim_testing_postprocess_failure(case, casenum_out):
+    if casenum_out == 0:
+        raise Exception(f'Postprocess testing failed for case {case.ncase}')
+    else:
+        case.addOutVal('casenum_out', casenum_out)
 
 
 @pytest.fixture
@@ -37,11 +57,13 @@ def sim():
 
 @pytest.fixture
 def sim_singlethreaded(sim):
+    sim.name = 'Sim single-threaded'
     sim.runSim()
     return sim
 
 @pytest.fixture
 def sim_parallel(sim):
+    sim.name = 'Sim parallel (dask)'
     sim.singlethreaded = False
     sim.initDaskClient()
     sim.runSim()
@@ -50,6 +72,7 @@ def sim_parallel(sim):
 @pytest.fixture
 def sim_parallel_expanded(sim_parallel):
     sim = sim_parallel
+    sim.name = 'Sim parallel expanded (dask)'
     sim.clearResults()
     sim.drawVars()
     sim.genCases()
@@ -82,6 +105,63 @@ def test_sim_corr_cov(sim_singlethreaded, sim_parallel, sim_parallel_expanded):
             == pytest.approx(np.array([[2.05882353,  2.44162274, -1.3125],
                                        [2.44162274, 14.47837096, -0.35929331],
                                        [-1.3125   , -0.35929331, 25.5]]))
+
+
+def test_sim_preprocess_failure(sim_singlethreaded, sim_parallel, sim_parallel_expanded):
+    for sim in (sim_singlethreaded, sim_parallel, sim_parallel_expanded):
+        fcns = {SimFunctions.PREPROCESS : sim_testing_preprocess_failure,
+                SimFunctions.RUN        : sim_testing_run,
+                SimFunctions.POSTPROCESS: sim_testing_postprocess}
+        sim.fcns = fcns
+        sim.debug = True
+        sim.clearResults()
+        with pytest.raises(Exception, match='Preprocess testing failed for case 0'):
+            sim.runSim()
+
+        sim.debug = False
+        sim.clearResults()
+        sim.runSim()
+        assert len(sim.casespreprocessed) == sim.ncases - 1
+        assert len(sim.casesrun) == sim.ncases - 1
+        assert len(sim.casespostprocessed) == sim.ncases - 1
+
+
+def test_sim_run_failure(sim_singlethreaded, sim_parallel, sim_parallel_expanded):
+    for sim in (sim_singlethreaded, sim_parallel, sim_parallel_expanded):
+        fcns = {SimFunctions.PREPROCESS : sim_testing_preprocess,
+                SimFunctions.RUN        : sim_testing_run_failure,
+                SimFunctions.POSTPROCESS: sim_testing_postprocess}
+        sim.fcns = fcns
+        sim.debug = True
+        sim.clearResults()
+        with pytest.raises(Exception, match='Run testing failed for case 0'):
+            sim.runSim()
+
+        sim.debug = False
+        sim.clearResults()
+        sim.runSim()
+        assert len(sim.casespreprocessed) == sim.ncases
+        assert len(sim.casesrun) == sim.ncases - 1
+        assert len(sim.casespostprocessed) == sim.ncases - 1
+
+
+def test_sim_postprocess_failure(sim_singlethreaded, sim_parallel, sim_parallel_expanded):
+    for sim in (sim_singlethreaded, sim_parallel, sim_parallel_expanded):
+        fcns = {SimFunctions.PREPROCESS : sim_testing_preprocess,
+                SimFunctions.RUN        : sim_testing_run,
+                SimFunctions.POSTPROCESS: sim_testing_postprocess_failure}
+        sim.fcns = fcns
+        sim.debug = True
+        sim.clearResults()
+        with pytest.raises(Exception, match='Postprocess testing failed for case 0'):
+            sim.runSim()
+
+        sim.debug = False
+        sim.clearResults()
+        sim.runSim()
+        assert len(sim.casespreprocessed) == sim.ncases
+        assert len(sim.casesrun) == sim.ncases
+        assert len(sim.casespostprocessed) == sim.ncases - 1
 
 
 # Does not test the plot appearances, but does check that the codepaths can run
