@@ -70,10 +70,10 @@ def sim_parallel(sim):
     return sim
 
 @pytest.fixture
-def sim_parallel_expanded(sim_parallel):
-    sim = sim_parallel
+def sim_parallel_expanded(sim):
     sim.name = 'Sim parallel expanded (dask)'
-    sim.clearResults()
+    sim.singlethreaded = False
+    sim.initDaskClient()
     sim.drawVars()
     sim.genCases()
     sim.preProcessCases()
