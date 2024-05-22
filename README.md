@@ -3,6 +3,7 @@
 </p>
 
 ![Release](https://img.shields.io/github/v/release/scottshambaugh/monaco?sort=semver)
+[![Downloads](https://static.pepy.tech/badge/monaco)](https://pepy.tech/project/monaco)
 ![Builds](https://github.com/scottshambaugh/monaco/actions/workflows/builds.yml/badge.svg)
 ![Tests](https://github.com/scottshambaugh/monaco/actions/workflows/tests.yml/badge.svg)
 [![Docs](https://readthedocs.org/projects/monaco/badge/?version=latest)](https://monaco.readthedocs.io/en/latest/?badge=latest)

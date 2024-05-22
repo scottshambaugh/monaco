@@ -18,6 +18,7 @@
 - Variogram Sensitivity Analysis
 - repr's for all main objects
 - Flag on invals to tell if they were loaded from file
+- Histogram/spaghetti plot coloring a-la [aleatory](https://github.com/quantgirluk/aleatory)
 ### Known Bugs:
 - Cannot plot a varstat in percentile space
 ----
