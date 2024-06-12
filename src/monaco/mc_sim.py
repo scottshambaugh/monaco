@@ -8,7 +8,7 @@ import csv
 import json
 import cloudpickle
 import pathlib
-from dask.distributed import Client
+from dask.distributed import Client, progress
 from datetime import datetime, timedelta
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
@@ -21,7 +21,6 @@ from monaco.mc_enums import SimFunctions, SampleMethod
 from monaco.helper_functions import (get_list, vprint, vwarn, empty_list,
                                      hash_str_repeatable)
 from monaco.case_runners import preprocess_case, run_case, postprocess_case
-from monaco.tqdm_dask_distributed import tqdm_dask
 from monaco.dvars_sensitivity import calc_sensitivities
 from monaco.mc_multi_plot import multi_plot_grid_rect
 
@@ -609,12 +608,7 @@ class Sim:
 
                 if self.verbose:
                     x = dask.persist(*postprocessedcases.values())
-                    n_tasks = (len(casestopreprocess_downselect)
-                               + len(casestorun_downselect)
-                               + len(casestopostprocess_downselect))
-                    tqdm_dask(x, total=n_tasks,
-                              desc='Preprocessing, running, and postprocessing cases',
-                              unit=' cases', position=0)
+                    progress(x)
                     fullyexecutedcases = dask.compute(*x)
                 else:
                     fullyexecutedcases = dask.compute(*postprocessedcases.values())
@@ -679,9 +673,7 @@ class Sim:
 
                 if self.verbose:
                     x = dask.persist(preprocessedcases)
-                    tqdm_dask(x, total=len(cases_downselect),
-                              desc='Preprocessing cases',
-                              unit=' cases', position=0)
+                    progress(x)
                     preprocessedcases = dask.compute(*x)[0]
                 else:
                     preprocessedcases = dask.compute(*preprocessedcases)
@@ -747,9 +739,7 @@ class Sim:
 
                 if self.verbose:
                     x = dask.persist(runcases)
-                    tqdm_dask(x, total=len(cases_downselect),
-                              desc='Running cases',
-                              unit=' cases', position=0)
+                    progress(x)
                     runcases = dask.compute(*x)[0]
                 else:
                     runcases = dask.compute(*runcases)
@@ -809,9 +799,7 @@ class Sim:
 
                 if self.verbose:
                     x = dask.persist(postprocessedcases)
-                    tqdm_dask(x, total=len(cases_downselect),
-                              desc='Postprocessing cases',
-                              unit=' cases', position=0)
+                    progress(x)
                     postprocessedcases = dask.compute(*x)[0]
                 else:
                     postprocessedcases = dask.compute(*postprocessedcases)
