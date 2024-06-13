@@ -27,7 +27,9 @@
 ### Added    
 * Testing for partial failures of cases while running with different `debug` flags ([GH-10](https://github.com/scottshambaugh/monaco/issues/10))
 ### Changed    
+* Support newer versions of `dask.distributed` ([GH-12](https://github.com/scottshambaugh/monaco/pull/12))
 ### Removed    
+* `tqdm_dask_distributed` supporting function, replaced by `dask.distributed.progress`
 
 ## [0.12.1] - 2024-03-19
 ### Added    

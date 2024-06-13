@@ -607,6 +607,11 @@ class Sim:
                         postprocessedcases[case.ncase] = casepostprocessed_delayed
 
                 if self.verbose:
+                    n_tasks = (len(casestopreprocess_downselect)
+                               + len(casestorun_downselect)
+                               + len(casestopostprocess_downselect))
+                    vprint(self.verbose, 'Preprocessing, running, and postprocessing ' +
+                                         f'{n_tasks} cases...', flush=True)
                     x = dask.persist(*postprocessedcases.values())
                     progress(x)
                     fullyexecutedcases = dask.compute(*x)
@@ -672,6 +677,8 @@ class Sim:
                         preprocessedcases.append(case_delayed)
 
                 if self.verbose:
+                    vprint(self.verbose, 'Preprocessing ' +
+                           f'{len(cases_downselect)} cases...', flush=True)
                     x = dask.persist(preprocessedcases)
                     progress(x)
                     preprocessedcases = dask.compute(*x)[0]
@@ -738,6 +745,8 @@ class Sim:
                         runcases.append(case_delayed)
 
                 if self.verbose:
+                    vprint(self.verbose, 'Running ' +
+                           f'{len(cases_downselect)} cases...', flush=True)
                     x = dask.persist(runcases)
                     progress(x)
                     runcases = dask.compute(*x)[0]
@@ -799,6 +808,8 @@ class Sim:
 
                 if self.verbose:
                     x = dask.persist(postprocessedcases)
+                    vprint(self.verbose, 'Postprocessing ' +
+                           f'{len(cases_downselect)} cases...', flush=True)
                     progress(x)
                     postprocessedcases = dask.compute(*x)[0]
                 else:
