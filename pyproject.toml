@@ -22,7 +22,7 @@ scipy = "^1.11"
 matplotlib = "^3.6"
 tqdm = "^4.0"
 psutil = "^5.0"
-distributed = "^2022"
+distributed = ">=2022"
 cloudpickle = "^2.0"
 pillow = ">=10.3.0"
 
