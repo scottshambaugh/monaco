@@ -25,6 +25,11 @@
 
 ## [Unreleased]
 ### Added    
+### Changed    
+### Removed    
+
+## [0.13.0] - 2024-06-12
+### Added    
 * Testing for partial failures of cases while running with different `debug` flags ([GH-10](https://github.com/scottshambaugh/monaco/issues/10))
 ### Changed    
 * Support newer versions of `dask.distributed` ([GH-12](https://github.com/scottshambaugh/monaco/pull/12))
