@@ -30,7 +30,7 @@
 
 ## [0.13.1] - 2024-06-25
 ### Added    
-* Numpy 2.0 wheels
+* Numpy 2.0 real compatibility & wheels on PyPi
 
 ## [0.13.0] - 2024-06-12
 ### Added    
@@ -42,7 +42,7 @@
 
 ## [0.12.1] - 2024-03-19
 ### Added    
-* Numpy 2.0 code compatibility
+* Numpy 2.0 code compatibility attempt
 
 ## [0.12.0] - 2024-03-03
 ### Added    
