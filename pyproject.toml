@@ -26,7 +26,7 @@ distributed = ">=2022"
 cloudpickle = "^2.0"
 pillow = ">=10.3.0"
 
-pandas = {version = "^1.5", optional = true}
+pandas = {version = ">=2.2", optional = true}
 
 numba = {version = ">0.57", python = "<3.12", optional = true}
 

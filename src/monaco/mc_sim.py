@@ -147,7 +147,7 @@ class Sim:
         self.fcns = fcns
         self.firstcaseismedian = firstcaseismedian
         self.samplemethod = samplemethod
-        self.seed = seed
+        self.seed = int(seed)
         self.singlethreaded = singlethreaded
         self.daskkwargs = daskkwargs
         self.keepsiminput = keepsiminput
