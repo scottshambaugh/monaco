@@ -82,7 +82,7 @@ class Var(ABC):
                  ):
         self.name = name
         self.ndraws = ndraws
-        self.seed = seed
+        self.seed = int(seed)
         self.firstcaseismedian = firstcaseismedian
         self.datasource = datasource
 

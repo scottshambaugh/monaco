@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "monaco"
-version = "0.13.0"
+version = "0.13.1"
 description = "Quantify uncertainty and sensitivities in your computer models with an industry-grade Monte Carlo library."
 authors = ["Scott Shambaugh <scott@theshamblog.com>"]
 license = "MIT"
@@ -26,7 +26,7 @@ distributed = ">=2022"
 cloudpickle = "^2.0"
 pillow = ">=10.3.0"
 
-pandas = {version = "^1.5", optional = true}
+pandas = {version = ">=2.2", optional = true}
 
 numba = {version = ">0.57", python = "<3.12", optional = true}
 
@@ -49,4 +49,4 @@ docs = ["sphinx", "sphinx_rtd_theme", "myst-parser"]
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
-requires = ["setuptools", "poetry-core", "numpy>=2.0.0rc2"]
+requires = ["setuptools", "poetry-core", "numpy>=2.0.0"]

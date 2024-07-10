@@ -28,6 +28,10 @@
 ### Changed    
 ### Removed    
 
+## [0.13.1] - 2024-06-25
+### Added    
+* Numpy 2.0 real compatibility & wheels on PyPi
+
 ## [0.13.0] - 2024-06-12
 ### Added    
 * Testing for partial failures of cases while running with different `debug` flags ([GH-10](https://github.com/scottshambaugh/monaco/issues/10))
@@ -38,7 +42,7 @@
 
 ## [0.12.1] - 2024-03-19
 ### Added    
-* Numpy 2.0 compatibility
+* Numpy 2.0 code compatibility attempt
 
 ## [0.12.0] - 2024-03-03
 ### Added    
