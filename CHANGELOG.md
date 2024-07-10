@@ -26,6 +26,7 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+* Fixed docs build not including docstrings
 ### Removed    
 
 ## [0.13.1] - 2024-06-25
