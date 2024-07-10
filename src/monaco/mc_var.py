@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import numpy as np
 from scipy.stats import rv_continuous, rv_discrete, describe
-from scipy.stats.stats import DescribeResult
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from monaco.mc_val import Val, InVal, OutVal
@@ -13,7 +12,7 @@ from monaco.mc_sampling import sampling
 from monaco.mc_plot import plot, plot_sensitivities
 from monaco.helper_functions import empty_list, hashable_val
 from copy import copy
-from typing import Any, Callable, Iterable, Optional
+from typing import Any, Callable, Iterable, Optional, NamedTuple
 from warnings import warn
 from abc import ABC, abstractmethod
 
@@ -117,14 +116,14 @@ class Var(ABC):
             self.ncases = self.ndraws
 
 
-    def stats(self) -> DescribeResult:
+    def stats(self) -> NamedTuple:
         """
         Calculates statistics of the variable nums from scipy.stats.describe.
 
         Returns
         -------
-        stats : DescribeResult
-            A dict with descriptive statistics for the variable nums.
+        stats : NamedTuple
+            A named tuple with descriptive statistics for the variable nums.
         """
         stats = describe(self.nums)
         return stats
