@@ -12,13 +12,13 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('./../../src/monaco/'))
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'monaco'
-copyright = '2023, Scott Shambaugh'
+copyright = '2024, Scott Shambaugh'
 author = 'Scott Shambaugh'
 
 
