@@ -26,8 +26,11 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
-* Fixed docs build not including docstrings
 ### Removed    
+
+## [0.13.2] - 2024-07-11
+### Changed    
+* Fixed docs build not including docstrings
 
 ## [0.13.1] - 2024-06-25
 ### Added    
