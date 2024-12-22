@@ -31,10 +31,12 @@
 ## [0.14.0] - 2024-12-22
 ### Added    
 * Python 3.13 support
-### Changed    
-* Fixed docs build not including docstrings
 ### Removed    
 * Python 3.9 support
+
+## [0.13.2] - 2024-07-11
+### Changed    
+* Fixed docs build not including docstrings
 
 ## [0.13.1] - 2024-06-25
 ### Added    
