@@ -521,17 +521,26 @@ class OutVar(Var):
         """
         Parse the output values and extract a valmap.
         """
-        Val0 = self.getVal(0)
-        if Val0.valmap is not None:
-            if Val0.valmapsource == 'auto':
-                uniquevals : set[Any] = set()
-                for i in range(self.ncases):
+        if self.getVal(0).valmapsource == 'assigned':
+            self.valmap = self.getVal(0).valmap
+            return
+
+        if any([self.getVal(i).valmap is not None for i in range(self.ncases)]):
+            uniquevals : set[Any] = set()
+            for i in range(self.ncases):
+                if self.getVal(i).valmap is not None:
                     uniquevals.update(self.getVal(i).valmap.keys())
-                self.valmap = dict()
-                for i, val in enumerate(sorted(uniquevals)):
-                    self.valmap[val] = i
-            else:
-                self.valmap = Val0.valmap
+                else:
+                    uniquevals.add(self.getVal(i).val)
+
+            # Sort values, handling None values by putting them first
+            sorted_vals = sorted([x for x in uniquevals if x is not None])
+            if None in uniquevals:
+                sorted_vals.insert(0, None)
+
+            self.valmap = dict()
+            for i, val in enumerate(sorted_vals):
+                self.valmap[val] = i
 
 
     def genNumMap(self) -> None:

@@ -28,6 +28,10 @@
 ### Changed    
 ### Removed    
 
+## [0.14.1] - 2025-01-31
+### Changed    
+* More robust valmap generation ([GH-13](https://github.com/scottshambaugh/monaco/issues/13))
+
 ## [0.14.0] - 2024-12-22
 ### Added    
 * Python 3.13 support
