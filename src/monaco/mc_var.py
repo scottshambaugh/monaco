@@ -531,8 +531,7 @@ class OutVar(Var):
                 if self.getVal(i).valmap is not None:
                     uniquevals.update(self.getVal(i).valmap.keys())
                 else:
-                    for val in flatten([self.getVal(i).val]):
-                        uniquevals.add(val)
+                    uniquevals.update(set(flatten([self.getVal(i).val])))
 
             # Sort values, handling None values by putting them first
             sorted_vals = sorted([x for x in uniquevals if x is not None])
