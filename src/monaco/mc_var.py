@@ -10,7 +10,7 @@ from monaco.mc_varstat import VarStat
 from monaco.mc_enums import SampleMethod, Sensitivities, VarStatType, InVarSpace
 from monaco.mc_sampling import sampling
 from monaco.mc_plot import plot, plot_sensitivities
-from monaco.helper_functions import empty_list, hashable_val
+from monaco.helper_functions import empty_list, hashable_val, flatten
 from copy import copy
 from typing import Any, Callable, Iterable, Optional, NamedTuple
 from warnings import warn
@@ -531,7 +531,8 @@ class OutVar(Var):
                 if self.getVal(i).valmap is not None:
                     uniquevals.update(self.getVal(i).valmap.keys())
                 else:
-                    uniquevals.add(self.getVal(i).val)
+                    for val in flatten([self.getVal(i).val]):
+                        uniquevals.add(val)
 
             # Sort values, handling None values by putting them first
             sorted_vals = sorted([x for x in uniquevals if x is not None])
