@@ -866,6 +866,7 @@ def plot_integration_convergence(outvar       : OutVar,
                                  dimension    : int,
                                  volume       : float,
                                  refval       : float          = None,
+                                 cases        : None | int | Iterable[int] = None,
                                  conf         : float          = 0.95,
                                  samplemethod : SampleMethod   = SampleMethod.RANDOM,
                                  ax           : Optional[Axes] = None,
@@ -886,6 +887,9 @@ def plot_integration_convergence(outvar       : OutVar,
         The total integration volume.
     refval : float, default: None
         If known a-priori, the reference value for the integration.
+    cases : None | int | Iterable[int], default: None
+        The cases to use for the integration convergence plot. If None, all
+        cases will be used.
     conf : float, default: 0.95
         The confidence level for the error estimate. 0.95 corresponds to 95%.
     samplemethod : monaco.mc_enums.SampleMethod
@@ -903,11 +907,17 @@ def plot_integration_convergence(outvar       : OutVar,
     """
     fig, ax = manage_axis(ax, is3d=False)
 
+    if cases is None:
+        cases = list(range(outvar.ncases))
+    cases = get_list(cases)
+    ncases = len(cases)
+
     if refval is not None:
         ax.axhline(refval, color='k')
 
-    cummean = volume*np.cumsum(outvar.nums)/np.arange(1, outvar.ncases+1)
-    err = integration_error(nums=np.array(outvar.nums), dimension=dimension, volume=volume,
+    nums = np.array(outvar.nums)[cases]
+    cummean = volume*np.cumsum(nums)/np.arange(1, ncases+1)
+    err = integration_error(nums=nums, dimension=dimension, volume=volume,
                             conf=conf, samplemethod=samplemethod, runningerror=True)
     ax.plot(cummean, 'C1')
     ax.plot(cummean + err, 'C0')
@@ -925,6 +935,7 @@ def plot_integration_error(outvar       : OutVar,
                            dimension    : int,
                            volume       : float,
                            refval       : float,
+                           cases        : None | int | Iterable[int] = None,
                            conf         : float          = 0.95,
                            samplemethod : SampleMethod   = SampleMethod.RANDOM,
                            ax           : Optional[Axes] = None,
@@ -946,6 +957,9 @@ def plot_integration_error(outvar       : OutVar,
         The total integration volume.
     refval : float
         The reference value for the integration.
+    cases : None | int | Iterable[int], default: None
+        The cases to use for the integration error plot. If None, all cases
+        will be used.
     conf : float, default: 0.95
         The confidence level for the error estimate. 0.95 corresponds to 95%.
     samplemethod : monaco.mc_enums.SampleMethod
@@ -963,8 +977,14 @@ def plot_integration_error(outvar       : OutVar,
     """
     fig, ax = manage_axis(ax, is3d=False)
 
-    cummean = volume*np.cumsum(outvar.nums)/np.arange(1, outvar.ncases+1)
-    err = integration_error(nums=np.array(outvar.nums), dimension=dimension, volume=volume,
+    if cases is None:
+        cases = list(range(outvar.ncases))
+    cases = get_list(cases)
+    ncases = len(cases)
+
+    nums = np.array(outvar.nums)[cases]
+    cummean = volume*np.cumsum(nums)/np.arange(1, ncases+1)
+    err = integration_error(nums=nums, dimension=dimension, volume=volume,
                             conf=conf, samplemethod=samplemethod, runningerror=True)
     ax.loglog(err, 'C0')
     ax.plot(np.abs(cummean - refval), 'C1')
