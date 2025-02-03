@@ -25,13 +25,17 @@
 
 ## [Unreleased]
 ### Added    
-* `cases` kwarg to `VarStat` to allow specifying which cases to use to calculate the stat
-* `cases` kwarg to `dvars_sensitivity` to allow specifying which cases to use for the sensitivity analysis
-* `cases` kwarg to `plot_2d_cov_ellipse`, `plot_integration_error`, and `plot_integration_convergence` to allow specifying which cases to use for the plot
+### Changed    
+### Removed    
+
+## [0.15.0] - 2025-02-03
+### Added    
+* `cases` kwarg to `VarStat` to allow specifying which cases to use to calculate the stat ([GH-14](https://github.com/scottshambaugh/monaco/issues/14))
+* `cases` kwarg to `dvars_sensitivity` to allow specifying which cases to use for the sensitivity analysis ([GH-14](https://github.com/scottshambaugh/monaco/issues/14))
+* `cases` kwarg to `plot_2d_cov_ellipse`, `plot_integration_error`, and `plot_integration_convergence` to allow specifying which cases to use for the plot ([GH-14](https://github.com/scottshambaugh/monaco/issues/14))
 ### Changed    
 * Switch varstatbootstrap method from 'basic' to 'BCa'
 * `get_cases` function moved from `mc_plot` to `helper_functions`
-### Removed    
 
 ## [0.14.1] - 2025-01-31
 ### Changed    

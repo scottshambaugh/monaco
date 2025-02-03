@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "monaco"
-version = "0.14.1"
-description = "Quantify uncertainty and sensitivities in your computer models with an industry-grade Monte Carlo library."
+version = "0.15.0"
+description = "Quantify uncertainty and sensitivities in your models with an industry-grade Monte Carlo library."
 authors = ["Scott Shambaugh <scott@theshamblog.com>"]
 license = "MIT"
 readme = "README.md"
