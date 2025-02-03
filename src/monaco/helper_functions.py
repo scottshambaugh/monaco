@@ -154,6 +154,31 @@ def get_list(x : Any) -> list[Any]:
         return [x, ]
 
 
+def get_cases(ncases : int,
+              cases  : None | int | Iterable[int],
+              ) -> list[int]:
+    """
+    Parse the `cases` input for plotting functions. If None, return a list of
+    all the cases. Otherwise, return a list of all the specified cases.
+
+    Parameters
+    ----------
+    ncases : int
+        The total number of cases.
+    cases : None | int | Iterable[int]
+        The cases to downselect to.
+
+    Returns
+    -------
+    cases_list : list[int]
+        The cases.
+    """
+    if cases is None:
+        cases = list(range(ncases))
+    cases_list = get_list(cases)
+    return cases_list
+
+
 def slice_by_index(sequence : Sequence[Any],
                    indices  : int | Iterable[int],
                    ) -> list:

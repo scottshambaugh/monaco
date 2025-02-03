@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from monaco.mc_sim import Sim
 
 import numpy as np
-from monaco.helper_functions import vprint, get_list
+from monaco.helper_functions import vprint, get_cases
 from scipy.optimize import minimize
 from warnings import warn
 
@@ -88,10 +88,7 @@ def calc_sensitivities(sim        : 'Sim',
            comprehensive, robust, and efficient global sensitivity analysis:
            1. Theory." Water Resources Research 52.1 (2016): 423-439.
     """
-    if cases is None:
-        cases = list(range(sim.ncases))
-    else:
-        cases = get_list(cases)
+    cases = get_cases(ncases=sim.ncases, cases=cases)
     ncases = len(cases)
     if ncases != sim.ncases:
         warn(f'Only using {ncases} of {sim.ncases} cases for D-VARS sensitivity analysis')

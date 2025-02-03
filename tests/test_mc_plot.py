@@ -1,17 +1,8 @@
 # test_mc_plot.py
 
 import pytest
-from monaco.mc_plot import get_cases, manage_invar_space, plot_2d_scatter
+from monaco.mc_plot import manage_invar_space, plot_2d_scatter
 from monaco.mc_enums import InVarSpace
-
-@pytest.mark.parametrize("ncases, cases, ans", [
-    (3,   None, (0, 1, 2)),
-    (3,      1, (1,)),
-    (3, (1, 2), (1, 2)),
-    (3,     [], ()),
-])
-def test_get_cases(ncases, cases, ans):
-    assert get_cases(ncases=ncases, cases=cases) == pytest.approx(ans)
 
 
 def test_manage_invar_space():

@@ -17,7 +17,7 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib.patches import Ellipse
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
-from monaco.helper_functions import get_list, slice_by_index, length, empty_list
+from monaco.helper_functions import get_list, slice_by_index, length, empty_list, get_cases
 from monaco.gaussian_statistics import conf_ellipsoid_sig2pct
 from monaco.integration_statistics import integration_error
 from monaco.mc_enums import SampleMethod, PlotOrientation, InVarSpace, Sensitivities
@@ -907,9 +907,7 @@ def plot_integration_convergence(outvar       : OutVar,
     """
     fig, ax = manage_axis(ax, is3d=False)
 
-    if cases is None:
-        cases = list(range(outvar.ncases))
-    cases = get_list(cases)
+    cases = get_cases(ncases=outvar.ncases, cases=cases)
     ncases = len(cases)
 
     if refval is not None:
@@ -977,9 +975,7 @@ def plot_integration_error(outvar       : OutVar,
     """
     fig, ax = manage_axis(ax, is3d=False)
 
-    if cases is None:
-        cases = list(range(outvar.ncases))
-    cases = get_list(cases)
+    cases = get_cases(ncases=outvar.ncases, cases=cases)
     ncases = len(cases)
 
     nums = np.array(outvar.nums)[cases]
@@ -1211,9 +1207,7 @@ def plot_2d_cov_ellipse(ax    : Axes,
     if ax is None:
         return
 
-    if cases is None:
-        cases = list(range(varx.ncases))
-    cases = get_list(cases)
+    cases = get_cases(ncases=varx.ncases, cases=cases)
 
     # See https://www.visiondummy.com/2014/04/draw-error-ellipse-representing-covariance-matrix/
     allnums = [np.array(varx.nums)[cases], np.array(vary.nums)[cases]]
@@ -1236,33 +1230,6 @@ def plot_2d_cov_ellipse(ax    : Axes,
     # For now plot both eigenaxes
     plt.axline(xy1=(center[0], center[1]), slope=eigvecs[0][1]/eigvecs[0][0], color='k')
     plt.axline(xy1=(center[0], center[1]), slope=eigvecs[1][1]/eigvecs[1][0], color='k')
-
-
-
-def get_cases(ncases : int,
-              cases  : None | int | Iterable[int],
-              ) -> list[int]:
-    """
-    Parse the `cases` input for plotting functions. If None, return a list of
-    all the cases. Otherwise, return a list of all the specified cases.
-
-    Parameters
-    ----------
-    ncases : int
-        The total number of cases.
-    cases : None | int | Iterable[int]
-        The cases to downselect to.
-
-    Returns
-    -------
-    cases_list : list[int]
-        The cases.
-    """
-    if cases is None:
-        cases = list(range(ncases))
-    cases_list = get_list(cases)
-    return cases_list
-
 
 
 def manage_invar_space(invar_space : InVarSpace | Iterable[InVarSpace],

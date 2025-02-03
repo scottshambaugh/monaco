@@ -4,7 +4,7 @@ import pytest
 import numpy as np
 from monaco.helper_functions import (next_power_of_2, hash_str_repeatable, is_num,
                                      length, get_list, slice_by_index, empty_list,
-                                     flatten)
+                                     flatten, get_cases)
 
 # Only test with pandas if installed
 try:
@@ -50,6 +50,16 @@ def test_is_num(val, ans):
 ])
 def test_length(val, ans):
     assert length(val) == ans
+
+
+@pytest.mark.parametrize("ncases, cases, ans", [
+    (3,   None, (0, 1, 2)),
+    (3,      1, (1,)),
+    (3, (1, 2), (1, 2)),
+    (3,     [], ()),
+])
+def test_get_cases(ncases, cases, ans):
+    assert get_cases(ncases=ncases, cases=cases) == pytest.approx(ans)
 
 
 @pytest.mark.parametrize("val, ans", [

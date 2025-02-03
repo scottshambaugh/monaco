@@ -11,7 +11,7 @@ from copy import copy
 from statistics import mode
 from scipy.stats import bootstrap, moment, skew, kurtosis
 from scipy.stats.mstats import gmean
-from monaco.helper_functions import get_list
+from monaco.helper_functions import get_list, get_cases
 from monaco.gaussian_statistics import pct2sig, sig2pct
 from monaco.order_statistics import (order_stat_TI_n, order_stat_TI_k,
                                      order_stat_P_k, get_iP)
@@ -149,9 +149,7 @@ class VarStat:
             statkwargs = dict()
         self.statkwargs = statkwargs
 
-        if cases is None:
-            cases = list(range(self.var.ncases))
-        self.cases = get_list(cases)
+        self.cases = get_cases(ncases=self.var.ncases, cases=cases)
         self.ncases = len(self.cases)
 
         self.nums : np.ndarray = np.array([])
