@@ -2,12 +2,12 @@
 from __future__ import annotations
 
 # Somewhat hacky type checking to avoid circular imports:
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable
 if TYPE_CHECKING:
     from monaco.mc_sim import Sim
 
 import numpy as np
-from monaco.helper_functions import vprint
+from monaco.helper_functions import vprint, get_list
 from scipy.optimize import minimize
 from warnings import warn
 
@@ -30,6 +30,7 @@ except ImportError:
 
 def calc_sensitivities(sim        : 'Sim',
                        outvarname : str,
+                       cases      : None | int | Iterable[int] = None,
                        Hj         : float = 1.0,
                        tol        : float = 1e-6,
                        verbose    : bool  = False,
@@ -52,6 +53,9 @@ def calc_sensitivities(sim        : 'Sim',
     outvarname : str
         The name of the output variable to calculate sensitivities for. Note
         that the output variable must be scalar.
+    cases : None | int | Iterable[int], default None
+        The cases to use for the sensitivity analysis. If None, all cases will
+        be used.
     Hj : float, default: 1.0
         The fraction of the total parameter space to integrate over. Note that
         the linear correlation function only has one hyperparameter, so as the
@@ -84,9 +88,17 @@ def calc_sensitivities(sim        : 'Sim',
            comprehensive, robust, and efficient global sensitivity analysis:
            1. Theory." Water Resources Research 52.1 (2016): 423-439.
     """
-    phi_opt = calc_phi_opt(sim, outvarname, tol, verbose)
+    if cases is None:
+        cases = list(range(sim.ncases))
+    else:
+        cases = get_list(cases)
+    ncases = len(cases)
+    if ncases != sim.ncases:
+        warn(f'Only using {ncases} of {sim.ncases} cases for D-VARS sensitivity analysis')
 
-    variance = np.var(np.array([sim.outvars[outvarname].nums]))
+    phi_opt = calc_phi_opt(sim, outvarname, cases, tol, verbose)
+
+    variance = np.var(np.array(sim.outvars[outvarname].nums)[cases])
     sensitivities = np.zeros(sim.ninvars)
     for j in range(sim.ninvars):
         sensitivities[j] = calc_Gammaj(Hj, phi_opt[j], variance)
@@ -97,6 +109,7 @@ def calc_sensitivities(sim        : 'Sim',
 
 def calc_phi_opt(sim        : 'Sim',
                  outvarname : str,
+                 cases      : list[int],
                  tol        : float = 1e-6,
                  verbose    : bool = False
                  ) -> np.ndarray:
@@ -113,6 +126,8 @@ def calc_phi_opt(sim        : 'Sim',
     outvarname : str
         The name of the output variable to calculate sensitivities for. Note
         that the output variable must be scalar.
+    cases : list[int]
+        The cases to use for the sensitivity analysis.
     tol : float, default 1e-6
         The convergence tolerance for scipy's minimize function acting on the
         negative log likelihood function.
@@ -136,7 +151,7 @@ def calc_phi_opt(sim        : 'Sim',
 
     vprint(sim.verbose, 'Calculating optimal hyperparameters Φ for ' +
                        f"'{outvarname}' covariances...")
-    X, Y = full_states(sim, outvarname)
+    X, Y = full_states(sim, outvarname, cases)
     res = minimize(L_runner, phi0s, args=(X, Y, verbose), bounds=bounds,
                    tol=tol, method='L-BFGS-B')
     phi_opt = res.x
@@ -147,6 +162,7 @@ def calc_phi_opt(sim        : 'Sim',
 
 def full_states(sim : 'Sim',
                 outvarname : str,
+                cases      : list[int]
                 ) -> tuple[np.ndarray, np.ndarray]:
     """
     Get the full input and output states in combined matrices.
@@ -158,6 +174,8 @@ def full_states(sim : 'Sim',
     outvarname : str
         The name of the output variable to calculate sensitivities for. Note
         that the output variable must be scalar.
+    cases : list[int]
+        The cases to use for the sensitivity analysis.
 
     Returns
     -------
@@ -166,11 +184,12 @@ def full_states(sim : 'Sim',
     Y : numpy.ndarray
         The output variable's nums.
     """
-    X = np.zeros((sim.ncases, sim.ninvars))
-    Y = np.zeros((sim.ncases, 1))
+    ncases = len(cases)
+    X = np.zeros((ncases, sim.ninvars))
+    Y = np.zeros((ncases, 1))
     for i, varname in enumerate(sim.invars):
-        X[:, i] = sim.invars[varname].pcts
-    Y[:, 0] = sim.outvars[outvarname].nums
+        X[:, i] = np.array(sim.invars[varname].pcts)[cases]
+    Y[:, 0] = np.array(sim.outvars[outvarname].nums)[cases]
     return X, Y
 
 
