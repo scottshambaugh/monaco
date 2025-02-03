@@ -37,6 +37,7 @@ bound = StatBound.ONESIDED
     (VarStatType.SKEWNESS   , dict(), -0.0144037, -0.0541356, 0.0288986),
     (VarStatType.VARIANCE   , dict(), 0.9977405, 0.9770223, 1.0184109),
     (VarStatType.MEAN       , dict(), 0.0036036, -0.0084521, 0.0287600),
+    ('mean'                 , dict(), 0.0036036, -0.0084521, 0.0287600),
     (np.mean                , dict(), 0.0036036, -0.0084521, 0.0287600),
 ])
 def test_invarstat(stat, statkwargs, vals, cihigh, cilow, invar):
