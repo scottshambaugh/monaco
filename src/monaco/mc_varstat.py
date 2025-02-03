@@ -333,11 +333,10 @@ class VarStat:
             # Calculate nums and confidence interval for each point in the sequence
             self.nums = self.statsFunctionWrapper(self.var.nums)
             if self.bootstrap:
-                # Switch to method='Bca' once https://github.com/scipy/scipy/issues/15883 resolved
                 res = bootstrap((np.array(self.var.nums),), self.statsFunctionWrapper,
                                 confidence_level=self.conf,
                                 n_resamples=self.bootstrap_n,
-                                random_state=self.seed, method='basic')
+                                random_state=self.seed, method='BCa')
                 self.confidence_interval_low_nums = res.confidence_interval.low
                 self.confidence_interval_high_nums = res.confidence_interval.high
 

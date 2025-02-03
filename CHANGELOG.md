@@ -26,6 +26,7 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+* Switch varstatbootstrap method from 'basic' to 'BCa'
 ### Removed    
 
 ## [0.14.1] - 2025-01-31
