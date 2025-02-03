@@ -55,6 +55,17 @@ def test_varstat_setName(invar):
     assert invarstat.name == 'norm 1-sided P99.865/50.0% Confidence Interval'
 
 
+def test_varstat_cases(invar):
+    cases = np.where(np.array(invar.nums) > 0)[0]
+    # make sure warnings is issued
+    with pytest.warns(UserWarning, match="Only using 4983 of 10000 cases for VarStat norm Mean"):
+        invarstat = VarStat(invar, stat=VarStatType.MEAN,
+                            cases=cases,
+                            bootstrap=True, bootstrap_k=10, conf=0.95, seed=0)
+    assert invarstat.ncases == len(cases)
+    assert np.allclose(invarstat.vals, 0.8050436)
+
+
 def test_outvarstat_2d(v):
     from monaco.mc_var import OutVar
     outvar = OutVar('test', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseismedian=True)
