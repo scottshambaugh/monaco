@@ -16,7 +16,8 @@ from monaco.gaussian_statistics import pct2sig, sig2pct
 from monaco.order_statistics import (order_stat_TI_n, order_stat_TI_k,
                                      order_stat_P_k, get_iP)
 from monaco.mc_enums import StatBound, VarStatType, VarStatSide
-from typing import Any, Callable
+from typing import Any, Callable, Iterable
+from warnings import warn
 
 
 class VarStat:
@@ -32,6 +33,9 @@ class VarStat:
         accept an "axis" kwarg for bootstrap vectorization.
     statkwargs : dict[str:Any]
         The keyword arguments for the variable statistic.
+    cases : None | int | Iterable[int], default: None
+        The cases to use when calculating the statistic. If None, then all cases
+        are used.
     bootstrap : bool (default: True)
         Whether to use bootstrapping to generate confidence intervals for the
         statistic.
@@ -56,6 +60,10 @@ class VarStat:
         The nums for the high side of the confidence interval (None if no CI).
     vals : list[Any]
         The values for the `nums` as determined by `var.nummap`
+    cases : list[int]
+        The cases used to calculate the statistic.
+    ncases : int
+        The number of cases used to calculate the statistic.
     confidence_interval_low_vals : list[Any]
         The values for `confidence_interval_low_nums` via `var.nummap`
     confidence_interval_high_vals : list[Any]
@@ -125,6 +133,7 @@ class VarStat:
                  var         : Var,
                  stat        : str | VarStatType | Callable,
                  statkwargs  : dict[str, Any] | None = None,
+                 cases       : None | int | Iterable[int] = None,
                  bootstrap   : bool = True,
                  bootstrap_k : int = 10,
                  conf        : float = 0.95,
@@ -139,6 +148,11 @@ class VarStat:
         if statkwargs is None:
             statkwargs = dict()
         self.statkwargs = statkwargs
+
+        if cases is None:
+            cases = list(range(self.var.ncases))
+        self.cases = get_list(cases)
+        self.ncases = len(self.cases)
 
         self.nums : np.ndarray = np.array([])
         self.vals : list[Any] | np.ndarray = []
@@ -205,6 +219,9 @@ class VarStat:
                              f'{VarStatType.PERCENTILE}, {VarStatType.SIGMA}, ' +
                              f'{VarStatType.GAUSSIANP}, {VarStatType.ORDERSTATTI}, ' +
                              f'{VarStatType.ORDERSTATP}')
+
+        if self.ncases != self.var.ncases:
+            warn(f'Only using {self.ncases} of {self.var.ncases} cases for VarStat {self.name}')
 
 
     def genStatsMoment(self) -> None:
@@ -331,9 +348,10 @@ class VarStat:
         # Scalar Variables
         if self.var.isscalar:
             # Calculate nums and confidence interval for each point in the sequence
-            self.nums = self.statsFunctionWrapper(self.var.nums)
+            nums = [self.var.nums[case] for case in self.cases]
+            self.nums = self.statsFunctionWrapper(nums)
             if self.bootstrap:
-                res = bootstrap((np.array(self.var.nums),), self.statsFunctionWrapper,
+                res = bootstrap((np.array(nums),), self.statsFunctionWrapper,
                                 confidence_level=self.conf,
                                 n_resamples=self.bootstrap_n,
                                 random_state=self.seed, method='BCa')
@@ -355,7 +373,7 @@ class VarStat:
 
         # 1-D Variables
         elif self.var.maxdim == 1:
-            nums_list = get_list(self.var.nums)
+            nums_list = [self.var.nums[case] for case in self.cases]
             npoints = max(len(x) for x in nums_list)
             if self.bootstrap:
                 confidence_interval_low_nums = []
@@ -425,10 +443,10 @@ class VarStat:
                      f'{bound_str} P{round(self.p*100,4)}/{round(self.c*100,4)}% ' +
                       'Confidence Interval')
 
-        self.k = order_stat_TI_k(n=self.var.ncases, p=self.p, c=self.c, bound=self.bound)
+        self.k = order_stat_TI_k(n=self.ncases, p=self.p, c=self.c, bound=self.bound)
 
         if self.var.isscalar:
-            sortednums = sorted(self.var.nums)
+            sortednums = sorted([self.var.nums[case] for case in self.cases])
             if self.side == VarStatSide.LOW:
                 sortednums.reverse()
             if self.side in (VarStatSide.HIGH, VarStatSide.LOW):
@@ -452,14 +470,15 @@ class VarStat:
                 self.vals = copy(self.nums)
 
         elif self.var.maxdim == 1:
-            npoints = max(x.shape[0] if len(x.shape) > 0 else 0 for x in self.var.nums)
+            nums = [self.var.nums[case] for case in self.cases]
+            npoints = max(x.shape[0] if len(x.shape) > 0 else 0 for x in nums)
             self.nums = np.empty(npoints)
             if self.side == VarStatSide.BOTH:
                 self.nums = np.empty((npoints, 2))
             elif self.side == VarStatSide.ALL:
                 self.nums = np.empty((npoints, 3))
             for i in range(npoints):
-                numsatidx = [x[i] for x in self.var.nums
+                numsatidx = [x[i] for x in nums
                              if (len(x.shape) > 0 and x.shape[0] > i)]
                 sortednums = sorted(numsatidx)
                 if self.side == VarStatSide.LOW:
@@ -498,11 +517,11 @@ class VarStat:
                      f'{self.bound} {self.c*100}% Confidence Bound around ' +
                      f'{self.p*100}th Percentile')
 
-        self.k = order_stat_P_k(n=self.var.ncases, P=self.p, c=self.c, bound=bound)
+        self.k = order_stat_P_k(n=self.ncases, P=self.p, c=self.c, bound=bound)
 
-        (iPl, iP, iPu) = get_iP(n=self.var.ncases, P=self.p)
+        (iPl, iP, iPu) = get_iP(n=self.ncases, P=self.p)
         if self.var.isscalar:
-            sortednums = sorted(self.var.nums)
+            sortednums = sorted([self.var.nums[case] for case in self.cases])
             if self.bound == StatBound.ONESIDED_LOWER:
                 self.nums = np.array(sortednums[iPl - self.k])
             elif self.bound == StatBound.ONESIDED_UPPER:
@@ -531,14 +550,15 @@ class VarStat:
                 self.vals = copy(self.nums)
 
         elif self.var.maxdim == 1:
-            npoints = max(len(get_list(x)) for x in self.var.nums)
+            nums = [self.var.nums[case] for case in self.cases]
+            npoints = max(len(get_list(x)) for x in nums)
             self.nums = np.empty(npoints)
             if self.bound == StatBound.TWOSIDED:
                 self.nums = np.empty((npoints, 2))
             elif self.bound == StatBound.ALL:
                 self.nums = np.empty((npoints, 3))
             for i in range(npoints):
-                numsatidx = [get_list(x)[i] for x in self.var.nums if len(get_list(x)) > i]
+                numsatidx = [get_list(x)[i] for x in nums if len(get_list(x)) > i]
                 sortednums = sorted(numsatidx)
                 if self.bound == StatBound.ONESIDED_LOWER:
                     self.nums[i] = sortednums[iPl - self.k]

@@ -25,6 +25,7 @@
 
 ## [Unreleased]
 ### Added    
+* `cases` kwarg to `VarStat` to allow specifying which cases to use to calculate the stat
 ### Changed    
 * Switch varstatbootstrap method from 'basic' to 'BCa'
 ### Removed    
