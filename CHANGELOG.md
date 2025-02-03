@@ -27,6 +27,7 @@
 ### Added    
 * `cases` kwarg to `VarStat` to allow specifying which cases to use to calculate the stat
 * `cases` kwarg to `dvars_sensitivity` to allow specifying which cases to use for the sensitivity analysis
+* `cases` kwarg to `plot_2d_cov_ellipse` to allow specifying which cases to use for the covariance ellipse
 ### Changed    
 * Switch varstatbootstrap method from 'basic' to 'BCa'
 ### Removed    

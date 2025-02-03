@@ -1165,10 +1165,11 @@ def plot_rug_marks(ax          : Axes,
 
 
 
-def plot_2d_cov_ellipse(ax   : Axes,
-                        varx : InVar | OutVar,
-                        vary : InVar | OutVar,
-                        p    : float,
+def plot_2d_cov_ellipse(ax    : Axes,
+                        varx  : InVar | OutVar,
+                        vary  : InVar | OutVar,
+                        p     : float,
+                        cases : None | int | Iterable[int] = None,
                         ) -> None:
     """
     Add a covariance ellipse to a 2D scatter plot.
@@ -1183,13 +1184,20 @@ def plot_2d_cov_ellipse(ax   : Axes,
         The y variable.
     p : float
         Coviariance percentile, assuming a gaussian distribution.
+    cases : None | int | Iterable[int], default: None
+        The cases to use for the covariance ellipse. If None, all cases will
+        be used.
     """
     if ax is None:
         return
 
+    if cases is None:
+        cases = list(range(varx.ncases))
+    cases = get_list(cases)
+
     # See https://www.visiondummy.com/2014/04/draw-error-ellipse-representing-covariance-matrix/
-    allnums = [np.array(varx.nums), np.array(vary.nums)]
-    center = [np.mean(varx.nums), np.mean(vary.nums)]
+    allnums = [np.array(varx.nums)[cases], np.array(vary.nums)[cases]]
+    center = [np.mean(allnums[0]), np.mean(allnums[1])]
 
     covs = np.cov(np.array(allnums))
     eigvals, eigvecs = np.linalg.eigh(covs)  # Use eigh over eig since covs is guaranteed symmetric
