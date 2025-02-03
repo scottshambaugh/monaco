@@ -101,6 +101,10 @@ def test_outvar_extractValMap():
     outvar = OutVar('test', ['a', 'b', 'c', ['b']], firstcaseismedian=True)
     assert outvar.valmap == {'a': 0, 'b': 1, 'c': 2}
 
+    # Mixed types
+    outvar = OutVar('test', [1, 2, None, 4], firstcaseismedian=True)
+    assert outvar.valmap == {None: 0, 1: 1, 2: 2, 4: 3}
+
 @pytest.fixture
 def outvars_split():
     outvars = dict()
