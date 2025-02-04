@@ -28,6 +28,10 @@
 ### Changed    
 ### Removed    
 
+## [0.15.1] - 2025-02-04
+### Added    
+* `cases` kwarg to `addVarStat` to allow specifying which cases to use to calculate the stat ([GH-14](https://github.com/scottshambaugh/monaco/issues/14))
+
 ## [0.15.0] - 2025-02-03
 ### Added    
 * `cases` kwarg to `VarStat` to allow specifying which cases to use to calculate the stat ([GH-14](https://github.com/scottshambaugh/monaco/issues/14))

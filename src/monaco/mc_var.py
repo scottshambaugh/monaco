@@ -132,6 +132,7 @@ class Var(ABC):
     def addVarStat(self,
                    stat        : VarStatType | Callable,
                    statkwargs  : dict[str, Any] | None = None,
+                   cases       : None | int | Iterable[int] = None,
                    bootstrap   : bool = False,
                    bootstrap_k : int = 10,
                    conf        : float = 0.95,
@@ -147,6 +148,18 @@ class Var(ABC):
             The type of variable statistic to add.
         statkwargs : dict[str, Any]
             Keyword arguments for the specified variable stastistic.
+        cases : None | int | Iterable[int]
+            The cases to use to calculate the statistic. If None, then all cases
+            are used.
+        bootstrap : bool (default: True)
+            Whether to use bootstrapping to generate confidence intervals for
+            the statistic.
+        bootstrap_k : int (default: 10)
+            The k'th order statistic to determine the number of bootstrap draws
+            for the given confidence level. Must be >= 1. Set higher for a
+            smoother bootstrap distribution.
+        conf : float (default: 0.95)
+            The confidence level for the confidence interval.
         seed : int
             The random seed to use for bootstrapping.
         name : str
@@ -159,6 +172,7 @@ class Var(ABC):
             seed = (self.seed + 1 + len(self.varstats)) % 2**32
 
         self.varstats.append(VarStat(var=self, stat=stat, statkwargs=statkwargs,
+                                     cases=cases,
                                      bootstrap=bootstrap, bootstrap_k=bootstrap_k,
                                      conf=conf, seed=seed, name=name))
 
