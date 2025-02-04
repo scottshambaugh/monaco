@@ -891,6 +891,7 @@ class Sim:
 
     def calcSensitivities(self,
                           outvarnames : None | str | Iterable[str] = None,
+                          cases       : None | int | Iterable[int] = None,
                           tol         : float = 1e-6,
                           verbose     : bool = False,
                           ) -> None:
@@ -902,6 +903,9 @@ class Sim:
         outvarnames : None | str | Iterable[str] (default: None)
             The outvar names to calculate sensitivity indices for. If None,
             then calculates sensitivities for all scalar outvars.
+        cases : None | int | Iterable[int], default: None
+            The cases to calculate sensitivities for. If None, then all cases
+            are used.
         tol : float, default 1e-6
             The convergence tolerance for scipy's minimize function acting on the
             negative log likelihood function.
@@ -919,6 +923,7 @@ class Sim:
             else:
                 vprint(self.verbose, f"Calculating sensitivity indices for '{outvarname}'...")
                 sensitivities, ratios = calc_sensitivities(self, outvarname,
+                                                           cases=cases,
                                                            tol=tol, verbose=verbose)
 
                 sensitivities_dict = dict()
