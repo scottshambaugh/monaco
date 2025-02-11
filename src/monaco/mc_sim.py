@@ -29,6 +29,9 @@ class Sim:
     """
     The main Monte Carlo Simulation object.
 
+    `Case`s can be accessed by case number, eg `sim[0]`, and `InVar`s or
+    `OutVar`s can be accessed by name, eg `sim['Var1']`.
+
     Parameters
     ----------
     name : str

@@ -12,6 +12,8 @@ class Case():
     """
     Object to hold all the data for a single Monte Carlo case.
 
+    `InVal`s and `OutVal`s can be accessed by name, eg `case['Var1']`.
+
     Parameters
     ----------
     ncase : int

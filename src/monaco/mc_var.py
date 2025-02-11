@@ -239,6 +239,8 @@ class InVar(Var):
     """
     A Monte Carlo input variable.
 
+    `InVal`s can be accessed by case number, eg `invar[0]`.
+
     Parameters
     ----------
     name : str
@@ -473,6 +475,8 @@ class InVar(Var):
 class OutVar(Var):
     """
     A Monte Carlo output variable.
+
+    `OutVal`s can be accessed by case number, eg `outvar[0]`.
 
     Parameters
     ----------
