@@ -31,6 +31,7 @@
 * `__getitem__` for vars to get a val by number
 ### Changed    
 ### Removed    
+* `develop` branch, only using `main` from now on
 
 ## [0.15.1] - 2025-02-04
 ### Added    

@@ -47,16 +47,10 @@ poetry run make clean && poetry run make html
     poetry run flake8
     ```
 5) Run plotting tests manually
-6) Commit any changes and push up the develop branch
-7) Push all changes up to the main branch
-    ```
-    git checkout main
-    git merge develop
-    git push
-    ```
-8) Wait for [CI tests](https://github.com/scottshambaugh/monaco/actions) to pass
-9) Check that the [docs are building](https://readthedocs.org/projects/monaco/builds/)
-10) [Create a new release](https://github.com/scottshambaugh/monaco/releases), creating a new tag and including a changelog:    
+6) Commit any changes and push up the main branch
+7) Wait for [CI tests](https://github.com/scottshambaugh/monaco/actions) to pass
+8) Check that the [docs are building](https://readthedocs.org/projects/monaco/builds/)
+9) [Create a new release](https://github.com/scottshambaugh/monaco/releases), creating a new tag and including a changelog:    
     ```
     **Changelog**: https://github.com/scottshambaugh/monaco/blob/main/CHANGELOG.md    
     **Full Diff**: https://github.com/scottshambaugh/monaco/compare/v0.x.x...v0.x.x
