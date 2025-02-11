@@ -18,6 +18,7 @@ def case():
 def test_case_gen(case):
     assert case.invals['Test'].val == pytest.approx(10)
     assert case.vars['Test'].vals[0] == pytest.approx(10)
+    assert case.vals['Test'].val == pytest.approx(10)
 
 def test_case_addoutvar(case):
     outvar = OutVar('TestOut', vals=list(range(10)))

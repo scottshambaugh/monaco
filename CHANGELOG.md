@@ -25,7 +25,7 @@
 
 ## [Unreleased]
 ### Added    
-* `case.vars` dict to reference all invars and outvars
+* `case.vars` dict to reference all invars and outvars, and `case.vals` dict to reference all invals and outvals
 ### Changed    
 ### Removed    
 

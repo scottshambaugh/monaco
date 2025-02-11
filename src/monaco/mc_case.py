@@ -91,6 +91,7 @@ class Case():
 
         self.invals  : dict[str, InVal]  = self.getInVals()
         self.outvals : dict[str, OutVal] = dict()
+        self.vals    : dict[str, InVal | OutVal] = dict(self.invals)
 
         self.siminput     : tuple[Any] | None = None
         self.simrawoutput : tuple[Any] | None = None
@@ -170,7 +171,10 @@ class Case():
         if name in self.outvals.keys():
             raise ValueError(f"'{name}' is already an OutVal")
 
-        self.outvals[name] = OutVal(name=name, ncase=self.ncase, val=val,
-                                    valmap=valmap, ismedian=self.ismedian)
+        outval = OutVal(name=name, ncase=self.ncase, val=val,
+                        valmap=valmap, ismedian=self.ismedian)
+        self.outvals[name] = outval
+        self.vals[name] = outval
         if split:
-            self.outvals.update(self.outvals[name].split())
+            self.outvals.update(outval.split())
+            self.vals.update(outval.split())
