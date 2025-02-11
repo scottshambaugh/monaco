@@ -197,6 +197,7 @@ def test_sim_import_invars(sim, filename):
     assert np.allclose(sim.invars['Var1'].pcts, np.ceil(5*np.array(var1.pcts))/5)
     assert np.allclose(sim.invars['Var2'].pcts, var2.pcts)
     assert sim.invars['Var1'].datasource == str(filepath.resolve())
+    assert sim.invars['Var2'][0].datasource == str(filepath.resolve())
 
     sim.runSim()
     assert sim.outvars['casenum'].vals == list(range(sim.ncases))
@@ -220,3 +221,4 @@ def test_sim_import_outvars(sim, filename):
     assert sim.outvars['Var1'].vals == var1.vals
     assert sim.outvars['Var2'].vals == var2.vals
     assert sim.outvars['Var1'].datasource == str(filepath.resolve())
+    assert sim.outvars['Var2'][0].datasource == str(filepath.resolve())

@@ -25,15 +25,20 @@ class Val(ABC):
         The number of the case for this value.
     ismedian : bool
         Whether this case represents the median case.
+    datasource : str | None
+        If the value was imported from a file, this is the filepath. If
+        generated through monaco, then None.
     """
     def __init__(self,
-                 name     : str,
-                 ncase    : int,
-                 ismedian : bool,
+                 name       : str,
+                 ncase      : int,
+                 ismedian   : bool,
+                 datasource : str | None = None,
                  ):
         self.name = name
         self.ncase = ncase
         self.ismedian = ismedian
+        self.datasource = datasource
 
         self.val      : Any
         self.valmap   : dict[Any, float]
@@ -64,7 +69,10 @@ class InVal(Val):
     nummap : dict[float, Any], default: None
         A dictionary mapping numbers to nonnumeric values.
     ismedian : bool, default: False
-        Whether this case represents the median case,
+        Whether this case represents the median case.
+    datasource : str | None, default: None
+        If the value was imported from a file, this is the filepath. If
+        generated through monaco, then None.
 
     Attributes
     ----------
@@ -80,16 +88,18 @@ class InVal(Val):
         `nummap`).
     """
     def __init__(self,
-                 name     : str,
-                 ncase    : int,
-                 pct      : float,
-                 num      : float,
-                 dist     : rv_discrete | rv_continuous,
-                 nummap   : dict[float, Any] | None = None,
-                 ismedian : bool = False,
+                 name       : str,
+                 ncase      : int,
+                 pct        : float,
+                 num        : float,
+                 dist       : rv_discrete | rv_continuous,
+                 nummap     : dict[float, Any] | None = None,
+                 ismedian   : bool = False,
+                 datasource : str | None = None,
                  ):
 
-        super().__init__(name=name, ncase=ncase, ismedian=ismedian)
+        super().__init__(name=name, ncase=ncase, ismedian=ismedian,
+                         datasource=datasource)
         self.dist = dist
         self.pct = pct
         self.num = np.float64(num)
@@ -144,6 +154,9 @@ class OutVal(Val):
         A dictionary mapping nonnumeric values to numbers.
     ismedian : bool, default: False
         Whether this case represents the median case,
+    datasource : str | None, default: None
+        If the value was imported from a file, this is the filepath. If
+        generated through monaco, then None.
 
     Attributes
     ----------
@@ -161,13 +174,15 @@ class OutVal(Val):
         `valmap`).
     """
     def __init__(self,
-                 name     : str,
-                 ncase    : int,
-                 val      : Any,
-                 valmap   : dict[Any, float] | None = None,
-                 ismedian : bool = False,
+                 name       : str,
+                 ncase      : int,
+                 val        : Any,
+                 valmap     : dict[Any, float] | None = None,
+                 ismedian   : bool = False,
+                 datasource : str | None = None,
                  ):
-        super().__init__(name=name, ncase=ncase, ismedian=ismedian)
+        super().__init__(name=name, ncase=ncase, ismedian=ismedian,
+                         datasource=datasource)
         self.val = val
         self.valmap = valmap
         self.convertPandas()

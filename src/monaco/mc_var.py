@@ -32,7 +32,7 @@ class Var(ABC):
         The random seed to use for bootstrapping.
     firstcaseismedian : bool
         Whether the first case represents the median case.
-    datasource : str
+    datasource : str | None
         If the vals were imported from a file, this is the filepath. If
         generated through monaco, then None.
 
@@ -46,7 +46,7 @@ class Var(ABC):
         The random seed to use for bootstrapping.
     firstcaseismedian : bool
         Whether the first case represents the median case.
-    datasource : str
+    datasource : str | None
         If the vals were imported from a file, this is the filepath. If
         generated through monaco, then None.
     ncases : int
@@ -264,7 +264,7 @@ class InVar(Var):
         Whether the first case represents the median case.
     autodraw : bool, default: True
         Whether to draw the random values when this variable is created.
-    datasource : str, default: None
+    datasource : str | None, default: None
         If the invals were imported from a file, this is the filepath. If
         generated through monaco, then None.
 
@@ -422,7 +422,7 @@ class InVar(Var):
         val = InVal(name=self.name, ncase=ncase,
                     pct=self.pcts[ncase], num=self.nums[ncase].item(),
                     dist=self.dist, nummap=self.nummap,
-                    ismedian=ismedian)
+                    ismedian=ismedian, datasource=self.datasource)
         return val
 
 
@@ -492,7 +492,7 @@ class OutVar(Var):
         The random seed for bootstrapping.
     firstcaseismedian : bool, default: False
         Whether the first case represents the median case.
-    datasource : str, default: None
+    datasource : str | None, default: None
         If the outvals were imported from a file, this is the filepath. If
         generated through monaco, then None.
 
@@ -617,7 +617,8 @@ class OutVar(Var):
             ismedian = True
 
         val = OutVal(name=self.name, ncase=ncase, val=self.vals[ncase],
-                     valmap=self.valmap, ismedian=ismedian)
+                     valmap=self.valmap, ismedian=ismedian,
+                     datasource=self.datasource)
         return val
 
 

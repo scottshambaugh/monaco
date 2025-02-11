@@ -17,7 +17,6 @@
 - Demo running on remote server (AWS, etc)
 - Variogram Sensitivity Analysis
 - repr's for all main objects
-- Flag on invals to tell if they were loaded from file
 - Histogram/spaghetti plot coloring a-la [aleatory](https://github.com/quantgirluk/aleatory)
 ### Known Bugs:
 - Cannot plot a varstat in percentile space
@@ -29,9 +28,10 @@
 * `__getitem__` for cases to get a val by name
 * `__getitem__` for sims to get a case by number or a var by name
 * `__getitem__` for vars to get a val by number
+* `datasource` attribute on invals and outvals to tell if they were loaded from file
 ### Changed    
 ### Removed    
-* `develop` branch, only using `main` from now on
+* git `develop` branch, only using `main` from now on
 
 ## [0.15.1] - 2025-02-04
 ### Added    
