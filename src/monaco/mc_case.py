@@ -70,6 +70,7 @@ class Case():
         self.ncase = ncase
         self.ismedian = ismedian
         self.invars = invars
+        self.vars : dict[str, InVar | OutVar] = dict(invars)
         if constvals is None:
             constvals = dict()
         self.constvals = constvals
@@ -114,6 +115,20 @@ class Case():
             val = var.getVal(self.ncase)
             vals[val.name] = val
         return vals
+
+
+    def addOutVar(self,
+                  outvar : OutVar,
+                  ) -> None:
+        """Add an OutVar to the case.
+
+        Parameters
+        ----------
+        outvar : OutVar
+            The OutVar to add.
+        """
+        self.outvars[outvar.name] = outvar
+        self.vars[outvar.name] = outvar
 
 
     def getOutVals(self) -> dict[str, OutVal]:

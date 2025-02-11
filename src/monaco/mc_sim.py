@@ -871,7 +871,7 @@ class Sim:
             self.outvars[varname] = outvar
             self.vars[varname] = outvar
             for i in range(self.ncases):
-                self.cases[i].outvars[varname] = outvar
+                self.cases[i].addOutVar(outvar)
 
         self.noutvars = len(self.outvars)
 
