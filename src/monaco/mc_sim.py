@@ -227,6 +227,30 @@ class Sim:
             self.initDaskClient()
 
 
+    def __getitem__(self,
+                    ncase_or_varname : int | str,
+                    ) -> Case | InVar | OutVar:
+        """Get a case, InVar, or OutVar from the simulation.
+
+        Parameters
+        ----------
+        ncase_or_varname : int | str
+            The case number or variable name to get.
+
+        Returns
+        -------
+        var : Case | InVar | OutVar
+            The case, InVar, or OutVar requested.
+        """
+        if isinstance(ncase_or_varname, int):
+            return self.cases[ncase_or_varname]
+        elif isinstance(ncase_or_varname, str):
+            return self.vars[ncase_or_varname]
+        else:
+            raise ValueError(f'Sim argument {ncase_or_varname=} must be an int ' +
+                             '(case number) or str (variable name)')
+
+
     def checkFcnsInput(self,
                        fcns: dict[SimFunctions, Callable],
                        ) -> None:

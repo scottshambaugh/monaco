@@ -26,6 +26,9 @@
 ## [Unreleased]
 ### Added    
 * `case.vars` dict to reference all invars and outvars, and `case.vals` dict to reference all invals and outvals
+* `__getitem__` for cases to get a val by name
+* `__getitem__` for sims to get a case by number or a var by name
+* `__getitem__` for vars to get a val by number
 ### Changed    
 ### Removed    
 

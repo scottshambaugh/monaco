@@ -83,6 +83,13 @@ def sim_parallel_expanded(sim):
     return sim
 
 
+def test_sim_getitem(sim_singlethreaded):
+    # Test case number
+    assert sim_singlethreaded[0].invals['Var1'].val == pytest.approx(3)
+    # Test variable name
+    assert sim_singlethreaded['Var1'].vals[0] == pytest.approx(3)
+
+
 def test_sim_dist_draws(sim_singlethreaded, sim_parallel, sim_parallel_expanded):
     for sim in (sim_singlethreaded, sim_parallel, sim_parallel_expanded):
         assert sim.cases[0].invals['Var1'].val == pytest.approx(3)

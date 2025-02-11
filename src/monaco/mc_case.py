@@ -102,6 +102,24 @@ class Case():
                 f"\n  outvals={self.outvals})")
 
 
+    def __getitem__(self,
+                    valname : str,
+                    ) -> InVal | OutVal:
+        """Get a InVal or OutVal from the case.
+
+        Parameters
+        ----------
+        valname : str
+            The name of the value to get.
+
+        Returns
+        -------
+        val : InVal | OutVal
+            The value requested.
+        """
+        return self.vals[valname]
+
+
     def getInVals(self) -> dict[str, InVal]:
         """
         From all the InVar's, extract the vals for this case.

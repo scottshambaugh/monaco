@@ -97,6 +97,24 @@ class Var(ABC):
         self.varstats : list[VarStat] = empty_list()
 
 
+    def __getitem__(self,
+                    ncase : int,
+                    ) -> Val:
+        """Get a value from the variable.
+
+        Parameters
+        ----------
+        ncase : int
+            The number of the case to get the value for.
+
+        Returns
+        -------
+        val : Val
+            The value requested.
+        """
+        return self.getVal(ncase)
+
+
     def setFirstCaseMedian(self,
                            firstcaseismedian : bool,
                            ) -> None:

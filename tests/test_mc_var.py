@@ -38,6 +38,9 @@ def invar_custom_dist():
                    ninvar=1, samplemethod=SampleMethod.RANDOM, seed=invarseeds[2],
                    firstcaseismedian=False)
 
+def test_invar_getitem(invar_norm_random):
+    assert invar_norm_random[0].val == pytest.approx(14.186734703770963)
+
 def test_invar_norm_sobol_warning():
     from scipy.stats import norm
     with pytest.warns(UserWarning, match='Infinite value'):
