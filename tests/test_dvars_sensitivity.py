@@ -2,10 +2,14 @@
 
 import monaco as mc
 import numpy as np
+import warnings
 import matplotlib.pyplot as plt
 from scipy.stats import uniform
 
+warnings.filterwarnings("ignore", message="Consider installing numba for better performance",
+                        category=UserWarning)
 np.set_printoptions(suppress=True, precision=6)
+
 
 def vars_preprocess(case):
     x1 = case.invals['x1'].val

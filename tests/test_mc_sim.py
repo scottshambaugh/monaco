@@ -1,11 +1,14 @@
 # test_mc_sim.py
 
 import pytest
+import warnings
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm, randint
 from monaco.mc_sim import Sim
 from monaco.mc_enums import SimFunctions, SampleMethod
+
+warnings.filterwarnings("ignore", message="Port 8787 is already in use", category=UserWarning)
 
 
 def sim_testing_preprocess(case):
