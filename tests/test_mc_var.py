@@ -20,23 +20,23 @@ lognorm_sigma, lognorm_mu = 1, 2
 def invar_norm_random():
     from scipy.stats import norm
     return InVar('norm', ndraws=1000,
-                   dist=norm, distkwargs={'loc': 10, 'scale': 4},
-                   seed=invarseeds[1], samplemethod=SampleMethod.RANDOM,
-                   firstcaseismedian=False)
+                 dist=norm, distkwargs={'loc': 10, 'scale': 4},
+                 seed=invarseeds[1], samplemethod=SampleMethod.RANDOM,
+                 firstcaseismedian=False)
 
 @pytest.fixture
 def invar_lognorm_random():
     from scipy.stats import lognorm
     return InVar('lognorm', ndraws=1000,
-                   dist=lognorm, distkwargs={'s': lognorm_sigma, 'scale': np.exp(lognorm_mu)},
-                   seed=invarseeds[1], samplemethod=SampleMethod.RANDOM,
-                   firstcaseismedian=False)
+                 dist=lognorm, distkwargs={'s': lognorm_sigma, 'scale': np.exp(lognorm_mu)},
+                 seed=invarseeds[1], samplemethod=SampleMethod.RANDOM,
+                 firstcaseismedian=False)
 
 @pytest.fixture
 def invar_custom_dist():
     return InVar('custom', ndraws=1000, dist=custom_dist, distkwargs=dict(),
-                   ninvar=1, samplemethod=SampleMethod.RANDOM, seed=invarseeds[2],
-                   firstcaseismedian=False)
+                 ninvar=1, samplemethod=SampleMethod.RANDOM, seed=invarseeds[2],
+                 firstcaseismedian=False)
 
 def test_invar_getitem(invar_norm_random):
     assert invar_norm_random[0].val == pytest.approx(14.186734703770963)
@@ -80,6 +80,46 @@ def test_invar_nummap():
                   samplemethod=SampleMethod.RANDOM, seed=invarseeds[3],
                   firstcaseismedian=False)
     assert invar.vals == ['f', 'e', 'f', 'f', 'a', 'e', 'e', 'a', 'e', 'e']
+
+def test_invar_custom_vals():
+    invar = InVar('custom', ndraws=3, vals=[1, 2, 3],
+                  ninvar=1, samplemethod=None, seed=invarseeds[3], firstcaseismedian=False)
+    assert invar.vals == [1, 2, 3]
+    assert invar.pcts == [0.0, 0.5, 1.0]
+    assert invar.nums == [1, 2, 3]
+    assert invar.vals == [1, 2, 3]
+
+    nummap = {0: 'a', 1: 'b', 2: 'c', 3: 'd'}
+    invar = InVar('custom', ndraws=3, vals=['a', 'b', 'c', 'd'],
+                  ninvar=1, nummap=nummap, samplemethod=None, seed=invarseeds[3],
+                  firstcaseismedian=True)
+    assert invar.vals == ['a', 'b', 'c', 'd']
+    assert invar.pcts == [0.5, 0, 0.5+1e-12, 1.0]
+    assert invar.nums == [0, 1, 2, 3]
+    assert invar.vals == ['a', 'b', 'c', 'd']
+
+def test_invar_custom_vals_errors():
+    with pytest.raises(ValueError, match="Either 'dist' or 'vals' must be provided"):
+        InVar('custom', ndraws=3,
+              ninvar=1, samplemethod=None, seed=invarseeds[3], firstcaseismedian=False)
+
+    with pytest.raises(ValueError, match="Cannot provide both 'dist' and 'vals'"):
+        InVar('custom', dist=custom_dist, distkwargs=dict(), ndraws=3, vals=[1, 2, 3],
+              ninvar=1, samplemethod=None, seed=invarseeds[3], firstcaseismedian=False)
+
+    with pytest.raises(ValueError, match="Must supply 'nummap'"):
+        InVar('custom', ndraws=3, vals=['a', 'b', 'c'],
+              ninvar=1, samplemethod=None, seed=invarseeds[3], firstcaseismedian=False)
+
+    with pytest.raises(ValueError,
+                       match="Length of 'vals' \(3\) must match ncases \(10\)"):  # noqa: W605
+        InVar('custom', ndraws=10, vals=[1, 2, 3],
+              ninvar=1, samplemethod=None, seed=invarseeds[3], firstcaseismedian=False)
+
+    with pytest.raises(ValueError,
+                       match="Length of 'vals' \(3\) must match ncases \(11\)"):  # noqa: W605
+        InVar('custom', ndraws=10, vals=[1, 2, 3],
+              ninvar=1, samplemethod=None, seed=invarseeds[3], firstcaseismedian=True)
 
 
 def test_outvar():

@@ -101,7 +101,7 @@ def integration_n_from_err(error        : float,
     array showing running error over the samples, to demonstrate convergence.
     If volume == 1, the error returned is a percent error. Otherwise, the error
     is absolute over the integration volume.
-    We generally do not know a-priori what the standard deviation will be, so
+    We generally do not know a priori what the standard deviation will be, so
     best practice is to set to the max range of values on the interval, and
     then calculate a better stdev on a lower number of cases, which can then
     be subsituted in here to bootleg a more efficient computation.
@@ -119,7 +119,7 @@ def integration_n_from_err(error        : float,
         error is a percentage of the true integration volume.
     stdev : float
         The standard deviation of the integration estimates, stdev > 0. We
-        generally do not know this a-priori, so use
+        generally do not know this a priori, so use
         monaco.integration_statistics.max_stdev to calculate this in that
         instance. Or, do a limited number of cases to estimate this before
         performing the full run.

@@ -14,7 +14,7 @@ from monaco.mc_varstat import VarStat
 from monaco.mc_enums import SampleMethod, Sensitivities, VarStatType, InVarSpace
 from monaco.mc_sampling import sampling
 from monaco.mc_plot import plot, plot_sensitivities
-from monaco.helper_functions import empty_list, hashable_val, flatten
+from monaco.helper_functions import empty_list, hashable_val, flatten, get_list, is_num
 
 
 ### Var Base Class ###
@@ -290,9 +290,10 @@ class InVar(Var):
     def __init__(self,
                  name              : str,
                  ndraws            : int,
-                 dist              : rv_discrete | rv_continuous,
-                 distkwargs        : dict             = None,
+                 dist              : rv_discrete | rv_continuous | None = None,
+                 distkwargs        : dict[str, Any] | None = None,
                  nummap            : dict[float, Any] = None,
+                 vals              : list[Any]        = None,
                  samplemethod      : SampleMethod     = SampleMethod.SOBOL_RANDOM,
                  ninvar            : int              = None,
                  seed              : int = np.random.get_state(legacy=False)['state']['key'][0],
@@ -304,7 +305,20 @@ class InVar(Var):
                          firstcaseismedian=firstcaseismedian,
                          datasource=datasource)
 
+        # Validate inputs for custom values case
+        if dist is None and vals is None:
+            raise ValueError("Either 'dist' or 'vals' must be provided")
+        if dist is not None and vals is not None:
+            raise ValueError("Cannot provide both 'dist' and 'vals', choose one")
+        if vals is not None:
+            vals = get_list(vals)
+            if len(vals) != self.ncases:
+                raise ValueError(f"Length of 'vals' ({len(vals)}) must match " +
+                                 f"ncases ({self.ncases})")
+            samplemethod = None
+
         self.dist = dist
+        self.custom_vals = vals
         if distkwargs is None:
             distkwargs = dict()
         self.distkwargs = distkwargs
@@ -363,6 +377,7 @@ class InVar(Var):
         """
         Perform the random draws based on the sampling method and the
         statistical distribution, and map those draws to values.
+        Alternatively, use custom values if provided.
 
         Parameters
         ----------
@@ -371,13 +386,35 @@ class InVar(Var):
         """
         self.pcts = []
         self.nums = []
-        dist = self.dist(**self.distkwargs)
 
+        # Custom values
+        if self.custom_vals is not None:
+            self.vals = copy(self.custom_vals)
+
+            if self.valmap is not None:
+                for val in self.vals:
+                    self.nums.append(np.array(self.valmap[val]))
+            else:
+                if any(not is_num(val) for val in self.vals):
+                    raise ValueError("Must supply 'nummap' if nonnumeric custom " +
+                                     "values are provided")
+                self.nums = [np.array(val) for val in self.vals]
+
+            # Generate uniform percentiles for custom values
+            self.pcts = [i / (self.ndraws - 1) for i in range(self.ndraws)]
+            if self.firstcaseismedian:
+                # First gets median, and we deconflict 0.5 with a small offset
+                self.pcts = [0.5] + [p if p != 0.5 else p + 1e-12 for p in self.pcts]
+
+            return
+
+        # Distribution-based drawing logic
         if self.firstcaseismedian:
             self.ncases = self.ndraws + 1
             self.pcts.append(0.5)
             self.nums.append(np.array(self.getDistMedian()))
 
+        dist = self.dist(**self.distkwargs)
         pcts = sampling(ndraws=self.ndraws, method=self.samplemethod,
                         ninvar=self.ninvar, ninvar_max=ninvar_max,
                         seed=self.seed)
@@ -508,7 +545,7 @@ class OutVar(Var):
     nums : list[np.ndarry]
         The numbers corresponding to the output values. If valmap is None, then
         `nums == list[np.array(vals)]`.
-    varstats : list[moncao.VarStat.VarStat]
+    varstats : list[monaco.VarStat.VarStat]
         A list of all the variable statistics for this variable.
     """
     def __init__(self,
