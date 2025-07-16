@@ -182,6 +182,64 @@ class Var(ABC):
             The random seed to use for bootstrapping.
         name : str
             The name of the variable statistic to add.
+
+        Notes
+        -----
+        These are the valid stats with their statkwargs
+
+        max()
+            'max', no kwargs
+        min()
+            'min', no kwargs
+        median()
+            'median', no kwargs
+        mean()
+            'mean', no kwargs
+        geomean()
+            'geomean', no kwargs
+        mode()
+            'mode', no kwargs
+        variance()
+            'variance', no kwargs
+        skewness()
+            'skewness', no kwargs
+        kurtosis()
+            'kurtosis', no kwargs
+        moment(n : int)
+            'moment'
+            `n` is the n'th moment, `n > 0`.
+        percentile(p : float)
+            'percentile'
+            `p` is the percentile, `0 < p < 1`.
+        sigma(sig : float, bound : monaco.mc_enums.StatBound)
+            'sigma'
+            `sig` is the gaussian sigma value, `-inf < sig < inf`.
+
+            `bound` is the statistical bound, ether `'1-sided'` or `'2-sided'`.
+            Default is `'2-sided'`.
+        gaussianP(p : float, bound : monaco.mc_enums.StatBound)
+            'gaussianP'
+            `p` is the percentile, `0 < p < 1`.
+
+            `bound` is the statistical bound, ether `'1-sided'` or `'2-sided'`.
+            Default is `'2-sided'`.
+        orderstatTI(p : float, c : float, bound : monaco.mc_enums.StatBound)
+            'orderstatTI'
+            `p` is the percentage, `0 < p < 1`
+
+            `c` is the confidence, `0 < c < 1`. Default is `0.95`.
+
+            `bound` is the statistical bound, ether `'1-sided'`, `'2-sided'`, or
+            `'all'`. Default is `'2-sided'`.
+        orderstatP(p : float, c : float, bound : monaco.mc_enums.StatBound)
+            'orderstatP'
+            `p` is the percentage, `0 < p < 1`
+
+            `c` is the confidence, `0 < c < 1`. Default is `0.95`.
+
+            `bound` is the statistical bound, ether `'1-sided lower'`,
+            `'1-sided upper'`, `'2-sided'`, `'all'`, or '`nearest'`. Default is
+            `'2-sided'`.
         """
         if statkwargs is None:
             statkwargs = dict()
