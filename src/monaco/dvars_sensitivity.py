@@ -14,8 +14,9 @@ from monaco.helper_functions import vprint, get_cases
 # numba is recommended for speed, as this will be very slow otherwise
 try:
     from numba import jit
+    HAS_NUMBA = True
 except ImportError:
-    warn("Consider installing numba for better performance", UserWarning)
+    HAS_NUMBA = False
 
     # create a dummy decorator
     def jit(f=None, *args, **kwargs):
@@ -88,6 +89,9 @@ def calc_sensitivities(sim        : 'Sim',
            comprehensive, robust, and efficient global sensitivity analysis:
            1. Theory." Water Resources Research 52.1 (2016): 423-439.
     """
+    if not HAS_NUMBA:
+        warn("Consider installing numba for better performance", UserWarning)
+
     cases = get_cases(ncases=sim.ncases, cases=cases)
     ncases = len(cases)
     if ncases != sim.ncases:
