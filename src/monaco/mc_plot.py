@@ -886,7 +886,7 @@ def plot_integration_convergence(outvar       : OutVar,
     volume : float
         The total integration volume.
     refval : float, default: None
-        If known a-priori, the reference value for the integration.
+        If known a priori, the reference value for the integration.
     cases : None | int | Iterable[int], default: None
         The cases to use for the integration convergence plot. If None, all
         cases will be used.

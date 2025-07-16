@@ -508,7 +508,7 @@ def EPYP(n : int,
          p : float,
          ) -> float:
     """
-    Estimated Probabiliity for the Y'th Percentile, see Chp. 5.2 of Reference.
+    Estimated Probability for the Y'th Percentile, see Chp. 5.2 of Reference.
 
     Parameters
     ----------
@@ -538,7 +538,7 @@ def EPTI(n : int,
          p : float,
          ) -> float:
     """
-    Estimated Probabiliity for a Tolerance Interval, see Chp. 5.3 of Reference
+    Estimated Probability for a Tolerance Interval, see Chp. 5.3 of Reference
 
     Parameters
     ----------

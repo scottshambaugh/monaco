@@ -81,7 +81,7 @@ class Sim:
     invarseeds : list[int]
         The random seeds for each of the input variables.
     outvarseeds : list[int]
-        The random seeds for each of the input variables.
+        The random seeds for each of the output variables.
     caseseeds : list[int]
         The random seeds for each of the cases.
     inittime : datetime.datetime
@@ -93,11 +93,11 @@ class Sim:
     runtime : datetime.timedelta
         The length of time it took the simulation to run.
     casespreprocessed : set[int]
-        The case numbers which were sucessfully preprocessed.
+        The case numbers which were successfully preprocessed.
     casesrun : set[int]
-        The case numbers which were sucessfully run.
+        The case numbers which were successfully run.
     casespostprocessed : set[int]
-        The case numbers which were sucessfully postprocessed.
+        The case numbers which were successfully postprocessed.
     vars : dict[str, monaco.mc_var.InVar]
         All Variables.
     invars : dict[str, monaco.mc_var.InVar]

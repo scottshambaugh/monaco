@@ -165,7 +165,7 @@ class Var(ABC):
         stat : monaco.mc_enums.VarStatType | Callable
             The type of variable statistic to add.
         statkwargs : dict[str, Any]
-            Keyword arguments for the specified variable stastistic.
+            Keyword arguments for the specified variable statistic.
         cases : None | int | Iterable[int]
             The cases to use to calculate the statistic. If None, then all cases
             are used.
@@ -640,7 +640,7 @@ class OutVar(Var):
 
     def split(self) -> dict[str, 'OutVar']:  # Quotes in typing to avoid import error
         """
-        Split a multidimentional output variable along its outermost dimension,
+        Split a multidimensional output variable along its outermost dimension,
         and generate individual OutVar objects for each index.
 
         Returns

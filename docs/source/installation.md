@@ -31,7 +31,7 @@ cd docs
 poetry run make clean && poetry run make html
 ```
 
-## Releasing a New Version and Publishing to PyPi
+## Releasing a New Version and Publishing to PyPI
 
 1) Update `CHANGELOG.md`
 2) Update the version in `pyproject.toml`

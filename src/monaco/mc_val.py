@@ -273,7 +273,7 @@ class OutVal(Val):
 
     def split(self) -> dict[str, 'OutVal']:  # Quotes in typing to avoid import error
         """
-        Split a multidimentional output value along its outermost dimension,
+        Split a output value along its outermost dimension,
         and generate individual OutVal objects for each index.
 
         Returns

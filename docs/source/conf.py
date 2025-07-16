@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('./../../src/monaco/'))
 # -- Project information -----------------------------------------------------
 
 project = 'monaco'
-copyright = '2024, Scott Shambaugh'
+copyright = '2025, Scott Shambaugh'
 author = 'Scott Shambaugh'
 
 
