@@ -112,12 +112,12 @@ def test_invar_custom_vals_errors():
               ninvar=1, samplemethod=None, seed=invarseeds[3], firstcaseismedian=False)
 
     with pytest.raises(ValueError,
-                       match="Length of 'vals' \(3\) must match ncases \(10\)"):  # noqa: W605
+                       match=r"Length of 'vals' \(3\) must match ncases \(10\)"):
         InVar('custom', ndraws=10, vals=[1, 2, 3],
               ninvar=1, samplemethod=None, seed=invarseeds[3], firstcaseismedian=False)
 
     with pytest.raises(ValueError,
-                       match="Length of 'vals' \(3\) must match ncases \(11\)"):  # noqa: W605
+                       match=r"Length of 'vals' \(3\) must match ncases \(11\)"):
         InVar('custom', ndraws=10, vals=[1, 2, 3],
               ninvar=1, samplemethod=None, seed=invarseeds[3], firstcaseismedian=True)
 

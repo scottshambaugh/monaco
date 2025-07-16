@@ -3,12 +3,8 @@
 import pytest
 import numpy as np
 import matplotlib.pyplot as plt
-import warnings
 from monaco.mc_sampling import sampling
 from monaco.mc_enums import SampleMethod
-
-warnings.filterwarnings("ignore", message="More than 20 figures have been opened",
-                        category=RuntimeWarning)
 
 
 generator = np.random.RandomState(744948050)
