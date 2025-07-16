@@ -311,11 +311,11 @@ class InVar(Var):
         if dist is not None and vals is not None:
             raise ValueError("Cannot provide both 'dist' and 'vals', choose one")
         if vals is not None:
+            samplemethod = None
             vals = get_list(vals)
             if len(vals) != self.ncases:
                 raise ValueError(f"Length of 'vals' ({len(vals)}) must match " +
                                  f"ncases ({self.ncases})")
-            samplemethod = None
 
         self.dist = dist
         self.custom_vals = vals

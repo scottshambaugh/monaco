@@ -101,6 +101,26 @@ def test_sim_scalaroutvars(sim_singlethreaded, sim_parallel, sim_parallel_expand
         assert len(sim.scalarOutVars()) == 1
 
 
+def test_sim_custom_vals():
+    seed = 74494861
+    sim = Sim(name='Sim', ndraws=3, fcns=sim_testing_fcns(), firstcaseismedian=False,
+              verbose=False, samplemethod=SampleMethod.RANDOM,
+              seed=seed, debug=True, singlethreaded=True, daskkwargs=dict(),
+              savesimdata=False, savecasedata=False)
+    sim.addInVar(name='Var1', vals=[1, 2, 3])
+    sim.addInVar(name='Var2', vals=['a', 'b', 'c'], nummap={3: 'a', 4: 'b', 5: 'c'})
+    sim.drawVars()
+    sim.genCases()
+
+    assert sim.cases[0].invals['Var1'].val == 1
+    assert sim.cases[0].invals['Var2'].val == 'a'
+    assert sim.cases[0].invals['Var2'].num == 3
+
+    with pytest.raises(ValueError, match="Cannot provide both 'dist' and 'vals'"):
+        sim.addInVar(name='Var3', dist=norm, distkwargs={'loc': 10, 'scale': 4},
+                     vals=[1, 2, 3])
+
+
 def test_sim_corr_cov(sim_singlethreaded, sim_parallel, sim_parallel_expanded):
     for sim in (sim_singlethreaded, sim_parallel, sim_parallel_expanded):
         # Convert to numpy arrays because pytest.approx doesn't work on nested lists

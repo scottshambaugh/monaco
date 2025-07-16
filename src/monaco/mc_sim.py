@@ -316,27 +316,42 @@ class Sim:
 
     def addInVar(self,
                  name       : str,
-                 dist       : rv_discrete | rv_continuous,
-                 distkwargs : dict[str, Any],
+                 dist       : rv_discrete | rv_continuous | None = None,
+                 distkwargs : dict[str, Any]   = None,
                  nummap     : dict[float, Any] = None,
-                 seed       : int = None,
-                 datasource : Optional[str] = None,
+                 vals       : list[Any] | None = None,
+                 seed       : int | None       = None,
+                 datasource : Optional[str]    = None,
                  ) -> None:
         """
         Add an input variable to the simulation.
+
+        If `dist` is provided, then the variable will be drawn from a
+        statistical distribution. If `vals` is provided, then the variable will
+        be set to the provided values. Must provide one or the other. If
+        nonnumeric values are provided, then `nummap` must also be provided.
+
+        Examples
+        --------
+        >>> sim.addInVar(name='Var1', dist=scipy.stats.norm, distkwargs={'loc': 0, 'scale': 1})
+        >>> sim.addInVar(name='Var2', vals=[1, 2, 3])
+        >>> sim.addInVar(name='Var3', vals=['a', 'b', 'c'], nummap={0: 'a', 1: 'b', 2: 'c'})
 
         Parameters
         ----------
         name : str
             The name of this variable.
-        dist : scipy.stats.rv_discrete | scipy.stats.rv_continuous
-            The statistical distribution to draw from.
-        distkwargs : dict
+        dist : scipy.stats.rv_discrete | scipy.stats.rv_continuous | None
+            The statistical distribution to draw from. If None, must provide vals.
+        distkwargs : dict[str, Any] | None
             The keyword argument pairs for the statistical distribution
             function.
         nummap : dict[float, Any], default: None
             A dictionary mapping numbers to nonnumeric values.
-        seed : int
+        vals : list[Any] | None, default: None
+            Custom values to use instead of drawing from a distribution.
+            Length must match ncases.
+        seed : int | None
             The random seed for this variable. If None, a seed will be assigned
             based on the order added.
         datasource : str, default: None
@@ -351,9 +366,11 @@ class Sim:
             # seed is dependent on the order added
             seed = (self.seed + self.ninvars) % 2**32
         self.invarseeds.append(seed)
+
         invar = InVar(name=name, dist=dist, distkwargs=distkwargs, ndraws=self.ndraws,
-                      nummap=nummap, samplemethod=self.samplemethod, ninvar=self.ninvars,
-                      seed=seed, firstcaseismedian=self.firstcaseismedian, autodraw=False,
+                      nummap=nummap, vals=vals, samplemethod=self.samplemethod,
+                      ninvar=self.ninvars, seed=seed,
+                      firstcaseismedian=self.firstcaseismedian, autodraw=False,
                       datasource=datasource)
         self.invars[name] = invar
         self.vars[name] = invar
