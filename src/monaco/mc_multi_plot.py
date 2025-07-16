@@ -1,6 +1,7 @@
 # mc_multi_plot.py
 from __future__ import annotations
 
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
@@ -234,7 +235,7 @@ def multi_plot_grid_tri(vars     : list[InVar | OutVar],
     fig = handle_fig(fig)
 
     nvars = len(vars)
-    axs = fig.subplots(nvars, nvars, sharex='col')
+    axs = np.atleast_2d(fig.subplots(nvars, nvars, sharex='col'))
     for i in range(nvars):
         row_scatter_axs = [ax for k, ax in enumerate(axs[i]) if k < i]
         for j in range(nvars):
@@ -329,7 +330,7 @@ def multi_plot_grid_rect(varsx     : InVar | OutVar | list[InVar | OutVar],
     nvarsx = len(varsx)
     nvarsy = len(varsy)
 
-    axs = fig.subplots(nvarsy+1, nvarsx+1, sharex='col')
+    axs = np.atleast_2d(fig.subplots(nvarsy+1, nvarsx+1, sharex='col'))
     for i in range(nvarsy+1):
         row_scatter_axs = [ax for k, ax in enumerate(axs[i]) if k < nvarsy+1]
         for j in range(nvarsx+1):

@@ -27,6 +27,10 @@
 ### Changed    
 ### Removed    
 
+## [0.16.1] - 2025-07-16
+### Changed    
+* Fix bug when there are no scalar outvars with multiplotting
+
 ## [0.16.0] - 2025-07-16
 ### Added    
 * Instead of passing a distribution, can now pass a list to generate an `InVar` with custom values. Must match the number of cases, and must provide a `nummap` if the values are nonnumeric. For example, `sim.addInVar(name='Var1', vals=[0, 1, 2, 3])`
