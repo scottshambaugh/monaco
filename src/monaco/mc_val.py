@@ -2,10 +2,11 @@
 from __future__ import annotations
 
 import numpy as np
-from monaco.helper_functions import is_num, hashable_val, flatten
 from typing import Any
 from scipy.stats import rv_discrete, rv_continuous
 from abc import ABC
+from monaco.helper_functions import is_num, hashable_val, flatten
+
 try:
     import pandas as pd
 except ImportError:

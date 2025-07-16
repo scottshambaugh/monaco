@@ -2,9 +2,9 @@
 
 from typing import Callable
 from copy import copy
+from datetime import datetime
 from monaco.mc_case import Case
 from monaco.helper_functions import vwrite, vwarn, get_list
-from datetime import datetime
 
 
 def preprocess_case(preprocfcn: Callable,

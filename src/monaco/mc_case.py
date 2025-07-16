@@ -1,12 +1,12 @@
 # mc_case.py
 from __future__ import annotations
 
-from monaco.mc_var import OutVar, InVar
-from monaco.mc_val import OutVal, InVal
+import numpy as np
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
-import numpy as np
+from monaco.mc_var import OutVar, InVar
+from monaco.mc_val import OutVal, InVal
 
 class Case():
     """

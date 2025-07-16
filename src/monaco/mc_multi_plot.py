@@ -4,11 +4,11 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
+from typing import Optional, Iterable
 from monaco.mc_plot import plot_hist, plot_2d_scatter
 from monaco.mc_var import InVar, OutVar
 from monaco.mc_enums import PlotOrientation, InVarSpace
 from monaco.helper_functions import empty_list, get_list
-from typing import Optional, Iterable
 
 
 def multi_plot(vars        : list[InVar | OutVar],

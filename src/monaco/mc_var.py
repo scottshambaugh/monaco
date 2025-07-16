@@ -5,16 +5,16 @@ import numpy as np
 from scipy.stats import rv_continuous, rv_discrete, describe
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
+from copy import copy
+from typing import Any, Callable, Iterable, Optional, NamedTuple
+from warnings import warn
+from abc import ABC, abstractmethod
 from monaco.mc_val import Val, InVal, OutVal
 from monaco.mc_varstat import VarStat
 from monaco.mc_enums import SampleMethod, Sensitivities, VarStatType, InVarSpace
 from monaco.mc_sampling import sampling
 from monaco.mc_plot import plot, plot_sensitivities
 from monaco.helper_functions import empty_list, hashable_val, flatten
-from copy import copy
-from typing import Any, Callable, Iterable, Optional, NamedTuple
-from warnings import warn
-from abc import ABC, abstractmethod
 
 
 ### Var Base Class ###

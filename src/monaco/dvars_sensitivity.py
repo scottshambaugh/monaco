@@ -7,9 +7,9 @@ if TYPE_CHECKING:
     from monaco.mc_sim import Sim
 
 import numpy as np
-from monaco.helper_functions import vprint, get_cases
 from scipy.optimize import minimize
 from warnings import warn
+from monaco.helper_functions import vprint, get_cases
 
 # numba is recommended for speed, as this will be very slow otherwise
 try:
