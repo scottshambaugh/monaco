@@ -50,6 +50,9 @@ docs = ["sphinx", "sphinx_rtd_theme", "myst-parser"]
 [tool.pytest.ini_options]
 addopts = "--disable-socket"
 
+[tool.coverage.report]
+exclude_lines = ["^if __name__ == ['\"]__main__['\"]:$"]
+
 [build-system]
 build-backend = "poetry.core.masonry.api"
 requires = ["setuptools", "poetry-core", "numpy>=2.0.0"]

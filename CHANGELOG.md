@@ -30,6 +30,8 @@
 * `__getitem__` for vars to get a val by number, e.g. `var[i]`
 * `datasource` attribute on invals and outvals to tell if they were loaded from file
 ### Changed    
+* External requests blocked during testing
+* `if __name__ == '__main__'` blocks excluded from code coverage percentage
 ### Removed    
 * git `develop` branch, only using `main` from now on
 
