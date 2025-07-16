@@ -24,7 +24,12 @@
 
 ## [Unreleased]
 ### Added    
-* Instead of passing a distribution, can now add custom values as an `InVar`, which must match the number of cases. For example, `sim.addInVar(vals=[0, 1, 2, 3])`
+### Changed    
+### Removed    
+
+## [0.16.0] - 2025-07-16
+### Added    
+* Instead of passing a distribution, can now pass a list to generate an `InVar` with custom values. Must match the number of cases, and must provide a `nummap` if the values are nonnumeric. For example, `sim.addInVar(vals=[0, 1, 2, 3])`
 * `case.vars` dict to reference all invars and outvars, and `case.vals` dict to reference all invals and outvals
 * `__getitem__` for cases to get a val by name, e.g. `case['valname']`
 * `__getitem__` for sims to get a case by number or a var by name, e.g. `sim[i]` or `sim['varname']`
