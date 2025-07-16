@@ -205,6 +205,8 @@ def plot_testing(show=False):
               savesimdata=False, savecasedata=False)
     sim.addInVar(name='Var1', dist=randint, distkwargs={'low': 1, 'high': 6})
     sim.addInVar(name='Var2', dist=norm, distkwargs={'loc': 10, 'scale': 4})
+    sim.addInVar(name='Var3', vals=['a']*11 + ['b']*4 + ['c']*2,
+                 nummap={3: 'a', 5: 'b', 4: 'c'})
     sim.runSim()
 
     fig, axs = sim.plot()

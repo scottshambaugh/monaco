@@ -34,20 +34,24 @@ def plot_testing(show=False):
 
     invars = dict()
     nummap = {1: 'a', 2: 'b', 3: 'c', 4: 'd', 5: 'e'}
-    invars['randint'] = InVar(name='randint', ndraws=1000,
+    ndraws = 1000
+    invars['randint'] = InVar(name='randint', ndraws=ndraws,
                               dist=randint, distkwargs={'low': 1, 'high': 6},
                               nummap=nummap,
                               samplemethod=SampleMethod.RANDOM, seed=invarseeds[0])
-    invars['norm'] = InVar(name='norm', ndraws=1000,
+    invars['norm'] = InVar(name='norm', ndraws=ndraws,
                            dist=norm, distkwargs={'loc': 10, 'scale': 4},
                            samplemethod=SampleMethod.RANDOM, seed=invarseeds[1])
     invars['norm'].addVarStat(stat='orderstatTI',
                               statkwargs={'p': 0.75, 'c': 0.50, 'bound': '2-sided'})
     invars['norm'].addVarStat(stat='orderstatP',
                               statkwargs={'p': 0.5, 'c': 0.9999, 'bound': 'all'})
-    invars['norm2'] = InVar(name='norm2', ndraws=1000,
+    invars['norm2'] = InVar(name='norm2', ndraws=ndraws,
                             dist=norm, distkwargs={'loc': 10, 'scale': 4},
                             samplemethod=SampleMethod.RANDOM, seed=invarseeds[2])
+    invars['custom_invar'] = InVar(name='custom_invar', ndraws=ndraws,
+                                   vals=['a']*ndraws, nummap=nummap,
+                                   samplemethod=None, seed=invarseeds[3])
     outvars = dict()
     outvars['test'] = OutVar(name='test', vals=[1, 0, 2, 2], firstcaseismedian=True)
     outvars['test'].sensitivity_ratios = {'a': 0.15, 'b': 0.35, 'c': 0.4}
@@ -58,6 +62,7 @@ def plot_testing(show=False):
     plot(invars['norm'], title='norm', invar_space=InVarSpace.PCTS)       # plot_hist
     plot_hist(outvars['test'], orientation='horizontal', rug_plot=False)  # plot_hist
     plot_cdf(invars['norm'], orientation='horizontal')                    # plot_cdf
+    plot_cdf(invars['custom_invar'], orientation='horizontal')            # plot_cdf
     plot_cdf(outvars['test'])                                             # plot_cdf
 
     plot_sensitivities(outvars['test'], sensitivities='ratios', sort=True)  # plot_sensitivities
