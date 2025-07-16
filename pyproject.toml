@@ -47,6 +47,9 @@ pandas = ["pandas"]
 numba = ["numba"]
 docs = ["sphinx", "sphinx_rtd_theme", "myst-parser"]
 
+[tool.pytest.ini_options]
+addopts = "--disable-socket"
+
 [build-system]
 build-backend = "poetry.core.masonry.api"
 requires = ["setuptools", "poetry-core", "numpy>=2.0.0"]
