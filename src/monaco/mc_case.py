@@ -50,10 +50,12 @@ class Case():
         Whether this case has run the run function.
     haspostprocessed : bool
         Whether this case has been postprocessed.
+    constvals : dict[str, Any]
+        The constant values for this case.
     invals : dict[str, monaco.mc_val.InVal]
-        The input values for this partitcular case.
+        The input values for this particular case.
     outvals : dict[str, monaco.mc_val.OutVal]
-        The output values for this partitcular case.
+        The output values for this particular case.
     siminput : tuple[Any]
         The preprocessed inputs provided to the run function for this case.
     simrawoutput : tuple[Any]
