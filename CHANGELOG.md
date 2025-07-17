@@ -27,6 +27,7 @@
 * Sims can now be run in parallel without dask, using python's in-built `ProcessPoolExecutor`. When `singlethreaded == False`, this is controlled with the `usedask` flag.
 * Can specify `ncores` for running parallel sims. This will override the `n_workers` kwarg in `daskkwargs` if provided.
 ### Changed    
+* Speed improvements across the board!
 * When creating an `InVar` with custom values, the nummap for nonnumeric inputs is automatically extracted if not provided, and no longer raises an error.
 * The pickled size of `Case` objects has been greatly reduced, speeding up all multiprocessing
 * The dask client and multiprocessing pool are started when needed, not on sim creation

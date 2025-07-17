@@ -416,7 +416,7 @@ class InVar(Var):
         self.vals = copy(self.nums)
         if self.nummap is not None:
             for i in range(self.ncases):
-                self.vals[i] = self.nummap[self.nums[i].item()]
+                self.vals[i] = self.nummap[self.nums[i]]
 
 
     def extractNumMap(self) -> None:

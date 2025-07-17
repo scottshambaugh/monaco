@@ -248,13 +248,13 @@ class OutVal(Val):
         if self.isscalar:
             if isinstance(self.val, (bool, np.bool_)):
                 self.valmap = {True: 1, False: 0}
-            else:
+            elif not is_num(self.val):
                 self.valmap = {hashable_val(self.val): 0}
         else:
             try:
                 vals_flattened = np.asanyarray(self.val).flatten()
             except ValueError:
-                vals_flattened = flatten(self.val)
+                vals_flattened = flatten([self.val])
             if all(isinstance(x, (bool, np.bool_)) for x in vals_flattened):
                 self.valmap = {True: 1, False: 0}
             elif any(not is_num(x) for x in vals_flattened):
