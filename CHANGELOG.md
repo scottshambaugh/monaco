@@ -28,6 +28,10 @@
 ### Changed    
 ### Removed    
 
+## [0.16.3] - 2025-07-16
+### Added    
+* `sim.extendOutVars` to make all the non-scalar output variables the same length by holding the last value (for eg timeseries variables)
+
 ## [0.16.2] - 2025-07-16
 * Dask is now an optional dependency, install it with `pip install distributed`
 * Fix bug with pct2sig and two-sided gaussianP varstats under 0.5
