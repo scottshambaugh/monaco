@@ -657,6 +657,8 @@ class Sim:
         """Restore the pickled cases to their original state."""
         for case in cases:
             case.invars = self.invars
+            case.invals = case.getInVals()
+            case.vals = {**case.invals, **case.outvals}
             case.outvars = self.outvars
             case.vars = self.vars
             case.constvals = self.constvals
