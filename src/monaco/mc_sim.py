@@ -70,9 +70,10 @@ class Sim:
         singlethreaded, will use multiprocessing.
     ncores : int, default: None
         The number of cores to use for multiprocessing. If None, will use all
-        available cores.
+        available cores. This will override the n_workers kwarg in daskkwargs
+        if provided.
     daskkwargs : dict, default: dict()
-        Kwargs to pass to the dask Client constructor, see:
+        Keyword arguments (kwargs) to pass to the dask Client constructor, see:
         https://distributed.dask.org/en/stable/api.html#client
     verbose : bool, default: True
         Whether to print out warning and status messages.
@@ -344,6 +345,11 @@ class Sim:
             return
 
         if not self.singlethreaded and self.usedask:
+            if self.ncores is not None:
+                if 'n_workers' in self.daskkwargs:
+                    vwarn(self.verbose, "Dask argument n_workers is being overridden " +
+                                        "by Sim argument ncores")
+                self.daskkwargs['n_workers'] = self.ncores
             self.client = Client(**self.daskkwargs)
             self.cluster = self.client.cluster
 
