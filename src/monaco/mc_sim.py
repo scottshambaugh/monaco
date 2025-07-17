@@ -233,6 +233,8 @@ class Sim:
             vwarn(self.verbose, "Dask is not installed, falling back to multiprocessing")
             self.usedask = False
 
+        self.invals_cache = []
+
 
     def __del__(self) -> None:
         if self.client is not None:
@@ -644,6 +646,8 @@ class Sim:
                                    keepsimrawoutput=self.keepsimrawoutput,
                                    seed=int(self.caseseeds[ncase])))
         self.cases.sort(key=lambda case: case.ncase)
+
+        self.invals_cache = [case.invals for case in self.cases]
         vprint(self.verbose, 'Done', flush=True)
 
 
@@ -657,7 +661,7 @@ class Sim:
         """Restore the pickled cases to their original state."""
         for case in cases:
             case.invars = self.invars
-            case.invals = case.getInVals()
+            case.invals = self.invals_cache[case.ncase]
             case.vals = {**case.invals, **case.outvals}
             case.outvars = self.outvars
             case.vars = self.vars
