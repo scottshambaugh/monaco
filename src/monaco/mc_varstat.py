@@ -277,7 +277,8 @@ class VarStat:
             self.bound = self.statkwargs['bound']
 
         self.p = self.statkwargs['p']
-        self.sig = pct2sig(self.p, bound=self.bound)
+        sig_sign = 1 if self.p >= 0.5 else -1
+        self.sig = sig_sign*pct2sig(self.p, bound=self.bound)
         self.setName(f'{self.var.name} Guassian {self.p*100}%')
         self.genStatsFunction(self.sigma, {'sig': self.sig})
 

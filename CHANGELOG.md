@@ -30,6 +30,7 @@
 ## [0.16.1] - 2025-07-16
 ### Changed    
 * Fix bug when there are no scalar outvars with multiplotting
+* Fix bug with gaussianP varstats under 0.5
 
 ## [0.16.0] - 2025-07-16
 ### Added    
