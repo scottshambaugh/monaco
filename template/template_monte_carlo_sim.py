@@ -26,11 +26,11 @@ firstcaseismedian = False
 seed = 12362398
 
 # Whether to run the simulation in a single thread. If True then the simulation
-# will run single-threaded in a 'for' loop, and if False then the dask parallel
-# processing module will be used for running concurrent threads. The overhead of
-# dask may make it slower than single-threaded execution for runs that execute
-# quickly.
+# will run single-threaded in a 'for' loop, and if False then parallel processing
+# will be used. Parallel processing can be done either with dask or with python's
+# in-built multiprocessing module, and this is controlled with the `usedask` flag.
 singlethreaded = True
+usedask = False
 
 # If you want, you can save all the results from each case to file, or just the
 # postprocessed simulation results. This can be incredibly useful for examining
@@ -46,7 +46,7 @@ def template_monte_carlo_sim():
     # We first initialize the sim with a name of our choosing
     sim = mc.Sim(name='Coin Flip', ndraws=ndraws, fcns=fcns,
                  firstcaseismedian=firstcaseismedian, seed=seed,
-                 singlethreaded=singlethreaded,
+                 singlethreaded=singlethreaded, usedask=usedask,
                  savecasedata=savecasedata, savesimdata=savesimdata,
                  verbose=True, debug=False)
 
