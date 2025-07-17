@@ -368,9 +368,12 @@ class Sim:
         """
         if self.ncores is None:
             self.ncores = multiprocessing.cpu_count()
-        ctx = multiprocessing.get_context('spawn')
+        ctx = multiprocessing.get_context()
         self.pool = concurrent.futures.ProcessPoolExecutor(max_workers=self.ncores,
                                                            mp_context=ctx)
+        vprint(self.verbose,
+              f'Multiprocessing pool initiated with {self.ncores} workers ' +
+              f'and "{multiprocessing.get_start_method()}" start method.')
 
 
     def addInVar(self,
