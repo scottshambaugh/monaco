@@ -8,7 +8,6 @@ import csv
 import json
 import cloudpickle
 import pathlib
-from dask.distributed import Client, progress
 from datetime import datetime, timedelta
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
@@ -301,6 +300,8 @@ class Sim:
         """
         Initialize the dask distributed client.
         """
+        from dask.distributed import Client
+
         if not self.singlethreaded:
             self.client = Client(**self.daskkwargs)
             self.cluster = self.client.cluster
@@ -608,6 +609,8 @@ class Sim:
             self.runCases(cases=casestorun, calledfromrunsim=calledfromrunsim)
             self.postProcessCases(cases=casestopostprocess)
         else:
+            from dask.distributed import progress
+
             casestopreprocess_downselect = self.downselectCases(cases=casestopreprocess)
             casestorun_downselect = self.downselectCases(cases=casestorun)
             casestopostprocess_downselect = self.downselectCases(cases=casestopostprocess)
@@ -711,6 +714,8 @@ class Sim:
 
         # Dask parallel processing
         else:
+            from dask.distributed import progress
+
             try:
                 for case in self.cases:
                     if case.ncase in cases_downselect:
@@ -779,6 +784,8 @@ class Sim:
 
         # Dask parallel processing
         else:
+            from dask.distributed import progress
+
             try:
                 for case in self.cases:
                     if case.ncase in cases_downselect:
@@ -841,6 +848,8 @@ class Sim:
 
         # Dask parallel processing
         else:
+            from dask.distributed import progress
+
             try:
                 for case in self.cases:
                     if case.ncase in cases_downselect:
