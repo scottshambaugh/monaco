@@ -85,7 +85,6 @@ def sim_multiprocessing(sim_base):
     sim.name = 'Sim parallel (multiprocessing)'
     sim.singlethreaded = False
     sim.usedask = False
-    sim.initMultiprocessingPool()
     sim.runSim()
     return sim
 
@@ -97,7 +96,6 @@ def sim_dask(sim_base):
     sim.name = 'Sim parallel (dask)'
     sim.singlethreaded = False
     sim.usedask = True
-    sim.initDaskClient()
     sim.runSim()
     return sim
 
@@ -109,9 +107,9 @@ def sim_dask_expanded(sim_base):
     sim.name = 'Sim parallel expanded (dask)'
     sim.singlethreaded = False
     sim.usedask = True
-    sim.initDaskClient()
     sim.drawVars()
     sim.genCases()
+    sim.initDaskClient()
     sim.preProcessCases()
     sim.runCases()
     sim.postProcessCases()
