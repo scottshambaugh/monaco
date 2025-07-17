@@ -23,7 +23,7 @@ from monaco.mc_enums import SimFunctions, SampleMethod
 from monaco.helper_functions import (get_list, vprint, vwarn, empty_list,
                                      hash_str_repeatable)
 from monaco.case_runners import preprocess_case, run_case, postprocess_case
-from monaco.globals import _worker_init
+from monaco.globals import _worker_init, register_global_vars
 from monaco.dvars_sensitivity import calc_sensitivities
 from monaco.mc_multi_plot import multi_plot_grid_rect
 
@@ -372,10 +372,17 @@ class Sim:
         if self.ncores is None:
             self.ncores = multiprocessing.cpu_count()
         ctx = multiprocessing.get_context()
+        if multiprocessing.get_start_method() == "fork":
+            # For fork, the global variables don't need to be pickled
+            initializer = register_global_vars
+            data = (self.invars, self.outvars, self.constvals)
+        else:
+            initializer = _worker_init
+            data = self.pickleLargeData()
         self.pool = concurrent.futures.ProcessPoolExecutor(max_workers=self.ncores,
                                                            mp_context=ctx,
-                                                           initializer=_worker_init,
-                                                           initargs=self.pickleLargeData())
+                                                           initializer=initializer,
+                                                           initargs=data)
         vprint(self.verbose,
               f'Multiprocessing pool initiated with {self.ncores} workers ' +
               f'and "{multiprocessing.get_start_method()}" start method.')
