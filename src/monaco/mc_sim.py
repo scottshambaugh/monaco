@@ -1072,18 +1072,16 @@ class Sim:
             seed = (self.seed - 1 - i_var) % 2**32
             self.outvarseeds.append(seed)
 
-            vals = []
-            for i in range(self.ncases):
-                vals.append(self.cases[i].outvals[varname].val)
-
+            # Generate valmap
             if self.cases[0].outvals[varname].valmapsource == 'auto':
                 uniquevals : set[Any] = set()
                 valmap : dict[Any, float] = None
-                for i in range(self.ncases):
-                    if self.cases[i].outvals[varname].valmap is None:
+                for case in self.cases:
+                    if case.outvals[varname].valmap is None:
                         uniquevals = None
+                        break
                     else:
-                        uniquevals.update(self.cases[i].outvals[varname].valmap.keys())
+                        uniquevals.update(case.outvals[varname].valmap.keys())
                 if uniquevals is not None:
                     valmap = dict()
                     for i, val in enumerate(uniquevals):
@@ -1091,14 +1089,16 @@ class Sim:
             else:
                 valmap = self.cases[0].outvals[varname].valmap
 
+            # Generate vals
+            vals = [case.outvals[varname].val for case in self.cases]
             outvar = OutVar(name=varname, vals=vals, valmap=valmap,
                             ndraws=self.ndraws, seed=seed,
                             firstcaseismedian=self.firstcaseismedian,
                             datasource=datasource)
             self.outvars[varname] = outvar
             self.vars[varname] = outvar
-            for i in range(self.ncases):
-                self.cases[i].addOutVar(outvar)
+            for case in self.cases:
+                case.addOutVar(outvar)
 
         self.noutvars = len(self.outvars)
 
