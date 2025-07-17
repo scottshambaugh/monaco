@@ -229,12 +229,9 @@ class Sim:
         self.pool = None
         self.client = None
         self.cluster = None
-        if not self.singlethreaded and self.usedask:
-            if HAS_DASK:
-                self.initDaskClient()
-            else:
-                vwarn(self.verbose, "Dask is not installed, falling back to multiprocessing")
-                self.usedask = False
+        if not self.singlethreaded and self.usedask and not HAS_DASK:
+            vwarn(self.verbose, "Dask is not installed, falling back to multiprocessing")
+            self.usedask = False
 
 
     def __del__(self) -> None:
@@ -261,11 +258,6 @@ class Sim:
         self.__dict__.update(state)
         if self.savecasedata:
             self.loadCases()
-        if not self.singlethreaded:
-            if self.usedask:
-                self.initDaskClient()
-            else:
-                self.initMultiprocessingPool()
 
 
     def __getitem__(self,
@@ -339,6 +331,10 @@ class Sim:
         """
         Initialize the dask distributed client.
         """
+        if self.client is not None:
+            vprint(self.verbose, "Dask client already initialized")
+            return
+
         if not HAS_DASK:
             vwarn(self.verbose, "Dask is not installed, skipping dask client initialization")
             return
@@ -351,6 +347,9 @@ class Sim:
                 self.daskkwargs['n_workers'] = self.ncores
             self.client = Client(**self.daskkwargs)
             self.cluster = self.client.cluster
+
+            # Initialize the global variables in each worker
+            self.client.run(_worker_init, *self.pickleLargeData())
 
             nworkers = len(self.cluster.workers)
             nthreads = nworkers * self.cluster.worker_spec[0]['options']['nthreads']
@@ -375,14 +374,10 @@ class Sim:
         if self.ncores is None:
             self.ncores = multiprocessing.cpu_count()
         ctx = multiprocessing.get_context()
-        invars_blob  = pickle.dumps(self.invars, protocol=5)
-        outvars_blob = pickle.dumps(self.outvars, protocol=5)
-        constvals_blob = pickle.dumps(self.constvals, protocol=5)
-        initargs = (invars_blob, outvars_blob, constvals_blob)
         self.pool = concurrent.futures.ProcessPoolExecutor(max_workers=self.ncores,
                                                            mp_context=ctx,
                                                            initializer=_worker_init,
-                                                           initargs=initargs)
+                                                           initargs=self.pickleLargeData())
         vprint(self.verbose,
               f'Multiprocessing pool initiated with {self.ncores} workers ' +
               f'and "{multiprocessing.get_start_method()}" start method.')
@@ -689,7 +684,10 @@ class Sim:
             self.preProcessCases(cases=casestopreprocess)
             self.runCases(cases=casestorun, calledfromrunsim=calledfromrunsim)
             self.postProcessCases(cases=casestopostprocess)
+
+        # Dask has its own path because it can chain delayed functions
         else:
+            self.initDaskClient()
             casestopreprocess_downselect = self.downselectCases(cases=casestopreprocess)
             casestorun_downselect = self.downselectCases(cases=casestorun)
             casestopostprocess_downselect = self.downselectCases(cases=casestopostprocess)
@@ -819,6 +817,7 @@ class Sim:
 
         # Dask parallel processing
         else:
+            self.initDaskClient()
             try:
                 for i in cases_downselect:
                     case = self.cases[i]
@@ -917,6 +916,7 @@ class Sim:
 
         # Dask parallel processing
         else:
+            self.initDaskClient()
             try:
                 for i in cases_downselect:
                     case = self.cases[i]
@@ -1008,6 +1008,7 @@ class Sim:
 
         # Dask parallel processing
         else:
+            self.initDaskClient()
             try:
                 for i in cases_downselect:
                     case = self.cases[i]
@@ -1886,3 +1887,26 @@ class Sim:
         for file in extrafiles:
             filepath = self.resultsdir / file
             filepath.unlink()
+
+    def pickleLargeData(self, protocol: int = 5) -> tuple[bytes, bytes, bytes]:
+        """
+        Pickle the large data objects for use in multiprocessing.
+
+        Parameters
+        ----------
+        protocol : int, default: 5
+            The pickle protocol to use.
+
+        Returns
+        -------
+        invars_blob  : bytes
+            The pickled invars.
+        outvars_blob : bytes
+            The pickled outvars.
+        constvals_blob : bytes
+            The pickled constvals.
+        """
+        invars_blob  = pickle.dumps(self.invars, protocol=protocol)
+        outvars_blob = pickle.dumps(self.outvars, protocol=protocol)
+        constvals_blob = pickle.dumps(self.constvals, protocol=protocol)
+        return invars_blob, outvars_blob, constvals_blob
