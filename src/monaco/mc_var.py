@@ -479,9 +479,10 @@ class InVar(Var):
 
             if self.valmap is not None:
                 for val in self.vals:
-                    self.nums.append(np.asarray(self.valmap[val]))
+                    self.nums.append(self.valmap[val])
             else:
-                self.nums = [np.asarray(val) for val in self.vals]
+                nums = np.asarray(self.vals)
+                self.nums = nums.tolist()
 
             # Generate uniform percentiles for custom values
             self.pcts = [i / (self.ndraws - 1) for i in range(self.ndraws)]
@@ -495,16 +496,18 @@ class InVar(Var):
         if self.firstcaseismedian:
             self.ncases = self.ndraws + 1
             self.pcts.append(0.5)
-            self.nums.append(np.asarray(self.getDistMedian()))
+            self.nums.append(self.getDistMedian())
 
         dist = self.dist(**self.distkwargs)
         pcts = sampling(ndraws=self.ndraws, method=self.samplemethod,
                         ninvar=self.ninvar, ninvar_max=ninvar_max,
                         seed=self.seed)
         self.pcts.extend(pcts)
-        self.nums.extend([np.asarray(x) for x in dist.ppf(pcts)])
+        self.nums.extend(dist.ppf(pcts))
 
-        if any(np.isinf(self.nums)):
+        nums = np.asarray(self.nums)
+        self.nums = nums.tolist()
+        if any(np.isinf(nums)):
             warn( 'Infinite value drawn. Check distribution and parameters: ' +
                  f'{self.dist=}, {self.distkwargs=}')
             if self.samplemethod in (SampleMethod.SOBOL, SampleMethod.HALTON):
@@ -512,7 +515,7 @@ class InVar(Var):
                      f'first point of the {self.samplemethod} sampling method. ' +
                      f'Consider using {SampleMethod.SOBOL_RANDOM} instead.')
 
-        if any(np.isnan(num) for num in self.nums):
+        if any(np.isnan(nums)):
             raise ValueError( 'Invalid draw. Check distribution and parameters: ' +
                              f'{self.dist=}, {self.distkwargs=}')
 
@@ -540,7 +543,7 @@ class InVar(Var):
             ismedian = True
 
         val = InVal(name=self.name, ncase=ncase,
-                    pct=self.pcts[ncase], num=self.nums[ncase].item(),
+                    pct=self.pcts[ncase], num=self.nums[ncase],
                     dist=self.dist, nummap=self.nummap, valmap=self.valmap,
                     ismedian=ismedian, datasource=self.datasource)
         return val
