@@ -24,6 +24,7 @@
 
 ## [Unreleased]
 ### Added    
+* Sims can now be run in parallel without dask, using python's in-built `ProcessPoolExecutor`. When `singlethreaded == False`, this is controlled with the `usedask` flag. 
 ### Changed    
 * When creating an `InVar` with custom values, the nummap for nonnumeric inputs is automatically extracted if not provided.
 ### Removed    

@@ -80,23 +80,35 @@ def sim_singlethreaded(sim_base):
     return sim
 
 @pytest.fixture
-def sim_parallel(sim_base):
+def sim_multiprocessing(sim_base):
+    sim = sim_base
+    sim.name = 'Sim parallel (multiprocessing)'
+    sim.singlethreaded = False
+    sim.usedask = False
+    sim.initMultiprocessingPool()
+    sim.runSim()
+    return sim
+
+@pytest.fixture
+def sim_dask(sim_base):
     if not HAS_DASK:
         return None
     sim = sim_base
     sim.name = 'Sim parallel (dask)'
     sim.singlethreaded = False
+    sim.usedask = True
     sim.initDaskClient()
     sim.runSim()
     return sim
 
 @pytest.fixture
-def sim_parallel_expanded(sim_base):
+def sim_dask_expanded(sim_base):
     if not HAS_DASK:
         return None
     sim = sim_base
     sim.name = 'Sim parallel expanded (dask)'
     sim.singlethreaded = False
+    sim.usedask = True
     sim.initDaskClient()
     sim.drawVars()
     sim.genCases()
@@ -107,18 +119,22 @@ def sim_parallel_expanded(sim_base):
     return sim
 
 
-def test_sim_fixture_singlethreaded(sim_singlethreaded):
+def test_sim_singlethreaded_fixture(sim_singlethreaded):
     assert sim_singlethreaded.singlethreaded
 
-def test_sim_fixture_parallel(sim_parallel):
-    if sim_parallel is None:
-        pytest.skip("Dask is not installed, skipping parallel tests")
-    assert not sim_parallel.singlethreaded
+def test_sim_multiprocessing_fixture(sim_multiprocessing):
+    assert not sim_multiprocessing.singlethreaded
+    assert not sim_multiprocessing.usedask
 
-def test_sim_fixture_parallel_expanded(sim_parallel_expanded):
-    if sim_parallel_expanded is None:
+def test_sim_dask_fixture(sim_dask):
+    if sim_dask is None:
         pytest.skip("Dask is not installed, skipping parallel tests")
-    assert not sim_parallel_expanded.singlethreaded
+    assert not sim_dask.singlethreaded
+
+def test_sim_dask_expanded_fixture(sim_dask_expanded):
+    if sim_dask_expanded is None:
+        pytest.skip("Dask is not installed, skipping parallel tests")
+    assert not sim_dask_expanded.singlethreaded
 
 
 def test_sim_getitem(sim_singlethreaded):
@@ -128,16 +144,16 @@ def test_sim_getitem(sim_singlethreaded):
     assert sim_singlethreaded['Var1'].vals[0] == pytest.approx(3)
 
 
-def test_sim_dist_draws(sim_singlethreaded, sim_parallel, sim_parallel_expanded):
-    sims = [sim for sim in (sim_singlethreaded, sim_parallel, sim_parallel_expanded)
+def test_sim_dist_draws(sim_singlethreaded, sim_multiprocessing, sim_dask, sim_dask_expanded):
+    sims = [sim for sim in (sim_singlethreaded, sim_multiprocessing, sim_dask, sim_dask_expanded)
             if sim is not None]
     for sim in sims:
         assert sim.cases[0].invals['Var1'].val == pytest.approx(3)
         assert sim.cases[1].invals['Var2'].val == pytest.approx(9.98228884)
 
 
-def test_sim_scalaroutvars(sim_singlethreaded, sim_parallel, sim_parallel_expanded):
-    sims = [sim for sim in (sim_singlethreaded, sim_parallel, sim_parallel_expanded)
+def test_sim_scalaroutvars(sim_singlethreaded, sim_multiprocessing, sim_dask, sim_dask_expanded):
+    sims = [sim for sim in (sim_singlethreaded, sim_multiprocessing, sim_dask, sim_dask_expanded)
             if sim is not None]
     for sim in sims:
         assert len(sim.scalarOutVars()) == 1
@@ -184,8 +200,8 @@ def test_sim_custom_vals():
                      vals=[1, 2, 3])
 
 
-def test_sim_corr_cov(sim_singlethreaded, sim_parallel, sim_parallel_expanded):
-    sims = [sim for sim in (sim_singlethreaded, sim_parallel, sim_parallel_expanded)
+def test_sim_corr_cov(sim_singlethreaded, sim_multiprocessing, sim_dask, sim_dask_expanded):
+    sims = [sim for sim in (sim_singlethreaded, sim_multiprocessing, sim_dask, sim_dask_expanded)
             if sim is not None]
     for sim in sims:
         # Convert to numpy arrays because pytest.approx doesn't work on nested lists
@@ -199,8 +215,9 @@ def test_sim_corr_cov(sim_singlethreaded, sim_parallel, sim_parallel_expanded):
                                        [-1.3125   , -0.35929331, 25.5]]))
 
 
-def test_sim_preprocess_failure(sim_singlethreaded, sim_parallel, sim_parallel_expanded):
-    sims = [sim for sim in (sim_singlethreaded, sim_parallel, sim_parallel_expanded)
+def test_sim_preprocess_failure(sim_singlethreaded, sim_multiprocessing,
+                                sim_dask, sim_dask_expanded):
+    sims = [sim for sim in (sim_singlethreaded, sim_multiprocessing, sim_dask, sim_dask_expanded)
             if sim is not None]
     for sim in sims:
         fcns = {SimFunctions.PREPROCESS : sim_testing_preprocess_failure,
@@ -220,8 +237,8 @@ def test_sim_preprocess_failure(sim_singlethreaded, sim_parallel, sim_parallel_e
         assert len(sim.casespostprocessed) == sim.ncases - 1
 
 
-def test_sim_run_failure(sim_singlethreaded, sim_parallel, sim_parallel_expanded):
-    sims = [sim for sim in (sim_singlethreaded, sim_parallel, sim_parallel_expanded)
+def test_sim_run_failure(sim_singlethreaded, sim_multiprocessing, sim_dask, sim_dask_expanded):
+    sims = [sim for sim in (sim_singlethreaded, sim_multiprocessing, sim_dask, sim_dask_expanded)
             if sim is not None]
     for sim in sims:
         fcns = {SimFunctions.PREPROCESS : sim_testing_preprocess,
@@ -241,8 +258,9 @@ def test_sim_run_failure(sim_singlethreaded, sim_parallel, sim_parallel_expanded
         assert len(sim.casespostprocessed) == sim.ncases - 1
 
 
-def test_sim_postprocess_failure(sim_singlethreaded, sim_parallel, sim_parallel_expanded):
-    sims = [sim for sim in (sim_singlethreaded, sim_parallel, sim_parallel_expanded)
+def test_sim_postprocess_failure(sim_singlethreaded, sim_multiprocessing,
+                                 sim_dask, sim_dask_expanded):
+    sims = [sim for sim in (sim_singlethreaded, sim_multiprocessing, sim_dask, sim_dask_expanded)
             if sim is not None]
     for sim in sims:
         fcns = {SimFunctions.PREPROCESS : sim_testing_preprocess,

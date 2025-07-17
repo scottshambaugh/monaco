@@ -7,6 +7,9 @@ import csv
 import json
 import cloudpickle
 import pathlib
+import multiprocessing
+import concurrent.futures
+
 from datetime import datetime, timedelta
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
@@ -61,7 +64,13 @@ class Sim:
     seed : int, default: np.random.get_state(legacy=False)['state']['key'][0]
         The random number to seed the simulation.
     singlethreaded : bool, default: False
-        Whether to run single threaded rather than using dask.
+        Whether to run single threaded. This takes precedence over usedask.
+    usedask : bool, default: False
+        Whether to use dask for parallelization. If False and not
+        singlethreaded, will use multiprocessing.
+    ncores : int, default: None
+        The number of cores to use for multiprocessing. If None, will use all
+        available cores.
     daskkwargs : dict, default: dict()
         Kwargs to pass to the dask Client constructor, see:
         https://distributed.dask.org/en/stable/api.html#client
@@ -142,6 +151,8 @@ class Sim:
                  samplemethod      : SampleMethod = SampleMethod.SOBOL_RANDOM,
                  seed              : int  = np.random.get_state(legacy=False)['state']['key'][0],
                  singlethreaded    : bool = True,
+                 usedask           : bool = False,
+                 ncores            : int | None = None,
                  daskkwargs        : dict = dict(),
                  verbose           : bool = True,
                  debug             : bool = False,
@@ -163,6 +174,8 @@ class Sim:
         self.samplemethod = samplemethod
         self.seed = int(seed)
         self.singlethreaded = singlethreaded
+        self.usedask = usedask
+        self.ncores = ncores
         self.daskkwargs = daskkwargs
         self.keepsiminput = keepsiminput
         self.keepsimrawoutput = keepsimrawoutput
@@ -212,24 +225,31 @@ class Sim:
 
         self.client = None
         self.cluster = None
-        if not self.singlethreaded:
+        if not self.singlethreaded and self.usedask:
             if HAS_DASK:
                 self.initDaskClient()
             else:
-                vwarn(self.verbose, "Dask is not installed, running singlethreaded")
-                self.singlethreaded = True
+                vwarn(self.verbose, "Dask is not installed, falling back to multiprocessing")
+                self.usedask = False
+
+        self.pool = None
+        if not self.usedask and not self.singlethreaded:
+            self.initMultiprocessingPool()
 
 
     def __del__(self) -> None:
         if self.client is not None:
             self.client.close()
+        if self.pool is not None:
+            self.pool.shutdown(wait=False, cancel_futures=True)
 
 
     def __getstate__(self) -> dict:
         """Function for pickling self to save to file."""
         state = self.__dict__.copy()
-        state['client'] = None  # don't save cluster to file
-        state['cluster'] = None  # don't save cluster to file
+        state['client'] = None  # don't save dask client to file
+        state['cluster'] = None  # don't save dask cluster to file
+        state['pool'] = None  # don't save multiprocessing pool to file
         state['cases'] = []  # don't save case data when pickling self
         return state
 
@@ -242,7 +262,10 @@ class Sim:
         if self.savecasedata:
             self.loadCases()
         if not self.singlethreaded:
-            self.initDaskClient()
+            if self.usedask:
+                self.initDaskClient()
+            else:
+                self.initMultiprocessingPool()
 
 
     def __getitem__(self,
@@ -320,7 +343,7 @@ class Sim:
             vwarn(self.verbose, "Dask is not installed, skipping dask client initialization")
             return
 
-        if not self.singlethreaded:
+        if not self.singlethreaded and self.usedask:
             self.client = Client(**self.daskkwargs)
             self.cluster = self.client.cluster
 
@@ -331,6 +354,17 @@ class Sim:
                    f'Dask cluster initiated with {nworkers} workers, ' +
                    f'{nthreads} threads, {memory/2**30:0.2f} GiB memory.')
             vprint(self.verbose, f'Dask dashboard link: {self.cluster.dashboard_link}')
+
+
+    def initMultiprocessingPool(self):
+        """
+        Initialize the multiprocessing pool.
+        """
+        if self.ncores is None:
+            self.ncores = multiprocessing.cpu_count()
+        ctx = multiprocessing.get_context('spawn')
+        self.pool = concurrent.futures.ProcessPoolExecutor(max_workers=self.ncores,
+                                                           mp_context=ctx)
 
 
     def addInVar(self,
@@ -621,7 +655,7 @@ class Sim:
             Whether this was called from self.runSim(). If False, a new ID for
             this simulation run is generated.
         """
-        if self.singlethreaded:
+        if self.singlethreaded or not self.usedask:
             self.preProcessCases(cases=casestopreprocess)
             self.runCases(cases=casestorun, calledfromrunsim=calledfromrunsim)
             self.postProcessCases(cases=casestopostprocess)
@@ -726,6 +760,30 @@ class Sim:
                 pbar.refresh()
                 pbar.close()
 
+        # Multiprocessing
+        elif not self.usedask:
+            futures = []
+            for i in cases_downselect:
+                case = self.cases[i]
+                case.haspreprocessed = False
+                inputs = (self.fcns[SimFunctions.PREPROCESS], case, self.debug, self.verbose)
+                futures.append(self.pool.submit(preprocess_case, *inputs))
+
+            if self.verbose:
+                for future in tqdm(
+                    concurrent.futures.as_completed(futures),
+                    total=len(futures),
+                    desc="Preprocessing cases",
+                    position=0,
+                    leave=True
+                ):
+                    case = future.result()
+                    preprocessedcases.append(case)
+            else:
+                for future in concurrent.futures.as_completed(futures):
+                    case = future.result()
+                    preprocessedcases.append(case)
+
         # Dask parallel processing
         else:
             try:
@@ -794,6 +852,31 @@ class Sim:
                 pbar.refresh()
                 pbar.close()
 
+        # Multiprocessing
+        elif not self.usedask:
+            futures = []
+            for i in cases_downselect:
+                case = self.cases[i]
+                case.hasrun = False
+                inputs = (self.fcns[SimFunctions.RUN], case,
+                          self.debug, self.verbose, self.runsimid)
+                futures.append(self.pool.submit(run_case, *inputs))
+
+            if self.verbose:
+                for future in tqdm(
+                    concurrent.futures.as_completed(futures),
+                    total=len(futures),
+                    desc="Running cases",
+                    position=0,
+                    leave=True
+                ):
+                    case = future.result()
+                    runcases.append(case)
+            else:
+                for future in concurrent.futures.as_completed(futures):
+                    case = future.result()
+                    runcases.append(case)
+
         # Dask parallel processing
         else:
             try:
@@ -855,6 +938,30 @@ class Sim:
             if self.verbose:
                 pbar.refresh()
                 pbar.close()
+
+        # Multiprocessing
+        elif not self.usedask:
+            futures = []
+            for i in cases_downselect:
+                case = self.cases[i]
+                case.haspostprocessed = False
+                inputs = (self.fcns[SimFunctions.POSTPROCESS], case, self.debug, self.verbose)
+                futures.append(self.pool.submit(postprocess_case, *inputs))
+
+            if self.verbose:
+                for future in tqdm(
+                    concurrent.futures.as_completed(futures),
+                    total=len(futures),
+                    desc="Postprocessing cases",
+                    position=0,
+                    leave=True
+                ):
+                    case = future.result()
+                    postprocessedcases.append(case)
+            else:
+                for future in concurrent.futures.as_completed(futures):
+                    case = future.result()
+                    postprocessedcases.append(case)
 
         # Dask parallel processing
         else:
