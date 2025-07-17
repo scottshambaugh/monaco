@@ -5,7 +5,7 @@ import numpy as np
 from typing import Any
 from scipy.stats import rv_discrete, rv_continuous
 from abc import ABC
-from monaco.helper_functions import is_num, hashable_val, flatten
+from monaco.helper_functions import is_num, hashable_val, flatten, hashable_val_vectorized
 
 try:
     import pandas as pd
@@ -137,7 +137,7 @@ class InVal(Val):
         if self.nummap is None:
             self.val = self.num
         else:
-            self.val = self.nummap[self.num.item()]
+            self.val = self.nummap[self.num]
 
 
     def genValMap(self) -> None:
@@ -233,10 +233,7 @@ class OutVal(Val):
         """
         Calculate the shape of the output value, and whether it is a scalar.
         """
-        try:
-            vals_array = np.asarray(self.val, dtype='float')
-        except ValueError:
-            vals_array = np.asarray(self.val, dtype='object')
+        vals_array = np.asanyarray(self.val)
         self.shape = vals_array.shape
 
         self.isscalar = False
@@ -253,7 +250,8 @@ class OutVal(Val):
                for x in vals_flattened):
             self.valmap = {True: 1, False: 0}
         elif any(not is_num(x) for x in vals_flattened):
-            sorted_vals = sorted(set(hashable_val(x) for x in vals_flattened))
+            hashable_vals = hashable_val_vectorized(vals_flattened)
+            sorted_vals = sorted(set(hashable_vals))
             self.valmap = {val: idx for idx, val in enumerate(sorted_vals)}
 
 
@@ -262,9 +260,9 @@ class OutVal(Val):
         Map the output value to a number or array of numbers.
         """
         if self.valmap is None:
-            self.num = np.asarray(self.val)
+            self.num = self.val
         elif self.isscalar:
-            self.num = np.asarray(self.valmap[hashable_val(self.val)])
+            self.num = self.valmap[hashable_val(self.val)]
         else:
             num = np.asarray(self.val, dtype='object')
             if len(self.shape) == 1:
@@ -284,7 +282,7 @@ class OutVal(Val):
         if self.valmap is None:
             self.nummap = None
         else:
-            self.nummap = {hashable_val(np.asarray(num)): val for val, num in self.valmap.items()}
+            self.nummap = {hashable_val(num): val for val, num in self.valmap.items()}
 
 
     def split(self) -> dict[str, 'OutVal']:  # Quotes in typing to avoid import error

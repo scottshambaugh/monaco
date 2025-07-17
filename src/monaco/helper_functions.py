@@ -56,6 +56,38 @@ def hash_str_repeatable(s : str) -> int:
     return int(sha512(s.encode('utf-8')).hexdigest(), 16)
 
 
+def hashable_val_vectorized(vals : Iterable[Any]) -> list[Any]:
+    """
+    Vectorized version of hashable_val for processing multiple values efficiently.
+
+    Parameters
+    ----------
+    vals : Iterable[Any]
+        The values to make hashable.
+
+    Returns
+    -------
+    hashable_vals : list[Any]
+        A list of hashable representations of the values.
+    """
+    # Type check to see if all values are hashable and of the same type
+    first_val = vals[0]
+    try:
+        hash(first_val)
+        first_type = type(first_val)
+        if all(isinstance(v, first_type) for v in vals):
+            return list(vals)
+    except TypeError:
+        pass
+
+    # If not, process each value individually
+    result = []
+    for val in vals:
+        result.append(hashable_val(val))
+
+    return result
+
+
 def hashable_val(val : Any) -> Any:
     """
     For `nummap` and `valmap`, we need to use values as keys in a dictionary.
