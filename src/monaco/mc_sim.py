@@ -757,14 +757,14 @@ class Sim:
             if self.verbose:
                 pbar = tqdm(total=len(cases_downselect), desc='Preprocessing cases',
                             unit=' cases', position=0)
-            for case in self.cases:
-                if case.ncase in cases_downselect:
-                    case.haspreprocessed = False
-                    case = preprocess_case(self.fcns[SimFunctions.PREPROCESS],
-                                           case, self.debug, self.verbose)
-                    preprocessedcases.append(case)
-                    if self.verbose:
-                        pbar.update(1)
+            for i in cases_downselect:
+                case = self.cases[i]
+                case.haspreprocessed = False
+                case = preprocess_case(self.fcns[SimFunctions.PREPROCESS],
+                                        case, self.debug, self.verbose)
+                preprocessedcases.append(case)
+                if self.verbose:
+                    pbar.update(1)
             if self.verbose:
                 pbar.refresh()
                 pbar.close()
@@ -796,13 +796,13 @@ class Sim:
         # Dask parallel processing
         else:
             try:
-                for case in self.cases:
-                    if case.ncase in cases_downselect:
-                        case.haspreprocessed = False
-                        case_delayed = dask.delayed(preprocess_case)(
-                            self.fcns[SimFunctions.PREPROCESS], case,
-                            self.debug, self.verbose)
-                        preprocessedcases.append(case_delayed)
+                for i in cases_downselect:
+                    case = self.cases[i]
+                    case.haspreprocessed = False
+                    case_delayed = dask.delayed(preprocess_case)(
+                        self.fcns[SimFunctions.PREPROCESS], case,
+                        self.debug, self.verbose)
+                    preprocessedcases.append(case_delayed)
 
                 if self.verbose:
                     vprint(self.verbose, 'Preprocessing ' +
@@ -849,14 +849,14 @@ class Sim:
             if self.verbose:
                 pbar = tqdm(total=len(cases_downselect), desc='Running cases',
                             unit=' cases', position=0)
-            for case in self.cases:
-                if case.ncase in cases_downselect:
-                    case.hasrun = False
-                    case = run_case(self.fcns[SimFunctions.RUN], case,
-                                    self.debug, self.verbose, self.runsimid)
-                    runcases.append(case)
-                    if self.verbose:
-                        pbar.update(1)
+            for i in cases_downselect:
+                case = self.cases[i]
+                case.hasrun = False
+                case = run_case(self.fcns[SimFunctions.RUN], case,
+                                self.debug, self.verbose, self.runsimid)
+                runcases.append(case)
+                if self.verbose:
+                    pbar.update(1)
             if self.verbose:
                 pbar.refresh()
                 pbar.close()
@@ -889,13 +889,13 @@ class Sim:
         # Dask parallel processing
         else:
             try:
-                for case in self.cases:
-                    if case.ncase in cases_downselect:
-                        case.hasrun = False
-                        case_delayed = dask.delayed(run_case)(
-                            self.fcns[SimFunctions.RUN], case,
-                            self.debug, self.verbose, self.runsimid)
-                        runcases.append(case_delayed)
+                for i in cases_downselect:
+                    case = self.cases[i]
+                    case.hasrun = False
+                    case_delayed = dask.delayed(run_case)(
+                        self.fcns[SimFunctions.RUN], case,
+                        self.debug, self.verbose, self.runsimid)
+                    runcases.append(case_delayed)
 
                 if self.verbose:
                     vprint(self.verbose, 'Running ' +
@@ -936,14 +936,14 @@ class Sim:
             if self.verbose:
                 pbar = tqdm(total=len(cases_downselect), desc='Postprocessing cases',
                             unit=' cases', position=0)
-            for case in self.cases:
-                if case.ncase in cases_downselect:
-                    case.haspostprocessed = False
-                    case = postprocess_case(self.fcns[SimFunctions.POSTPROCESS],
-                                            case, self.debug, self.verbose)
-                    postprocessedcases.append(case)
-                    if self.verbose:
-                        pbar.update(1)
+            for i in cases_downselect:
+                case = self.cases[i]
+                case.haspostprocessed = False
+                case = postprocess_case(self.fcns[SimFunctions.POSTPROCESS],
+                                        case, self.debug, self.verbose)
+                postprocessedcases.append(case)
+                if self.verbose:
+                    pbar.update(1)
             if self.verbose:
                 pbar.refresh()
                 pbar.close()
@@ -975,13 +975,13 @@ class Sim:
         # Dask parallel processing
         else:
             try:
-                for case in self.cases:
-                    if case.ncase in cases_downselect:
-                        case.haspostprocessed = False
-                        case_delayed = dask.delayed(postprocess_case)(
-                            self.fcns[SimFunctions.POSTPROCESS], case,
-                            self.debug, self.verbose)
-                        postprocessedcases.append(case_delayed)
+                for i in cases_downselect:
+                    case = self.cases[i]
+                    case.haspostprocessed = False
+                    case_delayed = dask.delayed(postprocess_case)(
+                        self.fcns[SimFunctions.POSTPROCESS], case,
+                        self.debug, self.verbose)
+                    postprocessedcases.append(case_delayed)
 
                 if self.verbose:
                     x = dask.persist(postprocessedcases)
