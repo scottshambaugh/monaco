@@ -50,10 +50,10 @@ jobs:
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: |
           poetry config installer.max-workers 1
-          poetry install --extras "pandas" --no-root
+          poetry install --extras "pandas distributed" --no-root
 
       - name: Install library
-        run: poetry install --extras "pandas"
+        run: poetry install --extras "pandas distributed"
 
       - name: Activate Environment
         run: source $VENV

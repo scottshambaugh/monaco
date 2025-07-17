@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import os
 import numpy as np
-import dask
 import csv
 import json
 import cloudpickle
@@ -22,6 +21,13 @@ from monaco.helper_functions import (get_list, vprint, vwarn, empty_list,
 from monaco.case_runners import preprocess_case, run_case, postprocess_case
 from monaco.dvars_sensitivity import calc_sensitivities
 from monaco.mc_multi_plot import multi_plot_grid_rect
+
+try:
+    import dask
+    from dask.distributed import Client, progress
+    HAS_DASK = True
+except ImportError:
+    HAS_DASK = False
 
 
 class Sim:
@@ -201,7 +207,11 @@ class Sim:
         self.client = None
         self.cluster = None
         if not self.singlethreaded:
-            self.initDaskClient()
+            if HAS_DASK:
+                self.initDaskClient()
+            else:
+                vwarn(self.verbose, "Dask is not installed, running singlethreaded")
+                self.singlethreaded = True
 
 
     def __del__(self) -> None:
@@ -300,7 +310,9 @@ class Sim:
         """
         Initialize the dask distributed client.
         """
-        from dask.distributed import Client
+        if not HAS_DASK:
+            vwarn(self.verbose, "Dask is not installed, skipping dask client initialization")
+            return
 
         if not self.singlethreaded:
             self.client = Client(**self.daskkwargs)
@@ -609,8 +621,6 @@ class Sim:
             self.runCases(cases=casestorun, calledfromrunsim=calledfromrunsim)
             self.postProcessCases(cases=casestopostprocess)
         else:
-            from dask.distributed import progress
-
             casestopreprocess_downselect = self.downselectCases(cases=casestopreprocess)
             casestorun_downselect = self.downselectCases(cases=casestorun)
             casestopostprocess_downselect = self.downselectCases(cases=casestopostprocess)
@@ -714,8 +724,6 @@ class Sim:
 
         # Dask parallel processing
         else:
-            from dask.distributed import progress
-
             try:
                 for case in self.cases:
                     if case.ncase in cases_downselect:
@@ -784,8 +792,6 @@ class Sim:
 
         # Dask parallel processing
         else:
-            from dask.distributed import progress
-
             try:
                 for case in self.cases:
                     if case.ncase in cases_downselect:
@@ -848,8 +854,6 @@ class Sim:
 
         # Dask parallel processing
         else:
-            from dask.distributed import progress
-
             try:
                 for case in self.cases:
                     if case.ncase in cases_downselect:

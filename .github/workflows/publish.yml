@@ -35,7 +35,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --extras "pandas" --no-root
+        run: poetry install --extras "pandas distributed" --no-root
 
       - name: Build package
         run: poetry build

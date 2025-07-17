@@ -12,7 +12,7 @@ pip install monaco
 git clone https://github.com/scottshambaugh/monaco.git
 cd monaco
 pip install poetry
-poetry install --extras "pandas numba"
+poetry install --extras "pandas numba distributed"
 ```
 
 ## Running Tests and Type Checking
@@ -38,7 +38,7 @@ poetry run make clean && poetry run make html
 3) Update and install the package
     ```
     poetry update
-    poetry install --extras "pandas numba"
+    poetry install --extras "pandas numba distributed"
     ```
 4) Run tests, type checking, and linting locally
     ```
