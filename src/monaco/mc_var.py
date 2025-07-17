@@ -188,43 +188,48 @@ class Var(ABC):
         These are the valid stats with their statkwargs
 
         max()
-            'max', no kwargs
+            ``'max'``, no kwargs
         min()
-            'min', no kwargs
+            ``'min'``, no kwargs
         median()
-            'median', no kwargs
+            ``'median'``, no kwargs
         mean()
-            'mean', no kwargs
+            ``'mean'``, no kwargs
         geomean()
-            'geomean', no kwargs
+            ``'geomean'``, no kwargs
         mode()
-            'mode', no kwargs
+            ``'mode'``, no kwargs
         variance()
-            'variance', no kwargs
+            ``'variance'``, no kwargs
         skewness()
-            'skewness', no kwargs
+            ``'skewness'``, no kwargs
         kurtosis()
-            'kurtosis', no kwargs
+            ``'kurtosis'``, no kwargs
         moment(n : int)
-            'moment'
+            ``'moment'``
+
             `n` is the n'th moment, `n > 0`.
         percentile(p : float)
-            'percentile'
+            ``'percentile'``
+
             `p` is the percentile, `0 < p < 1`.
         sigma(sig : float, bound : monaco.mc_enums.StatBound)
-            'sigma'
+            ``'sigma'``
+
             `sig` is the gaussian sigma value, `-inf < sig < inf`.
 
             `bound` is the statistical bound, ether `'1-sided'` or `'2-sided'`.
             Default is `'2-sided'`.
         gaussianP(p : float, bound : monaco.mc_enums.StatBound)
-            'gaussianP'
+            ``'gaussianP'``
+
             `p` is the percentile, `0 < p < 1`.
 
             `bound` is the statistical bound, ether `'1-sided'` or `'2-sided'`.
             Default is `'2-sided'`.
         orderstatTI(p : float, c : float, bound : monaco.mc_enums.StatBound)
-            'orderstatTI'
+            ``'orderstatTI'``
+
             `p` is the percentage, `0 < p < 1`
 
             `c` is the confidence, `0 < c < 1`. Default is `0.95`.
@@ -232,7 +237,8 @@ class Var(ABC):
             `bound` is the statistical bound, ether `'1-sided'`, `'2-sided'`, or
             `'all'`. Default is `'2-sided'`.
         orderstatP(p : float, c : float, bound : monaco.mc_enums.StatBound)
-            'orderstatP'
+            ``'orderstatP'``
+
             `p` is the percentage, `0 < p < 1`
 
             `c` is the confidence, `0 < c < 1`. Default is `0.95`.
