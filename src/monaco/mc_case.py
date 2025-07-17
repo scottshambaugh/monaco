@@ -7,6 +7,8 @@ from pathlib import Path
 from typing import Any
 from monaco.mc_var import OutVar, InVar
 from monaco.mc_val import OutVal, InVal
+from monaco.globals import get_global_vars
+
 
 class Case():
     """
@@ -99,6 +101,24 @@ class Case():
 
         self.siminput     : tuple[Any] | None = None
         self.simrawoutput : tuple[Any] | None = None
+
+
+    def __getstate__(self):
+        # We delete the large objects to save time multiprocessing
+        state = self.__dict__.copy()
+        for k in ('invars', 'outvars', 'vars', 'invals', 'vals', 'constvals'):
+            state.pop(k, None)
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        invars, outvars, constvals = get_global_vars()
+        self.invars  = invars
+        self.outvars = outvars
+        self.constvals = constvals
+        self.vars    = {**invars, **outvars}
+        self.invals  = self.getInVals()
+        self.vals    = {**self.invals, **self.outvals}
 
 
     def __repr__(self):

@@ -3,9 +3,8 @@
 import pickle
 from scipy.stats import randint, rv_discrete
 import monaco as mc
-
 # Diagnostic functions
-def pickle_sizes(o, *, top_n=10, protocol=5):
+def pickle_sizes(o, *, top_n=-1, protocol=5):
     pairs = []
     if hasattr(o, "__dict__"):
         items = o.__dict__.items()
@@ -16,6 +15,7 @@ def pickle_sizes(o, *, top_n=10, protocol=5):
     else:                           # fall back – whole object only
         items = [("<self>", o)]
 
+    o_pickled = pickle.dumps(o, protocol=protocol)
     for k, v in items:
         try:
             pairs.append((k, len(pickle.dumps(v, protocol=protocol))))
@@ -26,6 +26,8 @@ def pickle_sizes(o, *, top_n=10, protocol=5):
     for k, sz in pairs[:top_n]:
         print(f"{k:>20}: {sz:>10,} bytes")
     print(f'Total size: {sum(sz for _, sz in pairs):>10,} bytes')
+    print(f'Size of object after pickling: {len(o_pickled):>10,} bytes')
+
 
 
 # Sim setup
@@ -55,17 +57,26 @@ FCNS = {'preprocess' : preprocess,
         'run'        : run,
         'postprocess': postprocess}
 
-def monte_carlo_sim(ndraws, seed):
+def monte_carlo_sim(ndraws, singlethreaded, usedask, seed):
     sim = mc.Sim(name='Coin Flip', ndraws=ndraws, fcns=FCNS,
                  firstcaseismedian=False, seed=seed,
-                 singlethreaded=True, usedask=False,
+                 singlethreaded=singlethreaded, usedask=usedask,
                  savecasedata=False, savesimdata=False,
-                 verbose=True, debug=False)
+                 verbose=True, debug=True)
     nummap = {0: 'Sam', 1: 'Alex'}
     sim.addInVar(name='flipper', dist=randint, distkwargs={'low': 0, 'high': 2}, nummap=nummap)
     flip_dist = rv_discrete(name='flip_dist', values=([0, 1], [0.7, 0.3]))
     sim.addInVar(name='flip', dist=flip_dist, distkwargs=dict())
+    sim.addConstVal(name='coin', val=['quarter']*1000)
+
+    # Make cases to get a pre-calculation pickle size
+    sim.drawVars()
+    sim.genCases()
+    pickle_sizes(sim[0])
+
+    # Run sim and get a post-calculation pickle size
     sim.runSim()
+    pickle_sizes(sim[0])
 
     return sim
 
@@ -73,5 +84,6 @@ def monte_carlo_sim(ndraws, seed):
 if __name__ == '__main__':
     ndraws = 500
     seed = 12362398
-    sim = monte_carlo_sim(ndraws=ndraws, seed=seed)
-    pickle_sizes(sim[0])
+    singlethreaded = False
+    usedask = True
+    sim = monte_carlo_sim(ndraws=ndraws, singlethreaded=singlethreaded, usedask=usedask, seed=seed)

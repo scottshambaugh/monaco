@@ -6,6 +6,7 @@ import numpy as np
 import csv
 import json
 import cloudpickle
+import pickle
 import pathlib
 import multiprocessing
 import concurrent.futures
@@ -22,6 +23,7 @@ from monaco.mc_enums import SimFunctions, SampleMethod
 from monaco.helper_functions import (get_list, vprint, vwarn, empty_list,
                                      hash_str_repeatable)
 from monaco.case_runners import preprocess_case, run_case, postprocess_case
+from monaco.globals import _worker_init
 from monaco.dvars_sensitivity import calc_sensitivities
 from monaco.mc_multi_plot import multi_plot_grid_rect
 
@@ -224,6 +226,7 @@ class Sim:
         self.setFirstCaseMedian(firstcaseismedian)
         self.setNDraws(self.ndraws)  # will regen runsimid
 
+        self.pool = None
         self.client = None
         self.cluster = None
         if not self.singlethreaded and self.usedask:
@@ -232,10 +235,6 @@ class Sim:
             else:
                 vwarn(self.verbose, "Dask is not installed, falling back to multiprocessing")
                 self.usedask = False
-
-        self.pool = None
-        if not self.usedask and not self.singlethreaded:
-            self.initMultiprocessingPool()
 
 
     def __del__(self) -> None:
@@ -366,11 +365,24 @@ class Sim:
         """
         Initialize the multiprocessing pool.
         """
+        if self.singlethreaded or self.usedask:
+            vwarn(self.verbose, "Multiprocessing pool is not needed in singlethreaded or dask mode")
+            return
+        elif self.pool is not None:
+            vprint(self.verbose, "Multiprocessing pool already initialized")
+            return
+
         if self.ncores is None:
             self.ncores = multiprocessing.cpu_count()
         ctx = multiprocessing.get_context()
+        invars_blob  = pickle.dumps(self.invars, protocol=5)
+        outvars_blob = pickle.dumps(self.outvars, protocol=5)
+        constvals_blob = pickle.dumps(self.constvals, protocol=5)
+        initargs = (invars_blob, outvars_blob, constvals_blob)
         self.pool = concurrent.futures.ProcessPoolExecutor(max_workers=self.ncores,
-                                                           mp_context=ctx)
+                                                           mp_context=ctx,
+                                                           initializer=_worker_init,
+                                                           initargs=initargs)
         vprint(self.verbose,
               f'Multiprocessing pool initiated with {self.ncores} workers ' +
               f'and "{multiprocessing.get_start_method()}" start method.')
@@ -641,6 +653,15 @@ class Sim:
         self.caseseeds = list(generator.randint(0, 2**31-1, size=self.ncases))
 
 
+    def restorePickledCases(self, cases: list[Case]) -> None:
+        """Restore the pickled cases to their original state."""
+        for case in cases:
+            case.invars = self.invars
+            case.outvars = self.outvars
+            case.vars = self.vars
+            case.constvals = self.constvals
+
+
     def executeAllFcns(self,
                        casestopreprocess : None | int | Iterable[int] = None,
                        casestorun : None | int | Iterable[int] = None,
@@ -725,6 +746,8 @@ class Sim:
             except KeyboardInterrupt:
                 raise
 
+            self.restorePickledCases(fullyexecutedcases)
+
             # Save out results
             for case in fullyexecutedcases:
                 if any([case.haspreprocessed, case.hasrun, case.haspostprocessed]):
@@ -761,7 +784,7 @@ class Sim:
                 case = self.cases[i]
                 case.haspreprocessed = False
                 case = preprocess_case(self.fcns[SimFunctions.PREPROCESS],
-                                        case, self.debug, self.verbose)
+                                       case, self.debug, self.verbose)
                 preprocessedcases.append(case)
                 if self.verbose:
                     pbar.update(1)
@@ -771,6 +794,7 @@ class Sim:
 
         # Multiprocessing
         elif not self.usedask:
+            self.initMultiprocessingPool()
             futures = []
             for i in cases_downselect:
                 case = self.cases[i]
@@ -815,6 +839,10 @@ class Sim:
 
             except KeyboardInterrupt:
                 raise
+
+        # We stripped data from the cases during pickling, so we need to re-attach it
+        if not self.singlethreaded:
+            self.restorePickledCases(preprocessedcases)
 
         # Save out results
         for case in preprocessedcases:
@@ -863,6 +891,7 @@ class Sim:
 
         # Multiprocessing
         elif not self.usedask:
+            self.initMultiprocessingPool()
             futures = []
             for i in cases_downselect:
                 case = self.cases[i]
@@ -909,6 +938,10 @@ class Sim:
             except KeyboardInterrupt:
                 raise
 
+        # We stripped data from the cases during pickling, so we need to re-attach it
+        if not self.singlethreaded:
+            self.restorePickledCases(runcases)
+
         # Save out results
         for case in runcases:
             if case.hasrun:
@@ -950,6 +983,7 @@ class Sim:
 
         # Multiprocessing
         elif not self.usedask:
+            self.initMultiprocessingPool()
             futures = []
             for i in cases_downselect:
                 case = self.cases[i]
@@ -994,6 +1028,10 @@ class Sim:
 
             except KeyboardInterrupt:
                 raise
+
+        # We stripped data from the cases during pickling, so we need to re-attach it
+        if not self.singlethreaded:
+            self.restorePickledCases(postprocessedcases)
 
         # Save out results
         for case in postprocessedcases:
@@ -1763,6 +1801,7 @@ class Sim:
                 with open(filepath, 'rb') as file:
                     try:
                         case = cloudpickle.load(file)
+                        self.restorePickledCases([case])
                         if (not case.haspreprocessed) \
                             or (not case.hasrun) \
                             or (case.runtime is None):  # only load case if it completed running

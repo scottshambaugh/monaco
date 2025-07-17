@@ -25,7 +25,6 @@ def preprocess_case(preprocfcn: Callable,
     case : monaco.mc_case.Case
         The same case, preprocessed.
     """
-    case = copy(case)
     try:
         case.siminput = preprocfcn(case)
         case.haspreprocessed = True
