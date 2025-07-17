@@ -9,7 +9,7 @@ from monaco.mc_enums import StatBound
 def test_pct2sig():
     assert pct2sig(p=0.0013499, bound=StatBound.ONESIDED) == pytest.approx(-3)
     assert pct2sig(p=0.9973002, bound=StatBound.TWOSIDED) == pytest.approx( 3)
-    assert pct2sig(p=0.0026998, bound=StatBound.TWOSIDED) == pytest.approx( 3)
+    assert pct2sig(p=0.0026998, bound=StatBound.TWOSIDED) == pytest.approx(-3)
     with pytest.raises(ValueError):
         pct2sig(p=0, bound=StatBound.TWOSIDED)
     with pytest.raises(ValueError):

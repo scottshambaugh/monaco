@@ -12,8 +12,7 @@ def pct2sig(p     : float,
     """
     Converts a percentile to a gaussian sigma value (1-sided), or to the
     sigma value for which the range (-sigma, +sigma) bounds that percent of
-    the normal distribution (2-sided). Note that the sigma value will always
-    be positive.
+    the normal distribution (2-sided).
 
     Parameters
     ----------
@@ -35,7 +34,7 @@ def pct2sig(p     : float,
         if p >= 0.5:
             sig = scipy.stats.norm.ppf(1-(1-p)/2)
         else:
-            sig = -scipy.stats.norm.ppf(p/2)
+            sig = scipy.stats.norm.ppf(p/2)
     elif bound == StatBound.ONESIDED:
         sig = scipy.stats.norm.ppf(p)
     else:
