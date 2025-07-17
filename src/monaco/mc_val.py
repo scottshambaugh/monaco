@@ -90,6 +90,9 @@ class InVal(Val):
         A dictionary mapping nonnumeric values to numbers (the inverse of
         `nummap`).
     """
+    __slots__ = ('name', 'ncase', 'ismedian', 'datasource', 'dist', 'pct', 'num',
+                 'nummap', 'isscalar', 'shape', 'val', 'valmap')
+
     def __init__(self,
                  name       : str,
                  ncase      : int,
@@ -105,7 +108,7 @@ class InVal(Val):
                          datasource=datasource)
         self.dist = dist
         self.pct = pct
-        self.num = np.float64(num)
+        self.num = num
         self.nummap = nummap
         self.isscalar = True
         self.shape = ()
@@ -176,6 +179,9 @@ class OutVal(Val):
         A dictionary mapping numbers to nonnumeric values (the inverse of
         `valmap`).
     """
+    __slots__ = ('name', 'ncase', 'ismedian', 'datasource', 'val', 'valmap',
+                 'num', 'nummap', 'isscalar', 'shape')
+
     def __init__(self,
                  name       : str,
                  ncase      : int,
