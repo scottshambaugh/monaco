@@ -19,7 +19,7 @@ mph2mps = 0.44704
 def baseball_example_monte_carlo_sim():
     ## Define sim
     sim = mc.Sim(name='baseball', ndraws=ndraws, fcns=fcns, firstcaseismedian=True,
-                 seed=seed, singlethreaded=True, verbose=True, debug=True,
+                 seed=seed, singlethreaded=False, usedask=True, verbose=True, debug=True,
                  savecasedata=False, savesimdata=False)
 
     ## Define input variables

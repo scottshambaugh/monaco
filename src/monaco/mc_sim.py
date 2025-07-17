@@ -331,33 +331,31 @@ class Sim:
         """
         Initialize the dask distributed client.
         """
-        if self.client is not None:
-            vprint(self.verbose, "Dask client already initialized")
+        if self.client is not None or self.singlethreaded or not self.usedask:
             return
-
         if not HAS_DASK:
             vwarn(self.verbose, "Dask is not installed, skipping dask client initialization")
             return
 
-        if not self.singlethreaded and self.usedask:
-            if self.ncores is not None:
-                if 'n_workers' in self.daskkwargs:
-                    vwarn(self.verbose, "Dask argument n_workers is being overridden " +
-                                        "by Sim argument ncores")
-                self.daskkwargs['n_workers'] = self.ncores
-            self.client = Client(**self.daskkwargs)
-            self.cluster = self.client.cluster
+        vprint(self.verbose, "Initializing dask client...")
+        if self.ncores is not None:
+            if 'n_workers' in self.daskkwargs:
+                vwarn(self.verbose, "Dask argument n_workers is being overridden " +
+                                    "by Sim argument ncores")
+            self.daskkwargs['n_workers'] = self.ncores
+        self.client = Client(**self.daskkwargs)
+        self.cluster = self.client.cluster
 
-            # Initialize the global variables in each worker
-            self.client.run(_worker_init, *self.pickleLargeData())
+        # Initialize the global variables in each worker
+        self.client.run(_worker_init, *self.pickleLargeData())
 
-            nworkers = len(self.cluster.workers)
-            nthreads = nworkers * self.cluster.worker_spec[0]['options']['nthreads']
-            memory = nworkers * self.cluster.worker_spec[0]['options']['memory_limit']
-            vprint(self.verbose,
-                   f'Dask cluster initiated with {nworkers} workers, ' +
-                   f'{nthreads} threads, {memory/2**30:0.2f} GiB memory.')
-            vprint(self.verbose, f'Dask dashboard link: {self.cluster.dashboard_link}')
+        nworkers = len(self.cluster.workers)
+        nthreads = nworkers * self.cluster.worker_spec[0]['options']['nthreads']
+        memory = nworkers * self.cluster.worker_spec[0]['options']['memory_limit']
+        vprint(self.verbose,
+                f'Dask cluster initiated with {nworkers} workers, ' +
+                f'{nthreads} threads, {memory/2**30:0.2f} GiB memory.')
+        vprint(self.verbose, f'Dask dashboard link: {self.cluster.dashboard_link}')
 
 
     def initMultiprocessingPool(self):
@@ -368,9 +366,9 @@ class Sim:
             vwarn(self.verbose, "Multiprocessing pool is not needed in singlethreaded or dask mode")
             return
         elif self.pool is not None:
-            vprint(self.verbose, "Multiprocessing pool already initialized")
             return
 
+        vprint(self.verbose, "Initializing multiprocessing pool...")
         if self.ncores is None:
             self.ncores = multiprocessing.cpu_count()
         ctx = multiprocessing.get_context()
