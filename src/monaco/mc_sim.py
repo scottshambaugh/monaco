@@ -664,11 +664,10 @@ class Sim:
                         postprocessedcases[case.ncase] = casepostprocessed_delayed
 
                 if self.verbose:
-                    n_tasks = (len(casestopreprocess_downselect)
-                               + len(casestorun_downselect)
-                               + len(casestopostprocess_downselect))
-                    vprint(self.verbose, 'Preprocessing, running, and postprocessing ' +
-                                         f'{n_tasks} cases...', flush=True)
+                    vprint(self.verbose, f'Preprocessing {len(casestopreprocess_downselect)}, ' +
+                                         f'running {len(casestorun_downselect)}, and ' +
+                                         f'postprocessing {len(casestopostprocess_downselect)} ' +
+                                         'cases...', end=' ', flush=True)
                     x = dask.persist(*postprocessedcases.values())
                     progress(x)
                     fullyexecutedcases = dask.compute(*x)
