@@ -734,7 +734,7 @@ class Sim:
                     vprint(self.verbose, f'Preprocessing {len(casestopreprocess_downselect)}, ' +
                                          f'running {len(casestorun_downselect)}, and ' +
                                          f'postprocessing {len(casestopostprocess_downselect)} ' +
-                                         'cases...', end=' ', flush=True)
+                                         'cases...', end='\n', flush=True)
                     x = dask.persist(*postprocessedcases.values())
                     progress(x)
                     fullyexecutedcases = dask.compute(*x)
@@ -1887,6 +1887,7 @@ class Sim:
         for file in extrafiles:
             filepath = self.resultsdir / file
             filepath.unlink()
+
 
     def pickleLargeData(self, protocol: int = 5) -> tuple[bytes, bytes, bytes]:
         """

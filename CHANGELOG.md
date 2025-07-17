@@ -28,6 +28,8 @@
 * Can specify `ncores` for running parallel sims. This will override the `n_workers` kwarg in `daskkwargs` if provided.
 ### Changed    
 * When creating an `InVar` with custom values, the nummap for nonnumeric inputs is automatically extracted if not provided, and no longer raises an error.
+* The pickled size of `Case` objects has been greatly reduced, speeding up all multiprocessing
+* The dask client and multiprocessing pool are started when needed, not on sim creation
 ### Removed    
 
 ## [0.16.3] - 2025-07-16

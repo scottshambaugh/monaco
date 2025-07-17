@@ -1,7 +1,6 @@
 # case_runners.py
 
 from typing import Callable
-from copy import copy
 from datetime import datetime
 from monaco.mc_case import Case
 from monaco.helper_functions import vwrite, vwarn, get_list
@@ -57,8 +56,6 @@ def run_case(runfcn: Callable,
     case : monaco.mc_case.Case
         The same case, run.
     """
-    case = copy(case)
-
     try:
         case.starttime = datetime.now()
         case.simrawoutput = runfcn(*get_list(case.siminput))
@@ -95,7 +92,6 @@ def postprocess_case(postprocfcn: Callable,
     case : monaco.mc_case.Case
         The same case, postprocessed.
     """
-    case = copy(case)
     try:
         postprocfcn(case, *get_list(case.simrawoutput))
         case.haspostprocessed = True
