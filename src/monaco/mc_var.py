@@ -303,6 +303,10 @@ class InVar(Var):
     """
     A Monte Carlo input variable.
 
+    If `dist` is provided, then the variable will be drawn from a
+    statistical distribution. If `vals` is provided, then the variable will
+    be set to the provided values. Must provide one or the other.
+
     `InVal`s can be accessed by case number, eg `invar[0]`.
 
     Parameters
@@ -315,9 +319,12 @@ class InVar(Var):
         The statistical distribution to draw from.
     distkwargs : dict
         The keyword argument pairs for the statistical distribution function.
-    nummap : dict[float, Any], default: None
+    nummap : dict[float, Any] | None, default: None
         A dictionary mapping numbers to nonnumeric values (the inverse of
         `valmap`).
+    vals : list[Any] | None, default: None
+        Custom values to use instead of drawing from a distribution.
+        Length must match ncases.
     samplemethod : monaco.mc_enums.SampleMethod, default: 'sobol_random'
         The random sampling method to use.
     ninvar : int
@@ -355,15 +362,15 @@ class InVar(Var):
                  name              : str,
                  ndraws            : int,
                  dist              : rv_discrete | rv_continuous | None = None,
-                 distkwargs        : dict[str, Any] | None = None,
-                 nummap            : dict[float, Any] = None,
-                 vals              : list[Any]        = None,
-                 samplemethod      : SampleMethod     = SampleMethod.SOBOL_RANDOM,
-                 ninvar            : int              = None,
+                 distkwargs        : dict[str, Any] | None   = None,
+                 nummap            : dict[float, Any] | None = None,
+                 vals              : list[Any] | None        = None,
+                 samplemethod      : SampleMethod  = SampleMethod.SOBOL_RANDOM,
+                 ninvar            : int           = None,
                  seed              : int = np.random.get_state(legacy=False)['state']['key'][0],
-                 firstcaseismedian : bool             = False,
-                 autodraw          : bool             = True,
-                 datasource        : Optional[str]    = None,
+                 firstcaseismedian : bool          = False,
+                 autodraw          : bool          = True,
+                 datasource        : Optional[str] = None,
                  ):
         super().__init__(name=name, ndraws=ndraws, seed=seed,
                          firstcaseismedian=firstcaseismedian,
@@ -389,7 +396,9 @@ class InVar(Var):
         self.samplemethod = samplemethod
         self.ninvar = ninvar
         self.nummap = None
-        if nummap is not None:
+        if nummap is None and vals is not None:
+            self.extractNumMap()
+        else:
             self.nummap = nummap
 
         self.isscalar = True
@@ -408,6 +417,19 @@ class InVar(Var):
         if self.nummap is not None:
             for i in range(self.ncases):
                 self.vals[i] = self.nummap[self.nums[i].item()]
+
+
+    def extractNumMap(self) -> None:
+        """
+        Parse the input values and extract a nummap.
+        """
+        vals_flattened = flatten([self.custom_vals])
+        if all((isinstance(x, bool) or isinstance(x, np.bool_))
+               for x in vals_flattened):
+            self.nummap = {1: True, 0: False}
+        elif any(not is_num(x) for x in vals_flattened):
+            sorted_vals = sorted(set(hashable_val(x) for x in vals_flattened))
+            self.nummap = {idx: val for idx, val in enumerate(sorted_vals)}
 
 
     def genValMap(self) -> None:
@@ -459,9 +481,6 @@ class InVar(Var):
                 for val in self.vals:
                     self.nums.append(np.array(self.valmap[val]))
             else:
-                if any(not is_num(val) for val in self.vals):
-                    raise ValueError("Must supply 'nummap' if nonnumeric custom " +
-                                     "values are provided")
                 self.nums = [np.array(val) for val in self.vals]
 
             # Generate uniform percentiles for custom values

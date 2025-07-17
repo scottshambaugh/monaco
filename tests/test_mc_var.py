@@ -84,19 +84,25 @@ def test_invar_nummap():
 def test_invar_custom_vals():
     invar = InVar('custom', ndraws=3, vals=[1, 2, 3],
                   ninvar=1, samplemethod=None, seed=invarseeds[3], firstcaseismedian=False)
-    assert invar.vals == [1, 2, 3]
     assert invar.pcts == [0.0, 0.5, 1.0]
     assert invar.nums == [1, 2, 3]
     assert invar.vals == [1, 2, 3]
 
-    nummap = {0: 'a', 1: 'b', 2: 'c', 3: 'd'}
+    # With nummap
+    nummap = {2: 'a', 3: 'b', 4: 'c', 5: 'd'}
     invar = InVar('custom', ndraws=3, vals=['a', 'b', 'c', 'd'],
                   ninvar=1, nummap=nummap, samplemethod=None, seed=invarseeds[3],
                   firstcaseismedian=True)
-    assert invar.vals == ['a', 'b', 'c', 'd']
     assert invar.pcts == [0.5, 0, 0.5+1e-12, 1.0]
-    assert invar.nums == [0, 1, 2, 3]
+    assert invar.nums == [2, 3, 4, 5]
     assert invar.vals == ['a', 'b', 'c', 'd']
+
+    # Without nummap
+    invar = InVar('custom', ndraws=3, vals=['b', 'a', 'c', 'd'],
+                  ninvar=1, samplemethod=None, seed=invarseeds[3],
+                  firstcaseismedian=True)
+    assert invar.vals == ['b', 'a', 'c', 'd']
+    assert invar.nums == [1, 0, 2, 3]
 
 def test_invar_custom_vals_errors():
     with pytest.raises(ValueError, match="Either 'dist' or 'vals' must be provided"):
@@ -105,10 +111,6 @@ def test_invar_custom_vals_errors():
 
     with pytest.raises(ValueError, match="Cannot provide both 'dist' and 'vals'"):
         InVar('custom', dist=custom_dist, distkwargs=dict(), ndraws=3, vals=[1, 2, 3],
-              ninvar=1, samplemethod=None, seed=invarseeds[3], firstcaseismedian=False)
-
-    with pytest.raises(ValueError, match="Must supply 'nummap'"):
-        InVar('custom', ndraws=3, vals=['a', 'b', 'c'],
               ninvar=1, samplemethod=None, seed=invarseeds[3], firstcaseismedian=False)
 
     with pytest.raises(ValueError,

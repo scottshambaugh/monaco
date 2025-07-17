@@ -25,6 +25,7 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+* When creating an `InVar` with custom values, the nummap for nonnumeric inputs is automatically extracted if not provided.
 ### Removed    
 
 ## [0.16.3] - 2025-07-16

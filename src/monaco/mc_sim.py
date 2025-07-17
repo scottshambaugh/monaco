@@ -347,8 +347,7 @@ class Sim:
 
         If `dist` is provided, then the variable will be drawn from a
         statistical distribution. If `vals` is provided, then the variable will
-        be set to the provided values. Must provide one or the other. If
-        nonnumeric values are provided, then `nummap` must also be provided.
+        be set to the provided values. Must provide one or the other.
 
         Examples
         --------
