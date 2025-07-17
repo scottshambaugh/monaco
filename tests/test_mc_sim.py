@@ -13,6 +13,12 @@ try:
 except ImportError:
     HAS_DASK = False
 
+try:
+    import pandas as pd
+    HAS_PANDAS = True
+except ImportError:
+    HAS_PANDAS = False
+
 
 def sim_testing_preprocess(case):
     return ([case.ncase, ])
@@ -23,6 +29,11 @@ def sim_testing_run(casenum_in):
 
 def sim_testing_postprocess(case, casenum_out):
     case.addOutVal('casenum_out', casenum_out)
+    case.addOutVal('casenum_list', [casenum_out] * (case.ncase + 1))
+    case.addOutVal('casenum_array', np.array([casenum_out] * (case.ncase + 1)))
+    if HAS_PANDAS:
+        case.addOutVal('casenum_series', pd.Series([casenum_out] * (case.ncase + 1)))
+        case.addOutVal('casenum_index', pd.Index([casenum_out] * (case.ncase + 1)))
 
 def sim_testing_fcns():
     fcns = {SimFunctions.PREPROCESS : sim_testing_preprocess,
@@ -130,6 +141,27 @@ def test_sim_scalaroutvars(sim_singlethreaded, sim_parallel, sim_parallel_expand
             if sim is not None]
     for sim in sims:
         assert len(sim.scalarOutVars()) == 1
+
+
+def test_sim_extendoutvars(sim_singlethreaded):
+    sims = [sim for sim in (sim_singlethreaded, )
+            if sim is not None]
+
+    for sim in sims:
+        assert len(sim.outvars['casenum_list'][0].val) == 1
+        assert len(sim.outvars['casenum_list'][0].num) == 1
+        assert len(sim.outvars['casenum_array'][0].val) == 1
+        if HAS_PANDAS:
+            assert len(sim.outvars['casenum_series'][0].val) == 1
+            assert len(sim.outvars['casenum_index'][0].val) == 1
+        sim.extendOutVars()
+        for i in range(sim.ncases):
+            assert len(sim.outvars['casenum_list'][i].val) == sim.ncases
+            assert len(sim.outvars['casenum_list'][i].num) == sim.ncases
+            assert len(sim.outvars['casenum_array'][i].val) == sim.ncases
+            if HAS_PANDAS:
+                assert len(sim.outvars['casenum_series'][i].val) == sim.ncases
+                assert len(sim.outvars['casenum_index'][i].val) == sim.ncases
 
 
 def test_sim_custom_vals():

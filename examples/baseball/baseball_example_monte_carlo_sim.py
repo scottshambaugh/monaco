@@ -41,6 +41,9 @@ def baseball_example_monte_carlo_sim():
     ## Run sim
     sim.runSim()
 
+    ## Extend outvars to have the same length so that stats account for all cases
+    sim.extendOutVars()
+
     ## Generate stats and plots
     homerun_indices = np.where(sim.outvars['Home Run'].vals)[0]
     # foul_indices = np.where(sim.outvars['Foul Ball'].vals)[0]

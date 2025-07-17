@@ -29,6 +29,12 @@ try:
 except ImportError:
     HAS_DASK = False
 
+try:
+    import pandas as pd
+    HAS_PANDAS = True
+except ImportError:
+    HAS_PANDAS = False
+
 
 class Sim:
     """
@@ -943,6 +949,72 @@ class Sim:
                     scalaroutvars[name] = outvar
 
         return scalaroutvars
+
+
+    def extendOutVars(self,
+                      outvars : None | str | Iterable[str] = None,
+                      ) -> None:
+        """
+        Extend the non-scalar output variables with their last value, so that
+        they all have the same shape. Can be useful for plotting or calculating
+        variable statistics.
+
+        Parameters
+        ----------
+        outvars : dict[str, OutVar], default: None
+            The output variables to extend. If None, then extends all the
+            output variables.
+        """
+        outvars_to_extend = []
+        if outvars is None:
+            outvars_to_extend = [outvar for outvar in self.outvars.values()
+                                 if not outvar.isscalar]
+        else:
+            outvars = get_list(outvars)
+            for name in outvars:
+                if not self.outvars[name].isscalar:
+                    outvars_to_extend.append(self.outvars[name])
+                else:
+                    vwarn(self.verbose, f"Output variable '{name}' is scalar," +
+                                         'skipping extension.')
+
+        outvars_extended = []
+        for outvar in outvars_to_extend:
+            n_points = max(len(outvar.vals[i]) for i in range(self.ncases))
+            for i in range(self.ncases):
+                vals = outvar.vals[i]
+                deficit = n_points - len(vals)
+                if deficit < 0:
+                    continue
+
+                if isinstance(vals, list):
+                    outvar.vals[i] = vals + [vals[-1]] * deficit
+                elif isinstance(vals, np.ndarray):
+                    rep = np.repeat(vals[-1][np.newaxis, ...], deficit, axis=0)
+                    outvar.vals[i] = np.concatenate([vals, rep], axis=0)
+                elif HAS_PANDAS and isinstance(vals, pd.Series):
+                    rep = pd.Series([vals.iloc[-1]] * deficit, index=range(len(vals), n_points))
+                    outvar.vals[i] = pd.concat([vals, rep])
+                elif HAS_PANDAS and isinstance(vals, pd.Index):
+                    rep = pd.Index([vals.iloc[-1]] * deficit, dtype=vals.dtype)
+                    outvar.vals[i] = pd.Index(np.concatenate([vals.to_numpy(), rep.to_numpy()]),
+                                              dtype=vals.dtype)
+                else:
+                    vwarn(self.verbose, f"Outvar '{outvar.name}' has an unsupported type" +
+                                        f"for extension: {type(vals)}. Skipping extension.")
+                    break
+
+            outvar_extended = OutVar(name=outvar.name, vals=outvar.vals, valmap=outvar.valmap,
+                                     ndraws=outvar.ndraws, seed=outvar.seed,
+                                     firstcaseismedian=outvar.firstcaseismedian,
+                                     datasource=outvar.datasource)
+            outvars_extended.append(outvar_extended)
+
+        for outvar in outvars_extended:
+            self.outvars[outvar.name] = outvar
+            self.vars[outvar.name] = outvar
+            for i in range(self.ncases):
+                self.cases[i].addOutVar(outvar)
 
 
     def calcSensitivities(self,

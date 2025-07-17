@@ -24,6 +24,7 @@
 
 ## [Unreleased]
 ### Added    
+* `sim.extendOutVars` to make all the non-scalar output variables the same length by holding the last value (for eg timeseries variables)
 ### Changed    
 ### Removed    
 

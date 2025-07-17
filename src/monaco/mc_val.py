@@ -9,8 +9,10 @@ from monaco.helper_functions import is_num, hashable_val, flatten
 
 try:
     import pandas as pd
+    HAS_PANDAS = True
 except ImportError:
     pd = None
+    HAS_PANDAS = False
 
 
 ### Val Base Class ###
@@ -284,6 +286,10 @@ class OutVal(Val):
         if len(self.shape) > 1:
             for i in range(self.shape[0]):
                 name = self.name + f' [{i}]'
-                vals[name] = OutVal(name=name, ncase=self.ncase, val=self.val[i],
+                if HAS_PANDAS and isinstance(self.val, (pd.Series, pd.Index)):
+                    val = self.val.iloc[i]
+                else:
+                    val = self.val[i]
+                vals[name] = OutVal(name=name, ncase=self.ncase, val=val,
                                     valmap=self.valmap, ismedian=self.ismedian)
         return vals
