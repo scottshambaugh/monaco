@@ -116,5 +116,5 @@ def cached_pcts(ndraws     : int,
     else:
         points = sampler.random(n=ndraws)
 
-    all_pcts = np.array(points)
+    all_pcts = np.asarray(points)
     return all_pcts

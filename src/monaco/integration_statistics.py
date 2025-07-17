@@ -51,7 +51,7 @@ def integration_error(nums         : np.ndarray,
 
     n = len(nums)
     if n == 1:
-        error1sig = np.array(volume)
+        error1sig = np.asarray(volume)
 
     elif not runningerror:
         stdev = np.std(nums, ddof=1)

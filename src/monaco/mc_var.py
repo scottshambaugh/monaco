@@ -479,9 +479,9 @@ class InVar(Var):
 
             if self.valmap is not None:
                 for val in self.vals:
-                    self.nums.append(np.array(self.valmap[val]))
+                    self.nums.append(np.asarray(self.valmap[val]))
             else:
-                self.nums = [np.array(val) for val in self.vals]
+                self.nums = [np.asarray(val) for val in self.vals]
 
             # Generate uniform percentiles for custom values
             self.pcts = [i / (self.ndraws - 1) for i in range(self.ndraws)]
@@ -495,14 +495,14 @@ class InVar(Var):
         if self.firstcaseismedian:
             self.ncases = self.ndraws + 1
             self.pcts.append(0.5)
-            self.nums.append(np.array(self.getDistMedian()))
+            self.nums.append(np.asarray(self.getDistMedian()))
 
         dist = self.dist(**self.distkwargs)
         pcts = sampling(ndraws=self.ndraws, method=self.samplemethod,
                         ninvar=self.ninvar, ninvar_max=ninvar_max,
                         seed=self.seed)
         self.pcts.extend(pcts)
-        self.nums.extend([np.array(x) for x in dist.ppf(pcts)])
+        self.nums.extend([np.asarray(x) for x in dist.ppf(pcts)])
 
         if any(np.isinf(self.nums)):
             warn( 'Infinite value drawn. Check distribution and parameters: ' +
@@ -715,7 +715,7 @@ class OutVar(Var):
         """
         self.nums = []
         for i in range(self.ncases):
-            self.nums.append(np.array(self.getVal(i).num))
+            self.nums.append(np.asarray(self.getVal(i).num))
 
 
     def getVal(self, ncase : int) -> OutVal:

@@ -355,7 +355,7 @@ class VarStat:
             nums = [self.var.nums[case] for case in self.cases]
             self.nums = self.statsFunctionWrapper(nums)
             if self.bootstrap:
-                res = bootstrap((np.array(nums),), self.statsFunctionWrapper,
+                res = bootstrap((np.asarray(nums),), self.statsFunctionWrapper,
                                 confidence_level=self.conf,
                                 n_resamples=self.bootstrap_n,
                                 random_state=self.seed, method='BCa')
@@ -454,22 +454,22 @@ class VarStat:
             if self.side == VarStatSide.LOW:
                 sortednums.reverse()
             if self.side in (VarStatSide.HIGH, VarStatSide.LOW):
-                self.nums = np.array(sortednums[-self.k])
+                self.nums = np.asarray(sortednums[-self.k])
                 if self.var.nummap is not None:
                     self.vals = self.var.nummap[self.nums.item()]
             elif self.side == VarStatSide.BOTH:
-                self.nums = np.array([sortednums[self.k-1], sortednums[-self.k]])
+                self.nums = np.asarray([sortednums[self.k-1], sortednums[-self.k]])
                 if self.var.nummap is not None:
-                    self.vals = np.array([self.var.nummap[self.nums[0]],
-                                          self.var.nummap[self.nums[1]]])
+                    self.vals = np.asarray([self.var.nummap[self.nums[0]],
+                                            self.var.nummap[self.nums[1]]])
             elif self.side == VarStatSide.ALL:
-                self.nums = np.array([sortednums[self.k-1],
-                                      np.median(sortednums),
-                                      sortednums[-self.k]])
+                self.nums = np.asarray([sortednums[self.k-1],
+                                        np.median(sortednums),
+                                        sortednums[-self.k]])
                 if self.var.nummap is not None:
-                    self.vals = np.array([self.var.nummap[self.nums[0]],
-                                          self.var.nummap[self.nums[1]],
-                                          self.var.nummap[self.nums[2]]])
+                    self.vals = np.asarray([self.var.nummap[self.nums[0]],
+                                            self.var.nummap[self.nums[1]],
+                                            self.var.nummap[self.nums[2]]])
             if self.var.nummap is None:
                 self.vals = copy(self.nums)
 
@@ -496,7 +496,7 @@ class VarStat:
                                        sortednums[int(np.round(len(sortednums)/2)-1)],
                                        sortednums[-self.k]]
             if self.var.nummap is not None:
-                self.vals = np.array([[self.var.nummap[x] for x in y] for y in self.nums])
+                self.vals = np.asarray([[self.var.nummap[x] for x in y] for y in self.nums])
             else:
                 self.vals = copy(self.nums)
 
@@ -527,29 +527,29 @@ class VarStat:
         if self.var.isscalar:
             sortednums = sorted([self.var.nums[case] for case in self.cases])
             if self.bound == StatBound.ONESIDED_LOWER:
-                self.nums = np.array(sortednums[iPl - self.k])
+                self.nums = np.asarray(sortednums[iPl - self.k])
             elif self.bound == StatBound.ONESIDED_UPPER:
-                self.nums = np.array(sortednums[iPu + self.k])
+                self.nums = np.asarray(sortednums[iPu + self.k])
             elif self.bound == StatBound.NEAREST:
-                self.nums = np.array(sortednums[iP])
+                self.nums = np.asarray(sortednums[iP])
             if self.bound in (StatBound.ONESIDED_LOWER,
                               StatBound.ONESIDED_UPPER,
                               StatBound.NEAREST):
                 if self.var.nummap is not None:
                     self.vals = self.var.nummap[self.nums.item()]
             elif self.bound == StatBound.TWOSIDED:
-                self.nums = np.array([sortednums[iPl - self.k], sortednums[iPu + self.k]])
+                self.nums = np.asarray([sortednums[iPl - self.k], sortednums[iPu + self.k]])
                 if self.var.nummap is not None:
-                    self.vals = np.array([self.var.nummap[self.nums[0]],
-                                          self.var.nummap[self.nums[1]]])
+                    self.vals = np.asarray([self.var.nummap[self.nums[0]],
+                                            self.var.nummap[self.nums[1]]])
             elif self.bound == StatBound.ALL:
-                self.nums = np.array([sortednums[iPl - self.k],
-                                      sortednums[iP],
-                                      sortednums[iPu + self.k]])
+                self.nums = np.asarray([sortednums[iPl - self.k],
+                                        sortednums[iP],
+                                        sortednums[iPu + self.k]])
                 if self.var.nummap is not None:
-                    self.vals = np.array([self.var.nummap[self.nums[0]],
-                                          self.var.nummap[self.nums[1]],
-                                          self.var.nummap[self.nums[2]]])
+                    self.vals = np.asarray([self.var.nummap[self.nums[0]],
+                                            self.var.nummap[self.nums[1]],
+                                            self.var.nummap[self.nums[2]]])
             if self.var.nummap is None:
                 self.vals = copy(self.nums)
 
@@ -577,7 +577,7 @@ class VarStat:
                                        sortednums[iP],
                                        sortednums[iPu + self.k]]
             if self.var.nummap is not None:
-                self.vals = np.array([[self.var.nummap[x] for x in y] for y in self.nums])
+                self.vals = np.asarray([[self.var.nummap[x] for x in y] for y in self.nums])
             else:
                 self.vals = copy(self.nums)
 

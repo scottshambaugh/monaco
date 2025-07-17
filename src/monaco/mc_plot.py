@@ -305,7 +305,7 @@ def plot_hist(var         : InVar | OutVar,
         ylabeltext = 'Probability Density'
 
     if rug_plot:
-        plot_rug_marks(ax, orientation=orientation, nums=np.array(points))
+        plot_rug_marks(ax, orientation=orientation, nums=np.asarray(points))
 
     xlim = ax.get_xlim()
     ylim = ax.get_ylim()
@@ -589,8 +589,8 @@ def plot_2d_line(varx : InVar | OutVar,
                             color='C0', alpha=0.3)
         if length(varstat.nums[0]) in (2, 3):  # Sided Order Statistic
             ax.fill_between(varx_points_max,
-                            np.array(varstat.nums)[:, 0],
-                            np.array(varstat.nums)[:, -1],
+                            np.asarray(varstat.nums)[:, 0],
+                            np.asarray(varstat.nums)[:, -1],
                             color='C0', alpha=0.3)
 
     plt.xlabel(varx.name)
@@ -720,7 +720,7 @@ def plot_2p5d_line(varx : InVar | OutVar,
     for var in (var0, var1, var2):
         if var.maxdim == 0:
             for i in range(var.ncases):
-                var.nums[i] = np.array([var.nums[i] for _ in range(npoints)])
+                var.nums[i] = np.asarray([var.nums[i] for _ in range(npoints)])
                 if isinstance(var, monaco.mc_var.InVar):
                     var.pcts[i] = [float(var.pcts[i]) for _ in range(npoints)]
             var.maxdim = 1
@@ -913,7 +913,7 @@ def plot_integration_convergence(outvar       : OutVar,
     if refval is not None:
         ax.axhline(refval, color='k')
 
-    nums = np.array(outvar.nums)[cases]
+    nums = np.asarray(outvar.nums)[cases]
     cummean = volume*np.cumsum(nums)/np.arange(1, ncases+1)
     err = integration_error(nums=nums, dimension=dimension, volume=volume,
                             conf=conf, samplemethod=samplemethod, runningerror=True)
@@ -978,7 +978,7 @@ def plot_integration_error(outvar       : OutVar,
     cases = get_cases(ncases=outvar.ncases, cases=cases)
     ncases = len(cases)
 
-    nums = np.array(outvar.nums)[cases]
+    nums = np.asarray(outvar.nums)[cases]
     cummean = volume*np.cumsum(nums)/np.arange(1, ncases+1)
     err = integration_error(nums=nums, dimension=dimension, volume=volume,
                             conf=conf, samplemethod=samplemethod, runningerror=True)
@@ -1210,10 +1210,10 @@ def plot_2d_cov_ellipse(ax    : Axes,
     cases = get_cases(ncases=varx.ncases, cases=cases)
 
     # See https://www.visiondummy.com/2014/04/draw-error-ellipse-representing-covariance-matrix/
-    allnums = [np.array(varx.nums)[cases], np.array(vary.nums)[cases]]
+    allnums = [np.asarray(varx.nums)[cases], np.asarray(vary.nums)[cases]]
     center = [np.mean(allnums[0]), np.mean(allnums[1])]
 
-    covs = np.cov(np.array(allnums))
+    covs = np.cov(np.asarray(allnums))
     eigvals, eigvecs = np.linalg.eigh(covs)  # Use eigh over eig since covs is guaranteed symmetric
     inds = (-eigvals).argsort()  # sort from largest to smallest
     eigvals = eigvals[inds]

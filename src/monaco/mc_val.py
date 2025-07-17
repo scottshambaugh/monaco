@@ -220,9 +220,9 @@ class OutVal(Val):
         Calculate the shape of the output value, and whether it is a scalar.
         """
         try:
-            vals_array = np.array(self.val, dtype='float')
+            vals_array = np.asarray(self.val, dtype='float')
         except ValueError:
-            vals_array = np.array(self.val, dtype='object')
+            vals_array = np.asarray(self.val, dtype='object')
         self.shape = vals_array.shape
 
         self.isscalar = False
@@ -248,11 +248,11 @@ class OutVal(Val):
         Map the output value to a number or array of numbers.
         """
         if self.valmap is None:
-            self.num = np.array(self.val)
+            self.num = np.asarray(self.val)
         elif self.isscalar:
-            self.num = np.array(self.valmap[hashable_val(self.val)])
+            self.num = np.asarray(self.valmap[hashable_val(self.val)])
         else:
-            num = np.array(self.val, dtype='object')
+            num = np.asarray(self.val, dtype='object')
             if len(self.shape) == 1:
                 for i in range(self.shape[0]):
                     num[i] = self.valmap[hashable_val(self.val[i])]
@@ -260,7 +260,7 @@ class OutVal(Val):
                 for i in range(self.shape[0]):
                     for j in range(self.shape[1]):
                         num[i][j] = self.valmap[hashable_val(self.val[i][j])]
-            self.num = np.array(num, dtype='float')
+            self.num = np.asarray(num, dtype='float')
 
 
     def genNumMap(self) -> None:
@@ -270,7 +270,7 @@ class OutVal(Val):
         if self.valmap is None:
             self.nummap = None
         else:
-            self.nummap = {hashable_val(np.array(num)): val for val, num in self.valmap.items()}
+            self.nummap = {hashable_val(np.asarray(num)): val for val, num in self.valmap.items()}
 
 
     def split(self) -> dict[str, 'OutVal']:  # Quotes in typing to avoid import error

@@ -99,7 +99,7 @@ def calc_sensitivities(sim        : 'Sim',
 
     phi_opt = calc_phi_opt(sim, outvarname, cases, tol, verbose)
 
-    variance = np.var(np.array(sim.outvars[outvarname].nums)[cases])
+    variance = np.var(np.asarray(sim.outvars[outvarname].nums)[cases])
     sensitivities = np.zeros(sim.ninvars)
     for j in range(sim.ninvars):
         sensitivities[j] = calc_Gammaj(Hj, phi_opt[j], variance)
@@ -189,8 +189,8 @@ def full_states(sim : 'Sim',
     X = np.zeros((ncases, sim.ninvars))
     Y = np.zeros((ncases, 1))
     for i, varname in enumerate(sim.invars):
-        X[:, i] = np.array(sim.invars[varname].pcts)[cases]
-    Y[:, 0] = np.array(sim.outvars[outvarname].nums)[cases]
+        X[:, i] = np.asarray(sim.invars[varname].pcts)[cases]
+    Y[:, 0] = np.asarray(sim.outvars[outvarname].nums)[cases]
     return X, Y
 
 

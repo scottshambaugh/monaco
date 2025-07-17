@@ -1241,8 +1241,8 @@ class Sim:
             if self.vars[var].isscalar:
                 allnums.append(self.vars[var].nums)
                 self.covvarlist.append(self.vars[var].name)
-        self.covs = np.cov(np.array(allnums))
-        self.corrcoeffs = np.corrcoef(np.array(allnums))
+        self.covs = np.cov(np.asarray(allnums))
+        self.corrcoeffs = np.corrcoef(np.asarray(allnums))
 
         for i, coeff in enumerate(self.corrcoeffs[0]):
             if np.isnan(coeff):
@@ -1480,9 +1480,9 @@ class Sim:
             varnames = list(vars.keys())
             for i, var in enumerate(vars.values()):
                 if i == 0:
-                    data_csv = np.array(var.nums)
+                    data_csv = np.asarray(var.nums)
                 else:
-                    data_csv = np.vstack([data_csv, np.array(var.nums)])
+                    data_csv = np.vstack([data_csv, np.asarray(var.nums)])
 
             with open(filepath, 'w', newline='') as f:
                 writer = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
@@ -1496,7 +1496,7 @@ class Sim:
         elif filepath.suffix.lower() == '.json':
             data_json = dict()
             for varname, var in vars.items():
-                data_json[varname] = np.array(var.nums).tolist()
+                data_json[varname] = np.asarray(var.nums).tolist()
 
             with open(filepath, 'w', newline='') as f:
                 json.dump(data_json, f, indent=0)
@@ -1681,11 +1681,11 @@ class Sim:
                     distskwargs[i] = dict()
             else:
                 dist = dists[i](**distskwargs[i])
-                pcts = np.array(dist.cdf(nums))
+                pcts = np.asarray(dist.cdf(nums))
 
             self.addInVar(name=valname, dist=dists[i], distkwargs=distskwargs[i], nummap=nummaps[i],
                           seed=None, datasource=str(filepath.resolve()))
-            nums = [np.array(num) for num in nums]
+            nums = [np.asarray(num) for num in nums]
             self.invars[valname].nums = nums
             self.invars[valname].pcts = pcts
             self.invars[valname].mapNums()
