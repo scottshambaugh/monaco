@@ -71,6 +71,10 @@ class InVal(Val):
         The statistical distribution that `num` was drawn from.
     nummap : dict[float, Any], default: None
         A dictionary mapping numbers to nonnumeric values.
+    valmap : dict[Any, float], default: None
+        A dictionary mapping nonnumeric values to numbers. If None, then
+        will be generated from the nummap. Note that there is no checking
+        that the valmap is consistent with the nummap.
     ismedian : bool, default: False
         Whether this case represents the median case.
     datasource : str | None, default: None
@@ -100,6 +104,7 @@ class InVal(Val):
                  num        : float,
                  dist       : rv_discrete | rv_continuous,
                  nummap     : dict[float, Any] | None = None,
+                 valmap     : dict[Any, float] | None = None,
                  ismedian   : bool = False,
                  datasource : str | None = None,
                  ):
@@ -114,7 +119,10 @@ class InVal(Val):
         self.shape = ()
 
         self.mapNum()
-        self.genValMap()
+        if valmap is None:
+            self.genValMap()
+        else:
+            self.valmap = valmap
 
 
     def __repr__(self):

@@ -541,7 +541,7 @@ class InVar(Var):
 
         val = InVal(name=self.name, ncase=ncase,
                     pct=self.pcts[ncase], num=self.nums[ncase].item(),
-                    dist=self.dist, nummap=self.nummap,
+                    dist=self.dist, nummap=self.nummap, valmap=self.valmap,
                     ismedian=ismedian, datasource=self.datasource)
         return val
 
