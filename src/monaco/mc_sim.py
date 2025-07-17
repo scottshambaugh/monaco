@@ -1685,7 +1685,7 @@ class Sim:
 
             self.addInVar(name=valname, dist=dists[i], distkwargs=distskwargs[i], nummap=nummaps[i],
                           seed=None, datasource=str(filepath.resolve()))
-            nums = [np.asarray(num) for num in nums]
+            nums = np.asarray(nums).tolist()
             self.invars[valname].nums = nums
             self.invars[valname].pcts = pcts
             self.invars[valname].mapNums()

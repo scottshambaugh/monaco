@@ -7,9 +7,9 @@ import warnings
 import csv
 import json
 import numpy as np
+from scipy.stats import norm, randint
 from monaco.mc_sim import Sim
 from monaco.mc_enums import SimFunctions
-from scipy.stats import norm, randint
 
 
 ndraws = 16

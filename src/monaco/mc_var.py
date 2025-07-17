@@ -423,9 +423,11 @@ class InVar(Var):
         """
         Parse the input values and extract a nummap.
         """
-        vals_flattened = flatten([self.custom_vals])
-        if all((isinstance(x, bool) or isinstance(x, np.bool_))
-               for x in vals_flattened):
+        try:
+            vals_flattened = np.asanyarray(self.custom_vals).flatten()
+        except ValueError:
+            vals_flattened = flatten([self.custom_vals])
+        if all(isinstance(x, (bool, np.bool_)) for x in vals_flattened):
             self.nummap = {1: True, 0: False}
         elif any(not is_num(x) for x in vals_flattened):
             sorted_vals = sorted(set(hashable_val(x) for x in vals_flattened))
