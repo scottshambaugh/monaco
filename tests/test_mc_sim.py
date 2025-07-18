@@ -174,17 +174,34 @@ def test_sim_getitem(sim_singlethreaded):
     assert sim_singlethreaded['Var1'].vals[0] == pytest.approx(3)
 
 
-@pytest.mark.parametrize("sim_fixture", SIM_FIXTURES, indirect=True)
+@pytest.mark.parametrize("sim_fixture",
+                         ["sim_singlethreaded", "sim_multiprocessing", "sim_dask"],
+                         indirect=True)
 def test_sim_verbose(sim_fixture):
     if sim_fixture is None:
         pytest.skip("Dask is not installed, skipping parallel tests")
+    sim_fixture.verbose = True
+    sim_fixture.reset()
+    sim_fixture.runSim()
+    assert True  # Just check that the code runs without error
 
-    sim = sim_fixture
-    sim.verbose = True
-    sim.runSim()
 
-    # Just check that the code runs without error
-    assert True
+@pytest.mark.parametrize("sim_fixture",
+                         ["sim_multiprocessing_expanded", "sim_dask_expanded"],
+                         indirect=True)
+def test_sim_expanded_verbose(sim_fixture):
+    if sim_fixture is None:
+        pytest.skip("Dask is not installed, skipping parallel tests")
+    sim_fixture.verbose = True
+    sim_fixture.reset()
+    sim_fixture.drawVars()
+    sim_fixture.genCases()
+    sim_fixture.initDaskClient()
+    sim_fixture.preProcessCases()
+    sim_fixture.runCases()
+    sim_fixture.postProcessCases()
+    sim_fixture.genOutVars()
+    assert True  # Just check that the code runs without error
 
 
 @pytest.mark.parametrize("sim_fixture", SIM_FIXTURES, indirect=True)

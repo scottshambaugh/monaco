@@ -30,9 +30,9 @@
 ## [0.17.2] - 2025-07-18
 ### Added    
 * Sims have a new `multiprocessing_method` argument that lets you specify the multiprocessing start method. This could be 'fork', 'spawn', or 'forkserver' depending on your system.
+* More test coverage
 ### Changed    
 * More robust shutdown of dask client and multiprocessing pool
-* More test coverage
 
 ## [0.17.1] - 2025-07-18
 ### Changed    
