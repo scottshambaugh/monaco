@@ -10,6 +10,7 @@ import pickle
 import pathlib
 import multiprocessing
 import concurrent.futures
+import warnings
 
 from datetime import datetime, timedelta
 from matplotlib.figure import Figure
@@ -243,10 +244,27 @@ class Sim:
 
 
     def __del__(self) -> None:
+        self.cleanup()
+
+    def cleanup(self) -> None:
+        """Cleanup resources explicitly."""
         if self.client is not None:
-            self.client.close()
+            try:
+                result = self.client.close()
+                if hasattr(result, '__await__'):
+                    warnings.filterwarnings("ignore", message=".*coroutine.*was never awaited.*")
+            except Exception:
+                pass
+            finally:
+                self.client = None
+
         if self.pool is not None:
-            self.pool.shutdown(wait=False, cancel_futures=True)
+            try:
+                self.pool.shutdown(wait=False, cancel_futures=True)
+            except Exception:
+                pass
+            finally:
+                self.pool = None
 
 
     def __getstate__(self) -> dict:
