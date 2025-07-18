@@ -60,7 +60,8 @@ jobs:
 
       - name: Run tests and coverage
         run: |
-          poetry run coverage run --source=monaco -m pytest
+          poetry run coverage run --source=monaco --parallel-mode -m pytest
+          poetry run coverage combine --quiet
           poetry run coverage report -m
           poetry run coverage xml
           poetry run coverage html

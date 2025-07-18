@@ -51,6 +51,11 @@ docs = ["sphinx", "sphinx_rtd_theme", "myst-parser"]
 [tool.pytest.ini_options]
 addopts = "--disable-socket"
 
+[tool.coverage.run]
+parallel = true
+concurrency = ["multiprocessing"]
+source = ["src/monaco"]
+
 [tool.coverage.report]
 exclude_lines = ["^if __name__ == ['\"]__main__['\"]:$"]
 
