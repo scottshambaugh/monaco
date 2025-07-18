@@ -5,7 +5,7 @@ import time
 import numpy as np
 from monaco.helper_functions import (next_power_of_2, hash_str_repeatable, is_num,
                                      length, get_list, slice_by_index, empty_list,
-                                     flatten, get_cases, timeit)
+                                     flatten, get_cases, timeit, hashable_val_vectorized)
 
 # Only test with pandas if installed
 try:
@@ -119,3 +119,17 @@ def test_timeit(capsys):
     captured = capsys.readouterr()
     assert '"test_function" took' in captured.out
     assert 'ms to execute' in captured.out
+
+
+def test_hashable_val_vectorized_base_path():
+    vals = [1, 2, 3, 4, 5]
+    result = hashable_val_vectorized(vals)
+    expected = [1, 2, 3, 4, 5]
+    assert result == expected
+
+
+def test_hashable_val_vectorized_fallback_path():
+    vals = [[1, 2], 'string', 42]
+    result = hashable_val_vectorized(vals)
+    expected = ['[1, 2]', 'string', 42]
+    assert result == expected
