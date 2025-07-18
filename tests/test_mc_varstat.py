@@ -2,6 +2,7 @@
 
 import pytest
 import numpy as np
+from monaco.mc_var import OutVar
 from monaco.mc_varstat import VarStat
 from monaco.gaussian_statistics import sig2pct
 from monaco.mc_enums import SampleMethod, StatBound, VarStatType
@@ -68,7 +69,6 @@ def test_varstat_cases(invar):
 
 
 def test_outvarstat_2d(v):
-    from monaco.mc_var import OutVar
     outvar = OutVar('test', [1*v, 2*v, 0*v, -1*v, -2*v], firstcaseismedian=True)
     outvarstat1 = VarStat(outvar, stat=VarStatType.ORDERSTATTI,
                           statkwargs={'p': 0.6, 'c': 0.50, 'bound': StatBound.ALL},
@@ -89,7 +89,6 @@ def test_outvarstat_2d(v):
 
 
 def test_outvarstat_2d_irregular(v):
-    from monaco.mc_var import OutVar
     outvar = OutVar('test', [[0, 0], 1*v, 2*v, 0*v, -1*v, [0, 0]], firstcaseismedian=True)
     outvarstat1 = VarStat(outvar, stat=VarStatType.MIN,
                           bootstrap=True, bootstrap_k=10, conf=0.95, seed=0)
@@ -105,3 +104,12 @@ def test_outvarstat_2d_irregular(v):
                        [[-3, -1.875], [-1.5, -0.9375], [-4.25, 1], [-6.375, 1.5 ], [-8.5, 2], [-10.625, 2.5]])  # noqa: E501
     assert np.allclose(outvarstat2.confidence_interval_high_nums,
                        [[0.5, 0.875], [0.25, 0.4375], [1, 6.25], [1.5, 9.375], [2, 12.5], [2.5, 15.625]])  # noqa: E501
+
+
+def test_outvarstat_1d_orderstatp(v):
+    # Create a 1-D OutVar with 6 cases
+    outvar = OutVar('test_1d', [v, 2*v, 0.5*v, -v, 0.2*v, 3*v], firstcaseismedian=False)
+    outvarstat = VarStat(outvar, stat=VarStatType.ORDERSTATP,
+                         statkwargs={'p': 0.5, 'c': 0.50, 'bound': StatBound.NEAREST},
+                         bootstrap=False, seed=0)
+    assert all(outvarstat.vals == np.array([-0.4, -0.2, 4.0, 6.0, 8.0, 10.0]))

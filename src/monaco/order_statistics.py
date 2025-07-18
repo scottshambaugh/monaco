@@ -403,7 +403,8 @@ def order_stat_P_k(n     : int,
         u = iPu + k[1] - 1
         if l <= 0 or u >= n+1 or EPYP(n, l, u, P) < c:
             raise ValueError(f'{n=} is too small to meet {P=} at {c=} for {bound} percentile ' +
-                              'confidence interval at any order statistic')
+                              'confidence interval at any order statistic. Use order_stat_P_n ' +
+                              'to find the minimum n.')
 
     elif bound == StatBound.ONESIDED_UPPER:
         k = [1, n + 1 - iPu]
@@ -411,7 +412,8 @@ def order_stat_P_k(n     : int,
         u = iPu + k[1] - 1
         if u >= n + 1 or EPYP(n, l, u, P) < c:
             raise ValueError(f'{n=} is too small to meet {P=} at {c=} for {bound} percentile ' +
-                              'confidence interval at any order statistic')
+                              'confidence interval at any order statistic. Use order_stat_P_n ' +
+                              'to find the minimum n.')
 
     elif bound == StatBound.ONESIDED_LOWER:
         k = [1, iPl]
@@ -419,7 +421,8 @@ def order_stat_P_k(n     : int,
         u = n + 1
         if EPYP(n, l, u, P) < c:
             raise ValueError(f'{n=} is too small to meet {P=} at {c=} for {bound} percentile ' +
-                              'confidence interval at any order statistic')
+                              'confidence interval at any order statistic. Use order_stat_P_n ' +
+                              'to find the minimum n.')
     else:
         raise ValueError(f'{bound=} must be {StatBound.ONESIDED_UPPER}, ' +
                          f'{StatBound.ONESIDED_LOWER}, or {StatBound.TWOSIDED}')
