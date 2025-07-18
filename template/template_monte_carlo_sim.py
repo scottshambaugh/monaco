@@ -29,6 +29,10 @@ seed = 12362398
 # will run single-threaded in a 'for' loop, and if False then parallel processing
 # will be used. Parallel processing can be done either with dask or with python's
 # in-built multiprocessing module, and this is controlled with the `usedask` flag.
+# Note that depending on your simulation, the parallel processing may not be
+# faster than the single-threaded version. The depends on the overhead of
+# passing data between processes versus the speed of the simulation, and is
+# worth experimenting with for your specific situation.
 singlethreaded = True
 usedask = False
 
