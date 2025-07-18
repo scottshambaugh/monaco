@@ -175,6 +175,19 @@ def test_sim_getitem(sim_singlethreaded):
 
 
 @pytest.mark.parametrize("sim_fixture", SIM_FIXTURES, indirect=True)
+def test_sim_verbose(sim_fixture):
+    if sim_fixture is None:
+        pytest.skip("Dask is not installed, skipping parallel tests")
+
+    sim = sim_fixture
+    sim.verbose = True
+    sim.runSim()
+
+    # Just check that the code runs without error
+    assert True
+
+
+@pytest.mark.parametrize("sim_fixture", SIM_FIXTURES, indirect=True)
 def test_sim_dist_draws(sim_fixture):
     if sim_fixture is None:
         pytest.skip("Dask is not installed, skipping parallel tests")
