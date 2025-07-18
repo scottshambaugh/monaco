@@ -458,7 +458,7 @@ class VarStat:
             if self.side == VarStatSide.LOW:
                 sortednums.reverse()
             if self.side in (VarStatSide.HIGH, VarStatSide.LOW):
-                self.nums = np.asarray(sortednums[-self.k])
+                self.nums = sortednums[-self.k]
                 if self.var.nummap is not None:
                     self.checkInNummap(self.nums)
                     self.vals = self.var.nummap[self.nums]
@@ -535,11 +535,11 @@ class VarStat:
         if self.var.isscalar:
             sortednums = sorted([self.var.nums[case] for case in self.cases])
             if self.bound == StatBound.ONESIDED_LOWER:
-                self.nums = np.asarray(sortednums[iPl - self.k])
+                self.nums = sortednums[iPl - self.k]
             elif self.bound == StatBound.ONESIDED_UPPER:
-                self.nums = np.asarray(sortednums[iPu + self.k])
+                self.nums = sortednums[iPu + self.k]
             elif self.bound == StatBound.NEAREST:
-                self.nums = np.asarray(sortednums[iP])
+                self.nums = sortednums[iP]
             if self.bound in (StatBound.ONESIDED_LOWER,
                               StatBound.ONESIDED_UPPER,
                               StatBound.NEAREST):

@@ -80,6 +80,17 @@ def test_varstat_nummap():
     with pytest.raises(ValueError, match='not in nummap'):
         invarstat = VarStat(invar, stat=VarStatType.MEAN, bootstrap=True, seed=0)
 
+    # Test order statistics with nummap
+    invarstat_ti = VarStat(invar, stat=VarStatType.ORDERSTATTI,
+                           statkwargs={'p': 0.5, 'c': 0.50, 'bound': StatBound.ONESIDED},
+                           bootstrap=True, seed=0)
+    assert invarstat_ti.vals in nummap.values()
+
+    invarstat_p = VarStat(invar, stat=VarStatType.ORDERSTATP,
+                          statkwargs={'p': 0.5, 'c': 0.50, 'bound': StatBound.NEAREST},
+                          bootstrap=True, seed=0)
+    assert invarstat_p.vals in nummap.values()
+
     # 1-D variable
     valmap = {'a': 1, 'b': 2}
     outvar = OutVar('test', [['a', 'b', 'a'], ['b', 'a', 'b'], ['a', 'b', 'a']],
@@ -89,6 +100,17 @@ def test_varstat_nummap():
 
     with pytest.raises(ValueError, match='not in nummap'):
         outvarstat = VarStat(outvar, stat=VarStatType.MEAN, bootstrap=True, seed=0)
+
+    # Test order statistics with valmap for 1-D
+    outvarstat_ti = VarStat(outvar, stat=VarStatType.ORDERSTATTI,
+                           statkwargs={'p': 0.5, 'c': 0.50, 'bound': StatBound.ONESIDED},
+                           bootstrap=True, seed=0)
+    assert all(val in valmap.keys() for val in outvarstat_ti.vals)
+
+    outvarstat_p = VarStat(outvar, stat=VarStatType.ORDERSTATP,
+                          statkwargs={'p': 0.5, 'c': 0.50, 'bound': StatBound.NEAREST},
+                          bootstrap=True, seed=0)
+    assert all(val in valmap.keys() for val in outvarstat_p.vals)
 
 
 def test_outvarstat_2d(v):
