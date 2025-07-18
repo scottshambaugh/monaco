@@ -639,7 +639,7 @@ class Sim:
         cases_downselect = self.downselectCases(cases)
         if self.verbose:
             pbar = tqdm(total=len(cases_downselect), desc='Generating cases',
-                        unit=" cases", position=0)
+                        unit="case", position=0)
         for ncase in cases_downselect:
             ismedian = False
             if self.firstcaseismedian and ncase == 0:
@@ -752,7 +752,7 @@ class Sim:
                 concurrent.futures.as_completed(futures),
                 total=len(futures),
                 desc="Preprocessing, running, and postprocessing cases",
-                unit=" cases",
+                unit="case",
                 position=0,
                 leave=True
             ):
@@ -875,7 +875,7 @@ class Sim:
         if self.singlethreaded:
             if self.verbose:
                 pbar = tqdm(total=len(cases_downselect), desc='Preprocessing cases',
-                            unit=" cases", position=0)
+                            unit="case", position=0)
             for i in cases_downselect:
                 case = self.cases[i]
                 case.haspreprocessed = False
@@ -903,7 +903,7 @@ class Sim:
                     concurrent.futures.as_completed(futures),
                     total=len(futures),
                     desc="Preprocessing cases",
-                    unit=" cases",
+                    unit="case",
                     position=0,
                     leave=True
                 ):
@@ -974,7 +974,7 @@ class Sim:
         if self.singlethreaded:
             if self.verbose:
                 pbar = tqdm(total=len(cases_downselect), desc='Running cases',
-                            unit=" cases", position=0)
+                            unit="case", position=0)
             for i in cases_downselect:
                 case = self.cases[i]
                 case.hasrun = False
@@ -1003,7 +1003,7 @@ class Sim:
                     concurrent.futures.as_completed(futures),
                     total=len(futures),
                     desc="Running cases",
-                    unit=" cases",
+                    unit="case",
                     position=0,
                     leave=True
                 ):
@@ -1068,7 +1068,7 @@ class Sim:
         if self.singlethreaded:
             if self.verbose:
                 pbar = tqdm(total=len(cases_downselect), desc='Postprocessing cases',
-                            unit=" cases", position=0)
+                            unit="case", position=0)
             for i in cases_downselect:
                 case = self.cases[i]
                 case.haspostprocessed = False
@@ -1096,7 +1096,7 @@ class Sim:
                     concurrent.futures.as_completed(futures),
                     total=len(futures),
                     desc="Postprocessing cases",
-                    unit=" cases",
+                    unit="case",
                     position=0,
                     leave=True
                 ):
@@ -1157,7 +1157,7 @@ class Sim:
         outval_names = list(self.cases[0].outvals.keys())
         if self.verbose:
             pbar = tqdm(total=len(outval_names), desc='Generating output variables',
-                        unit=' outvars', position=0)
+                        unit='outvar', position=0)
         for i_var, varname in enumerate(outval_names):
             if varname in self.invars.keys():
                 raise ValueError(f"'{varname}' is already a Variable")
@@ -1906,7 +1906,7 @@ class Sim:
         casesnotloaded        = self.allCases()
         casesnotpostprocessed = self.allCases()
 
-        # pbar = tqdm(total=len(self.casesrun), unit=" cases", desc='Loading', position=0)
+        # pbar = tqdm(total=len(self.casesrun), unit="case", desc='Loading', position=0)
 
         for ncase in self.casesrun:
             filepath = self.resultsdir / f'{self.name}_{ncase}.mccase'
