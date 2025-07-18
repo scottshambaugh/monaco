@@ -754,7 +754,16 @@ class Sim:
                             cases: None | int | Iterable[int] = None,
                             calledfromrunsim: bool = False) -> None:
         """
-        Execute the full preprocess→run→postprocess pipeline with minimal data transfer.
+        Execute the full preprocess, run, and postprocess pipeline with minimal
+        data transfer, for multiprocessing speed up.
+
+        Parameters
+        ----------
+        cases : None | int | Iterable[int]
+            The case numbers to execute. If None, then all cases are executed.
+        calledfromrunsim : bool, default: False
+            Whether this was called from self.runSim(). If False, a new ID for
+            this simulation run is generated.
         """
         cases_downselect = self.downselectCases(cases=cases)
         fullyexecutedcases = []
