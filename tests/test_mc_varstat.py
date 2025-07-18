@@ -2,7 +2,8 @@
 
 import pytest
 import numpy as np
-from monaco.mc_var import OutVar
+from scipy.stats import randint
+from monaco.mc_var import InVar, OutVar
 from monaco.mc_varstat import VarStat
 from monaco.gaussian_statistics import sig2pct
 from monaco.mc_enums import SampleMethod, StatBound, VarStatType
@@ -66,6 +67,28 @@ def test_varstat_cases(invar):
                             bootstrap=True, bootstrap_k=10, conf=0.95, seed=0)
     assert invarstat.ncases == len(cases)
     assert np.allclose(invarstat.vals, 0.8050436)
+
+
+def test_varstat_nummap():
+    # Scalar variable
+    nummap = {1: 'a', 2: 'b'}
+    invar = InVar('test', ndraws=3, dist=randint, distkwargs={'low': 1, 'high': 3},
+                  nummap=nummap, samplemethod=SampleMethod.RANDOM, seed=12345)
+    invarstat = VarStat(invar, stat=VarStatType.MEDIAN, bootstrap=True, seed=0)
+    assert invarstat.vals == 'a'
+
+    with pytest.raises(ValueError, match='not in nummap'):
+        invarstat = VarStat(invar, stat=VarStatType.MEAN, bootstrap=True, seed=0)
+
+    # 1-D variable
+    valmap = {'a': 1, 'b': 2}
+    outvar = OutVar('test', [['a', 'b', 'a'], ['b', 'a', 'b'], ['a', 'b', 'a']],
+                    valmap=valmap)
+    outvarstat = VarStat(outvar, stat=VarStatType.MEDIAN, bootstrap=True, conf=0.1, seed=0)
+    assert outvarstat.vals == ['a', 'b', 'a']
+
+    with pytest.raises(ValueError, match='not in nummap'):
+        outvarstat = VarStat(outvar, stat=VarStatType.MEAN, bootstrap=True, seed=0)
 
 
 def test_outvarstat_2d(v):

@@ -33,6 +33,7 @@
 * More test coverage
 ### Changed    
 * More robust shutdown of dask client and multiprocessing pool
+* Fix bugs with varstats when there is a nummap
 
 ## [0.17.1] - 2025-07-18
 ### Changed    

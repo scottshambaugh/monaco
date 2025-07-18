@@ -13,7 +13,7 @@ from scipy.stats import bootstrap, moment, skew, kurtosis
 from scipy.stats.mstats import gmean
 from typing import Any, Callable, Iterable
 from warnings import warn
-from monaco.helper_functions import get_list, get_cases
+from monaco.helper_functions import get_list, get_cases, flatten
 from monaco.gaussian_statistics import pct2sig, sig2pct
 from monaco.order_statistics import (order_stat_TI_n, order_stat_TI_k,
                                      order_stat_P_k, get_iP)
@@ -368,12 +368,15 @@ class VarStat:
                 self.confidence_interval_low_vals = copy(self.confidence_interval_low_nums)
                 self.confidence_interval_high_vals = copy(self.confidence_interval_high_nums)
             if self.var.nummap is not None:
-                self.vals = [self.var.nummap[num] for num in self.nums]
+                self.checkInNummap(self.nums)
+                self.vals = self.var.nummap[self.nums]
                 if self.bootstrap:
+                    self.checkInNummap(self.confidence_interval_low_nums)
+                    self.checkInNummap(self.confidence_interval_high_nums)
                     self.confidence_interval_low_vals = \
-                        [self.var.nummap[num] for num in self.confidence_interval_low_nums]
+                        self.var.nummap[self.confidence_interval_low_nums]
                     self.confidence_interval_high_vals = \
-                        [self.var.nummap[num] for num in self.confidence_interval_high_nums]
+                        self.var.nummap[self.confidence_interval_high_nums]
 
         # 1-D Variables
         elif self.var.maxdim == 1:
@@ -407,14 +410,15 @@ class VarStat:
                 self.confidence_interval_low_vals = copy(self.confidence_interval_low_nums)
                 self.confidence_interval_high_vals = copy(self.confidence_interval_high_nums)
             if self.var.nummap is not None:
-                self.vals = [[self.var.nummap[x] for x in y] for y in self.nums]
+                self.checkInNummap(self.nums)
+                self.vals = [self.var.nummap[x] for x in self.nums]
                 if self.bootstrap:
+                    self.checkInNummap(self.confidence_interval_low_nums)
+                    self.checkInNummap(self.confidence_interval_high_nums)
                     self.confidence_interval_low_vals \
-                        = [[self.var.nummap[x] for x in y]
-                           for y in self.confidence_interval_low_nums]
-                    self.confidence_interval_low_vals \
-                        = [[self.var.nummap[x] for x in y]
-                           for y in self.confidence_interval_high_nums]
+                        = [self.var.nummap[x] for x in self.confidence_interval_low_nums]
+                    self.confidence_interval_high_vals \
+                        = [self.var.nummap[x] for x in self.confidence_interval_high_nums]
 
         else:
             # Suppress warning since this will become valid when Var is split
@@ -456,10 +460,12 @@ class VarStat:
             if self.side in (VarStatSide.HIGH, VarStatSide.LOW):
                 self.nums = np.asarray(sortednums[-self.k])
                 if self.var.nummap is not None:
-                    self.vals = self.var.nummap[self.nums.item()]
+                    self.checkInNummap(self.nums)
+                    self.vals = self.var.nummap[self.nums]
             elif self.side == VarStatSide.BOTH:
                 self.nums = np.asarray([sortednums[self.k-1], sortednums[-self.k]])
                 if self.var.nummap is not None:
+                    self.checkInNummap(self.nums)
                     self.vals = np.asarray([self.var.nummap[self.nums[0]],
                                             self.var.nummap[self.nums[1]]])
             elif self.side == VarStatSide.ALL:
@@ -467,6 +473,7 @@ class VarStat:
                                         np.median(sortednums),
                                         sortednums[-self.k]])
                 if self.var.nummap is not None:
+                    self.checkInNummap(self.nums)
                     self.vals = np.asarray([self.var.nummap[self.nums[0]],
                                             self.var.nummap[self.nums[1]],
                                             self.var.nummap[self.nums[2]]])
@@ -496,7 +503,8 @@ class VarStat:
                                        sortednums[int(np.round(len(sortednums)/2)-1)],
                                        sortednums[-self.k]]
             if self.var.nummap is not None:
-                self.vals = np.asarray([[self.var.nummap[x] for x in y] for y in self.nums])
+                self.checkInNummap(self.nums)
+                self.vals = np.asarray([self.var.nummap[x] for x in self.nums])
             else:
                 self.vals = copy(self.nums)
 
@@ -536,10 +544,12 @@ class VarStat:
                               StatBound.ONESIDED_UPPER,
                               StatBound.NEAREST):
                 if self.var.nummap is not None:
-                    self.vals = self.var.nummap[self.nums.item()]
+                    self.checkInNummap(self.nums)
+                    self.vals = self.var.nummap[self.nums]
             elif self.bound == StatBound.TWOSIDED:
                 self.nums = np.asarray([sortednums[iPl - self.k], sortednums[iPu + self.k]])
                 if self.var.nummap is not None:
+                    self.checkInNummap(self.nums)
                     self.vals = np.asarray([self.var.nummap[self.nums[0]],
                                             self.var.nummap[self.nums[1]]])
             elif self.bound == StatBound.ALL:
@@ -547,6 +557,7 @@ class VarStat:
                                         sortednums[iP],
                                         sortednums[iPu + self.k]])
                 if self.var.nummap is not None:
+                    self.checkInNummap(self.nums)
                     self.vals = np.asarray([self.var.nummap[self.nums[0]],
                                             self.var.nummap[self.nums[1]],
                                             self.var.nummap[self.nums[2]]])
@@ -577,7 +588,8 @@ class VarStat:
                                        sortednums[iP],
                                        sortednums[iPu + self.k]]
             if self.var.nummap is not None:
-                self.vals = np.asarray([[self.var.nummap[x] for x in y] for y in self.nums])
+                self.checkInNummap(self.nums)
+                self.vals = np.asarray([self.var.nummap[x] for x in self.nums])
             else:
                 self.vals = copy(self.nums)
 
@@ -603,9 +615,14 @@ class VarStat:
             self.bound = self.statkwargs['bound']
 
 
-    def setName(self,
-                name : str,
-                ) -> None:
+    def checkInNummap(self, nums : Any) -> None:
+        """Check if the numbers are in the nummap."""
+        if self.var.nummap is not None:
+            for num in flatten([nums]):
+                if num not in self.var.nummap:
+                    raise ValueError(f'{num} not in nummap')
+
+    def setName(self, name : str) -> None:
         """
         Set the name for this variable statistic.
 
