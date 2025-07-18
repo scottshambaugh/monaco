@@ -74,6 +74,10 @@ class Sim:
         The number of cores to use for multiprocessing. If None, will use all
         available cores. This will override the n_workers kwarg in daskkwargs
         if provided.
+    multiprocessing_method : str, default: None
+        The method to use for multiprocessing. If None, will use the method
+        specified by the multiprocessing.get_start_method() function.
+        Valid options are: 'fork', 'spawn', 'forkserver'.
     daskkwargs : dict, default: dict()
         Keyword arguments (kwargs) to pass to the dask Client constructor, see:
         https://distributed.dask.org/en/stable/api.html#client
@@ -156,6 +160,7 @@ class Sim:
                  singlethreaded    : bool = True,
                  usedask           : bool = False,
                  ncores            : int | None = None,
+                 multiprocessing_method : str | None = None,
                  daskkwargs        : dict = dict(),
                  verbose           : bool = True,
                  debug             : bool = False,
@@ -179,6 +184,7 @@ class Sim:
         self.singlethreaded = singlethreaded
         self.usedask = usedask
         self.ncores = ncores
+        self.multiprocessing_method = multiprocessing_method
         self.daskkwargs = daskkwargs
         self.keepsiminput = keepsiminput
         self.keepsimrawoutput = keepsimrawoutput
@@ -370,11 +376,19 @@ class Sim:
         elif self.pool is not None:
             return
 
+        start_method = self.multiprocessing_method
+        if start_method not in multiprocessing.get_all_start_methods():
+            start_method = multiprocessing.get_start_method()
+            if self.multiprocessing_method is not None:
+                vwarn(self.verbose, "Invalid multiprocessing method " +
+                                    f"{self.multiprocessing_method}, using " +
+                                    f"{start_method} instead")
+
         vprint(self.verbose, "Initializing multiprocessing pool...")
         if self.ncores is None:
             self.ncores = multiprocessing.cpu_count()
-        ctx = multiprocessing.get_context()
-        if multiprocessing.get_start_method() == "fork":
+        ctx = multiprocessing.get_context(start_method)
+        if start_method == "fork":
             # For fork, the global variables don't need to be pickled
             initializer = register_global_vars
             data = (self.invars, self.outvars, self.constvals)
@@ -387,7 +401,7 @@ class Sim:
                                                            initargs=data)
         vprint(self.verbose,
               f'Multiprocessing pool initiated with {self.ncores} workers ' +
-              f'and "{multiprocessing.get_start_method()}" start method.')
+              f'and "{start_method}" start method.')
 
 
     def addInVar(self,
@@ -589,6 +603,7 @@ class Sim:
         self.endtime = datetime.now()
         self.runtime = self.endtime - self.starttime
 
+        vprint(self.verbose, end='', flush=True)
         vprint(self.verbose, f'Simulation complete! Runtime: {self.runtime}', flush=True)
 
         if self.savecasedata:

@@ -27,6 +27,10 @@
 ### Changed    
 ### Removed    
 
+## [0.17.2] - 2025-07-18
+### Added    
+* Sims have a new `multiprocessing_method` argument that lets you specify the multiprocessing start method. This could be 'fork', 'spawn', or 'forkserver' depending on your system.
+
 ## [0.17.1] - 2025-07-18
 ### Changed    
 * A fast path has been added for multiprocessing when operating on all the cases. This keeps the data on each worker during the handoffs between preprocessing, running, and postprocessing, and should greatly speed up data-heavy simulations.
