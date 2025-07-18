@@ -66,6 +66,7 @@ jobs:
           poetry run coverage html
 
       - name: Upload coverage reports to Codecov
+        if: matrix.os == 'Ubuntu' && matrix.python-version == '3.13'
         uses: codecov/codecov-action@v4
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
