@@ -82,10 +82,25 @@ def sim_singlethreaded(sim_base):
 @pytest.fixture
 def sim_multiprocessing(sim_base):
     sim = sim_base
-    sim.name = 'Sim parallel (multiprocessing)'
+    sim.name = 'Sim multiprocessing'
     sim.singlethreaded = False
     sim.usedask = False
     sim.runSim()
+    return sim
+
+@pytest.fixture
+def sim_multiprocessing_expanded(sim_base):
+    sim = sim_base
+    sim.name = 'Sim multiprocessing expanded'
+    sim.singlethreaded = False
+    sim.usedask = False
+    sim.drawVars()
+    sim.genCases()
+    sim.initMultiprocessingPool()
+    sim.preProcessCases()
+    sim.runCases()
+    sim.postProcessCases()
+    sim.genOutVars()
     return sim
 
 @pytest.fixture
@@ -93,7 +108,7 @@ def sim_dask(sim_base):
     if not HAS_DASK:
         return None
     sim = sim_base
-    sim.name = 'Sim parallel (dask)'
+    sim.name = 'Sim dask'
     sim.singlethreaded = False
     sim.usedask = True
     sim.runSim()
@@ -104,7 +119,7 @@ def sim_dask_expanded(sim_base):
     if not HAS_DASK:
         return None
     sim = sim_base
-    sim.name = 'Sim parallel expanded (dask)'
+    sim.name = 'Sim dask expanded'
     sim.singlethreaded = False
     sim.usedask = True
     sim.drawVars()
@@ -117,12 +132,28 @@ def sim_dask_expanded(sim_base):
     return sim
 
 
+@pytest.fixture
+def all_sims(sim_singlethreaded,
+             sim_multiprocessing, sim_multiprocessing_expanded,
+             sim_dask, sim_dask_expanded):
+    all_sims = [sim_singlethreaded,
+                sim_multiprocessing, sim_multiprocessing_expanded,
+                sim_dask, sim_dask_expanded]
+    # We only test the dask sims if dask is installed
+    sims_downselect = [sim for sim in all_sims if sim is not None]
+    return sims_downselect
+
+
 def test_sim_singlethreaded_fixture(sim_singlethreaded):
     assert sim_singlethreaded.singlethreaded
 
 def test_sim_multiprocessing_fixture(sim_multiprocessing):
     assert not sim_multiprocessing.singlethreaded
     assert not sim_multiprocessing.usedask
+
+def test_sim_multiprocessing_expanded_fixture(sim_multiprocessing_expanded):
+    assert not sim_multiprocessing_expanded.singlethreaded
+    assert not sim_multiprocessing_expanded.usedask
 
 def test_sim_dask_fixture(sim_dask):
     if sim_dask is None:
@@ -142,26 +173,19 @@ def test_sim_getitem(sim_singlethreaded):
     assert sim_singlethreaded['Var1'].vals[0] == pytest.approx(3)
 
 
-def test_sim_dist_draws(sim_singlethreaded, sim_multiprocessing, sim_dask, sim_dask_expanded):
-    sims = [sim for sim in (sim_singlethreaded, sim_multiprocessing, sim_dask, sim_dask_expanded)
-            if sim is not None]
-    for sim in sims:
+def test_sim_dist_draws(all_sims):
+    for sim in all_sims:
         assert sim.cases[0].invals['Var1'].val == pytest.approx(3)
         assert sim.cases[1].invals['Var2'].val == pytest.approx(9.98228884)
 
 
-def test_sim_scalaroutvars(sim_singlethreaded, sim_multiprocessing, sim_dask, sim_dask_expanded):
-    sims = [sim for sim in (sim_singlethreaded, sim_multiprocessing, sim_dask, sim_dask_expanded)
-            if sim is not None]
-    for sim in sims:
+def test_sim_scalaroutvars(all_sims):
+    for sim in all_sims:
         assert len(sim.scalarOutVars()) == 1
 
 
-def test_sim_extendoutvars(sim_singlethreaded):
-    sims = [sim for sim in (sim_singlethreaded, )
-            if sim is not None]
-
-    for sim in sims:
+def test_sim_extendoutvars(all_sims):
+    for sim in all_sims:
         assert len(sim.outvars['casenum_list'][0].val) == 1
         assert len(sim.outvars['casenum_list'][0].num) == 1
         assert len(sim.outvars['casenum_array'][0].val) == 1
@@ -198,10 +222,8 @@ def test_sim_custom_vals():
                      vals=[1, 2, 3])
 
 
-def test_sim_corr_cov(sim_singlethreaded, sim_multiprocessing, sim_dask, sim_dask_expanded):
-    sims = [sim for sim in (sim_singlethreaded, sim_multiprocessing, sim_dask, sim_dask_expanded)
-            if sim is not None]
-    for sim in sims:
+def test_sim_corr_cov(all_sims):
+    for sim in all_sims:
         # Convert to numpy arrays because pytest.approx doesn't work on nested lists
         assert np.array(sim.corr()[0]) \
             == pytest.approx(np.array([[ 1,           0.44720757, -0.18114221],
@@ -213,11 +235,8 @@ def test_sim_corr_cov(sim_singlethreaded, sim_multiprocessing, sim_dask, sim_das
                                        [-1.3125   , -0.35929331, 25.5]]))
 
 
-def test_sim_preprocess_failure(sim_singlethreaded, sim_multiprocessing,
-                                sim_dask, sim_dask_expanded):
-    sims = [sim for sim in (sim_singlethreaded, sim_multiprocessing, sim_dask, sim_dask_expanded)
-            if sim is not None]
-    for sim in sims:
+def test_sim_preprocess_failure(all_sims):
+    for sim in all_sims:
         fcns = {SimFunctions.PREPROCESS : sim_testing_preprocess_failure,
                 SimFunctions.RUN        : sim_testing_run,
                 SimFunctions.POSTPROCESS: sim_testing_postprocess}
@@ -235,10 +254,8 @@ def test_sim_preprocess_failure(sim_singlethreaded, sim_multiprocessing,
         assert len(sim.casespostprocessed) == sim.ncases - 1
 
 
-def test_sim_run_failure(sim_singlethreaded, sim_multiprocessing, sim_dask, sim_dask_expanded):
-    sims = [sim for sim in (sim_singlethreaded, sim_multiprocessing, sim_dask, sim_dask_expanded)
-            if sim is not None]
-    for sim in sims:
+def test_sim_run_failure(all_sims):
+    for sim in all_sims:
         fcns = {SimFunctions.PREPROCESS : sim_testing_preprocess,
                 SimFunctions.RUN        : sim_testing_run_failure,
                 SimFunctions.POSTPROCESS: sim_testing_postprocess}
@@ -256,11 +273,8 @@ def test_sim_run_failure(sim_singlethreaded, sim_multiprocessing, sim_dask, sim_
         assert len(sim.casespostprocessed) == sim.ncases - 1
 
 
-def test_sim_postprocess_failure(sim_singlethreaded, sim_multiprocessing,
-                                 sim_dask, sim_dask_expanded):
-    sims = [sim for sim in (sim_singlethreaded, sim_multiprocessing, sim_dask, sim_dask_expanded)
-            if sim is not None]
-    for sim in sims:
+def test_sim_postprocess_failure(all_sims):
+    for sim in all_sims:
         fcns = {SimFunctions.PREPROCESS : sim_testing_preprocess,
                 SimFunctions.RUN        : sim_testing_run,
                 SimFunctions.POSTPROCESS: sim_testing_postprocess_failure}

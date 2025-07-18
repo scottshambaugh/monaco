@@ -22,7 +22,7 @@ from monaco.mc_var import InVar, OutVar, InVarSpace
 from monaco.mc_enums import SimFunctions, SampleMethod
 from monaco.helper_functions import (get_list, vprint, vwarn, empty_list,
                                      hash_str_repeatable)
-from monaco.case_runners import preprocess_case, run_case, postprocess_case
+from monaco.case_runners import preprocess_case, run_case, postprocess_case, execute_full_case
 from monaco.globals import _worker_init, register_global_vars
 from monaco.dvars_sensitivity import calc_sensitivities
 from monaco.mc_multi_plot import multi_plot_grid_rect
@@ -146,6 +146,7 @@ class Sim:
     ncases : int
         The number of cases.
     """
+
     def __init__(self,
                  name              : str,
                  ndraws            : int,
@@ -692,15 +693,80 @@ class Sim:
             this simulation run is generated.
         """
         if self.singlethreaded or not self.usedask:
-            self.preProcessCases(cases=casestopreprocess)
-            self.runCases(cases=casestorun, calledfromrunsim=calledfromrunsim)
-            self.postProcessCases(cases=casestopostprocess)
+            same_cases = (casestopreprocess == casestorun == casestopostprocess)
+            if same_cases and not self.singlethreaded:
+                # This reduces data transfer for multiprocessing by keeping the case in the worker
+                self.executeFullPipeline(cases=casestopreprocess,
+                                         calledfromrunsim=calledfromrunsim)
+
+            else:
+                self.preProcessCases(cases=casestopreprocess)
+                self.runCases(cases=casestorun, calledfromrunsim=calledfromrunsim)
+                self.postProcessCases(cases=casestopostprocess)
 
         # Dask has its own path because it can chain delayed functions
         else:
             self.executeFullPipelineDask(casestopreprocess=casestopreprocess,
                                          casestorun=casestorun,
                                          casestopostprocess=casestopostprocess)
+
+
+    def executeFullPipeline(self,
+                            cases: None | int | Iterable[int] = None,
+                            calledfromrunsim: bool = False) -> None:
+        """
+        Execute the full preprocess→run→postprocess pipeline with minimal data transfer.
+        """
+        cases_downselect = self.downselectCases(cases=cases)
+        fullyexecutedcases = []
+
+        if not calledfromrunsim:
+            self.runsimid = self.genID()
+
+        # Multiprocessing with chained operations
+        self.initMultiprocessingPool()
+        futures = []
+
+        for i in cases_downselect:
+            case = self.cases[i]
+            case.haspreprocessed = False
+            case.hasrun = False
+            case.haspostprocessed = False
+
+            inputs = (
+                self.fcns[SimFunctions.PREPROCESS],
+                self.fcns[SimFunctions.RUN],
+                self.fcns[SimFunctions.POSTPROCESS],
+                case, self.debug, self.verbose, self.runsimid
+            )
+            futures.append(self.pool.submit(execute_full_case, *inputs))
+
+        if self.verbose:
+            for future in tqdm(
+                concurrent.futures.as_completed(futures),
+                total=len(futures),
+                desc="Executing full pipeline (preprocess, run, postprocess)",
+                position=0,
+                leave=True
+            ):
+                case = future.result()
+                fullyexecutedcases.append(case)
+        else:
+            for future in concurrent.futures.as_completed(futures):
+                case = future.result()
+                fullyexecutedcases.append(case)
+
+        # Restore pickled cases and save results
+        self.restorePickledCases(fullyexecutedcases)
+
+        for case in fullyexecutedcases:
+            self.cases[case.ncase] = case
+            if case.haspreprocessed:
+                self.casespreprocessed.add(case.ncase)
+            if case.hasrun:
+                self.casesrun.add(case.ncase)
+            if case.haspostprocessed:
+                self.casespostprocessed.add(case.ncase)
 
 
     def executeFullPipelineDask(self,

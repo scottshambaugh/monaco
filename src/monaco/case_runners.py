@@ -105,3 +105,31 @@ def postprocess_case(postprocfcn: Callable,
             vwrite(verbose, f'\nPostprocessing case {case.ncase} failed')
 
     return case
+
+
+def execute_full_case(preprocfcn: Callable,
+                      runfcn: Callable,
+                      postprocfcn: Callable,
+                      case: Case,
+                      debug: bool,
+                      verbose: bool,
+                      runsimid: int) -> Case:
+    """
+    Execute the full preprocessing, run, and postprocessing pipeline for a case.
+
+    This reduces data transfer by keeping the case in the worker process
+    throughout the entire pipeline, similar to how Dask chains operations.
+    """
+    # Preprocess
+    case = preprocess_case(preprocfcn, case, debug, verbose)
+    if not case.haspreprocessed:
+        return case
+
+    # Run
+    case = run_case(runfcn, case, debug, verbose, runsimid)
+    if not case.hasrun:
+        return case
+
+    # Postprocess
+    case = postprocess_case(postprocfcn, case, debug, verbose)
+    return case
