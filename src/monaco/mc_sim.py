@@ -698,75 +698,89 @@ class Sim:
 
         # Dask has its own path because it can chain delayed functions
         else:
-            self.initDaskClient()
-            casestopreprocess_downselect = self.downselectCases(cases=casestopreprocess)
-            casestorun_downselect = self.downselectCases(cases=casestorun)
-            casestopostprocess_downselect = self.downselectCases(cases=casestopostprocess)
+            self.executeFullPipelineDask(casestopreprocess=casestopreprocess,
+                                         casestorun=casestorun,
+                                         casestopostprocess=casestopostprocess)
 
-            preprocessedcases = dict()
-            runcases = dict()
-            postprocessedcases = dict()
-            try:
-                for case in self.cases:
-                    if case.ncase in casestopreprocess_downselect:
-                        case.haspreprocessed = False
-                    if case.ncase in casestorun_downselect:
-                        case.hasrun = False
-                    if case.ncase in casestopostprocess_downselect:
-                        case.haspostprocessed = False
 
-                    if case.ncase in casestopreprocess_downselect:
-                        casepreprocessed_delayed = dask.delayed(preprocess_case)(
-                            self.fcns[SimFunctions.PREPROCESS], case,
-                            self.debug, self.verbose)
-                        preprocessedcases[case.ncase] = casepreprocessed_delayed
+    def executeFullPipelineDask(self,
+                                casestopreprocess : None | int | Iterable[int] = None,
+                                casestorun : None | int | Iterable[int] = None,
+                                casestopostprocess : None | int | Iterable[int] = None
+                                ) -> None:
+        """
+        Execute the full preprocessing, run, and postprocessing pipeline for all the cases.
+        """
+        self.initDaskClient()
 
-                    if case.ncase in casestorun_downselect:
-                        if case.haspreprocessed:
-                            case_to_delay = case
-                        else:
-                            case_to_delay = preprocessedcases[case.ncase]
-                        caserun_delayed = dask.delayed(run_case)(
-                            self.fcns[SimFunctions.RUN], case_to_delay,
-                            self.debug, self.verbose, self.runsimid)
-                        runcases[case.ncase] = caserun_delayed
+        casestopreprocess_downselect = self.downselectCases(cases=casestopreprocess)
+        casestorun_downselect = self.downselectCases(cases=casestorun)
+        casestopostprocess_downselect = self.downselectCases(cases=casestopostprocess)
 
-                    if case.ncase in casestopostprocess_downselect:
-                        if case.hasrun:
-                            case_to_delay = case
-                        else:
-                            case_to_delay = runcases[case.ncase]
-                        casepostprocessed_delayed = dask.delayed(postprocess_case)(
-                            self.fcns[SimFunctions.POSTPROCESS], case_to_delay,
-                            self.debug, self.verbose)
-                        postprocessedcases[case.ncase] = casepostprocessed_delayed
+        preprocessedcases = dict()
+        runcases = dict()
+        postprocessedcases = dict()
+        try:
+            for case in self.cases:
+                if case.ncase in casestopreprocess_downselect:
+                    case.haspreprocessed = False
+                if case.ncase in casestorun_downselect:
+                    case.hasrun = False
+                if case.ncase in casestopostprocess_downselect:
+                    case.haspostprocessed = False
 
-                if self.verbose:
-                    vprint(self.verbose, f'Preprocessing {len(casestopreprocess_downselect)}, ' +
-                                         f'running {len(casestorun_downselect)}, and ' +
-                                         f'postprocessing {len(casestopostprocess_downselect)} ' +
-                                         'cases...', end='\n', flush=True)
-                    x = dask.persist(*postprocessedcases.values())
-                    progress(x)
-                    fullyexecutedcases = dask.compute(*x)
-                else:
-                    fullyexecutedcases = dask.compute(*postprocessedcases.values())
+                if case.ncase in casestopreprocess_downselect:
+                    casepreprocessed_delayed = dask.delayed(preprocess_case)(
+                        self.fcns[SimFunctions.PREPROCESS], case,
+                        self.debug, self.verbose)
+                    preprocessedcases[case.ncase] = casepreprocessed_delayed
 
-            except KeyboardInterrupt:
-                raise
+                if case.ncase in casestorun_downselect:
+                    if case.haspreprocessed:
+                        case_to_delay = case
+                    else:
+                        case_to_delay = preprocessedcases[case.ncase]
+                    caserun_delayed = dask.delayed(run_case)(
+                        self.fcns[SimFunctions.RUN], case_to_delay,
+                        self.debug, self.verbose, self.runsimid)
+                    runcases[case.ncase] = caserun_delayed
 
-            self.restorePickledCases(fullyexecutedcases)
+                if case.ncase in casestopostprocess_downselect:
+                    if case.hasrun:
+                        case_to_delay = case
+                    else:
+                        case_to_delay = runcases[case.ncase]
+                    casepostprocessed_delayed = dask.delayed(postprocess_case)(
+                        self.fcns[SimFunctions.POSTPROCESS], case_to_delay,
+                        self.debug, self.verbose)
+                    postprocessedcases[case.ncase] = casepostprocessed_delayed
 
-            # Save out results
-            for case in fullyexecutedcases:
-                if any([case.haspreprocessed, case.hasrun, case.haspostprocessed]):
-                    self.cases[case.ncase] = case
-                if case.haspreprocessed:
-                    self.casespreprocessed.add(case.ncase)
-                if case.hasrun:
-                    self.casesrun.add(case.ncase)
-                if case.haspostprocessed:
-                    self.casespostprocessed.add(case.ncase)
+            if self.verbose:
+                vprint(self.verbose, f'Preprocessing {len(casestopreprocess_downselect)}, ' +
+                                     f'running {len(casestorun_downselect)}, and ' +
+                                     f'postprocessing {len(casestopostprocess_downselect)} ' +
+                                      'cases...', end='\n', flush=True)
+                x = dask.persist(*postprocessedcases.values())
+                progress(x)
+                fullyexecutedcases = dask.compute(*x)
+            else:
+                fullyexecutedcases = dask.compute(*postprocessedcases.values())
+
+        except KeyboardInterrupt:
+            raise
+
+        self.restorePickledCases(fullyexecutedcases)
+
+        # Save out results
+        for case in fullyexecutedcases:
+            if any([case.haspreprocessed, case.hasrun, case.haspostprocessed]):
+                self.cases[case.ncase] = case
+            if case.haspreprocessed:
+                self.casespreprocessed.add(case.ncase)
+            if case.hasrun:
+                self.casesrun.add(case.ncase)
+            if case.haspostprocessed:
+                self.casespostprocessed.add(case.ncase)
 
 
     def preProcessCases(self,
