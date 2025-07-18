@@ -22,6 +22,14 @@ poetry run coverage run --source=monaco -m pytest && poetry run coverage report 
 poetry run mypy src tests/test*
 ```
 
+## Profiling
+
+Edit the example to remove the plotting functions before profiling. Then upload the json output to [speedscope.app](https://www.speedscope.app/) to view the report.
+```
+pip install pyspy
+py-spy record -o election.speedscope.json --format speedscope -- python examples/election/election_example_monte_carlo_sim.py
+```
+
 ## Building Docs
 
 ReadTheDocs will automatically [build](https://readthedocs.org/projects/monaco/builds/) when the `main` branch is updated.
