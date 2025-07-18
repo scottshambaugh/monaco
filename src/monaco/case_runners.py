@@ -119,6 +119,28 @@ def execute_full_case(preprocfcn: Callable,
 
     This reduces data transfer by keeping the case in the worker process
     throughout the entire pipeline, similar to how Dask chains operations.
+
+    Parameters
+    ----------
+    preprocfcn : Callable
+        The preprocessing function.
+    runfcn : Callable
+        The running function.
+    postprocfcn : Callable
+        The postprocessing function.
+    case : monaco.mc_case.Case
+        The case to execute.
+    debug : bool
+        Whether to raise an error if the case fails.
+    verbose : bool
+        Whether to print verbose output.
+    runsimid : int
+        The simulation ID.
+
+    Returns
+    -------
+    case : monaco.mc_case.Case
+        The same case, executed.
     """
     # Preprocess
     case = preprocess_case(preprocfcn, case, debug, verbose)
