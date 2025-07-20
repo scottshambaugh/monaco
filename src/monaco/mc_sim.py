@@ -425,11 +425,12 @@ class Sim:
     def addInVar(self,
                  name       : str,
                  dist       : rv_discrete | rv_continuous | None = None,
-                 distkwargs : dict[str, Any]   = None,
-                 nummap     : dict[float, Any] = None,
-                 vals       : list[Any] | None = None,
-                 seed       : int | None       = None,
-                 datasource : Optional[str]    = None,
+                 distkwargs : dict[str, Any]     = None,
+                 nummap     : dict[float, Any]   = None,
+                 vals       : list[Any] | None   = None,
+                 pcts       : list[float] | None = None,
+                 seed       : int | None         = None,
+                 datasource : Optional[str]      = None,
                  ) -> None:
         """
         Add an input variable to the simulation.
@@ -458,6 +459,10 @@ class Sim:
         vals : list[Any] | None, default: None
             Custom values to use instead of drawing from a distribution.
             Length must match ncases.
+        pcts : list[float] | None, default: None
+            Custom percentiles between 0 and 1 to use instead of random draws.
+            Length must match ncases, and the first percentile must be 0.5 if
+            firstcaseismedian is True.
         seed : int | None
             The random seed for this variable. If None, a seed will be assigned
             based on the order added.
@@ -475,7 +480,7 @@ class Sim:
         self.invarseeds.append(seed)
 
         invar = InVar(name=name, dist=dist, distkwargs=distkwargs, ndraws=self.ndraws,
-                      nummap=nummap, vals=vals, samplemethod=self.samplemethod,
+                      nummap=nummap, vals=vals, pcts=pcts, samplemethod=self.samplemethod,
                       ninvar=self.ninvars, seed=seed,
                       firstcaseismedian=self.firstcaseismedian, autodraw=False,
                       datasource=datasource)

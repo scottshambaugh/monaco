@@ -325,6 +325,10 @@ class InVar(Var):
     vals : list[Any] | None, default: None
         Custom values to use instead of drawing from a distribution.
         Length must match ncases.
+    pcts : list[float] | None, default: None
+        Custom percentiles between 0 and 1 to use instead of random draws.
+        Length must match ncases, and the first percentile must be 0.5 if
+        firstcaseismedian is True.
     samplemethod : monaco.mc_enums.SampleMethod, default: 'sobol_random'
         The random sampling method to use.
     ninvar : int
@@ -349,12 +353,14 @@ class InVar(Var):
         A dictionary mapping nonnumeric values to numbers (the inverse of
         `nummap`).
     pcts : list[float]
-        The randomly drawn percentiles.
-    nums : list[np.ndarry]
+        The randomly drawn percentiles. If custom percentiles are provided, then
+        these are the custom percentiles.
+    nums : list[float]
         The randomly drawn numbers obtained by feeding `pcts` into `dist`.
     vals : list[Any]
         The values corresponding to the randomly drawn numbers. If valmap is
-        None, then `vals == nums.tolist()`
+        None, then `vals == nums.tolist()`. If custom values are provided, then
+        these are the custom values.
     varstats : list[moncao.mc_varstat.VarStat]
         A list of all the variable statistics for this variable.
     """
@@ -365,6 +371,7 @@ class InVar(Var):
                  distkwargs        : dict[str, Any] | None   = None,
                  nummap            : dict[float, Any] | None = None,
                  vals              : list[Any] | None        = None,
+                 pcts              : list[float] | None      = None,
                  samplemethod      : SampleMethod  = SampleMethod.SOBOL_RANDOM,
                  ninvar            : int           = None,
                  seed              : int = np.random.get_state(legacy=False)['state']['key'][0],
@@ -388,8 +395,13 @@ class InVar(Var):
                 raise ValueError(f"Length of 'vals' ({len(vals)}) must match " +
                                  f"ncases ({self.ncases})")
 
+        if pcts is not None:
+            pcts = get_list(pcts)
+            self.check_pcts(pcts)
+
         self.dist = dist
         self.custom_vals = vals
+        self.custom_pcts = pcts
         if distkwargs is None:
             distkwargs = dict()
         self.distkwargs = distkwargs
@@ -407,6 +419,24 @@ class InVar(Var):
         self.genValMap()
         if autodraw:
             self.draw(ninvar_max=None)
+
+
+    def check_pcts(self,
+                   pcts : list[float],
+                   ) -> None:
+        """
+        Check that the percentiles are valid.
+        """
+        if len(pcts) != self.ncases:
+            raise ValueError(f"Length of 'pcts' ({len(pcts)}) must match " +
+                             f"ncases ({self.ncases})")
+        pcts = np.asarray(pcts)
+        if any(pcts <= 0) or any(pcts > 1):
+            # Disallow 0 due to https://github.com/scipy/scipy/issues/23358
+            raise ValueError("Percentiles must be between 0 and 1")
+        if pcts[0] != 0.5 and self.firstcaseismedian:
+            raise ValueError("If firstcaseismedian is True, then the first " +
+                             "percentile must be 0.5")
 
 
     def mapNums(self) -> None:
@@ -486,24 +516,31 @@ class InVar(Var):
                 nums = np.asarray(self.vals)
                 self.nums = nums.tolist()
 
-            # Generate uniform percentiles for custom values
-            self.pcts = [i / (self.ndraws - 1) for i in range(self.ndraws)]
-            if self.firstcaseismedian:
-                # First gets median, and we deconflict 0.5 with a small offset
-                self.pcts = [0.5] + [p if p != 0.5 else p + 1e-12 for p in self.pcts]
+            if self.custom_pcts is not None:
+                self.pcts = self.custom_pcts
+            else:
+                # Generate uniform percentiles for custom values
+                self.pcts = [i / (self.ndraws - 1) for i in range(self.ndraws)]
+                if self.firstcaseismedian:
+                    # First gets median, and we deconflict 0.5 with a small offset
+                    self.pcts = [0.5] + [p if p != 0.5 else p + 1e-12 for p in self.pcts]
 
             return
 
         # Distribution-based drawing logic
         if self.firstcaseismedian:
             self.ncases = self.ndraws + 1
-            self.pcts.append(0.5)
-            self.nums.append(self.getDistMedian())
+            if self.custom_pcts is not None:
+                self.pcts.append(0.5)
+                self.nums.append(self.getDistMedian())
 
         dist = self.dist(**self.distkwargs)
-        pcts = sampling(ndraws=self.ndraws, method=self.samplemethod,
-                        ninvar=self.ninvar, ninvar_max=ninvar_max,
-                        seed=self.seed)
+        if self.custom_pcts is not None:
+            pcts = self.custom_pcts
+        else:
+            pcts = sampling(ndraws=self.ndraws, method=self.samplemethod,
+                            ninvar=self.ninvar, ninvar_max=ninvar_max,
+                            seed=self.seed)
         self.pcts.extend(pcts)
         self.nums.extend(dist.ppf(pcts))
 

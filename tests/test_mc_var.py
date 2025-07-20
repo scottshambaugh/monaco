@@ -2,7 +2,7 @@
 
 import pytest
 import numpy as np
-from scipy.stats import rv_discrete
+from scipy.stats import rv_discrete, randint, norm, lognorm
 from monaco.mc_var import InVar, OutVar
 from monaco.mc_enums import SampleMethod
 import matplotlib.pyplot as plt
@@ -18,7 +18,6 @@ lognorm_sigma, lognorm_mu = 1, 2
 
 @pytest.fixture
 def invar_norm_random():
-    from scipy.stats import norm
     return InVar('norm', ndraws=1000,
                  dist=norm, distkwargs={'loc': 10, 'scale': 4},
                  seed=invarseeds[1], samplemethod=SampleMethod.RANDOM,
@@ -26,7 +25,6 @@ def invar_norm_random():
 
 @pytest.fixture
 def invar_lognorm_random():
-    from scipy.stats import lognorm
     return InVar('lognorm', ndraws=1000,
                  dist=lognorm, distkwargs={'s': lognorm_sigma, 'scale': np.exp(lognorm_mu)},
                  seed=invarseeds[1], samplemethod=SampleMethod.RANDOM,
@@ -42,14 +40,12 @@ def test_invar_getitem(invar_norm_random):
     assert invar_norm_random[0].val == pytest.approx(14.186734703770963)
 
 def test_invar_norm_sobol_warning():
-    from scipy.stats import norm
     with pytest.warns(UserWarning, match='Infinite value'):
         InVar('norm', ndraws=1000, dist=norm, distkwargs={'loc': 10, 'scale': 4},
                 ninvar=1, samplemethod=SampleMethod.SOBOL, seed=invarseeds[1],
                 firstcaseismedian=False)
 
 def test_invar_discrete():
-    from scipy.stats import randint
     invar = InVar('randint', ndraws=1000, dist=randint, distkwargs={'low': 1, 'high': 5},
                     seed=invarseeds[0], samplemethod=SampleMethod.RANDOM)
     assert invar.stats().mean == pytest.approx(2.538)
@@ -97,12 +93,14 @@ def test_invar_custom_vals():
     assert invar.nums == [2, 3, 4, 5]
     assert invar.vals == ['a', 'b', 'c', 'd']
 
-    # Without nummap
+    # Without nummap, and also test custom pcts
     invar = InVar('custom', ndraws=3, vals=['b', 'a', 'c', 'd'],
+                  pcts=[0.5, 0.2, 0.3, 0.4],
                   ninvar=1, samplemethod=None, seed=invarseeds[3],
                   firstcaseismedian=True)
     assert invar.vals == ['b', 'a', 'c', 'd']
     assert invar.nums == [1, 0, 2, 3]
+    assert invar.pcts == [0.5, 0.2, 0.3, 0.4]
 
 def test_invar_custom_vals_errors():
     with pytest.raises(ValueError, match="Either 'dist' or 'vals' must be provided"):
@@ -122,6 +120,33 @@ def test_invar_custom_vals_errors():
                        match=r"Length of 'vals' \(3\) must match ncases \(11\)"):
         InVar('custom', ndraws=10, vals=[1, 2, 3],
               ninvar=1, samplemethod=None, seed=invarseeds[3], firstcaseismedian=True)
+
+
+def test_invar_custom_pcts():
+    invar = InVar('custom', ndraws=3, dist=randint, distkwargs={'low': 1, 'high': 5},
+                  pcts=[0.01, 0.5, 0.99], ninvar=1, samplemethod=None, seed=invarseeds[3],
+                  firstcaseismedian=False)
+    assert invar.pcts == [0.01, 0.5, 0.99]
+    assert invar.nums == [1.0, 2.0, 4.0]
+    assert invar.vals == [1.0, 2.0, 4.0]
+
+
+def test_invar_custom_pcts_errors():
+    with pytest.raises(ValueError, match=r"Length of 'pcts' \(3\) must match "):
+        InVar('custom', ndraws=5, dist=randint, distkwargs={'low': 1, 'high': 5},
+              pcts=[0.01, 0.5, 0.99], ninvar=1, samplemethod=None, seed=invarseeds[3],
+              firstcaseismedian=False)
+
+    with pytest.raises(ValueError, match="Percentiles must be between 0 and 1"):
+        InVar('custom', ndraws=3, dist=randint, distkwargs={'low': 1, 'high': 5},
+              pcts=[0.01, 0.5, 1.01], ninvar=1, samplemethod=None, seed=invarseeds[3],
+              firstcaseismedian=False)
+
+    with pytest.raises(ValueError, match="If firstcaseismedian is True, then the first " +
+                                         "percentile must be 0.5"):
+        InVar('custom', ndraws=3, dist=randint, distkwargs={'low': 1, 'high': 5},
+              pcts=[0.01, 0.5, 0.75, 0.99], ninvar=1, samplemethod=None, seed=invarseeds[3],
+              firstcaseismedian=True)
 
 
 def test_outvar():

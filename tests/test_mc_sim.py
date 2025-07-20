@@ -259,6 +259,19 @@ def test_sim_custom_vals():
                      vals=[1, 2, 3])
 
 
+def test_sim_custom_pcts():
+    seed = 74494861
+    sim = Sim(name='Sim', ndraws=3, fcns=sim_testing_fcns(), firstcaseismedian=False,
+              verbose=False, samplemethod=SampleMethod.RANDOM,
+              seed=seed, debug=True, singlethreaded=True, daskkwargs=dict(),
+              savesimdata=False, savecasedata=False)
+    sim.addInVar(name='Var1', dist=randint, distkwargs={'low': 1, 'high': 5},
+                 pcts=[0.01, 0.5, 0.99])
+    sim.drawVars()
+    sim.genCases()
+    assert sim.vars['Var1'].vals == [1.0, 2.0, 4.0]
+
+
 @pytest.mark.parametrize("sim_fixture", SIM_FIXTURES, indirect=True)
 def test_sim_corr_cov(sim_fixture):
     if sim_fixture is None:

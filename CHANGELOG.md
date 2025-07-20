@@ -24,6 +24,7 @@
 
 ## [Unreleased]
 ### Added    
+* `InVar`s can be created with custom `pcts` to draw from a distribution with, or to match against custom `vals`.
 ### Changed    
 ### Removed    
 
