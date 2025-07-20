@@ -18,6 +18,7 @@
 - Variogram Sensitivity Analysis
 - repr's for all main objects
 - Histogram/spaghetti plot coloring a-la [aleatory](https://github.com/quantgirluk/aleatory)
+- Ray support?
 ### Known Bugs:
 - Cannot plot a varstat in percentile space
 ----

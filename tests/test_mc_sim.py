@@ -183,7 +183,7 @@ def test_sim_verbose(sim_fixture):
     sim_fixture.verbose = True
     sim_fixture.reset()
     sim_fixture.runSim()
-    assert True  # Just check that the code runs without error
+    assert True  # Just check that the code runs without error through the verbose paths
 
 
 @pytest.mark.parametrize("sim_fixture",
@@ -201,7 +201,7 @@ def test_sim_expanded_verbose(sim_fixture):
     sim_fixture.runCases()
     sim_fixture.postProcessCases()
     sim_fixture.genOutVars()
-    assert True  # Just check that the code runs without error
+    assert True  # Just check that the code runs without error through the verbose paths
 
 
 @pytest.mark.parametrize("sim_fixture", SIM_FIXTURES, indirect=True)

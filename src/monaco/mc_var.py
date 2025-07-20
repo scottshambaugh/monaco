@@ -528,21 +528,22 @@ class InVar(Var):
             return
 
         # Distribution-based drawing logic
-        if self.firstcaseismedian:
-            self.ncases = self.ndraws + 1
-            if self.custom_pcts is not None:
-                self.pcts.append(0.5)
-                self.nums.append(self.getDistMedian())
-
         dist = self.dist(**self.distkwargs)
         if self.custom_pcts is not None:
-            pcts = self.custom_pcts
+            self.pcts = self.custom_pcts
+            self.nums = dist.ppf(self.pcts)
+            if self.firstcaseismedian:
+                # We have already checked that the first percentile is 0.5
+                self.nums[0] = self.getDistMedian()
         else:
+            if self.firstcaseismedian:
+                self.pcts.append(0.5)
+                self.nums.append(self.getDistMedian())
             pcts = sampling(ndraws=self.ndraws, method=self.samplemethod,
                             ninvar=self.ninvar, ninvar_max=ninvar_max,
                             seed=self.seed)
-        self.pcts.extend(pcts)
-        self.nums.extend(dist.ppf(pcts))
+            self.pcts.extend(pcts)
+            self.nums.extend(dist.ppf(pcts))
 
         nums = np.asarray(self.nums)
         self.nums = nums.tolist()
