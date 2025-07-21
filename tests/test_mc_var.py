@@ -78,9 +78,10 @@ def test_invar_nummap():
     assert invar.vals == ['f', 'e', 'f', 'f', 'a', 'e', 'e', 'a', 'e', 'e']
 
 def test_invar_custom_vals():
+    eps = np.finfo(float).eps
     invar = InVar('custom', ndraws=3, vals=[1, 2, 3],
                   ninvar=1, samplemethod=None, seed=invarseeds[3], firstcaseismedian=False)
-    assert invar.pcts == [0.0, 0.5, 1.0]
+    assert invar.pcts == [eps, 0.5, 1.0-eps]
     assert invar.nums == [1, 2, 3]
     assert invar.vals == [1, 2, 3]
 
@@ -89,7 +90,7 @@ def test_invar_custom_vals():
     invar = InVar('custom', ndraws=3, vals=['a', 'b', 'c', 'd'],
                   ninvar=1, nummap=nummap, samplemethod=None, seed=invarseeds[3],
                   firstcaseismedian=True)
-    assert invar.pcts == [0.5, 0, 0.5+1e-12, 1.0]
+    assert invar.pcts == [0.5, eps, 0.5+eps, 1.0-eps]
     assert invar.nums == [2, 3, 4, 5]
     assert invar.vals == ['a', 'b', 'c', 'd']
 

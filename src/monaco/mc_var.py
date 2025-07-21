@@ -521,9 +521,13 @@ class InVar(Var):
             else:
                 # Generate uniform percentiles for custom values
                 self.pcts = [i / (self.ndraws - 1) for i in range(self.ndraws)]
+                # p = 0, 1 are marginally defined, so we deconflict with a small offset
+                eps = np.finfo(float).eps
+                self.pcts[0] = eps
+                self.pcts[-1] = 1 - eps
                 if self.firstcaseismedian:
                     # First gets median, and we deconflict 0.5 with a small offset
-                    self.pcts = [0.5] + [p if p != 0.5 else p + 1e-12 for p in self.pcts]
+                    self.pcts = [0.5] + [p if p != 0.5 else p + eps for p in self.pcts]
 
             return
 

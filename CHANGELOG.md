@@ -19,6 +19,7 @@
 - repr's for all main objects
 - Histogram/spaghetti plot coloring a-la [aleatory](https://github.com/quantgirluk/aleatory)
 - Ray support?
+* Support for scipy's [new stats infrastructure](https://docs.scipy.org/doc/scipy/tutorial/stats/rv_infrastructure.html)
 ### Known Bugs:
 - Cannot plot a varstat in percentile space
 ----
