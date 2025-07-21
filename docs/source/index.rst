@@ -15,6 +15,7 @@ For more information check out the left sidebar, or go straight to the :ref:`api
    installation.md
    basic_architecture.md
    basic_workflow.md
+   processing_methods.md
    statistical_distributions.md
    sampling_methods.md
    api_reference.rst

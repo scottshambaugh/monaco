@@ -106,6 +106,12 @@ class Sim:
         The directory the simulation was run in.
     filepath : pathlib.Path
         The filepath to the simulation .mcsim datafile.
+    pool : multiprocessing.Pool | None
+        The multiprocessing pool object.
+    cluster : dask.distributed.LocalCluster | None
+        The dask cluster object. Override this to use a remote cluster.
+    client : dask.distributed.Client | None
+        The dask client object. Override this to use a remote cluster.
     invarseeds : list[int]
         The random seeds for each of the input variables.
     outvarseeds : list[int]

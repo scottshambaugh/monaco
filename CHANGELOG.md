@@ -14,7 +14,6 @@
 - Switch from prints to logging
 - Ability to plot derived data in addition to vars
 - Star Sampling
-- Demo running on remote server (AWS, etc)
 - Variogram Sensitivity Analysis
 - repr's for all main objects
 - Histogram/spaghetti plot coloring a-la [aleatory](https://github.com/quantgirluk/aleatory)
@@ -27,6 +26,7 @@
 ## [Unreleased]
 ### Added    
 * `InVar`s can be created with custom `pcts` to draw from a distribution with, or to match against custom `vals`.
+* Documentation explaining the difference between single-threaded, multiprocessing, and Dask. Includes an example of using Dask with a cloud compute setup through Coiled and AWS.
 ### Changed    
 ### Removed    
 

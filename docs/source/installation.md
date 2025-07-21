@@ -8,7 +8,7 @@ pip install monaco
 
 ## Installing from Source
 
-```
+```bash
 git clone https://github.com/scottshambaugh/monaco.git
 cd monaco
 pip install poetry
@@ -17,7 +17,7 @@ poetry install --extras "pandas numba distributed"
 
 ## Running Tests and Type Checking
 
-```
+```bash
 poetry run coverage run --source=monaco -m pytest && poetry run coverage report -m 
 poetry run mypy src tests/test*
 ```
@@ -25,7 +25,7 @@ poetry run mypy src tests/test*
 ## Profiling
 
 Edit the example to remove the plotting functions before profiling. Then upload the json output to [speedscope.app](https://www.speedscope.app/) to view the report.
-```
+```bash
 pip install pyspy
 py-spy record -o election.speedscope.json --format speedscope -- python examples/election/election_example_monte_carlo_sim.py
 ```
@@ -33,7 +33,7 @@ py-spy record -o election.speedscope.json --format speedscope -- python examples
 ## Building Docs
 
 ReadTheDocs will automatically [build](https://readthedocs.org/projects/monaco/builds/) when the `main` branch is updated.
-```
+```bash
 pip install sphinx sphinx_rtd_theme myst_parser
 cd docs
 poetry run make clean && poetry run make html
@@ -44,12 +44,12 @@ poetry run make clean && poetry run make html
 1) Update `CHANGELOG.md`
 2) Update the version in `pyproject.toml`
 3) Update and install the package
-    ```
+    ```bash
     poetry update
     poetry install --extras "pandas numba distributed"
     ```
 4) Run tests, type checking, and linting locally
-    ```
+    ```bash
     poetry run coverage run --source=monaco -m pytest && poetry run coverage report -m 
     poetry run mypy src tests/test*
     poetry run flake8
