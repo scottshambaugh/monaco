@@ -795,16 +795,19 @@ class Sim:
             futures.append(self.pool.submit(execute_full_case, *inputs))
 
         if self.verbose:
-            for future in tqdm(
+            pbar = tqdm(
                 concurrent.futures.as_completed(futures),
                 total=len(futures),
                 desc="Preprocessing, running, and postprocessing cases",
                 unit="case",
                 position=0,
                 leave=True
-            ):
+            )
+            for future in pbar:
                 case = future.result()
                 fullyexecutedcases.append(case)
+            pbar.refresh()
+            pbar.close()
         else:
             for future in concurrent.futures.as_completed(futures):
                 case = future.result()
@@ -946,16 +949,19 @@ class Sim:
                 futures.append(self.pool.submit(preprocess_case, *inputs))
 
             if self.verbose:
-                for future in tqdm(
+                pbar = tqdm(
                     concurrent.futures.as_completed(futures),
                     total=len(futures),
                     desc="Preprocessing cases",
                     unit="case",
                     position=0,
                     leave=True
-                ):
+                )
+                for future in pbar:
                     case = future.result()
                     preprocessedcases.append(case)
+                pbar.refresh()
+                pbar.close()
             else:
                 for future in concurrent.futures.as_completed(futures):
                     case = future.result()
@@ -1046,16 +1052,19 @@ class Sim:
                 futures.append(self.pool.submit(run_case, *inputs))
 
             if self.verbose:
-                for future in tqdm(
+                pbar = tqdm(
                     concurrent.futures.as_completed(futures),
                     total=len(futures),
                     desc="Running cases",
                     unit="case",
                     position=0,
                     leave=True
-                ):
+                )
+                for future in pbar:
                     case = future.result()
                     runcases.append(case)
+                pbar.refresh()
+                pbar.close()
             else:
                 for future in concurrent.futures.as_completed(futures):
                     case = future.result()
@@ -1139,16 +1148,19 @@ class Sim:
                 futures.append(self.pool.submit(postprocess_case, *inputs))
 
             if self.verbose:
-                for future in tqdm(
+                pbar = tqdm(
                     concurrent.futures.as_completed(futures),
                     total=len(futures),
                     desc="Postprocessing cases",
                     unit="case",
                     position=0,
                     leave=True
-                ):
+                )
+                for future in pbar:
                     case = future.result()
                     postprocessedcases.append(case)
+                pbar.refresh()
+                pbar.close()
             else:
                 for future in concurrent.futures.as_completed(futures):
                     case = future.result()
