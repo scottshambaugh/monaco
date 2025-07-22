@@ -31,6 +31,7 @@ from monaco.mc_multi_plot import multi_plot_grid_rect
 try:
     import dask
     from dask.distributed import Client, progress
+    from monaco.globals import GlobalsPlugin
     HAS_DASK = True
 except ImportError:
     HAS_DASK = False
@@ -370,9 +371,10 @@ class Sim:
             vwarn(self.verbose, "Dask is not installed, skipping dask client initialization")
             return
 
+        plugin = GlobalsPlugin(*self.pickleLargeData())
+
         if self.client is not None:
-            # Initialize the global variables in each worker
-            self.client.run(_worker_init, *self.pickleLargeData())
+            self.client.register_worker_plugin(plugin, name="sim_globals")
             return
 
         vprint(self.verbose, "Initializing dask client...")
@@ -385,7 +387,7 @@ class Sim:
         self.cluster = self.client.cluster
 
         # Initialize the global variables in each worker
-        self.client.run(_worker_init, *self.pickleLargeData())
+        self.client.register_worker_plugin(plugin, name="sim_globals")
 
         nworkers = len(self.cluster.workers)
         nthreads = nworkers * self.cluster.worker_spec[0]['options']['nthreads']
