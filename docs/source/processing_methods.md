@@ -35,16 +35,20 @@ sim = mc.Sim(
     name='MySimulation',
     ndraws=1000,
     fcns=my_functions,
-    singlethreaded=False,           # Enable parallel processing
-    usedask=False,                  # Use multiprocessing instead of Dask
-    ncores=4,                       # Optional: specify number of cores
-    multiprocessing_method='spawn', # Optional: set start method ('fork', 'spawn', or 'forkserver')
+    singlethreaded=False,            # Enable parallel processing
+    usedask=False,                   # Use multiprocessing instead of Dask
+    ncores=4,                        # Optional: specify number of cores
+    multiprocessing_method='spawn',  # Optional: set start method ('fork', 'spawn', or 'forkserver')
 )
 ```
 
 ### Start Methods
 
-The multiprocessing start method significantly affects how worker processes are created. The `'fork'` method is the default on Linux, and provides fast startup with shared memory with the parent process (which can potentially lead to issues with unsafe memory management). The `'spawn'` method, used as the default on Windows and macOS, has slower startup but creates completely separate memory-safe processes. In python 3.14, the default on Linux will be switching to `'spawn'` to match the other platforms. The `'forkserver'` method offers a hybrid approach that can help avoid deadlocks in complex scenarios.
+The multiprocessing start method significantly affects how worker processes are created:
+
+* `'fork'`: The default method on Linux. It provides fast startup with shared memory from the parent process, which can potentially lead to issues with unsafe memory management.
+* `'spawn'`: The default method on Windows and macOS, and will become the default for Linux in Python 3.14. It has a slower startup but creates completely separate, memory-safe processes.
+* `'forkserver'`: Offers a hybrid approach that can help avoid deadlocks in complex scenarios.
 
 ## Dask Distributed Computing
 
@@ -52,7 +56,7 @@ Dask provides distributed computing capabilities that can scale from a single ma
 
 Note that Dask is not a required dependency. It can be installed with `pip install dask[distributed]`.
 
-When using Dask, there is a nice web dashboard available at [http://localhost:8787](http://localhost:8787) to watch the progress of your simulation.
+When using Dask locally, there is a nice web dashboard available at [http://localhost:8787](http://localhost:8787) to watch the progress of your simulation.
 
 ### Configuration
 
@@ -77,7 +81,7 @@ sim = mc.Sim(
 
 ### Distributed Cloud Compute Clusters
 
-Dask can be configured by overwriting a sim's `client` and `cluster` attributes. The below setup builds on [the example from the dask documentation](https://docs.dask.org/en/latest/deploying.html), and will require you to first set up an account with Coiled, connected to AWS or some other cloud compute provider.
+Using cloud compute with Dask can be accomplished by overwriting a sim's `client` and `cluster` attributes. The below setup builds on [the example from the dask documentation](https://docs.dask.org/en/latest/deploying.html), and will require you to first set up an account with Coiled, connected to AWS or some other cloud compute provider.
 
 ```python
 import coiled
