@@ -170,7 +170,6 @@
 ### Changed    
 * License changed from GPLv3 to more permissive MIT (ok because single author project).
 * Fix `sim.plot` scalarvars not being used ([GH-6](https://github.com/scottshambaugh/monaco/issues/6))
-### Removed    
 
 
 ## [0.9.1] - 2023-02-16
@@ -178,7 +177,6 @@
 * Python 3.11 support
 ### Changed    
 * `numba` is now an optional dependency
-### Removed    
 
 
 ## [0.9.0] - 2023-02-08
@@ -189,21 +187,16 @@
 a single dask task graph via Sim.executeAllFcns(), giving large speed boost
 * Sim functions that take in cases default to None (all cases)
 * Fixed bug plotting histograms
-### Removed    
 
 
 ## [0.8.3] - 2022-07-13
-### Added    
 ### Changed    
 * Fixed another bug generating and plotting varstat ranges from mixed-length data
-### Removed    
 
 
 ## [0.8.2] - 2022-07-13
-### Added    
 ### Changed    
 * Fixed bug generating and plotting percentile ranges from mixed-length data
-### Removed    
 
 
 ## [0.8.1] - 2022-07-13
@@ -214,7 +207,6 @@ a single dask task graph via Sim.executeAllFcns(), giving large speed boost
 * `mc_multi_plot.multi_plot_2d_scatter_grid` renamed to `multi_plot_grid_tri`
 * Fixed bug when plotting against simulation steps of different lengths
 * Make Sims singlethreaded by default
-### Removed    
 
 ## [0.8.0] - 2022-07-09
 ### Added    
@@ -228,7 +220,6 @@ a single dask task graph via Sim.executeAllFcns(), giving large speed boost
 * `sim.exportInVarNums` renamed to `sim.exportInVars`
 * `sim.importOutVals` renamed to `sim.importOutVars`
 * Refined and removed upper triangle of multiplot grid
-### Removed    
 
 ## [0.7.0] - 2022-06-13
 ### Added    
@@ -241,14 +232,11 @@ a single dask task graph via Sim.executeAllFcns(), giving large speed boost
 * Prevent overwriting existing InVars or OutVals with an already used name.
 * Do not save sim and case data by default
 * Fix splitting pairs of variables when plotting
-### Removed    
 
 ## [0.6.0] - 2022-05-09
 ### Added    
 * DVARS fleshed out, moved out of alpha
 * Can now plot sensitivity indices and ratios
-### Changed    
-### Removed    
 
 ## [0.5.0] - 2022-05-01
 ### Added    
@@ -273,13 +261,11 @@ a single dask task graph via Sim.executeAllFcns(), giving large speed boost
 ### Changed    
 * Change color palette to match matplotlib defaults
 * Discrete InVar plots show stem pmfs
-### Removed    
 
 ## [0.3.1] - 2022-01-29
 ### Added    
 * Vars get their own `plot()` method as a shorthand
 * Baseball example
-### Changed    
 ### Removed    
 * Rocket example
 
@@ -325,7 +311,6 @@ a single dask task graph via Sim.executeAllFcns(), giving large speed boost
 * More unit tests
 ### Changed    
 * Documentation and images were moved around.
-### Removed    
 
 ## [0.1.2] - 2021-11-15
 ### Added    

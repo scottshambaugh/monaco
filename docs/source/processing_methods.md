@@ -44,11 +44,11 @@ sim = mc.Sim(
 
 ### Start Methods
 
-The multiprocessing start method significantly affects how worker processes are created:
+The multiprocessing start method affects how worker processes are created and can have significant speed implications:
 
 * `'fork'`: The default method on Linux. It provides fast startup with shared memory from the parent process, which can potentially lead to issues with unsafe memory management.
-* `'spawn'`: The default method on Windows and macOS, and will become the default for Linux in Python 3.14. It has a slower startup but creates completely separate, memory-safe processes.
-* `'forkserver'`: Offers a hybrid approach that can help avoid deadlocks in complex scenarios.
+* `'spawn'`: The default method on Windows and macOS, and will become the default for Linux in Python 3.14. It has a slower startup and requires pickling data but creates completely separate, memory-safe processes.
+* `'forkserver'`: Offers a hybrid approach that preserves most of fork's speed while avoiding many (but not all) of its thread-safety pitfalls.
 
 ## Dask Distributed Computing
 
@@ -101,8 +101,8 @@ sim.cluster = cluster
 
 Start your development process with a single-threaded setup for ease of debugging.
 
-Once things are working, try out using multiproccessing. Whether this is faster than single-threaded depends on the particulars of your simulation. If your simulation has a lot of input and output data, then pickling these objects and memory transfer to and from the worker processes may mean that multiprocessing is actually slower. However if your simulation is computation-heavy, then multiprocessing can give a significant performance benefit by using multiple cores.
+Once things are working, try multiproccessing. Whether this is faster than single-threaded depends on the particulars of your simulation. If your sim has a lot of input and output data, then pickling these objects and transfering that memory to and from worker processes may mean that multiprocessing is actually slower. However if your sim is computation-heavy, then multiprocessing's use of multiple cores can give a significant performance benefit.
 
-It's worth experimenting with your specific setup. Try single-threaded, and both the `'fork'` and `'spawn'` start methods for multiprocessing to see which is faster.
+It's worth experimenting with your specific setup. Try single-threaded, and multiprocessing with both the `'fork'` and `'spawn'` start methods to see what is fastest.
 
-If you need to scale your simulation beyond a single machine, then move to Dask. A full guide on setting up distributed computation is beyond the scope of these docs, but resources are widely available to get you started.
+If you need to scale your simulation beyond your local machine, then move to Dask. A full guide on setting up distributed computation is beyond the scope of these docs, but resources are widely available to get you started.

@@ -38,9 +38,13 @@ After working through the template exercises, check out the other [examples](htt
 
 ### Documentation / API Reference / SciPy 2022 Talk
 
-Documentation is being built up - read the docs here: https://monaco.readthedocs.io
+The documentation at https://monaco.readthedocs.io includes:
 
-Currently there is a complete [API reference](https://monaco.readthedocs.io/en/latest/api_reference.html), more detailed [installation, test, and publishing](https://monaco.readthedocs.io/en/latest/installation.html) instructions, an overview of the [basic architecture](https://monaco.readthedocs.io/en/latest/basic_architecture.html) and [basic workflow](https://monaco.readthedocs.io/en/latest/basic_workflow.html), and some details on [statistical distributions](https://monaco.readthedocs.io/en/latest/statistical_distributions.html) and [sampling methods](https://monaco.readthedocs.io/en/latest/sampling_methods.html). 
+- A complete [API reference](https://monaco.readthedocs.io/en/latest/api_reference.html)
+- More detailed [installation, test, and publishing](https://monaco.readthedocs.io/en/latest/installation.html) instructions
+- An overview of the [basic architecture](https://monaco.readthedocs.io/en/latest/basic_architecture.html) and [basic workflow](https://monaco.readthedocs.io/en/latest/basic_workflow.html)
+- Information on [single-threaded and parallel computing](https://monaco.readthedocs.io/en/latest/processing_methods.html)
+- Some details on [statistical distributions](https://monaco.readthedocs.io/en/latest/statistical_distributions.html) and [sampling methods](https://monaco.readthedocs.io/en/latest/sampling_methods.html)
 
 Monaco was presented at the SciPy 2022 Conference, and the conference resources should give another good overview of the library. Check out [the paper](http://conference.scipy.org.s3-website-us-east-1.amazonaws.com/proceedings/scipy2022/pdfs/scott_shambaugh.pdf), [the video of the talk](https://www.youtube.com/watch?v=yB539OIol_s), and [the talk's slides and notebooks](https://github.com/scottshambaugh/monaco-scipy2022).
 
