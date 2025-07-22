@@ -363,10 +363,16 @@ class Sim:
         """
         Initialize the dask distributed client.
         """
-        if self.client is not None or self.singlethreaded or not self.usedask:
+        if self.singlethreaded or not self.usedask:
             return
+
         if not HAS_DASK:
             vwarn(self.verbose, "Dask is not installed, skipping dask client initialization")
+            return
+
+        if self.client is not None:
+            # Initialize the global variables in each worker
+            self.client.run(_worker_init, *self.pickleLargeData())
             return
 
         vprint(self.verbose, "Initializing dask client...")
@@ -385,8 +391,8 @@ class Sim:
         nthreads = nworkers * self.cluster.worker_spec[0]['options']['nthreads']
         memory = nworkers * self.cluster.worker_spec[0]['options']['memory_limit']
         vprint(self.verbose,
-                f'Dask cluster initiated with {nworkers} workers, ' +
-                f'{nthreads} threads, {memory/2**30:0.2f} GiB memory.')
+               f'Dask cluster initiated with {nworkers} workers, ' +
+               f'{nthreads} threads, {memory/2**30:0.2f} GiB memory.')
         vprint(self.verbose, f'Dask dashboard link: {self.cluster.dashboard_link}')
 
 

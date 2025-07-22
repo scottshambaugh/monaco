@@ -32,6 +32,8 @@
 ### Added    
 * `InVar`s can be created with custom `pcts` to draw from a distribution with, or to match against custom `vals`.
 * Documentation explaining the difference between single-threaded, multiprocessing, and Dask. Includes an example of using Dask with a cloud compute setup through Coiled and AWS.
+### Changed    
+* Fix Dask not working when cluster and client are manually assigned
 
 ## [0.17.2] - 2025-07-18
 ### Added    
