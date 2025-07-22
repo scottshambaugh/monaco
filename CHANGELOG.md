@@ -25,10 +25,15 @@
 
 ## [Unreleased]
 ### Added    
+### Changed    
+### Removed    
+
+## [0.17.4] - 2025-07-22
+### Added    
 * `__repr__` for vars, and updates for vals
+* Docs to show how to connect to an existing Dask client
 ### Changed    
 * Stream dask results back as completed, and free that worker memory
-### Removed    
 
 ## [0.17.3] - 2025-07-21
 ### Added    
