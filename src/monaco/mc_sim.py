@@ -894,9 +894,9 @@ class Sim:
                     postprocessedcases[case.ncase] = casepostprocessed_delayed
 
             vprint(self.verbose, f'Preprocessing {len(casestopreprocess_downselect)}, ' +
-                                    f'running {len(casestorun_downselect)}, and ' +
-                                    f'postprocessing {len(casestopostprocess_downselect)} ' +
-                                    'cases...', end='\n', flush=True)
+                                 f'running {len(casestorun_downselect)}, and ' +
+                                 f'postprocessing {len(casestopostprocess_downselect)} ' +
+                                 'cases...', end='\n', flush=True)
             futures = self.client.compute(list(postprocessedcases.values()),
                                           optimize_graph=False)
             if self.verbose:

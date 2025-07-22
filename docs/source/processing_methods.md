@@ -60,7 +60,7 @@ When using Dask locally, there is a nice web dashboard available at [http://loca
 
 ### Configuration
 
-Setting `singlethreaded=False` enables parallel processing, and `usedask=True` selects Dask instead of multiprocessing. The `ncores` parameter overrides the `n_workers` setting in `daskkwargs` if specified. The `daskkwargs` parameter accepts a dictionary of keyword arguments that are passed directly to the Dask Client constructor.
+Setting `singlethreaded=False` enables parallel processing, and `usedask=True` selects Dask instead of multiprocessing. The `ncores` parameter overrides the `n_workers` setting in `daskkwargs` if specified. The `daskkwargs` parameter accepts a dictionary of keyword arguments that are passed directly to the Dask Client constructor. See [the Dask docs](https://distributed.dask.org/en/stable/api.html#client) for a description of the valid kwargs.
 
 ```python
 sim = mc.Sim(
@@ -72,7 +72,7 @@ sim = mc.Sim(
     ncores=4,              # Optional: overrides n_workers in daskkwargs
     daskkwargs={           # Optional: Dask client configuration
         'n_workers': 4,
-        'threads_per_worker': 2,
+        'threads_per_worker': 1,
         'memory_limit': '2GB',
         'dashboard_address': ':8787'
     }
@@ -81,7 +81,9 @@ sim = mc.Sim(
 
 ### Distributed Cloud Compute Clusters
 
-Using cloud compute with Dask can be accomplished by overwriting a sim's `client` and `cluster` attributes. The below setup builds on [the example from the dask documentation](https://docs.dask.org/en/latest/deploying.html), and will require you to first set up an account with Coiled, connected to AWS or some other cloud compute provider.
+Using cloud compute with Dask can be accomplished by overwriting a sim's `client` and `cluster` attributes. The below setup builds on [the Coiled example from the dask documentation](https://docs.dask.org/en/latest/deploying.html), and will require you to first set up an account with Coiled, connected to AWS or some other cloud compute provider.
+
+Note that network bandwidth might be the bottleneck for computations that don't live on your local machine. Setting the `keepsiminput=False` and `keepsimrawoutput=False` flags for your sim can drastically reduce the data volume depending on your situation.
 
 ```python
 import coiled
@@ -97,7 +99,7 @@ sim.cluster = cluster
 ```
 
 ### Connecting to Existing Clusters
-Note that default port 8786 for the Dask client is different than the port for the dashboard (8787). You can get your existing scheduler address with `client.scheduler.address`.
+Note that default port for the Dask client scheduler (8786) is different than the port for the dashboard (8787). You can get your existing scheduler address with `client.scheduler.address`.
 
 ```python
 from dask.distributed import Client
