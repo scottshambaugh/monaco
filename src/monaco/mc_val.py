@@ -126,8 +126,13 @@ class InVal(Val):
 
 
     def __repr__(self):
-        return (f"{self.__class__.__name__}('{self.name}', ncase={self.ncase}, " +
-                f"val={self.val} ({self.num}), pct={self.pct:0.4f})")
+        if self.isscalar:
+            return (f"{self.__class__.__name__}('{self.name}', ncase={self.ncase}, " +
+                    f"val={self.val} ({self.num}), pct={self.pct:0.4f})")
+        else:
+            return (f"{self.__class__.__name__}('{self.name}', ncase={self.ncase}, " +
+                    f"shape={self.shape}, val={self.val[0]}..{self.val[-1]} " +
+                    f"({self.num[0]}..{self.num[-1]}), pct={self.pct:0.4f})")
 
 
     def mapNum(self) -> None:
@@ -215,8 +220,13 @@ class OutVal(Val):
 
 
     def __repr__(self):
-        return (f"{self.__class__.__name__}('{self.name}', ncase={self.ncase}, " +
-                f"val={self.val} ({self.num}))")
+        if self.isscalar:
+            return (f"{self.__class__.__name__}('{self.name}', ncase={self.ncase}, " +
+                    f"val={self.val} ({self.num}))")
+        else:
+            return (f"{self.__class__.__name__}('{self.name}', ncase={self.ncase}, " +
+                    f"shape={self.shape}, val={self.val[0]}..{self.val[-1]} " +
+                    f"({self.num[0]}..{self.num[-1]}))")
 
 
     def convertPandas(self) -> None:

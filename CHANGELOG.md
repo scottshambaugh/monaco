@@ -25,6 +25,7 @@
 
 ## [Unreleased]
 ### Added    
+* `__repr__` for vars, and updates for vals.
 ### Changed    
 ### Removed    
 
