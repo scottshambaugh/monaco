@@ -22,11 +22,11 @@ scipy = "^1.11"
 matplotlib = "^3.6"
 tqdm = "^4.0"
 psutil = "^5.0"
-cloudpickle = "^2.0"
+cloudpickle = ">=3.0"
 pillow = ">=10.3.0"
 
 
-distributed = {version = ">=2022", optional = true}
+distributed = {version = ">=2024", optional = true}
 pandas = {version = ">=2.2", optional = true}
 numba = {version = ">0.57", python = "<3.12", optional = true}
 
