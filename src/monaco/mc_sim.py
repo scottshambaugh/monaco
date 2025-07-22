@@ -30,7 +30,7 @@ from monaco.mc_multi_plot import multi_plot_grid_rect
 
 try:
     import dask
-    from dask.distributed import Client, progress
+    from dask.distributed import Client, progress, as_completed
     from monaco.globals import GlobalsPlugin
     HAS_DASK = True
 except ImportError:
@@ -395,6 +395,7 @@ class Sim:
         vprint(self.verbose,
                f'Dask cluster initiated with {nworkers} workers, ' +
                f'{nthreads} threads, {memory/2**30:0.2f} GiB memory.')
+        vprint(self.verbose, f'Dask client scheduler address: {self.client.scheduler.address}')
         vprint(self.verbose, f'Dask dashboard link: {self.cluster.dashboard_link}')
 
 
@@ -892,16 +893,18 @@ class Sim:
                         self.debug, self.verbose)
                     postprocessedcases[case.ncase] = casepostprocessed_delayed
 
+            vprint(self.verbose, f'Preprocessing {len(casestopreprocess_downselect)}, ' +
+                                    f'running {len(casestorun_downselect)}, and ' +
+                                    f'postprocessing {len(casestopostprocess_downselect)} ' +
+                                    'cases...', end='\n', flush=True)
+            futures = self.client.compute(list(postprocessedcases.values()),
+                                          optimize_graph=False)
             if self.verbose:
-                vprint(self.verbose, f'Preprocessing {len(casestopreprocess_downselect)}, ' +
-                                     f'running {len(casestorun_downselect)}, and ' +
-                                     f'postprocessing {len(casestopostprocess_downselect)} ' +
-                                      'cases...', end='\n', flush=True)
-                x = dask.persist(*postprocessedcases.values())
-                progress(x)
-                fullyexecutedcases = dask.compute(*x)
-            else:
-                fullyexecutedcases = dask.compute(*postprocessedcases.values())
+                progress(futures, multi=True)
+            fullyexecutedcases = []
+            for future, case in as_completed(futures, with_results=True):
+                fullyexecutedcases.append(case)
+                future.release()
 
         except KeyboardInterrupt:
             raise
@@ -993,14 +996,15 @@ class Sim:
                         self.debug, self.verbose)
                     preprocessedcases.append(case_delayed)
 
+                vprint(self.verbose, 'Preprocessing ' +
+                                     f'{len(cases_downselect)} cases...', flush=True)
+                futures = self.client.compute(preprocessedcases, optimize_graph=False)
                 if self.verbose:
-                    vprint(self.verbose, 'Preprocessing ' +
-                           f'{len(cases_downselect)} cases...', flush=True)
-                    x = dask.persist(preprocessedcases)
-                    progress(x)
-                    preprocessedcases = dask.compute(*x)[0]
-                else:
-                    preprocessedcases = dask.compute(*preprocessedcases)
+                    progress(futures, multi=True)
+                preprocessedcases = []
+                for future, case in as_completed(futures, with_results=True):
+                    preprocessedcases.append(case)
+                    future.release()
 
             except KeyboardInterrupt:
                 raise
@@ -1096,14 +1100,15 @@ class Sim:
                         self.debug, self.verbose, self.runsimid)
                     runcases.append(case_delayed)
 
+                vprint(self.verbose, 'Running ' +
+                                     f'{len(cases_downselect)} cases...', flush=True)
+                futures = self.client.compute(runcases, optimize_graph=False)
                 if self.verbose:
-                    vprint(self.verbose, 'Running ' +
-                           f'{len(cases_downselect)} cases...', flush=True)
-                    x = dask.persist(runcases)
-                    progress(x)
-                    runcases = dask.compute(*x)[0]
-                else:
-                    runcases = dask.compute(*runcases)
+                    progress(futures, multi=True)
+                runcases = []
+                for future, case in as_completed(futures, with_results=True):
+                    runcases.append(case)
+                    future.release()
 
             except KeyboardInterrupt:
                 raise
@@ -1192,14 +1197,15 @@ class Sim:
                         self.debug, self.verbose)
                     postprocessedcases.append(case_delayed)
 
+                vprint(self.verbose, 'Postprocessing ' +
+                                     f'{len(cases_downselect)} cases...', flush=True)
+                futures = self.client.compute(postprocessedcases, optimize_graph=False)
                 if self.verbose:
-                    x = dask.persist(postprocessedcases)
-                    vprint(self.verbose, 'Postprocessing ' +
-                           f'{len(cases_downselect)} cases...', flush=True)
-                    progress(x)
-                    postprocessedcases = dask.compute(*x)[0]
-                else:
-                    postprocessedcases = dask.compute(*postprocessedcases)
+                    progress(futures, multi=True)
+                postprocessedcases = []
+                for future, case in as_completed(futures, with_results=True):
+                    postprocessedcases.append(case)
+                    future.release()
 
             except KeyboardInterrupt:
                 raise

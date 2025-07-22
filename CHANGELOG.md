@@ -25,8 +25,9 @@
 
 ## [Unreleased]
 ### Added    
-* `__repr__` for vars, and updates for vals.
+* `__repr__` for vars, and updates for vals
 ### Changed    
+* Stream dask results back as completed, and free that worker memory
 ### Removed    
 
 ## [0.17.3] - 2025-07-21

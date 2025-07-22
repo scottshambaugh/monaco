@@ -88,10 +88,22 @@ import coiled
 cluster = coiled.Cluster(
     n_workers=8,
     worker_memory="8 GiB",
-    spot_policy="spot_with_fallback",
     wait_for_workers=True,
 )
 client = cluster.get_client()
+
+sim.client = client
+sim.cluster = cluster
+```
+
+### Connecting to Existing Clusters
+Note that default port 8786 for the Dask client is different than the port for the dashboard (8787). You can get your existing scheduler address with `client.scheduler.address`.
+
+```python
+from dask.distributed import Client
+existing_scheduler_address = 'tcp://127.0.0.1:8786'
+client = Client(existing_scheduler_address)
+cluster = client.cluster
 
 sim.client = client
 sim.cluster = cluster
