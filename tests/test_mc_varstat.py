@@ -2,7 +2,7 @@
 
 import pytest
 import numpy as np
-from scipy.stats import randint
+from scipy.stats import randint, norm
 from monaco.mc_var import InVar, OutVar
 from monaco.mc_varstat import VarStat
 from monaco.gaussian_statistics import sig2pct
@@ -10,13 +10,18 @@ from monaco.mc_enums import SampleMethod, StatBound, VarStatType
 
 @pytest.fixture
 def invar():
-    from scipy.stats import norm
-    from monaco.mc_var import InVar
     seed = 74494861
     return InVar('norm', ndraws=10000,
                  dist=norm, distkwargs={'loc': 0, 'scale': 1},
                  samplemethod=SampleMethod.RANDOM, seed=seed)
 
+
+@pytest.fixture
+def invar_randint():
+    seed = 74494861
+    return InVar('randint', ndraws=10000,
+                 dist=randint, distkwargs={'low': 1, 'high': 9},
+                 samplemethod=SampleMethod.RANDOM, seed=seed)
 
 @pytest.fixture
 def v():
@@ -41,13 +46,25 @@ bound = StatBound.ONESIDED
     (VarStatType.MAX        , dict(), 4.1585997, 3.9735339, 4.1585997),
     (VarStatType.MIN        , dict(), -4.1579970, -4.1579970, -3.6741296),
     (VarStatType.MEDIAN     , dict(), -0.0052538, -0.02621756, 0.0278626),
+    (VarStatType.GEOMEAN    , dict(),  0.5334263, 0.52090475, 0.5436567),
+    (VarStatType.MODE       , dict(), 3, -2, 4),
     (VarStatType.MEAN       , dict(), 0.0036036, -0.0084521, 0.0287600),
     ('mean'                 , dict(), 0.0036036, -0.0084521, 0.0287600),
     (np.mean                , dict(), 0.0036036, -0.0084521, 0.0287600),
 ])
-def test_invarstat(stat, statkwargs, vals, cihigh, cilow, invar):
+def test_invarstat(stat, statkwargs, vals, cihigh, cilow, invar, invar_randint):
+    bootstrap_method = 'BCa'
+
+    if stat == VarStatType.GEOMEAN:  # Geomean is not defined for negative numbers
+        invar.nums = np.abs(invar.nums)
+        invar.vals = np.abs(invar.vals)
+    elif stat == VarStatType.MODE:
+        invar = invar_randint  # Mode needs repeated values to be meaningful
+        bootstrap_method = 'basic'  # Mode can be unstable with BCa
+
     invarstat = VarStat(invar, stat=stat, statkwargs=statkwargs,
-                        bootstrap=True, bootstrap_k=10, conf=0.95, seed=0)
+                        bootstrap=True, bootstrap_k=10, conf=0.95, seed=0,
+                        bootstrap_method=bootstrap_method)
     assert np.allclose(invarstat.vals, vals)
     assert np.allclose(invarstat.confidence_interval_low_vals, cilow)
     assert np.allclose(invarstat.confidence_interval_high_vals, cihigh)
@@ -131,9 +148,9 @@ def test_outvarstat_2d(v):
 
     assert np.allclose(outvarstat2.vals, [ -4, -2, -4, -6, -8, -10.])
     assert np.allclose(outvarstat2.confidence_interval_low_nums,
-                       [-8.0, -4.0, -7.5, -11.25, -15.0, -18.75])
-    assert np.allclose(outvarstat2.confidence_interval_high_nums,
                        [-4.0, -2.0, -4.0, -6.0, -8.0, -10.0])
+    assert np.allclose(outvarstat2.confidence_interval_high_nums,
+                       [-2.0, -1.0, -2.0, -3.0, -4.0, -5.0])
 
 
 def test_outvarstat_2d_irregular(v):
@@ -141,11 +158,12 @@ def test_outvarstat_2d_irregular(v):
     outvarstat1 = VarStat(outvar, stat=VarStatType.MIN,
                           bootstrap=True, bootstrap_k=10, conf=0.95, seed=0)
     assert np.allclose(outvarstat1.vals, [-4, -2, -2, -3, -4, -5.])
-    assert np.allclose(outvarstat1.confidence_interval_low_nums, [-8, -4, -6, -9, -12, -15.])
-    assert np.allclose(outvarstat1.confidence_interval_high_nums, [-4, -2, -2, -3, -4, -5.])
+    assert np.allclose(outvarstat1.confidence_interval_low_nums, [-4, -2, -2, -3, -4, -5.])
+    assert np.allclose(outvarstat1.confidence_interval_high_nums, [-2, -1, 0, 0, 0, 0.])
 
     outvarstat2 = VarStat(outvar, stat=VarStatType.PERCENTILE, statkwargs={'p': [0.25, 0.75]},
-                          bootstrap=True, bootstrap_k=10, conf=0.95, seed=0)
+                          bootstrap=True, bootstrap_k=10, bootstrap_method='basic',
+                          conf=0.95, seed=0)
     assert np.allclose(outvarstat2.vals,
                        [[-1.5, 0], [-0.75, 0], [-0.5, 2.5], [-0.75, 3.75], [-1., 5.], [-1.25, 6.25]])  # noqa: E501
     assert np.allclose(outvarstat2.confidence_interval_low_nums,

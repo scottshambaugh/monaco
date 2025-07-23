@@ -8,8 +8,7 @@ if TYPE_CHECKING:
 
 import numpy as np
 from copy import copy
-from statistics import mode
-from scipy.stats import bootstrap, moment, skew, kurtosis
+from scipy.stats import bootstrap, moment, skew, kurtosis, mode
 from scipy.stats.mstats import gmean
 from typing import Any, Callable, Iterable
 from warnings import warn
@@ -70,6 +69,11 @@ class VarStat:
         The values for `confidence_interval_high_nums` via `var.nummap`
     bootstrap_n : int
         The number of bootstrap samples.
+    bootstrap_method : str
+        The method used to calculate the bootstrap confidence interval. 'BCa'
+        is recommended for most cases, but can return NaNs in some cases.
+        'basic' is more stable. See:
+        https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.bootstrap.html
 
     Notes
     -----
@@ -142,6 +146,7 @@ class VarStat:
                  cases       : None | int | Iterable[int] = None,
                  bootstrap   : bool = True,
                  bootstrap_k : int = 10,
+                 bootstrap_method : str = 'BCa',
                  conf        : float = 0.95,
                  seed        : int = np.random.get_state(legacy=False)['state']['key'][0],
                  name        : str | None = None,
@@ -166,6 +171,7 @@ class VarStat:
         if bootstrap_k < 1:
             raise ValueError(f'bootstrap_k = {bootstrap_k} must be >= 1')
         self.bootstrap_k = bootstrap_k
+        self.bootstrap_method = bootstrap_method
         self.conf = conf
         self.confidence_interval_low_nums : list | np.ndarray = None
         self.confidence_interval_high_nums : list | np.ndarray = None
@@ -325,7 +331,11 @@ class VarStat:
         axis : int (default: None)
             The axis of x to calculate along.
         """
-        return self.fcn(x, **self.fcnkwargs, axis=axis)
+        result = self.fcn(x, **self.fcnkwargs, axis=axis)
+        if isinstance(result, tuple):
+            return result[0]  # Covers the return case of mode()
+        else:
+            return result
 
 
     def genStatsFunction(self,
@@ -358,7 +368,7 @@ class VarStat:
                 res = bootstrap((np.asarray(nums),), self.statsFunctionWrapper,
                                 confidence_level=self.conf,
                                 n_resamples=self.bootstrap_n,
-                                random_state=self.seed, method='BCa')
+                                random_state=self.seed, method=self.bootstrap_method)
                 self.confidence_interval_low_nums = res.confidence_interval.low
                 self.confidence_interval_high_nums = res.confidence_interval.high
 
@@ -367,6 +377,11 @@ class VarStat:
             if self.bootstrap:
                 self.confidence_interval_low_vals = copy(self.confidence_interval_low_nums)
                 self.confidence_interval_high_vals = copy(self.confidence_interval_high_nums)
+                if np.isnan(self.confidence_interval_low_nums) or \
+                   np.isnan(self.confidence_interval_high_nums):
+                    warn(f'Bootstrap confidence interval contains NaNs for {self.name}, ' +
+                         'try setting bootstrap_method to "basic"')
+
             if self.var.nummap is not None:
                 self.checkInNummap(self.nums)
                 self.vals = self.var.nummap[self.nums]
@@ -392,17 +407,21 @@ class VarStat:
                 numsatidx = np.array([x[i] for x in nums_list if len(x) > i])
                 nums.append(self.statsFunctionWrapper(numsatidx))
                 if self.bootstrap:
-                    # Switch to Bca once https://github.com/scipy/scipy/issues/15883 resolved
                     res = bootstrap((numsatidx,), self.statsFunctionWrapper,
                                     confidence_level=self.conf,
                                     n_resamples=self.bootstrap_n,
-                                    random_state=self.seed, method='basic')
+                                    random_state=self.seed, method=self.bootstrap_method)
                     confidence_interval_low_nums.append(res.confidence_interval.low)
                     confidence_interval_high_nums.append(res.confidence_interval.high)
             self.nums = nums
             if self.bootstrap:
                 self.confidence_interval_low_nums = confidence_interval_low_nums
                 self.confidence_interval_high_nums = confidence_interval_high_nums
+                if (np.any(np.isnan(self.confidence_interval_low_nums)) or
+                    np.any(np.isnan(self.confidence_interval_high_nums))
+                    ):
+                    warn(f'Bootstrap confidence interval contains NaNs for {self.name}, ' +
+                         'try setting bootstrap_method to "basic"')
 
             # Calculate the corresponding vals based on the nummap
             self.vals = copy(self.nums)

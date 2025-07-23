@@ -26,11 +26,14 @@
 ## [Unreleased]
 ### Added    
 * `Sim.loadSim()` classmethod
+* VarStats have a `bootstrap_method` kwarg, defaulting to 'BCa'
 ### Changed    
 * `sim.keepsiminput` and `sim.keepsimrawoutput` now default to False
 * The following `Sim` methods have been privatized: `importVars`, `exportVars`, `allCases`, `downselectCases`, `genID`, `findExtraResultsFiles`, `pickleLargeData`
 * Many `Sim` methods now return self to allow for chaining
 * `saveSimToFile` and `saveCasesToFile` renamed to `saveSim` and `saveCases`
+* Fix bug with the mode varstat
+* The default bootstrap method for 2d variables has changed from 'basic' to 'BCa'
 ### Removed    
 
 ## [0.17.4] - 2025-07-22

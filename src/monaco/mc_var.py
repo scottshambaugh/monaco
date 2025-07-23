@@ -153,6 +153,7 @@ class Var(ABC):
                    cases       : None | int | Iterable[int] = None,
                    bootstrap   : bool = False,
                    bootstrap_k : int = 10,
+                   bootstrap_method : str = 'BCa',
                    conf        : float = 0.95,
                    seed        : int | None = None,
                    name        : str | None = None,
@@ -176,6 +177,11 @@ class Var(ABC):
             The k'th order statistic to determine the number of bootstrap draws
             for the given confidence level. Must be >= 1. Set higher for a
             smoother bootstrap distribution.
+        bootstrap_method : str (default: 'BCa')
+            The method used to calculate the bootstrap confidence interval.
+            'BCa' is recommended for most cases, but can return NaNs in some
+            cases. 'basic' is more stable. See:
+            https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.bootstrap.html
         conf : float (default: 0.95)
             The confidence level for the confidence interval.
         seed : int
@@ -256,6 +262,7 @@ class Var(ABC):
         self.varstats.append(VarStat(var=self, stat=stat, statkwargs=statkwargs,
                                      cases=cases,
                                      bootstrap=bootstrap, bootstrap_k=bootstrap_k,
+                                     bootstrap_method=bootstrap_method,
                                      conf=conf, seed=seed, name=name))
 
 
