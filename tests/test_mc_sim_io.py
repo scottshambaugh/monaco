@@ -7,6 +7,8 @@ import warnings
 import csv
 import json
 import numpy as np
+import tempfile
+from pathlib import Path
 from scipy.stats import norm, randint
 from monaco.mc_sim import Sim
 from monaco.mc_enums import SimFunctions
@@ -69,6 +71,20 @@ def sim_with_extra_files(sim):
         with open(sim.resultsdir / filename, 'wb'):
             pass
     return sim
+
+
+def test_sim_load_sim(sim):
+    tempdir = Path(tempfile.mkdtemp())
+    sim_file = tempdir / 'sim_save_load_test.mcsim'
+    sim.saveCases(dirpath=tempdir)
+    sim.saveSim(sim_file)
+    sim2 = Sim.loadSim(sim_file)
+
+    assert sim2.resultsdir == tempdir
+    assert sim2.filepath == sim_file
+    assert sim2.name == sim.name
+    assert sim2.casesrun == sim.casesrun
+    assert sim2.cases[0]['Var1'].num == sim.cases[0]['Var1'].num
 
 
 def test_sim_load_partial(sim_without_1_2):

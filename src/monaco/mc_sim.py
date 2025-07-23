@@ -93,10 +93,11 @@ class Sim:
     keepsimrawoutput : bool, default: False
         Whether to keep the simrawoutput for each case after postprocessing.
     savesimdata : bool, default: False
-        Whether to save the simulation data to disk as a .mcsim file.
+        Whether to automatically save the simulation data to disk as a .mcsim
+        file. This can be manually done with `sim.saveSim()`.
     savecasedata : bool, default: False
-        Whether to save the full output data for each case to disk as .mccase
-        files.
+        Whether to automatically save the full output data for each case to
+        disk as .mccase files. This can be manually done with `sim.saveCases()`.
     resultsdir : str | pathlib.Path
         The directory to save simulation and case data to. If None, then this
         defaults to a directory named {name}_results.
@@ -289,7 +290,7 @@ class Sim:
                      ) -> None:
         """Function to unpickle self when loading from file."""
         self.__dict__.update(state)
-        if self.savecasedata:
+        if self.resultsdir is not None:
             self.loadCases()
 
 
@@ -1956,7 +1957,16 @@ class Sim:
     def saveSim(self,
                 filepath : str | pathlib.Path | None = None,
                 ) -> None:
-        """Save the simulation to a .mcsim file"""
+        """Save the simulation to a .mcsim file.
+
+        Note that this will not save the case data. To do that, use
+        `sim.saveCases()`.
+
+        Parameters
+        ----------
+        filepath : str | pathlib.Path | None
+            The file to save to. If None, save to the results directory.
+        """
         vprint(self.verbose, 'Saving sim results to file...', flush=True)
 
         if filepath is not None:
@@ -2008,18 +2018,46 @@ class Sim:
                 flush=True)
 
 
-    def loadCases(self) -> None:
-        """Load the data for cases from file."""
+    @classmethod
+    def loadSim(cls,
+                filepath : str | pathlib.Path,
+                ) -> Sim:
+        """Load a simulation from a .mcsim file.
+
+        This will attempt to load the case data from the results directory.
+
+        Parameters
+        ----------
+        filepath : str | pathlib.Path
+            The file to load from.
+        """
+        with open(filepath, 'rb') as file:
+            return cloudpickle.load(file)
+
+
+    def loadCases(self,
+                  dirpath : str | pathlib.Path | None = None,
+                  ) -> None:
+        """
+        Load the data for cases from file.
+
+        Parameters
+        ----------
+        dirpath : str | pathlib.Path | None
+            The directory to load from. If None, load from the results directory.
+        """
         vprint(self.verbose, f'{self.filepath} indicates {len(self.casesrun)}/{self.ncases} ' +
                               'cases were run, attempting to load raw case data from disk...',
                              end='\n', flush=True)
+
+        if dirpath is not None:
+            self.resultsdir = pathlib.Path(dirpath)
+
         self.cases = []
         casesloaded = set()
         casesstale  = set()
         casesnotloaded        = self._allCases()
         casesnotpostprocessed = self._allCases()
-
-        # pbar = tqdm(total=len(self.casesrun), unit="case", desc='Loading', position=0)
 
         for ncase in self.casesrun:
             filepath = self.resultsdir / f'{self.name}_{ncase}.mccase'
@@ -2051,13 +2089,11 @@ class Sim:
 
             except FileNotFoundError:
                 vwarn(self.verbose, f'{filepath.name} expected but not found')
-            # pbar.update(1)
 
         self.casespreprocessed  = set(casesloaded)
         self.casesrun           = set(casesloaded)
         self.casespostprocessed = set(casesloaded) - casesnotpostprocessed
-        # pbar.refresh()
-        # pbar.close()
+
         vprint(self.verbose, f'\nData for {len(casesloaded)}/{self.ncases} cases loaded from disk',
                flush=True)
 

@@ -25,6 +25,7 @@
 
 ## [Unreleased]
 ### Added    
+`Sim.loadSim()` classmethod
 ### Changed    
 * `sim.keepsiminput` and `sim.keepsimrawoutput` now default to False
 The following `Sim` methods have been privatized: `importVars`, `exportVars`, `allCases`, `downselectCases`, `genID`, `findExtraResultsFiles`, `pickleLargeData`
