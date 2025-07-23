@@ -28,7 +28,8 @@ SIM_FIXTURES = [
 ]
 
 def sim_testing_preprocess(case):
-    return ([case.ncase, ])
+    ncase = case.ncase * case.constvals['One']
+    return ([ncase, ])
 
 def sim_testing_run(casenum_in):
     casenum_out = casenum_in
@@ -77,6 +78,7 @@ def sim_base():
               savesimdata=False, savecasedata=False)
     sim.addInVar(name='Var1', dist=randint, distkwargs={'low': 1, 'high': 6})
     sim.addInVar(name='Var2', dist=norm, distkwargs={'loc': 10, 'scale': 4})
+    sim.addConstVal(name='One', val=1)
     return sim
 
 @pytest.fixture
