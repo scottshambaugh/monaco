@@ -431,9 +431,9 @@ class InVar(Var):
     def __repr__(self):
         return (f"{self.__class__.__name__}('{self.name}', ndraws={self.ndraws}, " +
                 f"dist={self.dist}, distkwargs={self.distkwargs}, " +
-                f"pcts={self.pcts[0]:0.4f}..{self.pcts[-1]:0.4f}, " +
-                f"nums={self.nums[0]}..{self.nums[-1]}, " +
-                f"vals={self.vals[0]}..{self.vals[-1]}, " +
+                f"pcts=[{self.pcts[0]:0.4f}, ..., {self.pcts[-1]:0.4f}], " +
+                f"nums=[{self.nums[0]}, ..., {self.nums[-1]}], " +
+                f"vals=[{self.vals[0]}, ..., {self.vals[-1]}], " +
                 f"samplemethod={self.samplemethod}, firstcaseismedian={self.firstcaseismedian})")
 
     def check_pcts(self,
@@ -723,8 +723,8 @@ class OutVar(Var):
 
     def __repr__(self):
         return (f"{self.__class__.__name__}('{self.name}', ndraws={self.ndraws}, " +
-                f"vals={self.vals[0]}..{self.vals[-1]}, " +
-                f"nums={self.nums[0]}..{self.nums[-1]}, " +
+                f"vals=[{self.vals[0]}, ..., {self.vals[-1]}], " +
+                f"nums=[{self.nums[0]}, ..., {self.nums[-1]}], " +
                 f"firstcaseismedian={self.firstcaseismedian})")
 
 
