@@ -27,6 +27,9 @@
 ### Added    
 ### Changed    
 * `sim.keepsiminput` and `sim.keepsimrawoutput` now default to False
+The following `Sim` methods have been privatized: `importVars`, `exportVars`, `allCases`, `downselectCases`, `genID`, `findExtraResultsFiles`, `pickleLargeData`
+* Many `Sim` methods now return self to allow for chaining
+* `saveSimToFile` and `saveCasesToFile` renamed to `saveSim` and `saveCases`
 ### Removed    
 
 ## [0.17.4] - 2025-07-22

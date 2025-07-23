@@ -251,9 +251,9 @@ class Sim:
 
 
     def __del__(self) -> None:
-        self.cleanup()
+        self._cleanup()
 
-    def cleanup(self) -> None:
+    def _cleanup(self) -> None:
         """Cleanup resources explicitly."""
         if self.client is not None:
             try:
@@ -340,7 +340,7 @@ class Sim:
 
     def setFirstCaseMedian(self,
                            firstcaseismedian : bool,
-                           ) -> None:
+                           ) -> Sim:
         """
         Make the first case represent the median expected case or not.
 
@@ -358,6 +358,7 @@ class Sim:
         if self.invars != dict():
             for invar in self.invars.values():
                 invar.setFirstCaseMedian(firstcaseismedian)
+        return self
 
 
     def initDaskClient(self):
@@ -371,7 +372,7 @@ class Sim:
             vwarn(self.verbose, "Dask is not installed, skipping dask client initialization")
             return
 
-        plugin = GlobalsPlugin(*self.pickleLargeData())
+        plugin = GlobalsPlugin(*self._pickleLargeData())
 
         if self.client is not None:
             self.client.register_worker_plugin(plugin, name="sim_globals")
@@ -427,7 +428,7 @@ class Sim:
             data = (self.invars, self.outvars, self.constvals)
         else:
             initializer = _worker_init
-            data = self.pickleLargeData()
+            data = self._pickleLargeData()
         self.pool = concurrent.futures.ProcessPoolExecutor(max_workers=self.ncores,
                                                            mp_context=ctx,
                                                            initializer=initializer,
@@ -446,7 +447,7 @@ class Sim:
                  pcts       : list[float] | None = None,
                  seed       : int | None         = None,
                  datasource : Optional[str]      = None,
-                 ) -> None:
+                 ) -> Sim:
         """
         Add an input variable to the simulation.
 
@@ -501,12 +502,13 @@ class Sim:
                       datasource=datasource)
         self.invars[name] = invar
         self.vars[name] = invar
+        return self
 
 
     def addConstVal(self,
                     name : str,
                     val  : Any,
-                    ) -> None:
+                    ) -> Sim:
         """
         Add a constant value for all the cases to use.
 
@@ -518,11 +520,12 @@ class Sim:
             The constant value.
         """
         self.constvals[name] = val
+        return self
 
 
     def setNDraws(self,
                   ndraws: int,
-                  ) -> None:
+                  ) -> Sim:
         """
         Set the number of random draws to perform. Will clear the results.
 
@@ -538,9 +541,10 @@ class Sim:
             invar.setNDraws(ndraws)
         if self.invars != dict():
             self.drawVars()
+        return self
 
 
-    def drawVars(self) -> None:
+    def drawVars(self) -> Sim:
         """Draw the random values for all the input variables."""
         if self.ninvars > 0:
             vprint(self.verbose, f"Drawing random samples for {self.ninvars} input variables " +
@@ -549,11 +553,12 @@ class Sim:
                 if invar.datasource is None:
                     invar.draw(ninvar_max=self.ninvars)
             vprint(self.verbose, 'Done', flush=True)
+        return self
 
 
     def runSim(self,
                cases : None | int | Iterable[int] = None,
-               ) -> None:
+               ) -> Sim:
         """
         Run the full simulation.
 
@@ -562,19 +567,20 @@ class Sim:
         cases : None | int | Iterable[int]
             The case numbers to run. If None, then all cases are run.
         """
-        cases_downselect = self.downselectCases(cases=cases)
+        cases_downselect = self._downselectCases(cases=cases)
         vprint(self.verbose, f"Running '{self.name}' Monte Carlo simulation with " +
                              f"{len(cases_downselect)}/{self.ncases} cases...", flush=True)
         self.runSimWorker(casestogenerate=cases_downselect, casestopreprocess=cases_downselect,
                           casestorun=cases_downselect, casestopostprocess=cases_downselect)
+        return self
 
 
-    def runIncompleteSim(self) -> None:
+    def runIncompleteSim(self) -> Sim:
         """
         Run the full sim, but only the cases which previously failed to
         preprocess, run, or postprocess.
         """
-        allcases = self.allCases()
+        allcases = self._allCases()
         casestopreprocess  = allcases - self.casespreprocessed
         casestorun         = allcases - self.casesrun           | casestopreprocess
         casestopostprocess = allcases - self.casespostprocessed | casestopreprocess | casestorun
@@ -592,6 +598,7 @@ class Sim:
                           casestopreprocess=casestopreprocess,
                           casestorun=casestorun,
                           casestopostprocess=casestopostprocess)
+        return self
 
 
     def runSimWorker(self,
@@ -599,7 +606,7 @@ class Sim:
                      casestopreprocess  : None | int | Iterable[int],
                      casestorun         : None | int | Iterable[int],
                      casestopostprocess : None | int | Iterable[int],
-                     ) -> None:
+                     ) -> Sim:
         """
         The worker function to run the full sim.
 
@@ -619,16 +626,16 @@ class Sim:
         """
         self.starttime = datetime.now()
 
-        if set(casestorun) in (None, self.allCases()):
+        if set(casestorun) in (None, self._allCases()):
             self.clearResults()  # only clear results if we are rerunning all cases
 
-        self.runsimid = self.genID()
+        self.runsimid = self._genID()
 
         if self.savesimdata or self.savecasedata:
             if not os.path.exists(self.resultsdir):
                 os.makedirs(self.resultsdir)
             if self.savesimdata:
-                self.saveSimToFile()
+                self.saveSim()
 
         self.drawVars()
         self.genCases(cases=casestogenerate)
@@ -645,18 +652,20 @@ class Sim:
         vprint(self.verbose, f'Simulation complete! Runtime: {self.runtime}', flush=True)
 
         if self.savecasedata:
-            self.saveCasesToFile()
+            self.saveCases()
 
         if self.savesimdata:
-            self.saveSimToFile()
+            self.saveSim()
+        return self
 
 
-    def genRunSimID(self) -> None:
+    def genRunSimID(self) -> Sim:
         """Regenerate the unique ID for this simulation run."""
-        self.runsimid = self.genID()
+        self.runsimid = self._genID()
+        return self
 
 
-    def genID(self) -> int:
+    def _genID(self) -> int:
         """
         Generate a unique ID based on the simulation seed, name, and current
         timestamp.
@@ -672,7 +681,7 @@ class Sim:
 
     def genCases(self,
                  cases : None | int | Iterable[int] = None,
-                 ) -> None:
+                 ) -> Sim:
         """
         Generate all the Monte Carlo case objects.
 
@@ -689,7 +698,7 @@ class Sim:
         if cases is None:
             self.cases = []
 
-        cases_downselect = self.downselectCases(cases)
+        cases_downselect = self._downselectCases(cases)
         if self.verbose:
             pbar = tqdm(total=len(cases_downselect), desc='Generating cases',
                         unit="case", position=0)
@@ -709,12 +718,14 @@ class Sim:
         self.cases.sort(key=lambda case: case.ncase)
 
         self.invals_cache = [case.invals for case in self.cases]
+        return self
 
 
-    def genCaseSeeds(self) -> None:
+    def genCaseSeeds(self) -> Sim:
         """Generate the random seeds for each of the random cases."""
         generator = np.random.RandomState(self.seed)
         self.caseseeds = list(generator.randint(0, 2**31-1, size=self.ncases))
+        return self
 
 
     def restorePickledCases(self, cases: list[Case]) -> None:
@@ -733,7 +744,7 @@ class Sim:
                        casestorun : None | int | Iterable[int] = None,
                        casestopostprocess : None | int | Iterable[int] = None,
                        calledfromrunsim : bool = False
-                       ):
+                       ) -> Sim:
         """
         Preprocess, run, and postprocess all the Monte Carlo cases.
 
@@ -768,11 +779,12 @@ class Sim:
             self.executeFullPipelineDask(casestopreprocess=casestopreprocess,
                                          casestorun=casestorun,
                                          casestopostprocess=casestopostprocess)
+        return self
 
 
     def executeFullPipeline(self,
                             cases: None | int | Iterable[int] = None,
-                            calledfromrunsim: bool = False) -> None:
+                            calledfromrunsim: bool = False) -> Sim:
         """
         Execute the full preprocess, run, and postprocess pipeline with minimal
         data transfer, for multiprocessing speed up.
@@ -785,11 +797,11 @@ class Sim:
             Whether this was called from self.runSim(). If False, a new ID for
             this simulation run is generated.
         """
-        cases_downselect = self.downselectCases(cases=cases)
+        cases_downselect = self._downselectCases(cases=cases)
         fullyexecutedcases = []
 
         if not calledfromrunsim:
-            self.runsimid = self.genID()
+            self.runsimid = self._genID()
 
         # Multiprocessing with chained operations
         self.initMultiprocessingPool()
@@ -839,21 +851,22 @@ class Sim:
                 self.casesrun.add(case.ncase)
             if case.haspostprocessed:
                 self.casespostprocessed.add(case.ncase)
+        return self
 
 
     def executeFullPipelineDask(self,
                                 casestopreprocess : None | int | Iterable[int] = None,
                                 casestorun : None | int | Iterable[int] = None,
                                 casestopostprocess : None | int | Iterable[int] = None
-                                ) -> None:
+                                ) -> Sim:
         """
         Execute the full preprocessing, run, and postprocessing pipeline for all the cases.
         """
         self.initDaskClient()
 
-        casestopreprocess_downselect = self.downselectCases(cases=casestopreprocess)
-        casestorun_downselect = self.downselectCases(cases=casestorun)
-        casestopostprocess_downselect = self.downselectCases(cases=casestopostprocess)
+        casestopreprocess_downselect = self._downselectCases(cases=casestopreprocess)
+        casestorun_downselect = self._downselectCases(cases=casestorun)
+        casestopostprocess_downselect = self._downselectCases(cases=casestopostprocess)
 
         preprocessedcases = dict()
         runcases = dict()
@@ -921,11 +934,12 @@ class Sim:
                 self.casesrun.add(case.ncase)
             if case.haspostprocessed:
                 self.casespostprocessed.add(case.ncase)
+        return self
 
 
     def preProcessCases(self,
                         cases : None | int | Iterable[int] = None,
-                        ) -> None:
+                        ) -> Sim:
         """
         Preprocess all the Monte Carlo cases.
 
@@ -935,7 +949,7 @@ class Sim:
             The case numbers to preprocess. If None, then all cases are
             preprocessed.
         """
-        cases_downselect = self.downselectCases(cases=cases)
+        cases_downselect = self._downselectCases(cases=cases)
         preprocessedcases = []
 
         # Single-threaded for loop
@@ -1018,12 +1032,13 @@ class Sim:
             if case.haspreprocessed:
                 self.cases[case.ncase] = case
                 self.casespreprocessed.add(case.ncase)
+        return self
 
 
     def runCases(self,
                  cases            : None | int | Iterable[int] = None,
                  calledfromrunsim : bool = False,
-                 ) -> None:
+                 ) -> Sim:
         """
         Run all the Monte Carlo cases.
 
@@ -1035,11 +1050,11 @@ class Sim:
             Whether this was called from self.runSim(). If False, a new ID for
             this simulation run is generated.
         """
-        cases_downselect = self.downselectCases(cases=cases)
+        cases_downselect = self._downselectCases(cases=cases)
         runcases = []
 
         if not calledfromrunsim:
-            self.runsimid = self.genID()
+            self.runsimid = self._genID()
 
         # Single-threaded for loop
         if self.singlethreaded:
@@ -1122,11 +1137,12 @@ class Sim:
             if case.hasrun:
                 self.cases[case.ncase] = case
                 self.casesrun.add(case.ncase)
+        return self
 
 
     def postProcessCases(self,
                          cases : None | int | Iterable[int] = None,
-                         ) -> None:
+                         ) -> Sim:
         """
         Postprocess all the Monte Carlo cases.
 
@@ -1136,7 +1152,7 @@ class Sim:
             The case numbers to postprocess. If None, then all cases are
             postprocessed.
         """
-        cases_downselect = self.downselectCases(cases=cases)
+        cases_downselect = self._downselectCases(cases=cases)
         postprocessedcases = []
 
         # Single-threaded for loop
@@ -1219,11 +1235,12 @@ class Sim:
             if case.haspostprocessed:
                 self.cases[case.ncase] = case
                 self.casespostprocessed.add(case.ncase)
+        return self
 
 
     def genOutVars(self,
                    datasource : Optional[str] = None,
-                   ) -> None:
+                   ) -> Sim:
         """
         Generate the output variables.
 
@@ -1281,6 +1298,7 @@ class Sim:
             pbar.close()
 
         self.noutvars = len(self.outvars)
+        return self
 
 
     def scalarOutVars(self) -> dict[str, OutVar]:
@@ -1298,7 +1316,7 @@ class Sim:
 
     def extendOutVars(self,
                       outvars : None | str | Iterable[str] = None,
-                      ) -> None:
+                      ) -> Sim:
         """
         Extend the non-scalar output variables with their last value, so that
         they all have the same shape. Can be useful for plotting or calculating
@@ -1360,6 +1378,7 @@ class Sim:
             self.vars[outvar.name] = outvar
             for i in range(self.ncases):
                 self.cases[i].addOutVar(outvar)
+        return self
 
 
     def calcSensitivities(self,
@@ -1367,7 +1386,7 @@ class Sim:
                           cases       : None | int | Iterable[int] = None,
                           tol         : float = 1e-6,
                           verbose     : bool = False,
-                          ) -> None:
+                          ) -> Sim:
         """
         Calculate the sensitivity indices for the specified outvars.
 
@@ -1408,9 +1427,10 @@ class Sim:
                 self.outvars[outvarname].sensitivity_indices = sensitivities_dict
                 self.outvars[outvarname].sensitivity_ratios = ratios_dict
                 vprint(self.verbose, "Done calculating sensitivity indices.")
+        return self
 
 
-    def genCovarianceMatrix(self) -> None:
+    def genCovarianceMatrix(self) -> Sim:
         """
         Generate the covariance matrix and correlation coefficients between all
         the scalar variables.
@@ -1429,6 +1449,7 @@ class Sim:
                 vwarn(self.verbose, "Unable to generate correlation coefficient for " +
                                    f"'{self.covvarlist[i]}'. This may happen if this variable " +
                                     "does not vary, or if an infinite value was drawn.")
+        return self
 
 
     def corr(self) -> tuple[np.ndarray, list[str]]:
@@ -1537,7 +1558,7 @@ class Sim:
         return fig, axs
 
 
-    def clearResults(self) -> None:
+    def clearResults(self) -> Sim:
         """Clear all the simulation results."""
         for varname in self.outvars.keys():
             if varname in self.vars.keys():
@@ -1552,10 +1573,11 @@ class Sim:
         self.covvarlist = None
         self.endtime = None
         self.runtime = None
-        self.runsimid = self.genID()
+        self.runsimid = self._genID()
+        return self
 
 
-    def reset(self) -> None:
+    def reset(self) -> Sim:
         """Completely reset the simulation to the default object state."""
         self.clearResults()
         self.vars = dict()
@@ -1566,11 +1588,12 @@ class Sim:
         self.invarseeds = []
         self.caseseeds = []
         self.starttime = None
+        return self
 
 
-    def downselectCases(self,
-                        cases : None | int | Iterable[int] = None,
-                        ) -> set[int]:
+    def _downselectCases(self,
+                         cases : None | int | Iterable[int] = None,
+                         ) -> set[int]:
         """
         Convert the `cases` input to a set of all the target cases.
 
@@ -1585,29 +1608,29 @@ class Sim:
             A set of all the case numbers to use.
         """
         if cases is None:
-            cases_downselect = self.allCases()
+            cases_downselect = self._allCases()
         else:
             cases_downselect = set(get_list(cases))
         return cases_downselect
 
 
-    def allCases(self) -> set[int]:
+    def _allCases(self) -> set[int]:
         """
         Get a set of the indices for all the cases.
 
         Returns
         -------
-        allCases : set[int]
+        _allCases : set[int]
             A set of all the case numbers.
         """
-        allCases = set(range(self.ncases))
-        return allCases
+        _allCases = set(range(self.ncases))
+        return _allCases
 
 
-    def exportVars(self,
-                   vars : dict[str, InVar | OutVar],
-                   filename : Optional[str | pathlib.Path],
-                   ) -> pathlib.Path:
+    def _exportVars(self,
+                    vars : dict[str, InVar | OutVar],
+                    filename : Optional[str | pathlib.Path],
+                    ) -> pathlib.Path:
         """
         Export the nums for the selected to file for use externally.
 
@@ -1689,7 +1712,7 @@ class Sim:
                      ) -> None:
         """
         Export the drawn nums for all the invars to file for use externally.
-        See `monaco.Sim.exportVars` docstring for csv and json formatting.
+        See `monaco.Sim._exportVars` docstring for csv and json formatting.
 
         Parameters
         ----------
@@ -1703,7 +1726,7 @@ class Sim:
         if filename is None:
             filename = self.resultsdir / f'{self.name}_invarnums.json'
 
-        filepath = self.exportVars(self.invars, filename)
+        filepath = self._exportVars(self.invars, filename)
 
         vprint(self.verbose, f"InVar nums saved in '{filepath.name}'", flush=True)
 
@@ -1713,7 +1736,7 @@ class Sim:
                       ) -> None:
         """
         Export the nums for all the outvars to file for use externally.
-        See `monaco.Sim.exportVars` docstring for csv and json formatting.
+        See `monaco.Sim._exportVars` docstring for csv and json formatting.
 
         Parameters
         ----------
@@ -1727,14 +1750,14 @@ class Sim:
         if filename is None:
             filename = self.resultsdir / f'{self.name}_outvarnums.json'
 
-        filepath = self.exportVars(self.outvars, filename)
+        filepath = self._exportVars(self.outvars, filename)
 
         vprint(self.verbose, f"OutVar nums saved in '{filepath.name}'", flush=True)
 
 
-    def importVars(self,
-                   filepath : str | pathlib.Path,
-                   ) -> tuple[dict[str, list[Any]], pathlib.Path]:
+    def _importVars(self,
+                    filepath : str | pathlib.Path,
+                    ) -> tuple[dict[str, list[Any]], pathlib.Path]:
         """
         Import values from an external file.
 
@@ -1807,11 +1830,11 @@ class Sim:
                      dists        : Optional[list[rv_discrete | rv_continuous]] = None,
                      distskwargs  : Optional[list[dict[str, Any]]] = None,
                      nummaps      : Optional[list[dict[Any, float]]] = None,
-                     ) -> None:
+                     ) -> Sim:
         """
         Import draws from an external file as InVals. For each of the keyword
         arguments, they must be the same length as the number of invars.
-        See `monaco.Sim.importVars` docstring for csv and json formatting.
+        See `monaco.Sim._importVars` docstring for csv and json formatting.
 
         Parameters
         ----------
@@ -1830,7 +1853,7 @@ class Sim:
         """
         vprint(self.verbose, 'Importing InVals from file...', flush=True)
 
-        data, filepath = self.importVars(filepath)
+        data, filepath = self._importVars(filepath)
 
         if dists is not None and distskwargs is not None:
             dists = get_list(dists)
@@ -1877,15 +1900,16 @@ class Sim:
 
         vprint(self.verbose, f"InVals loaded from '{filepath.name}' and converted to variables",
                flush=True)
+        return self
 
 
     def importOutVars(self,
                       filepath : str | pathlib.Path,
                       nummaps  : Optional[list[dict[float, Any]]] = None,
-                      ) -> None:
+                      ) -> Sim:
         """
         Import results from an external file as OutVals, convert to OutVars.
-        See `monaco.Sim.importVars` docstring for csv and json formatting.
+        See `monaco.Sim._importVars` docstring for csv and json formatting.
 
         Parameters
         ----------
@@ -1897,7 +1921,7 @@ class Sim:
         """
         vprint(self.verbose, 'Importing OutVals from file...', flush=True)
 
-        data, filepath = self.importVars(filepath)
+        data, filepath = self._importVars(filepath)
 
         if nummaps is not None:
             nummaps = get_list(nummaps)
@@ -1926,27 +1950,33 @@ class Sim:
 
         vprint(self.verbose, f"OutVals loaded from '{filepath.name}' and converted to variables",
                flush=True)
+        return self
 
 
-    def saveSimToFile(self) -> None:
+    def saveSim(self,
+                filepath : str | pathlib.Path | None = None,
+                ) -> None:
         """Save the simulation to a .mcsim file"""
-        if self.savesimdata:
-            vprint(self.verbose, 'Saving sim results to file...', flush=True)
+        vprint(self.verbose, 'Saving sim results to file...', flush=True)
 
-            try:
-                self.filepath.unlink()
-            except FileNotFoundError:
-                pass
-            self.filepath.touch()
-            with open(self.filepath, 'wb') as file:
-                cloudpickle.dump(self, file)
+        if filepath is not None:
+            self.filepath = pathlib.Path(filepath)
 
-            vprint(self.verbose, f"Sim results saved in '{self.filepath}'", flush=True)
+        try:
+            self.filepath.unlink()
+        except FileNotFoundError:
+            pass
+        self.filepath.touch()
+        with open(self.filepath, 'wb') as file:
+            cloudpickle.dump(self, file)
+
+        vprint(self.verbose, f"Sim results saved in '{self.filepath}'", flush=True)
 
 
-    def saveCasesToFile(self,
-                        cases : None | int | Iterable[int] = None,
-                        ) -> None:
+    def saveCases(self,
+                  cases : None | int | Iterable[int] = None,
+                  dirpath : str | pathlib.Path | None = None,
+                  ) -> None:
         """
         Save the specified cases to .mccase files.
 
@@ -1954,24 +1984,28 @@ class Sim:
         ----------
         cases : None | int | Iterable[int]
             The cases to save. If None, save all cases.
+        dirpath : str | pathlib.Path | None
+            The directory to save to. If None, save to the results directory.
         """
-        cases_downselect = self.downselectCases(cases=cases)
+        cases_downselect = self._downselectCases(cases=cases)
 
-        if self.savecasedata:
-            vprint(self.verbose, 'Saving cases to file...', flush=True)
+        vprint(self.verbose, 'Saving cases to file...', flush=True)
 
-            for ncase in cases_downselect:
-                filepath = self.resultsdir / f'{self.name}_{ncase}.mccase'
-                self.cases[ncase].filepath = filepath
-                try:
-                    filepath.unlink()
-                except FileNotFoundError:
-                    pass
-                with open(filepath, 'wb') as file:
-                    cloudpickle.dump(self.cases[ncase], file)
+        if dirpath is not None:
+            self.resultsdir = pathlib.Path(dirpath)
 
-            vprint(self.verbose, f"Raw case results saved in '{self.resultsdir}'",
-                   flush=True)
+        for ncase in cases_downselect:
+            filepath = self.resultsdir / f'{self.name}_{ncase}.mccase'
+            self.cases[ncase].filepath = filepath
+            try:
+                filepath.unlink()
+            except FileNotFoundError:
+                pass
+            with open(filepath, 'wb') as file:
+                cloudpickle.dump(self.cases[ncase], file)
+
+        vprint(self.verbose, f"Raw case results saved in '{self.resultsdir}'",
+                flush=True)
 
 
     def loadCases(self) -> None:
@@ -1982,8 +2016,8 @@ class Sim:
         self.cases = []
         casesloaded = set()
         casesstale  = set()
-        casesnotloaded        = self.allCases()
-        casesnotpostprocessed = self.allCases()
+        casesnotloaded        = self._allCases()
+        casesnotpostprocessed = self._allCases()
 
         # pbar = tqdm(total=len(self.casesrun), unit="case", desc='Loading', position=0)
 
@@ -2037,14 +2071,14 @@ class Sim:
             vwarn(self.verbose, 'The following cases were loaded but may be stale: ' +
                                f'[{", ".join([str(i) for i in sorted(casesstale)])}]')
 
-        extrafiles = self.findExtraResultsFiles()
+        extrafiles = self._findExtraResultsFiles()
         if extrafiles != set():
             vwarn(self.verbose, 'The following extra .mcsim and .mccase files were found in the ' +
                                 'results directory, run removeExtraResultsFiles() to clean them ' +
                                f'up: [{", ".join([str(i) for i in sorted(extrafiles)])}]')
 
 
-    def findExtraResultsFiles(self) -> set[str]:
+    def _findExtraResultsFiles(self) -> set[str]:
         """
         Find .mcsim and .mccase files that we don't expect to see in the
         results directory.
@@ -2074,13 +2108,15 @@ class Sim:
         Delete all unexpected .mcsim and .mccase files in the results
         directory.
         """
-        extrafiles = self.findExtraResultsFiles()
+        extrafiles = self._findExtraResultsFiles()
         for file in extrafiles:
             filepath = self.resultsdir / file
             filepath.unlink()
 
 
-    def pickleLargeData(self, protocol: int = 5) -> tuple[bytes, bytes, bytes]:
+    def _pickleLargeData(self,
+                         protocol: int = 5,
+                         ) -> tuple[bytes, bytes, bytes]:
         """
         Pickle the large data objects for use in multiprocessing.
 
