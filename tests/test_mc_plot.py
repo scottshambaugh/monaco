@@ -71,7 +71,7 @@ def plot_testing(show=False):
          cases=None, highlight_cases=range(10, 30),
          rug_plot=True, cov_plot=True, cov_p=[0.90, 0.95, 0.99])  # plot_2d_scatter
     plot(invars['randint'], invars['norm'], invars['norm2'],
-         cases=[], highlight_cases=range(10, 30))  # plot_3d_scatter
+         cases=[range(5, 10)], highlight_cases=range(10, 30))  # plot_3d_scatter
     plot_2d_scatter(invars['randint'], invars['norm'], invars['norm2'])  # plot_2d_scatter
 
     v = np.array([-2, -1, 2, 3, 4, 5])
@@ -97,6 +97,7 @@ def plot_testing(show=False):
     n = np.eye(2)
     var5 = OutVar(name='testn', vals=[1*n, 2*n, 0*n, -1*n, -2*n])
     plot(var0, var5)                               # plot_3d_line
+    plot(var5, var0)                               # plot_3d_line
 
     plot_cov_corr(np.array([[2, 0.1111, np.nan], [-0.19, -1, np.nan], [np.nan, np.nan, np.nan]]),
                   ['Test1', 'Test2', 'Test3'])
