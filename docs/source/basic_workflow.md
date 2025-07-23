@@ -28,4 +28,18 @@ A progress bar in the terminal will show the progress as the results for all cas
 
 3) Calculate correlations between input and output variables. This shows the linear sensitivity of the output variables to the change in input variables, and can also be plotted.
 
+## Examples
+
 See the [examples](https://github.com/scottshambaugh/monaco/tree/main/examples) folder on github for some examples you can step through or use as templates. Some details and several more features here have been passed over, and this documentation will be fleshed out in the future. Of note, saving and loading results to file, 'median' cases, running on remote servers, using order statistics, and additional plotting options will need to be explained.
+
+## Debugging
+
+The following Sim flags are recommended for ease of debugging your initial simulation setup, but should later be set to False for speed:
+```python
+singlethreaded = True
+debug = True
+keepsiminput = True
+keepsimrawoutput = True
+```
+
+If only specific cases are failing then you can rerun just those cases with `sim.runIncompleteSim()` or `sim.runSim(cases=[0])`. You can examine the input and output to your run function with `sim.cases[0].siminput` and `sim.cases[0].simrawoutput`.

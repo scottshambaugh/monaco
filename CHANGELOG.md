@@ -26,6 +26,7 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+* `sim.keepsiminput` and `sim.keepsimrawoutput` now default to False
 ### Removed    
 
 ## [0.17.4] - 2025-07-22

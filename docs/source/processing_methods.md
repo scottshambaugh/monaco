@@ -83,7 +83,7 @@ sim = mc.Sim(
 
 Using cloud compute with Dask can be accomplished by overwriting a sim's `client` and `cluster` attributes. The below setup builds on [the Coiled example from the dask documentation](https://docs.dask.org/en/latest/deploying.html), and will require you to first set up an account with Coiled, connected to AWS or some other cloud compute provider.
 
-Note that network bandwidth might be the bottleneck for computations that don't live on your local machine. Setting the `keepsiminput=False` and `keepsimrawoutput=False` flags for your sim can drastically reduce the data volume depending on your situation.
+Note that network bandwidth might be the bottleneck for computations that don't live on your local machine. Ensure that the `keepsiminput=False` and `keepsimrawoutput=False` flags are set to reduce the data volume.
 
 ```python
 import coiled

@@ -88,13 +88,13 @@ class Sim:
     debug : bool, default: False
         If False, cases that fail while running will be skipped over. If True,
         cases that fail will raise an exception.
-    keepsiminput : bool, default: True
+    keepsiminput : bool, default: False
         Whether to keep the siminput for each case after running.
-    keepsimrawoutput : bool, default: True
+    keepsimrawoutput : bool, default: False
         Whether to keep the simrawoutput for each case after postprocessing.
-    savesimdata : bool, default: True
+    savesimdata : bool, default: False
         Whether to save the simulation data to disk as a .mcsim file.
-    savecasedata : bool, default: True
+    savecasedata : bool, default: False
         Whether to save the full output data for each case to disk as .mccase
         files.
     resultsdir : str | pathlib.Path
@@ -172,8 +172,8 @@ class Sim:
                  daskkwargs        : dict = dict(),
                  verbose           : bool = True,
                  debug             : bool = False,
-                 keepsiminput      : bool = True,
-                 keepsimrawoutput  : bool = True,
+                 keepsiminput      : bool = False,
+                 keepsimrawoutput  : bool = False,
                  savesimdata       : bool = False,
                  savecasedata      : bool = False,
                  resultsdir        : str | pathlib.Path | None = None,
