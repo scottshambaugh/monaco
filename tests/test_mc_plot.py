@@ -71,7 +71,7 @@ def plot_testing(show=False):
          cases=None, highlight_cases=range(10, 30),
          rug_plot=True, cov_plot=True, cov_p=[0.90, 0.95, 0.99])  # plot_2d_scatter
     plot(invars['randint'], invars['norm'], invars['norm2'],
-         cases=[range(5, 10)], highlight_cases=range(10, 30))  # plot_3d_scatter
+         cases=range(5, 10), highlight_cases=range(10, 30))  # plot_3d_scatter
     plot_2d_scatter(invars['randint'], invars['norm'], invars['norm2'])  # plot_2d_scatter
 
     v = np.array([-2, -1, 2, 3, 4, 5])

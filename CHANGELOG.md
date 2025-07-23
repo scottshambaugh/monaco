@@ -27,6 +27,7 @@
 ### Added    
 * `Sim.loadSim()` classmethod
 * VarStats have a `bootstrap_method` kwarg, defaulting to 'BCa'
+* More test coverage
 ### Changed    
 * `sim.keepsiminput` and `sim.keepsimrawoutput` now default to False
 * The following `Sim` methods have been privatized: `importVars`, `exportVars`, `allCases`, `downselectCases`, `genID`, `findExtraResultsFiles`, `pickleLargeData`
