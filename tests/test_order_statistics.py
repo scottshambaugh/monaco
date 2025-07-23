@@ -4,7 +4,7 @@ import pytest
 from monaco.order_statistics import (order_stat_TI_n, order_stat_TI_k,
                                      order_stat_TI_c, order_stat_TI_p,
                                      order_stat_P_n, order_stat_P_k,
-                                     order_stat_P_c)
+                                     order_stat_P_c, order_stat_var_check)
 from monaco.mc_enums import StatBound
 
 '''
@@ -59,3 +59,20 @@ def test_order_stat_P_k_warning():
 ])
 def test_order_stat_P_n(k, c, P, bound, ans):
     assert order_stat_P_n(k=k, c=c, P=P, bound=bound) == pytest.approx(ans)
+
+
+@pytest.mark.parametrize("kwargs, match", [
+    ({'n': 0}, 'n=0 must be >= 1'),
+    ({'l': -1}, 'l=-1 must be >= 0'),
+    ({'u': 13, 'n': 10}, 'u=13 must be >= 11'),
+    ({'u': 5, 'l': 6}, 'u=5 must be >= l=6'),
+    ({'p': 0}, 'p=0 must be in the range 0 < p < 1'),
+    ({'p': 1}, 'p=1 must be in the range 0 < p < 1'),
+    ({'k': 0}, 'k=0 must be >= 1'),
+    ({'c': 0}, 'c=0 must be in the range 0 < c < 1'),
+    ({'c': 1}, 'c=1 must be in the range 0 < c < 1'),
+    ({'nmax': 0}, 'nmax=0 must be >= 1'),
+])
+def test_order_stat_var_check_errors(kwargs, match):
+    with pytest.raises(ValueError, match=match):
+        order_stat_var_check(**kwargs)
