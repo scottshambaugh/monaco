@@ -28,7 +28,7 @@ SIM_FIXTURES = [
 ]
 
 def sim_testing_preprocess(case):
-    ncase = case.ncase * case.constvals['One']
+    ncase = case.ncase
     return ([ncase, ])
 
 def sim_testing_run(casenum_in):
@@ -174,6 +174,8 @@ def test_sim_getitem(sim_singlethreaded):
     assert sim_singlethreaded[0].invals['Var1'].val == pytest.approx(3)
     # Test variable name
     assert sim_singlethreaded['Var1'].vals[0] == pytest.approx(3)
+    # Test constant value
+    assert sim_singlethreaded[0].constvals['One'] == 1
 
 
 @pytest.mark.parametrize("sim_fixture",
