@@ -78,7 +78,10 @@ def test_sim_load_sim(sim):
     sim_file = tempdir / 'sim_save_load_test.mcsim'
     sim.saveCases(dirpath=tempdir)
     sim.saveSim(sim_file)
-    sim2 = Sim.loadSim(sim_file)
+
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore', message='The following extra .mcsim and .mccase files')
+        sim2 = Sim.loadSim(sim_file)
 
     assert sim2.resultsdir == tempdir
     assert sim2.filepath == sim_file
