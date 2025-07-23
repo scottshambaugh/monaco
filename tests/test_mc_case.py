@@ -38,3 +38,8 @@ def test_case_addoutval_with_valmap(case):
     valmap = {'a': 0, 'b': -1, 'c': -2, 'd': -3, 'e': -4, 'f': -5}
     case.addOutVal('TestOut2', [['a', 'b'], ['c', 'd'], ['e', 'f']], valmap=valmap)
     np.testing.assert_array_equal(case.outvals['TestOut2'].num, [[0, -1], [-2, -3], [-4, -5]])
+
+def test_case_get_out_vals(case):
+    outvar = OutVar('TestOut', vals=['a']*5 + ['b']*5)
+    case.addOutVar(outvar)
+    assert case.getOutVals()['TestOut'].val == 'a'
