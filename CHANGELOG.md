@@ -15,7 +15,6 @@
 - Ability to plot derived data in addition to vars
 - Star Sampling
 - Variogram Sensitivity Analysis
-- repr's for all main objects
 - Histogram/spaghetti plot coloring a-la [aleatory](https://github.com/quantgirluk/aleatory)
 - Ray support?
 - Support for scipy's [new stats infrastructure](https://docs.scipy.org/doc/scipy/tutorial/stats/rv_infrastructure.html)
@@ -26,6 +25,7 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+* `__repr__` updates for Sim, Case, and VarStat
 ### Removed    
 
 ## [0.18.0] - 2025-07-22

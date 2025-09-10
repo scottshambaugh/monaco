@@ -122,8 +122,10 @@ class Case():
 
 
     def __repr__(self):
-        return (f"{self.__class__.__name__}(ncase={self.ncase},\n  invals={self.invals} " +
-                f"\n  outvals={self.outvals})")
+        return (f"{self.__class__.__name__}(ncase={self.ncase}, "
+                f"invals.keys()={self.invals.keys()}, "
+                f"outvals.keys()={self.outvals.keys()}, "
+                f"constvals.keys()={self.constvals.keys()})")
 
 
     def __getitem__(self,

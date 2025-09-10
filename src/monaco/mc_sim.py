@@ -239,7 +239,7 @@ class Sim:
 
         self.ncases : int = ndraws + 1
         self.setFirstCaseMedian(firstcaseismedian)
-        self.setNDraws(self.ndraws)  # will regen runsimid
+        self.setNDraws(self.ndraws)  # will regen runsimid and self.ncases
 
         self.pool = None
         self.client = None
@@ -274,6 +274,8 @@ class Sim:
             finally:
                 self.pool = None
 
+    def __repr__(self):
+        return (f"{self.__class__.__name__}(name='{self.name}', ncases={self.ncases})")
 
     def __getstate__(self) -> dict:
         """Function for pickling self to save to file."""

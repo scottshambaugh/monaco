@@ -234,6 +234,10 @@ class VarStat:
             warn(f'Only using {self.ncases} of {self.var.ncases} cases for VarStat {self.name}')
 
 
+    def __repr__(self):
+        return (f"{self.__class__.__name__}(name='{self.name}')")
+
+
     def genStatsMoment(self) -> None:
         """
         Get the n'th moment about the mean of the variable.
