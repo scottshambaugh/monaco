@@ -2,6 +2,7 @@
 
 ## Future Work
 ### Features & Maintenance:
+- Make saving cases as separate files optional
 - 2D Scatter Statistics
 - Regressions (linear, poly, custom)
 - Contribution to sample mean and contribution to sample variance
