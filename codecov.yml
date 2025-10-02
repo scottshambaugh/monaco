@@ -1,0 +1,10 @@
+# codecov.yml
+coverage:
+  status:
+    patch:
+      default:
+        informational: true
+    project:
+      default:
+        target: auto
+        threshold: 50%
