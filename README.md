@@ -48,6 +48,10 @@ The documentation at https://monaco.readthedocs.io includes:
 
 Monaco was presented at the SciPy 2022 Conference, and the conference resources should give another good overview of the library. Check out [the paper](http://conference.scipy.org.s3-website-us-east-1.amazonaws.com/proceedings/scipy2022/pdfs/scott_shambaugh.pdf), [the video of the talk](https://www.youtube.com/watch?v=yB539OIol_s), and [the talk's slides and notebooks](https://github.com/scottshambaugh/monaco-scipy2022).
 
+### Ecosystem
+Other libraries which extend monaco:
+- [monaco-dict-utils](https://github.com/hbmartin/monaco-dict-utils/tree/main) - A Python library for easily bootstrapping Monaco Monte Carlo simulations with a dictionary-based workflow
+
 ### License / Citation
 Copyright 2020 Scott Shambaugh, distributed under [the MIT license](LICENSE.md).
 
