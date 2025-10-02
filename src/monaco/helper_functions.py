@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import warnings
+import logging
 import numpy as np
 from operator import itemgetter
 from tqdm import tqdm
@@ -239,6 +240,9 @@ def slice_by_index(sequence : Sequence[Any],
     return list(items)
 
 
+logger = logging.getLogger(__name__)
+
+
 def vprint(verbose : bool, *args, **kwargs) -> None:
     """
     Print only if verbose is True.
@@ -251,7 +255,19 @@ def vprint(verbose : bool, *args, **kwargs) -> None:
         Must include something to print here!
     """
     if verbose:
-        print(*args, **kwargs)
+        # Map common print kwargs to logging extra when sensible
+        end = kwargs.pop('end', None)
+        flush = kwargs.pop('flush', None)
+        # Assemble message similar to print's behavior
+        if len(args) == 0:
+            msg = ''
+        elif len(args) == 1:
+            msg = str(args[0])
+        else:
+            msg = ' '.join(str(a) for a in args)
+        if end is not None and isinstance(end, str) and end != '\n':
+            msg = f"{msg}{end}"
+        logger.info(msg)
 
 
 def warn_short_format(message, category, filename, lineno, file=None, line=None) -> str:
@@ -273,10 +289,17 @@ def vwarn(verbose : bool, *args, **kwargs) -> None:
         Must include a warning message here!
     """
     if verbose:
+        # Keep warnings.warn behavior, but also mirror to logging.WARNING
         warn_default_format = warnings.formatwarning
         warnings.formatwarning = warn_short_format  # type: ignore
         warnings.warn(*args, **kwargs)
         warnings.formatwarning = warn_default_format
+        # If first positional arg is message string, log it
+        if args:
+            try:
+                logger.warning(str(args[0]))
+            except Exception:
+                pass
 
 
 def vwrite(verbose : bool, *args, **kwargs) -> None:
@@ -308,7 +331,7 @@ def timeit(fcn : Callable):
         t0 = time()
         output = fcn(*args, **kw)
         t1 = time()
-        print(f'"{fcn.__name__}" took {(t1 - t0)*1000 : .3f} ms to execute.\n')
+        logger.info(f'"{fcn.__name__}" took {(t1 - t0)*1000 : .3f} ms to execute.')
         return output
     return timed
 

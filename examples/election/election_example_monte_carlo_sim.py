@@ -1,4 +1,5 @@
 from scipy.stats import norm, uniform
+import logging
 import monaco as mc
 import matplotlib.pyplot as plt
 import numpy as np
@@ -57,14 +58,17 @@ def election_example_monte_carlo_sim():
     pct_dem_win = sum(x == 'Dem' for x in sim.outvars['Winner'].vals)/sim.ncases
     pct_rep_win = sum(x == 'Rep' for x in sim.outvars['Winner'].vals)/sim.ncases
     pct_contested = sum(x == 'Contested' for x in sim.outvars['Winner'].vals)/sim.ncases
-    print(f'Win probabilities: {100*pct_dem_win:0.1f}% Dem, ' +
-                             f'{100*pct_rep_win:0.1f}% Rep, ' +
-                             f'{100*pct_contested:0.1f}% Contested')
+    logger = logging.getLogger(__name__)
+    logger.info(
+        f'Win probabilities: {100*pct_dem_win:0.1f}% Dem, '
+        f'{100*pct_rep_win:0.1f}% Rep, '
+        f'{100*pct_contested:0.1f}% Contested')
     mc.plot(sim.outvars['Winner'])
 
     pct_recount = sum(x != 0 for x in sim.outvars['Num Recounts'].vals)/sim.ncases
-    print(f'In {100*pct_recount:0.1f}% of runs there was a state close enough ' +
-           'to trigger a recount (<0.5%)')
+    logger.info(
+        f'In {100*pct_recount:0.1f}% of runs there was a state close enough '
+        'to trigger a recount (<0.5%)')
 
     dem_win_state_pct = dict()
     for state in states:

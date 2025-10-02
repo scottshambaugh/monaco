@@ -1,6 +1,7 @@
 # template_monte_carlo_sim.py
 
 import monaco as mc
+import logging
 
 # Import the statistical distributions from scipy.stats that you will be using.
 # These must be rv_discrete or rv_continuous functions.
@@ -86,13 +87,14 @@ def template_monte_carlo_sim():
     sim.runSim()
 
     # Once the sim is run, we have access to its member variables.
-    print(f'{sim.name} Runtime: {sim.runtime}')
+    logger = logging.getLogger(__name__)
+    logger.info(f'{sim.name} Runtime: {sim.runtime}')
 
     # From here we can perform further postprocessing on our results. The outvar
     # names were assigned in our postprocessing function. We expect the heads
     # bias to be near the 70% we assigned up in flip_dist.
     bias = sim.outvars['Flip Result'].vals.count('heads')/sim.ncases*100
-    print(f'Average heads bias: {bias}%')
+    logger.info(f'Average heads bias: {bias}%')
 
     # We can also quickly make some plots of our invars and outvars. The mc.plot
     # function will automatically try to figure out which type of plot is most

@@ -1,4 +1,5 @@
 from scipy.stats import uniform
+import logging
 import monaco as mc
 import numpy as np
 
@@ -50,18 +51,19 @@ firstcaseismedian = False
 error = 0.01
 conf = 0.95
 stdev = mc.max_stdev(low=0, high=1)
-print(f'Maximum possible standard deviation: {stdev:0.3f}')
+logger = logging.getLogger(__name__)
+logger.info(f'Maximum possible standard deviation: {stdev:0.3f}')
 
 nRandom = mc.integration_n_from_err(error=error, dimension=dimension, volume=totalArea,
                                     stdev=stdev, conf=conf, samplemethod='random')
 nSobol  = mc.integration_n_from_err(error=error, dimension=dimension, volume=totalArea,
                                     stdev=stdev, conf=conf, samplemethod='sobol')
-print(f'Number of samples needed to reach an error ≤ ±{error} at {round(conf*100, 2)}% ' +
-      f'confidence if using random vs sobol sampling: {nRandom} vs {nSobol}')
+logger.info(f'Number of samples needed to reach an error ≤ ±{error} at {round(conf*100, 2)}% '
+            f'confidence if using random vs sobol sampling: {nRandom} vs {nSobol}')
 
 # The sobol methods need to be a power of 2 for best performance and balance
 ndraws = mc.next_power_of_2(nSobol)
-print(f'Rounding up to next power of 2: {ndraws} samples')
+logger.info(f'Rounding up to next power of 2: {ndraws} samples')
 
 seed = 123639
 
@@ -89,7 +91,7 @@ def integration_example_monte_carlo_sim():
 
     resultsstr = f'π ≈ {underCurvePct*totalArea:0.5f}, n = {ndraws}, ' + \
                  f'{round(conf*100, 2)}% error = ±{err:0.5f}, stdev={stdev:0.3f}'
-    print(resultsstr)
+    logger.info(resultsstr)
 
     '''
     import matplotlib.pyplot as plt

@@ -1,4 +1,5 @@
 import math
+import logging
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -8,9 +9,10 @@ k = list(range(1, 11))
 v0 = [1 for x in k]
 v1 = [1/np.math.factorial(x) for x in k]
 v2 = [np.pi**(x/2)/(2**x * math.gamma(x/2+1)) for x in k]
-print(k)
-print(v1)
-print(v2)
+logger = logging.getLogger(__name__)
+logger.info(k)
+logger.info(v1)
+logger.info(v2)
 
 fig, ax = plt.subplots(1, 1)
 ax.semilogy(k, v0, '-*', c='k')
