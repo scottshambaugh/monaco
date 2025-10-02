@@ -645,13 +645,10 @@ class Sim:
         casestopostprocess = allcases - self.casespostprocessed | casestopreprocess | casestorun
         casestogenerate    = casestopreprocess
 
-        self.logger.info(f"Resuming incomplete '{self.name}' Monte Carlo simulation with " +
-                         f"{len(casestopostprocess)}/{self.ncases} " +
-                         "cases remaining to preprocess, " +
-                         f"{len(casestorun)}/{self.ncases} " +
-                         "cases remaining to run, and " +
-                         f"{len(casestopostprocess)}/{self.ncases} " +
-                         "cases remaining to postprocess...")
+        self.logger.info(f"Resuming incomplete '{self.name}' Monte Carlo simulation with "
+                         f"{len(casestopostprocess)}/{self.ncases} cases left to preprocess, "
+                         f"{len(casestorun)}/{self.ncases} cases left to run, and "
+                         f"{len(casestopostprocess)}/{self.ncases} cases left to postprocess...")
 
         self.runSimWorker(casestogenerate=casestogenerate,
                           casestopreprocess=casestopreprocess,
