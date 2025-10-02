@@ -2,6 +2,10 @@
 from importlib import metadata
 __version__ = metadata.version(__name__)
 
+# Lightweight logging setup: attach a NullHandler so library logging is opt-in
+import logging
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+
 from monaco.mc_case import *
 from monaco.mc_sim import *
 from monaco.mc_var import *

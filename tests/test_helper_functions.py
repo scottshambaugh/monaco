@@ -2,6 +2,7 @@
 
 import pytest
 import time
+import logging
 import numpy as np
 from monaco.helper_functions import (next_power_of_2, hash_str_repeatable, is_num,
                                      length, get_list, slice_by_index, empty_list,
@@ -107,18 +108,17 @@ def test_flatten():
            == ['test', 0, 1, 2, 3, 4, 5, 6, 7, 8]
 
 
-def test_timeit(capsys):
+def test_timeit(caplog):
     @timeit
     def test_function(x, y=1):
         time.sleep(0.001)
         return x + y
 
-    result = test_function(5, y=3)
-    assert result == 8
-
-    captured = capsys.readouterr()
-    assert '"test_function" took' in captured.out
-    assert 'ms to execute' in captured.out
+    with caplog.at_level(logging.INFO, logger='monaco'):
+        result = test_function(5, y=3)
+        assert result == 8
+    assert '"test_function" took' in caplog.text
+    assert 'ms to execute' in caplog.text
 
 
 def test_hashable_val_vectorized_base_path():
