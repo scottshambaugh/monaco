@@ -28,6 +28,9 @@ htmlcov/
 *.mccase
 *.mcsim
 
+# Logs
+*.log
+
 # Security Keys
 *.pem
 *.ppk

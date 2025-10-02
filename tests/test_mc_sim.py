@@ -409,6 +409,16 @@ def plot_testing(show=False):
         plt.show(block=True)
 
 
+def test_logging_to_temp_file(tmp_path):
+    temp_log = tmp_path / "monaco_test.log"
+    sim = Sim(name='Sim logging', ndraws=1, fcns=sim_testing_fcns(), firstcaseismedian=True,
+              verbose=True, samplemethod=SampleMethod.RANDOM,
+              seed=123, debug=True, singlethreaded=True, daskkwargs=dict(),
+              savesimdata=False, savecasedata=False, logfile=str(temp_log))
+    assert sim.logfile == temp_log
+    assert temp_log.exists()
+
+
 if __name__ == '__main__':
     plot_testing(show=True)
     plt.show()

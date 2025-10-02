@@ -26,11 +26,12 @@
 ### Added    
 * `SimulationFunctions` dataclass to hold the preprocess, run, and postprocess functions with stronger checks and typing. Sim can still take in the original dict of those functions with specific keys, to be backwards compatible ([GH-16](https://github.com/scottshambaugh/monaco/issues/16))
 * "Ecosystem" section of the changelog for libraries that extend monaco ([GH-17](https://github.com/scottshambaugh/monaco/issues/17))
+* `logfile` input to a sim, to log all messages to a file
 ### Changed    
 * The `logging` library is now used instead of print statements
 * `__repr__` updates for Sim, Case, and VarStat
 ### Removed    
-* `vprint` and `vwarn`
+* `vprint` helper function
 
 ## [0.18.0] - 2025-07-22
 ### Added    

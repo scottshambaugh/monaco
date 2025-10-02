@@ -6,7 +6,8 @@ import logging
 import numpy as np
 from operator import itemgetter
 from tqdm import tqdm
-from typing import Callable, Any, Sequence, Iterable, Sized
+from typing import Callable, Any, Sequence, Iterable, Sized, Optional
+from pathlib import Path
 from time import time
 from functools import wraps
 from hashlib import sha512
@@ -259,6 +260,21 @@ def configure_logging(verbose: bool = True) -> None:
     handler = logging.StreamHandler()
     handler.setLevel(logger.level)
     logger.addHandler(handler)
+
+
+def log_to_file(filepath: Optional[str | Path] = None) -> None | Path:
+    """
+    Configure the monaco logger to log to a file.
+    """
+    if filepath is None:
+        return
+    logger = logging.getLogger("monaco")
+    file_handler = logging.FileHandler(Path(filepath), mode="a", encoding="utf-8")
+    file_handler.setLevel(logger.level)  # keep same level as console
+    formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+    return Path(filepath)
 
 
 def warn_short_format(message, category, filename, lineno, file=None, line=None) -> str:

@@ -25,7 +25,7 @@ from monaco.mc_case import Case
 from monaco.mc_var import InVar, OutVar, InVarSpace
 from monaco.mc_enums import SimFunctions, SampleMethod
 from monaco.helper_functions import (get_list, configure_logging, vwarn, empty_list,
-                                     hash_str_repeatable)
+                                     hash_str_repeatable, log_to_file)
 from monaco.case_runners import preprocess_case, run_case, postprocess_case, execute_full_case
 from monaco.globals import _worker_init, register_global_vars
 from monaco.dvars_sensitivity import calc_sensitivities
@@ -242,6 +242,7 @@ class Sim:
                  savesimdata       : bool = False,
                  savecasedata      : bool = False,
                  resultsdir        : str | pathlib.Path | None = None,
+                 logfile           : str | pathlib.Path | None = None,
                  ) -> None:
 
         self.name = name
@@ -317,6 +318,7 @@ class Sim:
 
         # Configure logging based on verbose flag
         configure_logging(self.verbose)
+        self.logfile = log_to_file(logfile)
         self.logger = logging.getLogger('monaco')
 
 
