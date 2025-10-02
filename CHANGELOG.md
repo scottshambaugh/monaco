@@ -25,6 +25,7 @@
 
 ## [Unreleased]
 ### Added    
+* `SimulationFunctions` dataclass to hold the preprocess, run, and postprocess functions with stronger checks and typing. Sim can still take in the original dict of those functions with specific keys, to be backwards compatible. See ([GH-16](https://github.com/scottshambaugh/monaco/issues/16))
 ### Changed    
 * `__repr__` updates for Sim, Case, and VarStat
 ### Removed    

@@ -16,7 +16,9 @@ from datetime import datetime, timedelta
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from tqdm import tqdm
-from typing import Callable, Any, Iterable, Optional
+from typing import Callable, Any, Iterable, Optional, Generic
+from typing_extensions import TypeVarTuple, Unpack
+from dataclasses import dataclass
 from scipy.stats import rv_continuous, rv_discrete
 from monaco.mc_case import Case
 from monaco.mc_var import InVar, OutVar, InVarSpace
@@ -43,6 +45,67 @@ except ImportError:
     HAS_PANDAS = False
 
 
+# Type variables for generic function signatures
+SimInput = TypeVarTuple('SimInput')       # outputs of preprocess / inputs to run
+SimOutput = TypeVarTuple('SimOutput')     # outputs of run / inputs to postprocess
+
+@dataclass
+class SimulationFunctions(Generic[Unpack[SimInput], Unpack[SimOutput]]):
+    """
+    A type-safe container for the three required simulation functions.
+
+    This uses ParamSpec and TypeVarTuple to precisely model the data flow:
+    preprocess(case) -> run(*args) -> postprocess(case, *results)
+
+    Parameters
+    ----------
+    preprocess : Callable[[Case], tuple[Unpack[SimInput]]]
+        Function that takes a Case and returns inputs for the run function.
+    run : Callable[SimInput, tuple[Unpack[SimOutput]]]
+        Function that takes the preprocess outputs and returns simulation results.
+    postprocess : Callable[[Case, tuple[Unpack[SimOutput]]], None]
+        Function that takes a Case and the run outputs for postprocessing.
+    """
+    preprocess: Callable[[Case], tuple[Unpack[SimInput]]]
+    run: Callable[SimInput, tuple[Unpack[SimOutput]]]
+    postprocess: Callable[[Case, tuple[Unpack[SimOutput]]], None]
+
+    def __post_init__(self):
+        # Validate that all functions are callable
+        if not callable(self.preprocess):
+            raise ValueError('preprocess function must be callable')
+        if not callable(self.run):
+            raise ValueError('run function must be callable')
+        if not callable(self.postprocess):
+            raise ValueError('postprocess function must be callable')
+
+    @classmethod
+    def from_dict(cls,
+                  fcns_dict: dict[SimFunctions, Callable]
+                  ) -> SimulationFunctions[Unpack[SimInput], Unpack[SimOutput]]:
+        """
+        Convert a dict of functions to a SimulationFunctions object.
+
+        Parameters
+        ----------
+        fcns_dict : dict[SimFunctions, Callable]
+            A dict of functions with keys preprocess, run, and postprocess.
+
+        Returns
+        -------
+        SimulationFunctions[Unpack[SimInput], Unpack[SimOutput]]
+            A SimulationFunctions object.
+        """
+        keys = set(fcns_dict.keys())
+        expected_keys = {SimFunctions.PREPROCESS, SimFunctions.RUN, SimFunctions.POSTPROCESS}
+        if keys != expected_keys:
+            raise ValueError(f'fcns_dict must contain keys {expected_keys}, got {keys}')
+        return cls(
+            preprocess=fcns_dict[SimFunctions.PREPROCESS],
+            run=fcns_dict[SimFunctions.RUN],
+            postprocess=fcns_dict[SimFunctions.POSTPROCESS])
+
+
 class Sim:
     """
     The main Monte Carlo Simulation object.
@@ -56,11 +119,11 @@ class Sim:
         The name for the simulation.
     ndraws : int
         The number of random draws to perform.
-    fcns : dict[monaco.mc_enums.SimFunctions, Callable]
-        fcns is a dict with keys SimFunctions.PREPROCESS, RUN, and POSTPROCESS.
-        These point to user-defined functions with certain input and output
-        structures, please see the documentation on how to construct these
-        functions.
+    fcns : dict[monaco.mc_enums.SimFunctions, Callable] |
+           monaco.mc_enums.SimulationFunctions
+        fcns is either a dict with keys 'preprocess', 'run', and 'postprocess'
+        pointing to user-defined functions, or a SimulationFunctions object
+        containing the three functions.
     firstcaseismedian : bool, default: False
         Whether the first case represents the median value.
     samplemethod : monaco.mc_enums.SampleMethod, default: 'sobol_random'
@@ -162,7 +225,7 @@ class Sim:
     def __init__(self,
                  name              : str,
                  ndraws            : int,
-                 fcns              : dict[SimFunctions, Callable],
+                 fcns              : SimulationFunctions | dict[SimFunctions, Callable],
                  firstcaseismedian : bool = False,
                  samplemethod      : SampleMethod = SampleMethod.SOBOL_RANDOM,
                  seed              : int  = np.random.get_state(legacy=False)['state']['key'][0],
@@ -180,13 +243,14 @@ class Sim:
                  resultsdir        : str | pathlib.Path | None = None,
                  ) -> None:
 
-        self.checkFcnsInput(fcns)
-
         self.name = name
         self.verbose = verbose
         self.debug = debug
         self.ndraws = ndraws
-        self.fcns = fcns
+        if isinstance(fcns, SimulationFunctions):
+            self.fcns = fcns
+        else:
+            self.fcns = SimulationFunctions.from_dict(fcns)
         self.firstcaseismedian = firstcaseismedian
         self.samplemethod = samplemethod
         self.seed = int(seed)
@@ -254,6 +318,7 @@ class Sim:
     def __del__(self) -> None:
         self._cleanup()
 
+
     def _cleanup(self) -> None:
         """Cleanup resources explicitly."""
         if self.client is not None:
@@ -274,8 +339,10 @@ class Sim:
             finally:
                 self.pool = None
 
+
     def __repr__(self):
         return (f"{self.__class__.__name__}(name='{self.name}', ncases={self.ncases})")
+
 
     def __getstate__(self) -> dict:
         """Function for pickling self to save to file."""
@@ -318,27 +385,6 @@ class Sim:
         else:
             raise ValueError(f'Sim argument {ncase_or_varname=} must be an int ' +
                              '(case number) or str (variable name)')
-
-
-    def checkFcnsInput(self,
-                       fcns: dict[SimFunctions, Callable],
-                       ) -> None:
-        """
-        Check the `fcns` input dictionary for correctness.
-
-        Parameters
-        ----------
-        fcns : dict[monaco.mc_enums.SimFunctions, Callable]
-            fcns must be a dict with keys SimFunctions.PREPROCESS, RUN, and
-            POSTPROCESS, which point to special user-defined functions.
-        """
-        if set(fcns.keys()) \
-           != {SimFunctions.PREPROCESS, SimFunctions.RUN, SimFunctions.POSTPROCESS}:
-            raise ValueError(f'Sim argument {fcns=} must have keys ' +
-                             f'{SimFunctions.PREPROCESS}, {SimFunctions.RUN}, ' +
-                             f'and {SimFunctions.POSTPROCESS}')
-        if any(not callable(f) for f in fcns.values()):
-            raise ValueError(f'Sim argument {fcns=} must contain functions as values')
 
 
     def setFirstCaseMedian(self,
@@ -817,9 +863,9 @@ class Sim:
             case.haspostprocessed = False
 
             inputs = (
-                self.fcns[SimFunctions.PREPROCESS],
-                self.fcns[SimFunctions.RUN],
-                self.fcns[SimFunctions.POSTPROCESS],
+                self.fcns.preprocess,
+                self.fcns.run,
+                self.fcns.postprocess,
                 case, self.debug, self.verbose, self.runsimid
             )
             futures.append(self.pool.submit(execute_full_case, *inputs))
@@ -884,9 +930,8 @@ class Sim:
                     case.haspostprocessed = False
 
                 if case.ncase in casestopreprocess_downselect:
-                    casepreprocessed_delayed = dask.delayed(preprocess_case)(
-                        self.fcns[SimFunctions.PREPROCESS], case,
-                        self.debug, self.verbose)
+                    inputs = (self.fcns.preprocess, case, self.debug, self.verbose)
+                    casepreprocessed_delayed = dask.delayed(preprocess_case)(*inputs)
                     preprocessedcases[case.ncase] = casepreprocessed_delayed
 
                 if case.ncase in casestorun_downselect:
@@ -894,9 +939,8 @@ class Sim:
                         case_to_delay = case
                     else:
                         case_to_delay = preprocessedcases[case.ncase]
-                    caserun_delayed = dask.delayed(run_case)(
-                        self.fcns[SimFunctions.RUN], case_to_delay,
-                        self.debug, self.verbose, self.runsimid)
+                    inputs = (self.fcns.run, case_to_delay, self.debug, self.verbose, self.runsimid)
+                    caserun_delayed = dask.delayed(run_case)(*inputs)
                     runcases[case.ncase] = caserun_delayed
 
                 if case.ncase in casestopostprocess_downselect:
@@ -904,9 +948,8 @@ class Sim:
                         case_to_delay = case
                     else:
                         case_to_delay = runcases[case.ncase]
-                    casepostprocessed_delayed = dask.delayed(postprocess_case)(
-                        self.fcns[SimFunctions.POSTPROCESS], case_to_delay,
-                        self.debug, self.verbose)
+                    inputs = (self.fcns.postprocess, case_to_delay, self.debug, self.verbose)
+                    casepostprocessed_delayed = dask.delayed(postprocess_case)(*inputs)
                     postprocessedcases[case.ncase] = casepostprocessed_delayed
 
             vprint(self.verbose, f'Preprocessing {len(casestopreprocess_downselect)}, ' +
@@ -963,8 +1006,7 @@ class Sim:
             for i in cases_downselect:
                 case = self.cases[i]
                 case.haspreprocessed = False
-                case = preprocess_case(self.fcns[SimFunctions.PREPROCESS],
-                                       case, self.debug, self.verbose)
+                case = preprocess_case(self.fcns.preprocess, case, self.debug, self.verbose)
                 preprocessedcases.append(case)
                 if self.verbose:
                     pbar.update(1)
@@ -979,7 +1021,7 @@ class Sim:
             for i in cases_downselect:
                 case = self.cases[i]
                 case.haspreprocessed = False
-                inputs = (self.fcns[SimFunctions.PREPROCESS], case, self.debug, self.verbose)
+                inputs = (self.fcns.preprocess, case, self.debug, self.verbose)
                 futures.append(self.pool.submit(preprocess_case, *inputs))
 
             if self.verbose:
@@ -1008,13 +1050,12 @@ class Sim:
                 for i in cases_downselect:
                     case = self.cases[i]
                     case.haspreprocessed = False
-                    case_delayed = dask.delayed(preprocess_case)(
-                        self.fcns[SimFunctions.PREPROCESS], case,
-                        self.debug, self.verbose)
+                    inputs = (self.fcns.preprocess, case, self.debug, self.verbose)
+                    case_delayed = dask.delayed(preprocess_case)(*inputs)
                     preprocessedcases.append(case_delayed)
 
-                vprint(self.verbose, 'Preprocessing ' +
-                                     f'{len(cases_downselect)} cases...', flush=True)
+                vprint(self.verbose,
+                       f'Preprocessing {len(cases_downselect)} cases...', flush=True)
                 futures = self.client.compute(preprocessedcases, optimize_graph=False)
                 if self.verbose:
                     progress(futures, multi=True)
@@ -1067,7 +1108,7 @@ class Sim:
             for i in cases_downselect:
                 case = self.cases[i]
                 case.hasrun = False
-                case = run_case(self.fcns[SimFunctions.RUN], case,
+                case = run_case(self.fcns.run, case,
                                 self.debug, self.verbose, self.runsimid)
                 runcases.append(case)
                 if self.verbose:
@@ -1083,7 +1124,7 @@ class Sim:
             for i in cases_downselect:
                 case = self.cases[i]
                 case.hasrun = False
-                inputs = (self.fcns[SimFunctions.RUN], case,
+                inputs = (self.fcns.run, case,
                           self.debug, self.verbose, self.runsimid)
                 futures.append(self.pool.submit(run_case, *inputs))
 
@@ -1113,13 +1154,12 @@ class Sim:
                 for i in cases_downselect:
                     case = self.cases[i]
                     case.hasrun = False
-                    case_delayed = dask.delayed(run_case)(
-                        self.fcns[SimFunctions.RUN], case,
-                        self.debug, self.verbose, self.runsimid)
+                    inputs = (self.fcns.run, case, self.debug, self.verbose, self.runsimid)
+                    case_delayed = dask.delayed(run_case)(*inputs)
                     runcases.append(case_delayed)
 
-                vprint(self.verbose, 'Running ' +
-                                     f'{len(cases_downselect)} cases...', flush=True)
+                vprint(self.verbose,
+                       f'Running {len(cases_downselect)} cases...', flush=True)
                 futures = self.client.compute(runcases, optimize_graph=False)
                 if self.verbose:
                     progress(futures, multi=True)
@@ -1166,8 +1206,8 @@ class Sim:
             for i in cases_downselect:
                 case = self.cases[i]
                 case.haspostprocessed = False
-                case = postprocess_case(self.fcns[SimFunctions.POSTPROCESS],
-                                        case, self.debug, self.verbose)
+                inputs = (self.fcns.postprocess, case, self.debug, self.verbose)
+                case = postprocess_case(*inputs)
                 postprocessedcases.append(case)
                 if self.verbose:
                     pbar.update(1)
@@ -1182,7 +1222,7 @@ class Sim:
             for i in cases_downselect:
                 case = self.cases[i]
                 case.haspostprocessed = False
-                inputs = (self.fcns[SimFunctions.POSTPROCESS], case, self.debug, self.verbose)
+                inputs = (self.fcns.postprocess, case, self.debug, self.verbose)
                 futures.append(self.pool.submit(postprocess_case, *inputs))
 
             if self.verbose:
@@ -1211,13 +1251,12 @@ class Sim:
                 for i in cases_downselect:
                     case = self.cases[i]
                     case.haspostprocessed = False
-                    case_delayed = dask.delayed(postprocess_case)(
-                        self.fcns[SimFunctions.POSTPROCESS], case,
-                        self.debug, self.verbose)
+                    inputs = (self.fcns.postprocess, case, self.debug, self.verbose)
+                    case_delayed = dask.delayed(postprocess_case)(*inputs)
                     postprocessedcases.append(case_delayed)
 
-                vprint(self.verbose, 'Postprocessing ' +
-                                     f'{len(cases_downselect)} cases...', flush=True)
+                vprint(self.verbose,
+                       f'Postprocessing {len(cases_downselect)} cases...', flush=True)
                 futures = self.client.compute(postprocessedcases, optimize_graph=False)
                 if self.verbose:
                     progress(futures, multi=True)

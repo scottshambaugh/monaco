@@ -4,7 +4,7 @@ import pytest
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm, randint
-from monaco.mc_sim import Sim
+from monaco.mc_sim import Sim, SimulationFunctions
 from monaco.mc_enums import SimFunctions, SampleMethod
 
 try:
@@ -302,7 +302,7 @@ def test_sim_preprocess_failure(sim_fixture):
     fcns = {SimFunctions.PREPROCESS : sim_testing_preprocess_failure,
             SimFunctions.RUN        : sim_testing_run,
             SimFunctions.POSTPROCESS: sim_testing_postprocess}
-    sim.fcns = fcns
+    sim.fcns = SimulationFunctions.from_dict(fcns)
     sim.debug = True
     sim.clearResults()
     with pytest.raises(Exception, match='Preprocess testing failed for case 0'):
@@ -325,7 +325,7 @@ def test_sim_run_failure(sim_fixture):
     fcns = {SimFunctions.PREPROCESS : sim_testing_preprocess,
             SimFunctions.RUN        : sim_testing_run_failure,
             SimFunctions.POSTPROCESS: sim_testing_postprocess}
-    sim.fcns = fcns
+    sim.fcns = SimulationFunctions.from_dict(fcns)
     sim.debug = True
     sim.clearResults()
     with pytest.raises(Exception, match='Run testing failed for case 0'):
@@ -348,7 +348,7 @@ def test_sim_postprocess_failure(sim_fixture):
     fcns = {SimFunctions.PREPROCESS : sim_testing_preprocess,
             SimFunctions.RUN        : sim_testing_run,
             SimFunctions.POSTPROCESS: sim_testing_postprocess_failure}
-    sim.fcns = fcns
+    sim.fcns = SimulationFunctions.from_dict(fcns)
     sim.debug = True
     sim.clearResults()
     with pytest.raises(Exception, match='Postprocess testing failed for case 0'):
