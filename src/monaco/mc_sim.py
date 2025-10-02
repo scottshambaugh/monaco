@@ -11,6 +11,7 @@ import pathlib
 import multiprocessing
 import concurrent.futures
 import warnings
+import logging
 
 from datetime import datetime, timedelta
 from matplotlib.figure import Figure
@@ -23,7 +24,7 @@ from scipy.stats import rv_continuous, rv_discrete
 from monaco.mc_case import Case
 from monaco.mc_var import InVar, OutVar, InVarSpace
 from monaco.mc_enums import SimFunctions, SampleMethod
-from monaco.helper_functions import (get_list, vprint, vwarn, empty_list,
+from monaco.helper_functions import (get_list, configure_logging, vwarn, empty_list,
                                      hash_str_repeatable)
 from monaco.case_runners import preprocess_case, run_case, postprocess_case, execute_full_case
 from monaco.globals import _worker_init, register_global_vars
@@ -314,6 +315,10 @@ class Sim:
 
         self.invals_cache = []
 
+        # Configure logging based on verbose flag
+        configure_logging(self.verbose)
+        self.logger = logging.getLogger('monaco')
+
 
     def __del__(self) -> None:
         self._cleanup()
@@ -427,7 +432,7 @@ class Sim:
             self.client.register_worker_plugin(plugin, name="sim_globals")
             return
 
-        vprint(self.verbose, "Initializing dask client...")
+        self.logger.info("Initializing dask client...")
         if self.ncores is not None:
             if 'n_workers' in self.daskkwargs:
                 vwarn(self.verbose, "Dask argument n_workers is being overridden " +
@@ -442,11 +447,10 @@ class Sim:
         nworkers = len(self.cluster.workers)
         nthreads = nworkers * self.cluster.worker_spec[0]['options']['nthreads']
         memory = nworkers * self.cluster.worker_spec[0]['options']['memory_limit']
-        vprint(self.verbose,
-               f'Dask cluster initiated with {nworkers} workers, ' +
-               f'{nthreads} threads, {memory/2**30:0.2f} GiB memory.')
-        vprint(self.verbose, f'Dask client scheduler address: {self.client.scheduler.address}')
-        vprint(self.verbose, f'Dask dashboard link: {self.cluster.dashboard_link}')
+        self.logger.info(f'Dask cluster initiated with {nworkers} workers, ' +
+                         f'{nthreads} threads, {memory/2**30:0.2f} GiB memory.')
+        self.logger.info(f'Dask client scheduler address: {self.client.scheduler.address}')
+        self.logger.info(f'Dask dashboard link: {self.cluster.dashboard_link}')
 
 
     def initMultiprocessingPool(self):
@@ -467,7 +471,7 @@ class Sim:
                                     f"{self.multiprocessing_method}, using " +
                                     f"{start_method} instead")
 
-        vprint(self.verbose, "Initializing multiprocessing pool...")
+        self.logger.info("Initializing multiprocessing pool...")
         if self.ncores is None:
             self.ncores = multiprocessing.cpu_count()
         ctx = multiprocessing.get_context(start_method)
@@ -482,9 +486,8 @@ class Sim:
                                                            mp_context=ctx,
                                                            initializer=initializer,
                                                            initargs=data)
-        vprint(self.verbose,
-              f'Multiprocessing pool initiated with {self.ncores} workers ' +
-              f'and "{start_method}" start method.')
+        self.logger.info(f'Multiprocessing pool initiated with {self.ncores} workers ' +
+                         f'and "{start_method}" start method.')
 
 
     def addInVar(self,
@@ -596,12 +599,12 @@ class Sim:
     def drawVars(self) -> Sim:
         """Draw the random values for all the input variables."""
         if self.ninvars > 0:
-            vprint(self.verbose, f"Drawing random samples for {self.ninvars} input variables " +
-                                 f"via the '{self.samplemethod}' method...", end=' ', flush=True)
+            self.logger.info(f"Drawing random samples for {self.ninvars} input variables " +
+                             f"via the '{self.samplemethod}' method...")
             for invar in self.invars.values():
                 if invar.datasource is None:
                     invar.draw(ninvar_max=self.ninvars)
-            vprint(self.verbose, 'Done', flush=True)
+            self.logger.info('Done')
         return self
 
 
@@ -617,8 +620,8 @@ class Sim:
             The case numbers to run. If None, then all cases are run.
         """
         cases_downselect = self._downselectCases(cases=cases)
-        vprint(self.verbose, f"Running '{self.name}' Monte Carlo simulation with " +
-                             f"{len(cases_downselect)}/{self.ncases} cases...", flush=True)
+        self.logger.info(f"Running '{self.name}' Monte Carlo simulation with " +
+                         f"{len(cases_downselect)}/{self.ncases} cases...")
         self.runSimWorker(casestogenerate=cases_downselect, casestopreprocess=cases_downselect,
                           casestorun=cases_downselect, casestopostprocess=cases_downselect)
         return self
@@ -635,13 +638,13 @@ class Sim:
         casestopostprocess = allcases - self.casespostprocessed | casestopreprocess | casestorun
         casestogenerate    = casestopreprocess
 
-        vprint(self.verbose, f"Resuming incomplete '{self.name}' Monte Carlo simulation with " +
-                             f"{len(casestopostprocess)}/{self.ncases} " +
-                              "cases remaining to preprocess, " +
-                             f"{len(casestorun)}/{self.ncases} " +
-                              "cases remaining to run, and " +
-                             f"{len(casestopostprocess)}/{self.ncases} " +
-                              "cases remaining to postprocess...", flush=True)
+        self.logger.info(f"Resuming incomplete '{self.name}' Monte Carlo simulation with " +
+                         f"{len(casestopostprocess)}/{self.ncases} " +
+                         "cases remaining to preprocess, " +
+                         f"{len(casestorun)}/{self.ncases} " +
+                         "cases remaining to run, and " +
+                         f"{len(casestopostprocess)}/{self.ncases} " +
+                         "cases remaining to postprocess...")
 
         self.runSimWorker(casestogenerate=casestogenerate,
                           casestopreprocess=casestopreprocess,
@@ -697,8 +700,7 @@ class Sim:
         self.endtime = datetime.now()
         self.runtime = self.endtime - self.starttime
 
-        vprint(self.verbose, end='', flush=True)
-        vprint(self.verbose, f'Simulation complete! Runtime: {self.runtime}', flush=True)
+        self.logger.info(f'Simulation complete! Runtime: {self.runtime}')
 
         if self.savecasedata:
             self.saveCases()
@@ -740,7 +742,7 @@ class Sim:
             The case numbers to generate. If None, then all cases are
             generated.
         """
-        vprint(self.verbose, 'Generating cases...', end=' ', flush=True)
+        self.logger.info('Generating cases...')
         self.genCaseSeeds()
 
         # If we are rerunning partial cases we don't want to reset this
@@ -952,10 +954,10 @@ class Sim:
                     casepostprocessed_delayed = dask.delayed(postprocess_case)(*inputs)
                     postprocessedcases[case.ncase] = casepostprocessed_delayed
 
-            vprint(self.verbose, f'Preprocessing {len(casestopreprocess_downselect)}, ' +
-                                 f'running {len(casestorun_downselect)}, and ' +
-                                 f'postprocessing {len(casestopostprocess_downselect)} ' +
-                                 'cases...', end='\n', flush=True)
+            self.logger.info(f'Preprocessing {len(casestopreprocess_downselect)}, ' +
+                             f'running {len(casestorun_downselect)}, and ' +
+                             f'postprocessing {len(casestopostprocess_downselect)} ' +
+                             'cases...')
             futures = self.client.compute(list(postprocessedcases.values()),
                                           optimize_graph=False)
             if self.verbose:
@@ -1054,8 +1056,7 @@ class Sim:
                     case_delayed = dask.delayed(preprocess_case)(*inputs)
                     preprocessedcases.append(case_delayed)
 
-                vprint(self.verbose,
-                       f'Preprocessing {len(cases_downselect)} cases...', flush=True)
+                self.logger.info(f'Preprocessing {len(cases_downselect)} cases...')
                 futures = self.client.compute(preprocessedcases, optimize_graph=False)
                 if self.verbose:
                     progress(futures, multi=True)
@@ -1158,8 +1159,7 @@ class Sim:
                     case_delayed = dask.delayed(run_case)(*inputs)
                     runcases.append(case_delayed)
 
-                vprint(self.verbose,
-                       f'Running {len(cases_downselect)} cases...', flush=True)
+                self.logger.info(f'Running {len(cases_downselect)} cases...')
                 futures = self.client.compute(runcases, optimize_graph=False)
                 if self.verbose:
                     progress(futures, multi=True)
@@ -1255,8 +1255,7 @@ class Sim:
                     case_delayed = dask.delayed(postprocess_case)(*inputs)
                     postprocessedcases.append(case_delayed)
 
-                vprint(self.verbose,
-                       f'Postprocessing {len(cases_downselect)} cases...', flush=True)
+                self.logger.info(f'Postprocessing {len(cases_downselect)} cases...')
                 futures = self.client.compute(postprocessedcases, optimize_graph=False)
                 if self.verbose:
                     progress(futures, multi=True)
@@ -1455,7 +1454,7 @@ class Sim:
                 vwarn(self.verbose, f"Output variable '{outvarname}' is not scalar," +
                                      'skipping sensitivity calculations.')
             else:
-                vprint(self.verbose, f"Calculating sensitivity indices for '{outvarname}'...")
+                self.logger.info(f"Calculating sensitivity indices for '{outvarname}'...")
                 sensitivities, ratios = calc_sensitivities(self, outvarname,
                                                            cases=cases,
                                                            tol=tol, verbose=verbose)
@@ -1468,7 +1467,7 @@ class Sim:
 
                 self.outvars[outvarname].sensitivity_indices = sensitivities_dict
                 self.outvars[outvarname].sensitivity_ratios = ratios_dict
-                vprint(self.verbose, "Done calculating sensitivity indices.")
+                self.logger.info("Done calculating sensitivity indices.")
         return self
 
 
@@ -1763,14 +1762,14 @@ class Sim:
             If a str, then will save in the resultsdir.
             If None, then will save to '{self.name}_invarnums.json'.
         """
-        vprint(self.verbose, 'Exporting InVar draws to file...', flush=True)
+        self.logger.info('Exporting InVar draws to file...')
 
         if filename is None:
             filename = self.resultsdir / f'{self.name}_invarnums.json'
 
         filepath = self._exportVars(self.invars, filename)
 
-        vprint(self.verbose, f"InVar nums saved in '{filepath.name}'", flush=True)
+        self.logger.info(f"InVar nums saved in '{filepath.name}'")
 
 
     def exportOutVars(self,
@@ -1787,14 +1786,14 @@ class Sim:
             If a str, then will save in the resultsdir.
             If None, then will save to '{self.name}_outvarnums.json'.
         """
-        vprint(self.verbose, 'Exporting InVar draws to file...', flush=True)
+        self.logger.info('Exporting OutVar draws to file...')
 
         if filename is None:
             filename = self.resultsdir / f'{self.name}_outvarnums.json'
 
         filepath = self._exportVars(self.outvars, filename)
 
-        vprint(self.verbose, f"OutVar nums saved in '{filepath.name}'", flush=True)
+        self.logger.info(f"OutVar nums saved in '{filepath.name}'")
 
 
     def _importVars(self,
@@ -1893,7 +1892,7 @@ class Sim:
         nummaps : list[dict[Any, float]], default: None
             A list of nummap dicts mapping numbers to nonnumeric values.
         """
-        vprint(self.verbose, 'Importing InVals from file...', flush=True)
+        self.logger.info('Importing InVals from file...')
 
         data, filepath = self._importVars(filepath)
 
@@ -1940,8 +1939,7 @@ class Sim:
                 case.invals[valname] = self.invars[valname].getVal(case.ncase)
 
 
-        vprint(self.verbose, f"InVals loaded from '{filepath.name}' and converted to variables",
-               flush=True)
+        self.logger.info(f"InVals loaded from '{filepath.name}' and converted to variables")
         return self
 
 
@@ -1961,7 +1959,7 @@ class Sim:
             A list of nummap dicts mapping numbers to nonnumeric values. Note
             that this is reversed from providing valmaps to OutVals.
         """
-        vprint(self.verbose, 'Importing OutVals from file...', flush=True)
+        self.logger.info('Importing OutVals from file...')
 
         data, filepath = self._importVars(filepath)
 
@@ -1990,8 +1988,7 @@ class Sim:
 
         self.genOutVars(datasource=str(filepath.resolve()))
 
-        vprint(self.verbose, f"OutVals loaded from '{filepath.name}' and converted to variables",
-               flush=True)
+        self.logger.info(f"OutVals loaded from '{filepath.name}' and converted to variables")
         return self
 
 
@@ -2008,7 +2005,7 @@ class Sim:
         filepath : str | pathlib.Path | None
             The file to save to. If None, save to the results directory.
         """
-        vprint(self.verbose, 'Saving sim results to file...', flush=True)
+        self.logger.info('Saving sim results to file...')
 
         if filepath is not None:
             self.filepath = pathlib.Path(filepath)
@@ -2021,7 +2018,7 @@ class Sim:
         with open(self.filepath, 'wb') as file:
             cloudpickle.dump(self, file)
 
-        vprint(self.verbose, f"Sim results saved in '{self.filepath}'", flush=True)
+        self.logger.info(f"Sim results saved in '{self.filepath}'")
 
 
     def saveCases(self,
@@ -2040,7 +2037,7 @@ class Sim:
         """
         cases_downselect = self._downselectCases(cases=cases)
 
-        vprint(self.verbose, 'Saving cases to file...', flush=True)
+        self.logger.info('Saving cases to file...')
 
         if dirpath is not None:
             self.resultsdir = pathlib.Path(dirpath)
@@ -2055,8 +2052,7 @@ class Sim:
             with open(filepath, 'wb') as file:
                 cloudpickle.dump(self.cases[ncase], file)
 
-        vprint(self.verbose, f"Raw case results saved in '{self.resultsdir}'",
-                flush=True)
+        self.logger.info(f"Raw case results saved in '{self.resultsdir}'")
 
 
     @classmethod
@@ -2087,9 +2083,8 @@ class Sim:
         dirpath : str | pathlib.Path | None
             The directory to load from. If None, load from the results directory.
         """
-        vprint(self.verbose, f'{self.filepath} indicates {len(self.casesrun)}/{self.ncases} ' +
-                              'cases were run, attempting to load raw case data from disk...',
-                             end='\n', flush=True)
+        self.logger.info(f'{self.filepath} indicates {len(self.casesrun)}/{self.ncases} ' +
+                         'cases were run, attempting to load raw case data from disk...')
 
         if dirpath is not None:
             self.resultsdir = pathlib.Path(dirpath)
@@ -2135,8 +2130,7 @@ class Sim:
         self.casesrun           = set(casesloaded)
         self.casespostprocessed = set(casesloaded) - casesnotpostprocessed
 
-        vprint(self.verbose, f'\nData for {len(casesloaded)}/{self.ncases} cases loaded from disk',
-               flush=True)
+        self.logger.info(f'Data for {len(casesloaded)}/{self.ncases} cases loaded from disk')
 
         if casesnotloaded != set():
             vwarn(self.verbose, 'The following cases were not loaded: ' +

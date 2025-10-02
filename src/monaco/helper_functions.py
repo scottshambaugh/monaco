@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import warnings
+import logging
 import numpy as np
 from operator import itemgetter
 from tqdm import tqdm
@@ -239,19 +240,25 @@ def slice_by_index(sequence : Sequence[Any],
     return list(items)
 
 
-def vprint(verbose : bool, *args, **kwargs) -> None:
+def configure_logging(verbose: bool = True) -> None:
     """
-    Print only if verbose is True.
+    Configure the monaco logger level based on verbose flag.
 
     Parameters
     ----------
-    verbose : bool
-        Flag to determine whether to print something.
-    *args, **kwargs
-        Must include something to print here!
+    verbose : bool, default: True
+        If True, set logging level to INFO. If False, set to WARNING.
     """
+    logger = logging.getLogger('monaco')
     if verbose:
-        print(*args, **kwargs)
+        logger.setLevel(logging.INFO)
+    else:
+        logger.setLevel(logging.WARNING)
+
+    logger.handlers.clear()
+    handler = logging.StreamHandler()
+    handler.setLevel(logger.level)
+    logger.addHandler(handler)
 
 
 def warn_short_format(message, category, filename, lineno, file=None, line=None) -> str:
@@ -273,6 +280,13 @@ def vwarn(verbose : bool, *args, **kwargs) -> None:
         Must include a warning message here!
     """
     if verbose:
+        logger = logging.getLogger('monaco')
+        # Log warning as well as emit warnings.warn with short format
+        try:
+            message = args[0] if args else ''
+            logger.warning(message)
+        except Exception:
+            pass
         warn_default_format = warnings.formatwarning
         warnings.formatwarning = warn_short_format  # type: ignore
         warnings.warn(*args, **kwargs)
@@ -308,7 +322,8 @@ def timeit(fcn : Callable):
         t0 = time()
         output = fcn(*args, **kw)
         t1 = time()
-        print(f'"{fcn.__name__}" took {(t1 - t0)*1000 : .3f} ms to execute.\n')
+        logger = logging.getLogger('monaco')
+        logger.info(f'"{fcn.__name__}" took {(t1 - t0)*1000 : .3f} ms to execute.')
         return output
     return timed
 

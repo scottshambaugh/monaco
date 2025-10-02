@@ -6,10 +6,11 @@ from typing import TYPE_CHECKING, Iterable
 if TYPE_CHECKING:
     from monaco.mc_sim import Sim
 
+import logging
 import numpy as np
 from scipy.optimize import minimize
 from warnings import warn
-from monaco.helper_functions import vprint, get_cases
+from monaco.helper_functions import get_cases
 
 # numba is recommended for speed, as this will be very slow otherwise
 try:
@@ -150,13 +151,14 @@ def calc_phi_opt(sim        : 'Sim',
         phi0s.append(phi0)
         bounds.append((phi_min, phi_max))
 
-    vprint(sim.verbose, 'Calculating optimal hyperparameters Φ for ' +
-                       f"'{outvarname}' covariances...")
+    logger = logging.getLogger('monaco')
+    logger.info('Calculating optimal hyperparameters Φ for ' +
+                f"'{outvarname}' covariances...")
     X, Y = full_states(sim, outvarname, cases)
     res = minimize(L_runner, phi0s, args=(X, Y, verbose), bounds=bounds,
                    tol=tol, method='L-BFGS-B')
     phi_opt = res.x
-    vprint(sim.verbose, 'Done calculating optimal hyperparameters.')
+    logger.info('Done calculating optimal hyperparameters.')
 
     return phi_opt
 
@@ -258,7 +260,9 @@ def L_runner(phi     : np.ndarray,
         The negative log-likelihood cost.
     """
     L = calc_L(phi, X, Y)
-    vprint(verbose, f'L = {L:0.4f}, Φ = {phi}')
+    if verbose:
+        logger = logging.getLogger('monaco')
+        logger.info(f'L = {L:0.4f}, Φ = {phi}')
     return L
 
 
