@@ -147,6 +147,30 @@ def sim_fixture(request):
     return request.getfixturevalue(request.param)
 
 
+def test_simulation_functions():
+    fcns_dict = sim_testing_fcns()
+    sim_fcns_from_dict = SimulationFunctions.from_dict(fcns_dict)
+    for key in SimFunctions:
+        assert callable(getattr(sim_fcns_from_dict, key))
+
+    with pytest.raises(ValueError, match='preprocess function must be callable'):
+        SimulationFunctions(
+            preprocess=None,
+            run=sim_testing_run,
+            postprocess=sim_testing_postprocess)
+
+    with pytest.raises(ValueError, match='fcns_dict must contain keys'):
+        SimulationFunctions.from_dict({
+            # Missing PREPROCESS key
+            SimFunctions.RUN: sim_testing_run,
+            SimFunctions.POSTPROCESS: sim_testing_postprocess})
+
+    with pytest.raises(ValueError, match='fcns_dict must contain keys'):
+        bad_dict = sim_testing_fcns()
+        bad_dict['extra_key'] = lambda: None  # Extra key
+        SimulationFunctions.from_dict(bad_dict)
+
+
 def test_sim_singlethreaded_fixture(sim_singlethreaded):
     assert sim_singlethreaded.singlethreaded
 

@@ -54,20 +54,20 @@ class SimulationFunctions(Generic[Unpack[SimInput], Unpack[SimOutput]]):
     """
     A type-safe container for the three required simulation functions.
 
-    This uses ParamSpec and TypeVarTuple to precisely model the data flow:
-    preprocess(case) -> run(*args) -> postprocess(case, *results)
+    This uses TypeVarTuple to precisely model the data flow:
+    preprocess(case) -> run(*siminput) -> postprocess(case, *simoutput)
 
     Parameters
     ----------
     preprocess : Callable[[Case], tuple[Unpack[SimInput]]]
         Function that takes a Case and returns inputs for the run function.
-    run : Callable[SimInput, tuple[Unpack[SimOutput]]]
+    run : Callable[[Unpack[SimInput]], tuple[Unpack[SimOutput]]]
         Function that takes the preprocess outputs and returns simulation results.
     postprocess : Callable[[Case, tuple[Unpack[SimOutput]]], None]
         Function that takes a Case and the run outputs for postprocessing.
     """
     preprocess: Callable[[Case], tuple[Unpack[SimInput]]]
-    run: Callable[SimInput, tuple[Unpack[SimOutput]]]
+    run: Callable[[Unpack[SimInput]], tuple[Unpack[SimOutput]]]
     postprocess: Callable[[Case, tuple[Unpack[SimOutput]]], None]
 
     def __post_init__(self):
