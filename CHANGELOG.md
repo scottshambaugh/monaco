@@ -2,7 +2,6 @@
 
 ## Future Work
 ### Features & Maintenance:
-- Make saving cases as separate files optional
 - 2D Scatter Statistics
 - Regressions (linear, poly, custom)
 - Contribution to sample mean and contribution to sample variance
@@ -30,6 +29,7 @@
 ### Changed    
 * The `logging` library is now used instead of print statements
 * `__repr__` updates for Sim, Case, and VarStat
+* Cases will now be saved in the .mcsim file rather than in separate .mccase files by default. Can still be saved separately if desired.
 ### Removed    
 * `vprint` helper function
 

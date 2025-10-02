@@ -161,7 +161,8 @@ class Sim:
         file. This can be manually done with `sim.saveSim()`.
     savecasedata : bool, default: False
         Whether to automatically save the full output data for each case to
-        disk as .mccase files. This can be manually done with `sim.saveCases()`.
+        disk as separate .mccase files. This can be manually done with
+        `sim.saveCases()`.
     resultsdir : str | pathlib.Path
         The directory to save simulation and case data to. If None, then this
         defaults to a directory named {name}_results.
@@ -357,7 +358,8 @@ class Sim:
         state['client'] = None  # don't save dask client to file
         state['cluster'] = None  # don't save dask cluster to file
         state['pool'] = None  # don't save multiprocessing pool to file
-        state['cases'] = []  # don't save case data when pickling self
+        if getattr(self, '_omit_cases_for_pickling', False):
+            state['cases'] = []  # don't save case data when pickling self
         return state
 
 
@@ -366,8 +368,11 @@ class Sim:
                      ) -> None:
         """Function to unpickle self when loading from file."""
         self.__dict__.update(state)
-        if self.resultsdir is not None:
+        if self.resultsdir is not None and getattr(self, '_omit_cases_for_pickling', False):
             self.loadCases()
+            del self._omit_cases_for_pickling
+        elif self.cases != []:
+            self.restorePickledCases(self.cases)
 
 
     def __getitem__(self,
@@ -1996,18 +2001,25 @@ class Sim:
 
     def saveSim(self,
                 filepath : str | pathlib.Path | None = None,
+                include_cases : bool | None = None,
                 ) -> None:
         """Save the simulation to a .mcsim file.
 
-        Note that this will not save the case data. To do that, use
-        `sim.saveCases()`.
+        If include_cases is False, the case data will not be saved. To do that,
+        use `sim.saveCases()`.
 
         Parameters
         ----------
         filepath : str | pathlib.Path | None
             The file to save to. If None, save to the results directory.
+        include_cases : bool | None
+            Whether to include the case data when saving the simulation. If
+            None, will use the opposite of the `savecasedata` attribute.
         """
         self.logger.info('Saving sim results to file...')
+
+        if include_cases is None:
+            include_cases = not self.savecasedata
 
         if filepath is not None:
             self.filepath = pathlib.Path(filepath)
@@ -2017,8 +2029,15 @@ class Sim:
         except FileNotFoundError:
             pass
         self.filepath.touch()
-        with open(self.filepath, 'wb') as file:
-            cloudpickle.dump(self, file)
+
+        if include_cases:
+            with open(self.filepath, 'wb') as file:
+                cloudpickle.dump(self, file)
+        else:
+            self._omit_cases_for_pickling = True
+            with open(self.filepath, 'wb') as file:
+                cloudpickle.dump(self, file, protocol=5)
+            del self._omit_cases_for_pickling
 
         self.logger.info(f"Sim results saved in '{self.filepath}'")
 

@@ -73,17 +73,20 @@ def sim_with_extra_files(sim):
     return sim
 
 
-def test_sim_load_sim(sim):
+@pytest.mark.parametrize("include_cases", [True, False])
+def test_sim_save_load_sim(sim, include_cases):
     tempdir = Path(tempfile.mkdtemp())
-    sim_file = tempdir / 'sim_save_load_test.mcsim'
-    sim.saveCases(dirpath=tempdir)
-    sim.saveSim(sim_file)
+    sim.name = 'sim_save_load_test'
+    sim_file = tempdir / f'{sim.name}.mcsim'
 
-    with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', message='The following extra .mcsim and .mccase files')
-        sim2 = Sim.loadSim(sim_file)
+    if not include_cases:
+        sim.saveCases(dirpath=tempdir)
+    sim.saveSim(sim_file, include_cases=include_cases)
 
-    assert sim2.resultsdir == tempdir
+    sim2 = Sim.loadSim(sim_file)
+
+    if not include_cases:
+        assert sim2.resultsdir == tempdir
     assert sim2.filepath == sim_file
     assert sim2.name == sim.name
     assert sim2.casesrun == sim.casesrun
