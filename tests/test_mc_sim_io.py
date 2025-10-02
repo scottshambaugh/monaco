@@ -82,6 +82,8 @@ def test_sim_save_load_sim(sim, include_cases):
     if not include_cases:
         sim.saveCases(dirpath=tempdir)
     sim.saveSim(sim_file, include_cases=include_cases)
+    if include_cases:
+        assert not any(tempdir.glob('*.mccase'))
 
     sim2 = Sim.loadSim(sim_file)
 
