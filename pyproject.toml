@@ -1,9 +1,9 @@
 [project]
 name = "monaco"
-version = "0.19.1"
+version = "0.20.0"
 description = "Quantify uncertainty and sensitivities in your models with an industry-grade Monte Carlo library."
 authors = [{ name = "Scott Shambaugh", email = "scott@theshamblog.com" }]
-requires-python = ">=3.10.0,<3.14"
+requires-python = ">=3.10.0,<3.15"
 readme = "README.md"
 license = "MIT"
 classifiers = [
