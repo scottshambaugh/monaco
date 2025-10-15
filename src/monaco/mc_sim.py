@@ -56,7 +56,10 @@ class SimulationFunctions(Generic[Unpack[SimInput], Unpack[SimOutput]]):
     A type-safe container for the three required simulation functions.
 
     This uses TypeVarTuple to precisely model the data flow:
+
+    ```
     preprocess(case) -> run(*siminput) -> postprocess(case, *simoutput)
+    ```
 
     Parameters
     ----------

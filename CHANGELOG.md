@@ -24,6 +24,7 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+* Switch to *uv* for environment & package management
 ### Removed    
 
 ## [0.19.0] - 2025-10-02

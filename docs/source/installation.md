@@ -11,32 +11,31 @@ pip install monaco
 ```bash
 git clone https://github.com/scottshambaugh/monaco.git
 cd monaco
-pip install poetry
-poetry install --extras "pandas numba distributed"
+uv sync --all-extras --group dev
 ```
 
 ## Running Tests and Type Checking
 
 ```bash
-poetry run coverage run --source=monaco -m pytest && poetry run coverage report -m 
-poetry run mypy src tests/test*
+uv run coverage run --source=monaco -m pytest && uv run coverage report -m 
+uv run mypy src tests/test*
 ```
 
 ## Profiling
 
 Edit the example to remove the plotting functions before profiling. Then upload the json output to [speedscope.app](https://www.speedscope.app/) to view the report.
 ```bash
-pip install pyspy
-py-spy record -o election.speedscope.json --format speedscope -- python examples/election/election_example_monte_carlo_sim.py
+uv tool install py-spy
+py-spy record -o election.speedscope.json --format speedscope --rate 50 -- .venv/bin/python examples/election/election_example_monte_carlo_sim.py
 ```
 
 ## Building Docs
 
 ReadTheDocs will automatically [build](https://readthedocs.org/projects/monaco/builds/) when the `main` branch is updated.
 ```bash
-pip install sphinx sphinx_rtd_theme myst_parser
+uv sync --group docs
 cd docs
-poetry run make clean && poetry run make html
+uv run make clean && uv run make html
 ```
 
 ## Releasing a New Version and Publishing to PyPI
@@ -45,14 +44,13 @@ poetry run make clean && poetry run make html
 2) Update the version in `pyproject.toml`
 3) Update and install the package
     ```bash
-    poetry update
-    poetry install --extras "pandas numba distributed"
+    uv sync --upgrade --all-extras --group dev
     ```
 4) Run tests, type checking, and linting locally
     ```bash
-    poetry run coverage run --source=monaco -m pytest && poetry run coverage report -m 
-    poetry run mypy src tests/test*
-    poetry run flake8
+    uv run coverage run --source=monaco -m pytest && uv run coverage report -m 
+    uv run mypy src tests/test*
+    uv run flake8
     ```
 5) Run plotting tests manually
 6) Commit any changes and push up the main branch
