@@ -26,6 +26,9 @@
 ### Changed    
 ### Removed    
 
+## [0.20.1] - 2025-10-15
+_No functional changes, CI only_
+
 ## [0.20.0] - 2025-10-15
 ### Added    
 * python 3.14 support
