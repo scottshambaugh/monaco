@@ -1,6 +1,6 @@
 [project]
 name = "monaco"
-version = "0.19.0"
+version = "0.19.1"
 description = "Quantify uncertainty and sensitivities in your models with an industry-grade Monte Carlo library."
 authors = [{ name = "Scott Shambaugh", email = "scott@theshamblog.com" }]
 requires-python = ">=3.10.0,<3.14"

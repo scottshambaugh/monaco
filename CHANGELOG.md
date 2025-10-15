@@ -24,8 +24,12 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
-* Switch to *uv* for environment & package management
 ### Removed    
+
+## [0.19.1] - 2025-10-15
+### Changed    
+* Switch to `uv` for environment & package management
+* `numba` supported for python 3.13
 
 ## [0.19.0] - 2025-10-02
 ### Added    
