@@ -15,10 +15,6 @@ jobs:
         with:
           python-version: 3.14
 
-      - name: Print full Python version
-        id: full-python-version
-        run: echo version=$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info))") >> $GITHUB_OUTPUT
-
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
