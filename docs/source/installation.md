@@ -26,7 +26,7 @@ uv run mypy src tests/test*
 Edit the example to remove the plotting functions before profiling. Then upload the json output to [speedscope.app](https://www.speedscope.app/) to view the report.
 ```bash
 uv tool install py-spy
-py-spy record -o election.speedscope.json --format speedscope --rate 50 -- .venv/bin/python examples/election/election_example_monte_carlo_sim.py
+uv run py-spy record -o election.speedscope.json --format speedscope --rate 50 -- python examples/election/election_example_monte_carlo_sim.py
 ```
 
 ## Building Docs
