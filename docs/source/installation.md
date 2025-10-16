@@ -48,9 +48,10 @@ uv run make clean && uv run make html
     ```
 4) Run tests, type checking, and linting locally
     ```bash
+    uv run ruff check .
+    uv run ruff format --check .
     uv run coverage run --source=monaco -m pytest && uv run coverage report -m 
     uv run mypy src tests/test*
-    uv run flake8
     ```
 5) Run plotting tests manually
 6) Commit any changes and push up the main branch

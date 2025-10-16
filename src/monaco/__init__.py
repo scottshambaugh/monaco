@@ -1,4 +1,4 @@
-# flake8: noqa
+# ruff: noqa
 from importlib import metadata
 
 __version__ = metadata.version(__name__)
