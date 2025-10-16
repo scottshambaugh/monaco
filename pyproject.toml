@@ -46,7 +46,7 @@ dev = [
     "pytest>=7.2",
     "coverage~=7.0",
     "mypy>=1.0",
-    "flake8~=5.0",
+    "ruff~=0.14",
     "pre-commit~=3.0",
     "requests~=2.0",
 ]
@@ -70,3 +70,11 @@ source = ["src/monaco"]
 
 [tool.coverage.report]
 exclude_lines = ["^if __name__ == ['\"]__main__['\"]:$"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+ignore = [
+    "E741",  # Ambiguous variable name
+]

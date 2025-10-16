@@ -40,6 +40,12 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-extras --group dev --frozen
 
+      - name: Run ruff check
+        run: uv run ruff check .
+
+      - name: Run ruff format check
+        run: uv run ruff format --check .
+
       - name: Run tests and coverage
         run: |
           uv run coverage run --source=monaco --parallel-mode -m pytest
