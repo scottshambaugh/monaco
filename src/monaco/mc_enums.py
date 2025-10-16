@@ -8,12 +8,13 @@ class SampleMethod(str, Enum):
     """
     Enum for the possible Monte Carlo sampling methods.
     """
-    RANDOM          = 'random'
-    SOBOL           = 'sobol'
-    SOBOL_RANDOM    = 'sobol_random'
-    HALTON          = 'halton'
-    HALTON_RANDOM   = 'halton_random'
-    LATIN_HYPERCUBE = 'latin_hypercube'
+
+    RANDOM = "random"
+    SOBOL = "sobol"
+    SOBOL_RANDOM = "sobol_random"
+    HALTON = "halton"
+    HALTON_RANDOM = "halton_random"
+    LATIN_HYPERCUBE = "latin_hypercube"
 
 
 class SimFunctions(str, Enum):
@@ -35,9 +36,10 @@ class SimFunctions(str, Enum):
     https://github.com/scottshambaugh/monaco/blob/main/template/template_functions.py
     for an example of this.
     """
-    PREPROCESS  = 'preprocess'
-    RUN         = 'run'
-    POSTPROCESS = 'postprocess'
+
+    PREPROCESS = "preprocess"
+    RUN = "run"
+    POSTPROCESS = "postprocess"
 
 
 class StatBound(str, Enum):
@@ -45,34 +47,36 @@ class StatBound(str, Enum):
     Enum for possible statistical bounds. Note that not all of these may be
     valid for a given statistical function.
     """
-    NEAREST        = 'nearest'
-    BOTH           = 'both'
-    ALL            = 'all'
-    ONESIDED       = '1-sided'
-    TWOSIDED       = '2-sided'
-    ONESIDED_UPPER = '1-sided upper'
-    ONESIDED_LOWER = '1-sided lower'
+
+    NEAREST = "nearest"
+    BOTH = "both"
+    ALL = "all"
+    ONESIDED = "1-sided"
+    TWOSIDED = "2-sided"
+    ONESIDED_UPPER = "1-sided upper"
+    ONESIDED_LOWER = "1-sided lower"
 
 
 class VarStatType(str, Enum):
     """
     Enum for the variable statistics functions.
     """
-    MAX         = 'max'
-    MIN         = 'min'
-    MEDIAN      = 'median'
-    MEAN        = 'mean'
-    GEOMEAN     = 'geomean'
-    MODE        = 'mode'
-    VARIANCE    = 'variance'
-    SKEWNESS    = 'skewness'
-    KURTOSIS    = 'kurtosis'
-    MOMENT      = 'moment'
-    PERCENTILE  = 'percentile'
-    SIGMA       = 'sigma'
-    GAUSSIANP   = 'gaussianp'
-    ORDERSTATTI = 'orderstatti'
-    ORDERSTATP  = 'orderstatp'
+
+    MAX = "max"
+    MIN = "min"
+    MEDIAN = "median"
+    MEAN = "mean"
+    GEOMEAN = "geomean"
+    MODE = "mode"
+    VARIANCE = "variance"
+    SKEWNESS = "skewness"
+    KURTOSIS = "kurtosis"
+    MOMENT = "moment"
+    PERCENTILE = "percentile"
+    SIGMA = "sigma"
+    GAUSSIANP = "gaussianp"
+    ORDERSTATTI = "orderstatti"
+    ORDERSTATP = "orderstatp"
 
 
 class VarStatSide(str, Enum):
@@ -80,31 +84,35 @@ class VarStatSide(str, Enum):
     Enum for the variable statistics 'side' (see documentation for each varstat
     function).
     """
-    HIGH = 'high'
-    LOW  = 'low'
-    BOTH = 'both'
-    ALL  = 'all'
+
+    HIGH = "high"
+    LOW = "low"
+    BOTH = "both"
+    ALL = "all"
 
 
 class PlotOrientation(str, Enum):
     """
     Enum for the plotting functions orientation.
     """
-    VERTICAL   = 'vertical'
-    HORIZONTAL = 'horizontal'
+
+    VERTICAL = "vertical"
+    HORIZONTAL = "horizontal"
 
 
 class InVarSpace(str, Enum):
     """
     Enum for whether to plot invars in number or percentile space.
     """
-    NUMS = 'nums'
-    PCTS = 'pcts'
+
+    NUMS = "nums"
+    PCTS = "pcts"
 
 
 class Sensitivities(str, Enum):
     """
     Enum for whether to plot invars in number or percentile space.
     """
-    INDICES = 'indices'
-    RATIOS = 'ratios'
+
+    INDICES = "indices"
+    RATIOS = "ratios"

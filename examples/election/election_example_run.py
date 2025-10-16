@@ -1,5 +1,4 @@
 def election_example_run(states, state_evs, state_dem_pct, state_rep_pct, state_other_pct):
-
     dem_evs = 0
     rep_evs = 0
     other_evs = 0
@@ -10,13 +9,13 @@ def election_example_run(states, state_evs, state_dem_pct, state_rep_pct, state_
         max_vote_share = max(state_dem_pct[state], state_rep_pct[state], state_other_pct[state])
         if state_dem_pct[state] == max_vote_share:  # Note an exact tie is statistically impossible
             dem_evs += state_evs[state]
-            state_winner[state] = 'Dem'
+            state_winner[state] = "Dem"
         elif state_rep_pct[state] == max_vote_share:
             rep_evs += state_evs[state]
-            state_winner[state] = 'Rep'
+            state_winner[state] = "Rep"
         else:
             other_evs += state_evs[state]
-            state_winner[state] = 'Other'
+            state_winner[state] = "Other"
 
         state_recount[state] = False
         if abs(state_dem_pct[state] - state_rep_pct[state]) <= 0.005:
@@ -25,7 +24,7 @@ def election_example_run(states, state_evs, state_dem_pct, state_rep_pct, state_
     return (dem_evs, rep_evs, other_evs, state_winner, state_recount)
 
 
-'''
+"""
 ### Test ###
 import numpy as np
 import pandas as pd
@@ -46,4 +45,4 @@ if __name__ == '__main__':
 
     (dem_evs, rep_evs, other_evs, state_winner, state_recount)
         = election_example_run(states, state_evs, state_dem_pct, state_rep_pct, state_other_pct)
-#'''
+#"""

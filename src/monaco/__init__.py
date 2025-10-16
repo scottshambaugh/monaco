@@ -1,8 +1,10 @@
 # flake8: noqa
 from importlib import metadata
+
 __version__ = metadata.version(__name__)
 
 import logging
+
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 from monaco.mc_case import *

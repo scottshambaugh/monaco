@@ -7,18 +7,23 @@ from pathos.pools import SerialPool
 from multiprocessing import Pool
 from monaco.helper_functions import timeit
 
+
 def slowfcn(n):
     from time import sleep
+
     sleep(1.0)
+
 
 @timeit
 def test(n, p):
     (p.map(slowfcn, range(n)))
 
+
 @timeit
 def forloop(n):
     for i in range(n):
         slowfcn(i)
+
 
 def main():
     npool = 4
@@ -29,19 +34,19 @@ def main():
     pool = Pool(npool)
 
     nloops = 8
-    print('For Loop')
+    print("For Loop")
     forloop(nloops)
-    print('ThreadPool')
+    print("ThreadPool")
     test(nloops, tpool)
-    print('ParallelPool')
+    print("ParallelPool")
     test(nloops, parapool)
-    print('SerialPool')
+    print("SerialPool")
     test(nloops, spool)
-    print('Pool')
+    print("Pool")
     test(nloops, pool)
-    print('ProcessPool')
+    print("ProcessPool")
     test(nloops, ppool)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

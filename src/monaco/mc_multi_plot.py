@@ -12,17 +12,18 @@ from monaco.mc_enums import PlotOrientation, InVarSpace
 from monaco.helper_functions import empty_list, get_list
 
 
-def multi_plot(vars        : list[InVar | OutVar],
-               cases           : None | int | Iterable[int] = None,
-               highlight_cases : None | int | Iterable[int] = empty_list(),
-               rug_plot    : bool   = False,
-               cov_plot    : bool   = False,
-               cov_p       : None | float | Iterable[float] = None,
-               invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
-               fig         : Figure | None = None,
-               title       : str    = '',
-               plotkwargs  : dict   = dict(),
-               ) -> tuple[Figure, tuple[Axes, ...]]:
+def multi_plot(
+    vars: list[InVar | OutVar],
+    cases: None | int | Iterable[int] = None,
+    highlight_cases: None | int | Iterable[int] = empty_list(),
+    rug_plot: bool = False,
+    cov_plot: bool = False,
+    cov_p: None | float | Iterable[float] = None,
+    invar_space: InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
+    fig: Figure | None = None,
+    title: str = "",
+    plotkwargs: dict = dict(),
+) -> tuple[Figure, tuple[Axes, ...]]:
     """
     Umbrella function to make more complex plots of Monte Carlo variables.
 
@@ -60,55 +61,70 @@ def multi_plot(vars        : list[InVar | OutVar],
         if isinstance(vars[0], OutVar) and vars[0].maxdim == 1:
             var_split = vars[0].split()
             origname = vars[0].name
-            varx = var_split[origname + ' [0]']
-            vary = var_split[origname + ' [1]']
+            varx = var_split[origname + " [0]"]
+            vary = var_split[origname + " [1]"]
             vars = [varx, vary]
         else:
-            raise ValueError(f'Invalid vars[0] dimension: {vars[0].maxdim}')
+            raise ValueError(f"Invalid vars[0] dimension: {vars[0].maxdim}")
 
     # Two Variable Plots
     if len(vars) == 2:
         if vars[0].isscalar and vars[1].isscalar:
-            fig, axs = multi_plot_2d_scatter_hist(varx=vars[0], vary=vars[1],
-                                                  cases=cases, highlight_cases=highlight_cases,
-                                                  rug_plot=rug_plot,
-                                                  cov_plot=cov_plot, cov_p=cov_p,
-                                                  cumulative=False,
-                                                  invar_space=invar_space,
-                                                  fig=fig, title=title, plotkwargs=plotkwargs)
+            fig, axs = multi_plot_2d_scatter_hist(
+                varx=vars[0],
+                vary=vars[1],
+                cases=cases,
+                highlight_cases=highlight_cases,
+                rug_plot=rug_plot,
+                cov_plot=cov_plot,
+                cov_p=cov_p,
+                cumulative=False,
+                invar_space=invar_space,
+                fig=fig,
+                title=title,
+                plotkwargs=plotkwargs,
+            )
         else:
-            raise ValueError( 'Invalid variable dimensions: ' +
-                             f'{varx.name} {varx.maxdim}, ' +
-                             f'{vary.name} {vary.maxdim}')
+            raise ValueError(
+                "Invalid variable dimensions: "
+                + f"{varx.name} {varx.maxdim}, "
+                + f"{vary.name} {vary.maxdim}"
+            )
 
     # Many Variable Plots
     elif len(vars) > 2:
         scalarvars = [var for var in vars if var.isscalar]
-        fig, axs = multi_plot_grid_tri(vars=scalarvars,
-                                       cases=cases, highlight_cases=highlight_cases,
-                                       rug_plot=rug_plot,
-                                       cov_plot=cov_plot, cov_p=cov_p,
-                                       cumulative=False,
-                                       invar_space=invar_space,
-                                       fig=fig, title=title, plotkwargs=plotkwargs)
+        fig, axs = multi_plot_grid_tri(
+            vars=scalarvars,
+            cases=cases,
+            highlight_cases=highlight_cases,
+            rug_plot=rug_plot,
+            cov_plot=cov_plot,
+            cov_p=cov_p,
+            cumulative=False,
+            invar_space=invar_space,
+            fig=fig,
+            title=title,
+            plotkwargs=plotkwargs,
+        )
 
     return fig, axs
 
 
-
-def multi_plot_2d_scatter_hist(varx     : InVar | OutVar,
-                               vary     : InVar | OutVar,
-                               cases           : None | int | Iterable[int] = None,
-                               highlight_cases : None | int | Iterable[int] = empty_list(),
-                               rug_plot   : bool   = False,
-                               cov_plot   : bool   = True,
-                               cov_p      : None | float | Iterable[float] = None,
-                               cumulative : bool   = False,
-                               invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
-                               fig        : Figure | None = None,
-                               title      : str    = '',
-                               plotkwargs : dict   = dict(),
-                               ) -> tuple[Figure, tuple[Axes, ...]]:
+def multi_plot_2d_scatter_hist(
+    varx: InVar | OutVar,
+    vary: InVar | OutVar,
+    cases: None | int | Iterable[int] = None,
+    highlight_cases: None | int | Iterable[int] = empty_list(),
+    rug_plot: bool = False,
+    cov_plot: bool = True,
+    cov_p: None | float | Iterable[float] = None,
+    cumulative: bool = False,
+    invar_space: InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
+    fig: Figure | None = None,
+    title: str = "",
+    plotkwargs: dict = dict(),
+) -> tuple[Figure, tuple[Axes, ...]]:
     """
     Plot two variables against each other with a central scatterplot and two
     histograms along the x and y axes.
@@ -155,45 +171,68 @@ def multi_plot_2d_scatter_hist(varx     : InVar | OutVar,
     ax2 = fig.add_subplot(gs[0:3, 0])
     ax3 = fig.add_subplot(gs[0:3, 1:4], sharex=ax1, sharey=ax2)
 
-    plot_hist(varx, cases=cases, highlight_cases=highlight_cases,
-              cumulative=cumulative, rug_plot=False, invar_space=invar_space,
-              ax=ax1, title='', plotkwargs=plotkwargs)
-    plot_hist(vary, cases=cases, highlight_cases=highlight_cases,
-              cumulative=cumulative, rug_plot=False, invar_space=invar_space,
-              ax=ax2, title='', plotkwargs=plotkwargs,
-              orientation=PlotOrientation.HORIZONTAL)
-    plot_2d_scatter(varx, vary,
-                    cases=cases, highlight_cases=highlight_cases,
-                    rug_plot=rug_plot,
-                    cov_plot=cov_plot, cov_p=cov_p,
-                    invar_space=invar_space,
-                    ax=ax3, title='', plotkwargs=plotkwargs)
+    plot_hist(
+        varx,
+        cases=cases,
+        highlight_cases=highlight_cases,
+        cumulative=cumulative,
+        rug_plot=False,
+        invar_space=invar_space,
+        ax=ax1,
+        title="",
+        plotkwargs=plotkwargs,
+    )
+    plot_hist(
+        vary,
+        cases=cases,
+        highlight_cases=highlight_cases,
+        cumulative=cumulative,
+        rug_plot=False,
+        invar_space=invar_space,
+        ax=ax2,
+        title="",
+        plotkwargs=plotkwargs,
+        orientation=PlotOrientation.HORIZONTAL,
+    )
+    plot_2d_scatter(
+        varx,
+        vary,
+        cases=cases,
+        highlight_cases=highlight_cases,
+        rug_plot=rug_plot,
+        cov_plot=cov_plot,
+        cov_p=cov_p,
+        invar_space=invar_space,
+        ax=ax3,
+        title="",
+        plotkwargs=plotkwargs,
+    )
 
-    ax1.set_ylabel('')
-    ax2.set_xlabel('')
-    ax3.set_xlabel('')
-    ax3.set_ylabel('')
+    ax1.set_ylabel("")
+    ax2.set_xlabel("")
+    ax3.set_xlabel("")
+    ax3.set_ylabel("")
     ax3.xaxis.set_tick_params(labelbottom=False)
     ax3.yaxis.set_tick_params(labelbottom=False)
 
-    plt.suptitle(title, y=.93)
+    plt.suptitle(title, y=0.93)
 
     return fig, (ax1, ax2, ax3)
 
 
-
-def multi_plot_grid_tri(vars     : list[InVar | OutVar],
-                        cases           : None | int | Iterable[int] = None,
-                        highlight_cases : None | int | Iterable[int] = empty_list(),
-                        rug_plot   : bool   = False,
-                        cov_plot   : bool   = False,
-                        cov_p      : None | float | Iterable[float] = None,
-                        cumulative : bool   = False,
-                        invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
-                        fig        : Figure | None = None,
-                        title      : str    = '',
-                        plotkwargs : dict   = dict(),
-                        ) -> tuple[Figure, tuple[Axes, ...]]:
+def multi_plot_grid_tri(
+    vars: list[InVar | OutVar],
+    cases: None | int | Iterable[int] = None,
+    highlight_cases: None | int | Iterable[int] = empty_list(),
+    rug_plot: bool = False,
+    cov_plot: bool = False,
+    cov_p: None | float | Iterable[float] = None,
+    cumulative: bool = False,
+    invar_space: InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
+    fig: Figure | None = None,
+    title: str = "",
+    plotkwargs: dict = dict(),
+) -> tuple[Figure, tuple[Axes, ...]]:
     """
     Plot multiple variables against each other in a triangular grid. The
     off-diagonal grid locations show scatterplots of the two corresponding
@@ -235,34 +274,50 @@ def multi_plot_grid_tri(vars     : list[InVar | OutVar],
     fig = handle_fig(fig)
 
     nvars = len(vars)
-    axs = np.atleast_2d(fig.subplots(nvars, nvars, sharex='col'))
+    axs = np.atleast_2d(fig.subplots(nvars, nvars, sharex="col"))
     for i in range(nvars):
         row_scatter_axs = [ax for k, ax in enumerate(axs[i]) if k < i]
         for j in range(nvars):
             ax = axs[i][j]
             if i == j:
-                plot_hist(vars[i], cases=cases, highlight_cases=highlight_cases,
-                          cumulative=cumulative, rug_plot=False, invar_space=invar_space,
-                          ax=ax, title='', plotkwargs=plotkwargs)
+                plot_hist(
+                    vars[i],
+                    cases=cases,
+                    highlight_cases=highlight_cases,
+                    cumulative=cumulative,
+                    rug_plot=False,
+                    invar_space=invar_space,
+                    ax=ax,
+                    title="",
+                    plotkwargs=plotkwargs,
+                )
                 ax.yaxis.tick_right()
             elif j > i:
                 fig.delaxes(ax)
             else:
                 # Don't link the histogram y axis
                 ax.get_shared_y_axes()._grouper.join(*row_scatter_axs)
-                plot_2d_scatter(vars[j], vars[i],
-                                cases=cases, highlight_cases=highlight_cases,
-                                rug_plot=rug_plot, cov_plot=cov_plot, cov_p=cov_p,
-                                invar_space=invar_space,
-                                ax=ax, title='', plotkwargs=plotkwargs)
+                plot_2d_scatter(
+                    vars[j],
+                    vars[i],
+                    cases=cases,
+                    highlight_cases=highlight_cases,
+                    rug_plot=rug_plot,
+                    cov_plot=cov_plot,
+                    cov_p=cov_p,
+                    invar_space=invar_space,
+                    ax=ax,
+                    title="",
+                    plotkwargs=plotkwargs,
+                )
                 if j > 0:
                     ax.set_yticklabels([])
 
-            ax.set_xlabel('')
-            ax.set_ylabel('')
+            ax.set_xlabel("")
+            ax.set_ylabel("")
             if j == 0:
                 ax.set_ylabel(vars[i].name)
-            if i == nvars-1:
+            if i == nvars - 1:
                 ax.set_xlabel(vars[j].name)
 
     fig.subplots_adjust(wspace=0.075, hspace=0.075)
@@ -271,19 +326,20 @@ def multi_plot_grid_tri(vars     : list[InVar | OutVar],
     return fig, axs
 
 
-def multi_plot_grid_rect(varsx     : InVar | OutVar | list[InVar | OutVar],
-                         varsy     : InVar | OutVar | list[InVar | OutVar] = None,
-                         cases           : None | int | Iterable[int] = None,
-                         highlight_cases : None | int | Iterable[int] = empty_list(),
-                         rug_plot   : bool   = False,
-                         cov_plot   : bool   = False,
-                         cov_p      : None | float | Iterable[float] = None,
-                         cumulative : bool   = False,
-                         invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
-                         fig        : Figure | None = None,
-                         title      : str    = '',
-                         plotkwargs : dict   = dict(),
-                         ) -> tuple[Figure, tuple[Axes, ...]]:
+def multi_plot_grid_rect(
+    varsx: InVar | OutVar | list[InVar | OutVar],
+    varsy: InVar | OutVar | list[InVar | OutVar] = None,
+    cases: None | int | Iterable[int] = None,
+    highlight_cases: None | int | Iterable[int] = empty_list(),
+    rug_plot: bool = False,
+    cov_plot: bool = False,
+    cov_p: None | float | Iterable[float] = None,
+    cumulative: bool = False,
+    invar_space: InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
+    fig: Figure | None = None,
+    title: str = "",
+    plotkwargs: dict = dict(),
+) -> tuple[Figure, tuple[Axes, ...]]:
     """
     Plot multiple variables against each other in a rectangual grid. The
     left column and bottom row show histograms for each variable, and the middle
@@ -330,41 +386,65 @@ def multi_plot_grid_rect(varsx     : InVar | OutVar | list[InVar | OutVar],
     nvarsx = len(varsx)
     nvarsy = len(varsy)
 
-    axs = np.atleast_2d(fig.subplots(nvarsy+1, nvarsx+1, sharex='col'))
-    for i in range(nvarsy+1):
-        row_scatter_axs = [ax for k, ax in enumerate(axs[i]) if k < nvarsy+1]
-        for j in range(nvarsx+1):
+    axs = np.atleast_2d(fig.subplots(nvarsy + 1, nvarsx + 1, sharex="col"))
+    for i in range(nvarsy + 1):
+        row_scatter_axs = [ax for k, ax in enumerate(axs[i]) if k < nvarsy + 1]
+        for j in range(nvarsx + 1):
             ax = axs[i][j]
             if i == nvarsy and j == 0:
                 fig.delaxes(ax)
             elif i == nvarsy:
-                plot_hist(varsx[j-1], cases=cases, highlight_cases=highlight_cases,
-                          cumulative=cumulative, rug_plot=False, invar_space=invar_space,
-                          orientation=PlotOrientation.VERTICAL,
-                          ax=ax, title='', plotkwargs=plotkwargs)
+                plot_hist(
+                    varsx[j - 1],
+                    cases=cases,
+                    highlight_cases=highlight_cases,
+                    cumulative=cumulative,
+                    rug_plot=False,
+                    invar_space=invar_space,
+                    orientation=PlotOrientation.VERTICAL,
+                    ax=ax,
+                    title="",
+                    plotkwargs=plotkwargs,
+                )
             elif j == 0:
-                plot_hist(varsy[i], cases=cases, highlight_cases=highlight_cases,
-                          cumulative=cumulative, rug_plot=False, invar_space=invar_space,
-                          orientation=PlotOrientation.HORIZONTAL,
-                          ax=ax, title='', plotkwargs=plotkwargs)
+                plot_hist(
+                    varsy[i],
+                    cases=cases,
+                    highlight_cases=highlight_cases,
+                    cumulative=cumulative,
+                    rug_plot=False,
+                    invar_space=invar_space,
+                    orientation=PlotOrientation.HORIZONTAL,
+                    ax=ax,
+                    title="",
+                    plotkwargs=plotkwargs,
+                )
                 ax.set_xticklabels([])
             else:
                 # Don't link the histogram y axis
                 ax.get_shared_y_axes()._grouper.join(*row_scatter_axs)
-                plot_2d_scatter(varsx[j-1], varsy[i],
-                                cases=cases, highlight_cases=highlight_cases,
-                                rug_plot=rug_plot, cov_plot=cov_plot, cov_p=cov_p,
-                                invar_space=invar_space,
-                                ax=ax, title='', plotkwargs=plotkwargs)
+                plot_2d_scatter(
+                    varsx[j - 1],
+                    varsy[i],
+                    cases=cases,
+                    highlight_cases=highlight_cases,
+                    rug_plot=rug_plot,
+                    cov_plot=cov_plot,
+                    cov_p=cov_p,
+                    invar_space=invar_space,
+                    ax=ax,
+                    title="",
+                    plotkwargs=plotkwargs,
+                )
             if j > 0:
                 ax.set_yticklabels([])
 
-            ax.set_xlabel('')
-            ax.set_ylabel('')
+            ax.set_xlabel("")
+            ax.set_ylabel("")
             if i < nvarsy and j == 0:
                 ax.set_ylabel(varsy[i].name)
             if i == nvarsy and j != 0:
-                ax.set_xlabel(varsx[j-1].name)
+                ax.set_xlabel(varsx[j - 1].name)
 
     fig.subplots_adjust(wspace=0.075, hspace=0.075)
     fig.suptitle(title)
@@ -372,8 +452,7 @@ def multi_plot_grid_rect(varsx     : InVar | OutVar | list[InVar | OutVar],
     return fig, axs
 
 
-
-def handle_fig(fig : Optional[Figure]) -> Figure:
+def handle_fig(fig: Optional[Figure]) -> Figure:
     """
     Set the target figure, either by making a new figure or setting active an
     existing one.

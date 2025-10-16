@@ -9,12 +9,13 @@ from functools import lru_cache
 from monaco.mc_enums import SampleMethod
 
 
-def sampling(ndraws     : int,
-             method     : SampleMethod = SampleMethod.SOBOL_RANDOM,
-             ninvar     : int | None   = None,
-             ninvar_max : int | None   = None,
-             seed       : int          = np.random.get_state(legacy=False)['state']['key'][0],
-             ) -> np.ndarray:
+def sampling(
+    ndraws: int,
+    method: SampleMethod = SampleMethod.SOBOL_RANDOM,
+    ninvar: int | None = None,
+    ninvar_max: int | None = None,
+    seed: int = np.random.get_state(legacy=False)["state"]["key"][0],
+) -> np.ndarray:
     """
     Draws random samples according to the specified method.
 
@@ -44,13 +45,20 @@ def sampling(ndraws     : int,
     if method == SampleMethod.RANDOM:
         pcts = scipy.stats.uniform.rvs(size=ndraws, random_state=seed)
 
-    elif method in (SampleMethod.SOBOL, SampleMethod.SOBOL_RANDOM,
-                    SampleMethod.HALTON, SampleMethod.HALTON_RANDOM, SampleMethod.LATIN_HYPERCUBE):
+    elif method in (
+        SampleMethod.SOBOL,
+        SampleMethod.SOBOL_RANDOM,
+        SampleMethod.HALTON,
+        SampleMethod.HALTON_RANDOM,
+        SampleMethod.LATIN_HYPERCUBE,
+    ):
         if ninvar is None:
-            raise ValueError(f'{ninvar=} must defined for the {method} method')
-        elif (not 1 <= ninvar <= 21201) and method in (SampleMethod.SOBOL,
-                                                       SampleMethod.SOBOL_RANDOM):
-            raise ValueError(f'{ninvar=} must be between 1 and 21201 for the {method} method')
+            raise ValueError(f"{ninvar=} must defined for the {method} method")
+        elif (not 1 <= ninvar <= 21201) and method in (
+            SampleMethod.SOBOL,
+            SampleMethod.SOBOL_RANDOM,
+        ):
+            raise ValueError(f"{ninvar=} must be between 1 and 21201 for the {method} method")
 
         scramble = False
         if method in (SampleMethod.SOBOL_RANDOM, SampleMethod.HALTON_RANDOM):
@@ -58,26 +66,34 @@ def sampling(ndraws     : int,
         elif method in (SampleMethod.SOBOL, SampleMethod.HALTON):
             seed = 0  # These do not use randomness, so keep seed constant for caching
 
-        all_pcts = cached_pcts(ndraws=ndraws, method=method, ninvar_max=ninvar_max,
-                               scramble=scramble, seed=seed)
-        pcts = all_pcts[:, ninvar-1]  # ninvar will always be >= 1
+        all_pcts = cached_pcts(
+            ndraws=ndraws, method=method, ninvar_max=ninvar_max, scramble=scramble, seed=seed
+        )
+        pcts = all_pcts[:, ninvar - 1]  # ninvar will always be >= 1
 
     else:
-        raise ValueError("".join([f'{method=} must be one of the following: ' +
-                                  f'{SampleMethod.RANDOM}, {SampleMethod.SOBOL}, ' +
-                                  f'{SampleMethod.SOBOL_RANDOM}, {SampleMethod.HALTON}, ' +
-                                  f'{SampleMethod.HALTON_RANDOM}, {SampleMethod.LATIN_HYPERCUBE}']))
+        raise ValueError(
+            "".join(
+                [
+                    f"{method=} must be one of the following: "
+                    + f"{SampleMethod.RANDOM}, {SampleMethod.SOBOL}, "
+                    + f"{SampleMethod.SOBOL_RANDOM}, {SampleMethod.HALTON}, "
+                    + f"{SampleMethod.HALTON_RANDOM}, {SampleMethod.LATIN_HYPERCUBE}"
+                ]
+            )
+        )
 
     return pcts
 
 
 @lru_cache(maxsize=1)
-def cached_pcts(ndraws     : int,
-                method     : str,
-                ninvar_max : int,
-                scramble   : bool,
-                seed       : int,
-                ) -> np.ndarray:
+def cached_pcts(
+    ndraws: int,
+    method: str,
+    ninvar_max: int,
+    scramble: bool,
+    seed: int,
+) -> np.ndarray:
     """
     Wrapper function to cache the qmc draws so that we don't repeat calculation
     of lower numbered invars for the higher numbered invars.

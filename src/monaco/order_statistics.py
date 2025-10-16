@@ -6,12 +6,13 @@ import numpy as np
 from monaco.mc_enums import StatBound
 
 
-def order_stat_TI_n(k     : int,
-                    p     : float,
-                    c     : float,
-                    nmax  : int       = int(1e7),
-                    bound : StatBound = StatBound.TWOSIDED,
-                    ) -> int:
+def order_stat_TI_n(
+    k: int,
+    p: float,
+    c: float,
+    nmax: int = int(1e7),
+    bound: StatBound = StatBound.TWOSIDED,
+) -> int:
     """
     For an Order Statistic Tolerance Interval, find the minimum n from k, p,
     and c
@@ -77,11 +78,13 @@ def order_stat_TI_n(k     : int,
     maxsteps = 100  # nmax hard limit of 2^100
     u = n[1] + 1 - k
     if EPTI(n[1], l, u, p) < c:
-        raise ValueError(f'n exceeded {nmax=} for P{100*p}/{c*100}. ' +
-                          'Increase nmax or loosen constraints.')
+        raise ValueError(
+            f"n exceeded {nmax=} for P{100 * p}/{c * 100}. "
+            + "Increase nmax or loosen constraints."
+        )
 
     for i in range(maxsteps):
-        step = (n[1]-n[0])/2
+        step = (n[1] - n[0]) / 2
         ntemp = n[0] + np.ceil(step)
         if step < 1:
             return int(n[1])
@@ -91,17 +94,18 @@ def order_stat_TI_n(k     : int,
                 n[0] = ntemp
             else:
                 n[1] = ntemp
-    raise ValueError(f'With {n=}, could not converge in {maxsteps=} steps. ' +
-                    f'Is {nmax=} > 2^{maxsteps}?')
+    raise ValueError(
+        f"With {n=}, could not converge in {maxsteps=} steps. " + f"Is {nmax=} > 2^{maxsteps}?"
+    )
 
 
-
-def order_stat_TI_p(n     : int,
-                    k     : int,
-                    c     : float,
-                    ptol  : float     = 1e-9,
-                    bound : StatBound = StatBound.TWOSIDED,
-                    ) -> float:
+def order_stat_TI_p(
+    n: int,
+    k: int,
+    c: float,
+    ptol: float = 1e-9,
+    bound: StatBound = StatBound.TWOSIDED,
+) -> float:
     """
     For an Order Statistic Tolerance Interval, find the maximum p from n, k,
     and c.
@@ -139,7 +143,7 @@ def order_stat_TI_p(n     : int,
     p = [0.0, 1.0]
     maxsteps = 100  # p hard tolerance of 2^-100
     for i in range(maxsteps):
-        step = (p[1]-p[0])/2
+        step = (p[1] - p[0]) / 2
         ptemp = p[0] + step
         if step <= ptol:
             return p[1]
@@ -148,15 +152,15 @@ def order_stat_TI_p(n     : int,
                 p[0] = ptemp
             else:
                 p[1] = ptemp
-    raise ValueError(f'With {p=}, could not converge under {ptol=} in {maxsteps} steps.')
+    raise ValueError(f"With {p=}, could not converge under {ptol=} in {maxsteps} steps.")
 
 
-
-def order_stat_TI_k(n     : int,
-                    p     : float,
-                    c     : float,
-                    bound : StatBound = StatBound.TWOSIDED,
-                    ) -> int:
+def order_stat_TI_k(
+    n: int,
+    p: float,
+    c: float,
+    bound: StatBound = StatBound.TWOSIDED,
+) -> int:
     """
     For an Order Statistic Tolerance Interval, find the maximum k from n, p,
     and c.
@@ -187,17 +191,19 @@ def order_stat_TI_k(n     : int,
         raise ValueError(f"{bound=} must be {StatBound.ONESIDED} or {StatBound.TWOSIDED}")
 
     if EPTI(n, l, n, p) < c:
-        raise ValueError(f'{n=} is too small to meet {p=} at {c=} for {bound} ' +
-                          'tolerance interval at any order statistic')
+        raise ValueError(
+            f"{n=} is too small to meet {p=} at {c=} for {bound} "
+            + "tolerance interval at any order statistic"
+        )
 
     # use bisection to get n (secant method is unstable due to flat portions of curve)
-    k = [1, np.ceil(n/2)]
+    k = [1, np.ceil(n / 2)]
     maxsteps = 100  # nmax hard limit of 2^100
     for _ in range(maxsteps):
-        step = (k[1]-k[0])/2
+        step = (k[1] - k[0]) / 2
         ktemp = k[0] + np.ceil(step)
         if step < 1:
-            return int(k[1])-1
+            return int(k[1]) - 1
         else:
             if bound == StatBound.TWOSIDED:
                 l = ktemp  # we won't be using assymmetrical order stats
@@ -209,15 +215,15 @@ def order_stat_TI_k(n     : int,
                 k[0] = ktemp
             else:
                 k[1] = ktemp
-    raise ValueError(f'With {n=}, could not converge in {maxsteps} steps. Is n > 2^{maxsteps}?')
+    raise ValueError(f"With {n=}, could not converge in {maxsteps} steps. Is n > 2^{maxsteps}?")
 
 
-
-def order_stat_TI_c(n     : int,
-                    k     : int,
-                    p     : float,
-                    bound : StatBound = StatBound.TWOSIDED,
-                    ) -> float:
+def order_stat_TI_c(
+    n: int,
+    k: int,
+    p: float,
+    bound: StatBound = StatBound.TWOSIDED,
+) -> float:
     """
     For an Order Statistic Tolerance Interval, find the maximum c from n, k,
     and p.
@@ -253,13 +259,13 @@ def order_stat_TI_c(n     : int,
     return c
 
 
-
-def order_stat_P_n(k     : int,
-                   P     : float,
-                   c     : float,
-                   nmax  : int = int(1e7),
-                   bound : StatBound = StatBound.TWOSIDED,
-                   ) -> int:
+def order_stat_P_n(
+    k: int,
+    P: float,
+    c: float,
+    nmax: int = int(1e7),
+    bound: StatBound = StatBound.TWOSIDED,
+) -> int:
     """
     Order Statistic Percentile, find minimum n from k, P, and c.
 
@@ -314,7 +320,7 @@ def order_stat_P_n(k     : int,
     order_stat_var_check(p=P, k=k, c=c, nmax=nmax)
 
     # use bisection to get minimum n (secant method is unstable due to flat portions of curve)
-    nmin = np.ceil(max(k/P - 1, k/(1-P) - 1))
+    nmin = np.ceil(max(k / P - 1, k / (1 - P) - 1))
     ntemp = nmin
     n = [nmin, nmax]
     maxsteps = 100  # nmax hard limit of 2^100
@@ -324,26 +330,34 @@ def order_stat_P_n(k     : int,
         l = iPl - k + 1  # we won't be using assymmetrical order stats
         u = iPu + k - 1
         if l <= 0 or u >= n[1] + 1 or EPYP(n[0], l, u, P) < c:
-            raise ValueError(f'n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} ' +
-                             f'at {c=}. Increase nmax, raise k, or loosen constraints.')
+            raise ValueError(
+                f"n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} "
+                + f"at {c=}. Increase nmax, raise k, or loosen constraints."
+            )
     elif bound == StatBound.ONESIDED_UPPER:
         l = 0
         u = iPu + k - 1
         if u >= n[1] + 1 or EPYP(n[0], l, u, P) < c:
-            raise ValueError(f'n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} ' +
-                             f'at {c=}. Increase nmax, raise k, or loosen constraints.')
+            raise ValueError(
+                f"n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} "
+                + f"at {c=}. Increase nmax, raise k, or loosen constraints."
+            )
     elif bound == StatBound.ONESIDED_LOWER:
         l = iPl - k + 1
         u = n[0] + 1
         if l <= 0 or EPYP(n[0], l, u, P) < c:
-            raise ValueError(f'n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} ' +
-                             f'at {c=}. Increase nmax, raise k, or loosen constraints.')
+            raise ValueError(
+                f"n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} "
+                + f"at {c=}. Increase nmax, raise k, or loosen constraints."
+            )
     else:
-        raise ValueError(f'{bound=} must be {StatBound.ONESIDED_UPPER}, ' +
-                         f'{StatBound.ONESIDED_LOWER}, or {StatBound.TWOSIDED}')
+        raise ValueError(
+            f"{bound=} must be {StatBound.ONESIDED_UPPER}, "
+            + f"{StatBound.ONESIDED_LOWER}, or {StatBound.TWOSIDED}"
+        )
 
     for i in range(maxsteps):
-        step = (n[1]-n[0])/2
+        step = (n[1] - n[0]) / 2
         if step < 1:
             return int(n[0])
         else:
@@ -363,16 +377,17 @@ def order_stat_P_n(k     : int,
             else:
                 n[1] = ntemp
         # print(ntemp, ':', EPYP(ntemp, l, u, P), l, iP, u, n, step)
-    raise ValueError(f'With {n=}, could not converge in {maxsteps=} steps. ' +
-                     f'Is {nmax=} > 2^{maxsteps}?')
+    raise ValueError(
+        f"With {n=}, could not converge in {maxsteps=} steps. " + f"Is {nmax=} > 2^{maxsteps}?"
+    )
 
 
-
-def order_stat_P_k(n     : int,
-                   P     : float,
-                   c     : float,
-                   bound : StatBound = StatBound.TWOSIDED,
-                   ) -> int:
+def order_stat_P_k(
+    n: int,
+    P: float,
+    c: float,
+    bound: StatBound = StatBound.TWOSIDED,
+) -> int:
     """
     For an Order Statistic Percentile, find the maximum p from n, k, and c.
 
@@ -401,36 +416,44 @@ def order_stat_P_k(n     : int,
         k = [1, min(iPl, n + 1 - iPu)]
         l = iPl - k[1] + 1  # we won't be using assymmetrical order stats
         u = iPu + k[1] - 1
-        if l <= 0 or u >= n+1 or EPYP(n, l, u, P) < c:
-            raise ValueError(f'{n=} is too small to meet {P=} at {c=} for {bound} percentile ' +
-                              'confidence interval at any order statistic. Use order_stat_P_n ' +
-                              'to find the minimum n.')
+        if l <= 0 or u >= n + 1 or EPYP(n, l, u, P) < c:
+            raise ValueError(
+                f"{n=} is too small to meet {P=} at {c=} for {bound} percentile "
+                + "confidence interval at any order statistic. Use order_stat_P_n "
+                + "to find the minimum n."
+            )
 
     elif bound == StatBound.ONESIDED_UPPER:
         k = [1, n + 1 - iPu]
         l = 0
         u = iPu + k[1] - 1
         if u >= n + 1 or EPYP(n, l, u, P) < c:
-            raise ValueError(f'{n=} is too small to meet {P=} at {c=} for {bound} percentile ' +
-                              'confidence interval at any order statistic. Use order_stat_P_n ' +
-                              'to find the minimum n.')
+            raise ValueError(
+                f"{n=} is too small to meet {P=} at {c=} for {bound} percentile "
+                + "confidence interval at any order statistic. Use order_stat_P_n "
+                + "to find the minimum n."
+            )
 
     elif bound == StatBound.ONESIDED_LOWER:
         k = [1, iPl]
         l = iPl - k[1] + 1
         u = n + 1
         if EPYP(n, l, u, P) < c:
-            raise ValueError(f'{n=} is too small to meet {P=} at {c=} for {bound} percentile ' +
-                              'confidence interval at any order statistic. Use order_stat_P_n ' +
-                              'to find the minimum n.')
+            raise ValueError(
+                f"{n=} is too small to meet {P=} at {c=} for {bound} percentile "
+                + "confidence interval at any order statistic. Use order_stat_P_n "
+                + "to find the minimum n."
+            )
     else:
-        raise ValueError(f'{bound=} must be {StatBound.ONESIDED_UPPER}, ' +
-                         f'{StatBound.ONESIDED_LOWER}, or {StatBound.TWOSIDED}')
+        raise ValueError(
+            f"{bound=} must be {StatBound.ONESIDED_UPPER}, "
+            + f"{StatBound.ONESIDED_LOWER}, or {StatBound.TWOSIDED}"
+        )
 
     # use bisection to get n (secant method is unstable due to flat portions of curve)
     maxsteps = 100  # nmax hard limit of 2^100
     for _ in range(maxsteps):
-        step = (k[1]-k[0])/2
+        step = (k[1] - k[0]) / 2
         ktemp = k[0] + np.ceil(step)
 
         if step < 1:
@@ -452,15 +475,15 @@ def order_stat_P_k(n     : int,
             else:
                 k[0] = ktemp
 
-    raise ValueError(f'With {n=}, could not converge in {maxsteps} steps. Is n > 2^{maxsteps}?')
+    raise ValueError(f"With {n=}, could not converge in {maxsteps} steps. Is n > 2^{maxsteps}?")
 
 
-
-def order_stat_P_c(n     : int,
-                   k     : int,
-                   P     : float,
-                   bound : StatBound = StatBound.TWOSIDED,
-                   ) -> float:
+def order_stat_P_c(
+    n: int,
+    k: int,
+    P: float,
+    bound: StatBound = StatBound.TWOSIDED,
+) -> float:
     """
     For an Order Statistic percentile, find the maximum c from n, k, and P.
 
@@ -493,23 +516,26 @@ def order_stat_P_c(n     : int,
         l = iPl - k
         u = n + 1
     else:
-        raise ValueError(f'{bound=} must be {StatBound.ONESIDED_UPPER}, ' +
-                         f'{StatBound.ONESIDED_LOWER}, or {StatBound.TWOSIDED}')
+        raise ValueError(
+            f"{bound=} must be {StatBound.ONESIDED_UPPER}, "
+            + f"{StatBound.ONESIDED_LOWER}, or {StatBound.TWOSIDED}"
+        )
 
-    if l < 0 or u > n+1:
-        raise ValueError(f'{l=} or {u=} are outside the valid bounds of (0, {n+1}) ' +
-                         f'(check: {iP=}, {k=})')
+    if l < 0 or u > n + 1:
+        raise ValueError(
+            f"{l=} or {u=} are outside the valid bounds of (0, {n + 1}) " + f"(check: {iP=}, {k=})"
+        )
 
     c = EPYP(n, l, u, P)
     return c
 
 
-
-def EPYP(n : int,
-         l : int,
-         u : int,
-         p : float,
-         ) -> float:
+def EPYP(
+    n: int,
+    l: int,
+    u: int,
+    p: float,
+) -> float:
     """
     Estimated Probability for the Y'th Percentile, see Chp. 5.2 of Reference.
 
@@ -530,16 +556,16 @@ def EPYP(n : int,
         TODO Description
     """
     order_stat_var_check(n=n, l=l, u=u, p=p)
-    c = scipy.stats.binom.cdf(u-1, n, p) - scipy.stats.binom.cdf(l-1, n, p)
+    c = scipy.stats.binom.cdf(u - 1, n, p) - scipy.stats.binom.cdf(l - 1, n, p)
     return c
 
 
-
-def EPTI(n : int,
-         l : int,
-         u : int,
-         p : float,
-         ) -> float:
+def EPTI(
+    n: int,
+    l: int,
+    u: int,
+    p: float,
+) -> float:
     """
     Estimated Probability for a Tolerance Interval, see Chp. 5.3 of Reference
 
@@ -560,14 +586,14 @@ def EPTI(n : int,
         TODO Description
     """
     order_stat_var_check(n=n, l=l, u=u, p=p)
-    c = scipy.stats.binom.cdf(u-l-1, n, p)
+    c = scipy.stats.binom.cdf(u - l - 1, n, p)
     return c
 
 
-
-def get_iP(n : int,
-           P : float,
-           ) -> tuple[int, int, int]:
+def get_iP(
+    n: int,
+    P: float,
+) -> tuple[int, int, int]:
     """
     Get the index of Percentile (1-based indexing)
 
@@ -583,38 +609,38 @@ def get_iP(n : int,
     (iPl, iP, iPu) : (int, int, int)
         Lower, closest, and upper index of the percentile.
     """
-    iP = P*(n + 1)
+    iP = P * (n + 1)
     iPl = int(np.floor(iP))
     iPu = int(np.ceil(iP))
     iP = int(np.round(iP))
     return (iPl, iP, iPu)
 
 
-
-def order_stat_var_check(n    : int | None   = None,
-                         l    : int | None   = None,
-                         u    : int | None   = None,
-                         p    : float | None = None,
-                         k    : int | None   = None,
-                         c    : float | None = None,
-                         nmax : int | None   = None
-                         ) -> None:
+def order_stat_var_check(
+    n: int | None = None,
+    l: int | None = None,
+    u: int | None = None,
+    p: float | None = None,
+    k: int | None = None,
+    c: float | None = None,
+    nmax: int | None = None,
+) -> None:
     """
     Check the validity of the inputs to the order statistic functions.
     """
     if n is not None and n < 1:
-        raise ValueError(f'{n=} must be >= 1')
+        raise ValueError(f"{n=} must be >= 1")
     if l is not None and l < 0:
-        raise ValueError(f'{l=} must be >= 0')
-    if u is not None and n is not None and u > n+1:
-        raise ValueError(f'{u=} must be >= {n+1}')
+        raise ValueError(f"{l=} must be >= 0")
+    if u is not None and n is not None and u > n + 1:
+        raise ValueError(f"{u=} must be >= {n + 1}")
     if u is not None and l is not None and u < l:
-        raise ValueError(f'{u=} must be >= {l=}')
+        raise ValueError(f"{u=} must be >= {l=}")
     if p is not None and (p <= 0 or p >= 1):
-        raise ValueError(f'{p=} must be in the range 0 < p < 1')
+        raise ValueError(f"{p=} must be in the range 0 < p < 1")
     if k is not None and k < 1:
-        raise ValueError(f'{k=} must be >= 1')
+        raise ValueError(f"{k=} must be >= 1")
     if c is not None and (c <= 0 or c >= 1):
-        raise ValueError(f'{c=} must be in the range 0 < c < 1')
+        raise ValueError(f"{c=} must be in the range 0 < c < 1")
     if nmax is not None and nmax < 1:
-        raise ValueError(f'{nmax=} must be >= 1')
+        raise ValueError(f"{nmax=} must be >= 1")

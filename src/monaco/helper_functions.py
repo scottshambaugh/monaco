@@ -19,7 +19,7 @@ except ImportError:
     pd = None
 
 
-def next_power_of_2(x : int) -> int:
+def next_power_of_2(x: int) -> int:
     """
     Returns the next power of two greater than or equal to the input.
 
@@ -36,10 +36,10 @@ def next_power_of_2(x : int) -> int:
     if x <= 0:
         return 0
     else:
-        return int(2**np.ceil(np.log2(x)))
+        return int(2 ** np.ceil(np.log2(x)))
 
 
-def hash_str_repeatable(s : str) -> int:
+def hash_str_repeatable(s: str) -> int:
     """
     By default, string hashing in python is randomized. This function returns a
     repeatable non-randomized hash for strings.
@@ -55,10 +55,10 @@ def hash_str_repeatable(s : str) -> int:
     s_hash : int
         The hash of str.
     """
-    return int(sha512(s.encode('utf-8')).hexdigest(), 16)
+    return int(sha512(s.encode("utf-8")).hexdigest(), 16)
 
 
-def hashable_val_vectorized(vals : Iterable[Any]) -> list[Any]:
+def hashable_val_vectorized(vals: Iterable[Any]) -> list[Any]:
     """
     Vectorized version of hashable_val for processing multiple values efficiently.
 
@@ -90,7 +90,7 @@ def hashable_val_vectorized(vals : Iterable[Any]) -> list[Any]:
     return result
 
 
-def hashable_val(val : Any) -> Any:
+def hashable_val(val: Any) -> Any:
     """
     For `nummap` and `valmap`, we need to use values as keys in a dictionary.
     This function will return the string representation of a value if that
@@ -113,7 +113,7 @@ def hashable_val(val : Any) -> Any:
         return str(val)
 
 
-def is_num(val : Any) -> bool:
+def is_num(val: Any) -> bool:
     """
     Type checking function to see if the input is a number.
 
@@ -138,7 +138,7 @@ def is_num(val : Any) -> bool:
             return True
 
 
-def length(x : Any) -> int | None:
+def length(x: Any) -> int | None:
     """
     Genericized length function that works on scalars (which have length 1).
 
@@ -160,7 +160,7 @@ def length(x : Any) -> int | None:
         return None
 
 
-def get_list(x : Any) -> list[Any]:
+def get_list(x: Any) -> list[Any]:
     """
     Converts the input to an iterable list.
 
@@ -177,20 +177,29 @@ def get_list(x : Any) -> list[Any]:
     if x is None:
         return list()
     elif isinstance(x, str):
-        return [x, ]
+        return [
+            x,
+        ]
     elif pd and isinstance(x, pd.DataFrame):
-        return [x, ]
+        return [
+            x,
+        ]
     elif isinstance(x, Iterable):
         if isinstance(x, np.ndarray) and np.ndim(x) == 0:
-            return [x[()], ]
+            return [
+                x[()],
+            ]
         return list(x)
     else:
-        return [x, ]
+        return [
+            x,
+        ]
 
 
-def get_cases(ncases : int,
-              cases  : None | int | Iterable[int],
-              ) -> list[int]:
+def get_cases(
+    ncases: int,
+    cases: None | int | Iterable[int],
+) -> list[int]:
     """
     Parse the `cases` input for plotting functions. If None, return a list of
     all the cases. Otherwise, return a list of all the specified cases.
@@ -213,9 +222,10 @@ def get_cases(ncases : int,
     return cases_list
 
 
-def slice_by_index(sequence : Sequence[Any],
-                   indices  : int | Iterable[int],
-                   ) -> list:
+def slice_by_index(
+    sequence: Sequence[Any],
+    indices: int | Iterable[int],
+) -> list:
     """
     Returns a slice of a sequence at the specified indices.
 
@@ -250,7 +260,7 @@ def configure_logging(verbose: bool = True) -> None:
     verbose : bool, default: True
         If True, set logging level to INFO. If False, set to WARNING.
     """
-    logger = logging.getLogger('monaco')
+    logger = logging.getLogger("monaco")
     if verbose:
         logger.setLevel(logging.INFO)
     else:
@@ -281,10 +291,10 @@ def warn_short_format(message, category, filename, lineno, file=None, line=None)
     """
     Custom warning format for use in vwarn()
     """
-    return f'{category.__name__}: {message}\n'
+    return f"{category.__name__}: {message}\n"
 
 
-def vwarn(verbose : bool, *args, **kwargs) -> None:
+def vwarn(verbose: bool, *args, **kwargs) -> None:
     """
     Warn only if verbose is True.
 
@@ -296,10 +306,10 @@ def vwarn(verbose : bool, *args, **kwargs) -> None:
         Must include a warning message here!
     """
     if verbose:
-        logger = logging.getLogger('monaco')
+        logger = logging.getLogger("monaco")
         # Log warning as well as emit warnings.warn with short format
         try:
-            message = args[0] if args else ''
+            message = args[0] if args else ""
             logger.warning(message)
         except Exception:
             pass
@@ -309,7 +319,7 @@ def vwarn(verbose : bool, *args, **kwargs) -> None:
         warnings.formatwarning = warn_default_format
 
 
-def vwrite(verbose : bool, *args, **kwargs) -> None:
+def vwrite(verbose: bool, *args, **kwargs) -> None:
     """
     Perform a tqdm.write() only if verbose is True.
 
@@ -324,7 +334,7 @@ def vwrite(verbose : bool, *args, **kwargs) -> None:
         tqdm.write(*args, **kwargs)
 
 
-def timeit(fcn : Callable):
+def timeit(fcn: Callable):
     """
     Function decorator to print out the function runtime in milliseconds.
 
@@ -333,14 +343,16 @@ def timeit(fcn : Callable):
     fcn : Callable
         Function to time.
     """
+
     @wraps(fcn)
     def timed(*args, **kw):
         t0 = time()
         output = fcn(*args, **kw)
         t1 = time()
-        logger = logging.getLogger('monaco')
-        logger.info(f'"{fcn.__name__}" took {(t1 - t0)*1000 : .3f} ms to execute.')
+        logger = logging.getLogger("monaco")
+        logger.info(f'"{fcn.__name__}" took {(t1 - t0) * 1000: .3f} ms to execute.')
         return output
+
     return timed
 
 
@@ -356,7 +368,7 @@ def empty_list() -> list:
     return []
 
 
-def flatten(nested_x : Iterable[Any]) -> list[Any]:
+def flatten(nested_x: Iterable[Any]) -> list[Any]:
     """
     Flattens a nested interable into a list with all nested items.
 
@@ -370,6 +382,7 @@ def flatten(nested_x : Iterable[Any]) -> list[Any]:
     flattened_x : list
         The nested iterable flattened into a list.
     """
+
     def flatten_generator(x):
         for element in x:
             if isinstance(element, Iterable) and not isinstance(element, (str, bytes)):

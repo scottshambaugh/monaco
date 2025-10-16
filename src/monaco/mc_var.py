@@ -72,13 +72,15 @@ class Var(ABC):
     varstats : list[moncao.mc_varstat.VarStat]
         A list of all the variable statistics for this variable.
     """
-    def __init__(self,
-                 name              : str,
-                 ndraws            : int,
-                 seed              : int,
-                 firstcaseismedian : bool,
-                 datasource        : Optional[str],
-                 ):
+
+    def __init__(
+        self,
+        name: str,
+        ndraws: int,
+        seed: int,
+        firstcaseismedian: bool,
+        datasource: Optional[str],
+    ):
         self.name = name
         self.ndraws = ndraws
         self.seed = int(seed)
@@ -87,19 +89,19 @@ class Var(ABC):
 
         self.ncases = ndraws + 1
         self.setFirstCaseMedian(firstcaseismedian)
-        self.vals     : list[Any]
-        self.valmap   : dict[Any, float]
-        self.nums     : list[np.ndarray]
-        self.nummap   : dict[float, Any]
-        self.pcts     : list[float]
-        self.maxdim   : int
-        self.isscalar : bool
-        self.varstats : list[VarStat] = empty_list()
+        self.vals: list[Any]
+        self.valmap: dict[Any, float]
+        self.nums: list[np.ndarray]
+        self.nummap: dict[float, Any]
+        self.pcts: list[float]
+        self.maxdim: int
+        self.isscalar: bool
+        self.varstats: list[VarStat] = empty_list()
 
-
-    def __getitem__(self,
-                    ncase : int,
-                    ) -> Val:
+    def __getitem__(
+        self,
+        ncase: int,
+    ) -> Val:
         """Get a value from the variable.
 
         Parameters
@@ -114,10 +116,10 @@ class Var(ABC):
         """
         return self.getVal(ncase)
 
-
-    def setFirstCaseMedian(self,
-                           firstcaseismedian : bool,
-                           ) -> None:
+    def setFirstCaseMedian(
+        self,
+        firstcaseismedian: bool,
+    ) -> None:
         """
         Generate `val` based on the drawn number and the nummap.
 
@@ -133,7 +135,6 @@ class Var(ABC):
             self.firstcaseismedian = False
             self.ncases = self.ndraws
 
-
     def stats(self) -> NamedTuple:
         """
         Calculates statistics of the variable nums from scipy.stats.describe.
@@ -146,18 +147,18 @@ class Var(ABC):
         stats = describe(self.nums)
         return stats
 
-
-    def addVarStat(self,
-                   stat        : VarStatType | Callable,
-                   statkwargs  : dict[str, Any] | None = None,
-                   cases       : None | int | Iterable[int] = None,
-                   bootstrap   : bool = False,
-                   bootstrap_k : int = 10,
-                   bootstrap_method : str = 'BCa',
-                   conf        : float = 0.95,
-                   seed        : int | None = None,
-                   name        : str | None = None,
-                   ) -> None:
+    def addVarStat(
+        self,
+        stat: VarStatType | Callable,
+        statkwargs: dict[str, Any] | None = None,
+        cases: None | int | Iterable[int] = None,
+        bootstrap: bool = False,
+        bootstrap_k: int = 10,
+        bootstrap_method: str = "BCa",
+        conf: float = 0.95,
+        seed: int | None = None,
+        name: str | None = None,
+    ) -> None:
         """
         Add a variable statistic to this variable.
 
@@ -259,12 +260,20 @@ class Var(ABC):
             # seed is dependent on the order added
             seed = (self.seed + 1 + len(self.varstats)) % 2**32
 
-        self.varstats.append(VarStat(var=self, stat=stat, statkwargs=statkwargs,
-                                     cases=cases,
-                                     bootstrap=bootstrap, bootstrap_k=bootstrap_k,
-                                     bootstrap_method=bootstrap_method,
-                                     conf=conf, seed=seed, name=name))
-
+        self.varstats.append(
+            VarStat(
+                var=self,
+                stat=stat,
+                statkwargs=statkwargs,
+                cases=cases,
+                bootstrap=bootstrap,
+                bootstrap_k=bootstrap_k,
+                bootstrap_method=bootstrap_method,
+                conf=conf,
+                seed=seed,
+                name=name,
+            )
+        )
 
     def clearVarStats(self) -> None:
         """
@@ -272,37 +281,44 @@ class Var(ABC):
         """
         self.varstats = []
 
-
-    def plot(self,
-             vary   : InVar | OutVar | None = None,
-             varz   : InVar | OutVar | None = None,
-             cases           : None | int | Iterable[int] = None,
-             highlight_cases : None | int | Iterable[int] = empty_list(),
-             rug_plot    : bool           = False,
-             cov_plot    : bool           = False,
-             cov_p       : None | float | Iterable[float] = None,
-             invar_space : InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
-             ax          : Optional[Axes] = None,
-             title       : str            = '',
-             ) -> tuple[Figure, Axes]:
+    def plot(
+        self,
+        vary: InVar | OutVar | None = None,
+        varz: InVar | OutVar | None = None,
+        cases: None | int | Iterable[int] = None,
+        highlight_cases: None | int | Iterable[int] = empty_list(),
+        rug_plot: bool = False,
+        cov_plot: bool = False,
+        cov_p: None | float | Iterable[float] = None,
+        invar_space: InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
+        ax: Optional[Axes] = None,
+        title: str = "",
+    ) -> tuple[Figure, Axes]:
         """
         Plot this variable, against other variables if desired.
         See monaco.mc_plot.plot() for API details.
         """
-        fig, ax = plot(varx=self, vary=vary, varz=varz,
-                       cases=cases, highlight_cases=highlight_cases,
-                       rug_plot=rug_plot, cov_plot=cov_plot, cov_p=cov_p,
-                       invar_space=invar_space,
-                       ax=ax, title=title)
+        fig, ax = plot(
+            varx=self,
+            vary=vary,
+            varz=varz,
+            cases=cases,
+            highlight_cases=highlight_cases,
+            rug_plot=rug_plot,
+            cov_plot=cov_plot,
+            cov_p=cov_p,
+            invar_space=invar_space,
+            ax=ax,
+            title=title,
+        )
         return fig, ax
 
-
     @abstractmethod
-    def getVal(self,
-               ncase : int,
-               ) -> Val:
+    def getVal(
+        self,
+        ncase: int,
+    ) -> Val:
         pass
-
 
 
 ### InVar Class ###
@@ -371,24 +387,30 @@ class InVar(Var):
     varstats : list[moncao.mc_varstat.VarStat]
         A list of all the variable statistics for this variable.
     """
-    def __init__(self,
-                 name              : str,
-                 ndraws            : int,
-                 dist              : rv_discrete | rv_continuous | None = None,
-                 distkwargs        : dict[str, Any] | None   = None,
-                 nummap            : dict[float, Any] | None = None,
-                 vals              : list[Any] | None        = None,
-                 pcts              : list[float] | None      = None,
-                 samplemethod      : SampleMethod  = SampleMethod.SOBOL_RANDOM,
-                 ninvar            : int           = None,
-                 seed              : int = np.random.get_state(legacy=False)['state']['key'][0],
-                 firstcaseismedian : bool          = False,
-                 autodraw          : bool          = True,
-                 datasource        : Optional[str] = None,
-                 ):
-        super().__init__(name=name, ndraws=ndraws, seed=seed,
-                         firstcaseismedian=firstcaseismedian,
-                         datasource=datasource)
+
+    def __init__(
+        self,
+        name: str,
+        ndraws: int,
+        dist: rv_discrete | rv_continuous | None = None,
+        distkwargs: dict[str, Any] | None = None,
+        nummap: dict[float, Any] | None = None,
+        vals: list[Any] | None = None,
+        pcts: list[float] | None = None,
+        samplemethod: SampleMethod = SampleMethod.SOBOL_RANDOM,
+        ninvar: int = None,
+        seed: int = np.random.get_state(legacy=False)["state"]["key"][0],
+        firstcaseismedian: bool = False,
+        autodraw: bool = True,
+        datasource: Optional[str] = None,
+    ):
+        super().__init__(
+            name=name,
+            ndraws=ndraws,
+            seed=seed,
+            firstcaseismedian=firstcaseismedian,
+            datasource=datasource,
+        )
 
         # Validate inputs for custom values case
         if dist is None and vals is None:
@@ -399,8 +421,9 @@ class InVar(Var):
             samplemethod = None
             vals = get_list(vals)
             if len(vals) != self.ncases:
-                raise ValueError(f"Length of 'vals' ({len(vals)}) must match " +
-                                 f"ncases ({self.ncases})")
+                raise ValueError(
+                    f"Length of 'vals' ({len(vals)}) must match " + f"ncases ({self.ncases})"
+                )
 
         if pcts is not None:
             pcts = get_list(pcts)
@@ -427,32 +450,35 @@ class InVar(Var):
         if autodraw:
             self.draw(ninvar_max=None)
 
-
     def __repr__(self):
-        return (f"{self.__class__.__name__}('{self.name}', ndraws={self.ndraws}, " +
-                f"dist={self.dist}, distkwargs={self.distkwargs}, " +
-                f"pcts=[{self.pcts[0]:0.4f}, ..., {self.pcts[-1]:0.4f}], " +
-                f"nums=[{self.nums[0]}, ..., {self.nums[-1]}], " +
-                f"vals=[{self.vals[0]}, ..., {self.vals[-1]}], " +
-                f"samplemethod={self.samplemethod}, firstcaseismedian={self.firstcaseismedian})")
+        return (
+            f"{self.__class__.__name__}('{self.name}', ndraws={self.ndraws}, "
+            + f"dist={self.dist}, distkwargs={self.distkwargs}, "
+            + f"pcts=[{self.pcts[0]:0.4f}, ..., {self.pcts[-1]:0.4f}], "
+            + f"nums=[{self.nums[0]}, ..., {self.nums[-1]}], "
+            + f"vals=[{self.vals[0]}, ..., {self.vals[-1]}], "
+            + f"samplemethod={self.samplemethod}, firstcaseismedian={self.firstcaseismedian})"
+        )
 
-    def check_pcts(self,
-                   pcts : list[float],
-                   ) -> None:
+    def check_pcts(
+        self,
+        pcts: list[float],
+    ) -> None:
         """
         Check that the percentiles are valid.
         """
         if len(pcts) != self.ncases:
-            raise ValueError(f"Length of 'pcts' ({len(pcts)}) must match " +
-                             f"ncases ({self.ncases})")
+            raise ValueError(
+                f"Length of 'pcts' ({len(pcts)}) must match " + f"ncases ({self.ncases})"
+            )
         pcts = np.asarray(pcts)
         if any(pcts <= 0) or any(pcts > 1):
             # Disallow 0 due to https://github.com/scipy/scipy/issues/23358
             raise ValueError("Percentiles must be between 0 and 1")
         if pcts[0] != 0.5 and self.firstcaseismedian:
-            raise ValueError("If firstcaseismedian is True, then the first " +
-                             "percentile must be 0.5")
-
+            raise ValueError(
+                "If firstcaseismedian is True, then the first " + "percentile must be 0.5"
+            )
 
     def mapNums(self) -> None:
         """
@@ -462,7 +488,6 @@ class InVar(Var):
         if self.nummap is not None:
             for i in range(self.ncases):
                 self.vals[i] = self.nummap[self.nums[i]]
-
 
     def extractNumMap(self) -> None:
         """
@@ -478,7 +503,6 @@ class InVar(Var):
             sorted_vals = sorted(set(hashable_val(x) for x in vals_flattened))
             self.nummap = {idx: val for idx, val in enumerate(sorted_vals)}
 
-
     def genValMap(self) -> None:
         """
         Generate `valmap` by inverting `nummap`.
@@ -488,10 +512,10 @@ class InVar(Var):
         else:
             self.valmap = {hashable_val(val): num for num, val in self.nummap.items()}
 
-
-    def setNDraws(self,
-                  ndraws : int,
-                  ) -> None:
+    def setNDraws(
+        self,
+        ndraws: int,
+    ) -> None:
         """
         Set the number of random draws.
 
@@ -503,10 +527,10 @@ class InVar(Var):
         self.ndraws = ndraws
         self.setFirstCaseMedian(self.firstcaseismedian)
 
-
-    def draw(self,
-             ninvar_max : int = None,
-             ) -> None:
+    def draw(
+        self,
+        ninvar_max: int = None,
+    ) -> None:
         """
         Perform the random draws based on the sampling method and the
         statistical distribution, and map those draws to values.
@@ -558,32 +582,42 @@ class InVar(Var):
             if self.firstcaseismedian:
                 self.pcts.append(0.5)
                 self.nums.append(self.getDistMedian())
-            pcts = sampling(ndraws=self.ndraws, method=self.samplemethod,
-                            ninvar=self.ninvar, ninvar_max=ninvar_max,
-                            seed=self.seed)
+            pcts = sampling(
+                ndraws=self.ndraws,
+                method=self.samplemethod,
+                ninvar=self.ninvar,
+                ninvar_max=ninvar_max,
+                seed=self.seed,
+            )
             self.pcts.extend(pcts)
             self.nums.extend(dist.ppf(pcts))
 
         nums = np.asarray(self.nums)
         self.nums = nums.tolist()
         if any(np.isinf(nums)):
-            warn( 'Infinite value drawn. Check distribution and parameters: ' +
-                 f'{self.dist=}, {self.distkwargs=}')
+            warn(
+                "Infinite value drawn. Check distribution and parameters: "
+                + f"{self.dist=}, {self.distkwargs=}"
+            )
             if self.samplemethod in (SampleMethod.SOBOL, SampleMethod.HALTON):
-                warn(f'Infinite value draw may happen with {self.dist=} for the ' +
-                     f'first point of the {self.samplemethod} sampling method. ' +
-                     f'Consider using {SampleMethod.SOBOL_RANDOM} instead.')
+                warn(
+                    f"Infinite value draw may happen with {self.dist=} for the "
+                    + f"first point of the {self.samplemethod} sampling method. "
+                    + f"Consider using {SampleMethod.SOBOL_RANDOM} instead."
+                )
 
         if any(np.isnan(nums)):
-            raise ValueError( 'Invalid draw. Check distribution and parameters: ' +
-                             f'{self.dist=}, {self.distkwargs=}')
+            raise ValueError(
+                "Invalid draw. Check distribution and parameters: "
+                + f"{self.dist=}, {self.distkwargs=}"
+            )
 
         self.mapNums()
 
-
-    def getVal(self,
-               ncase : int,
-               ) -> InVal:
+    def getVal(
+        self,
+        ncase: int,
+    ) -> InVal:
         """
         Get the input value for a specific case.
 
@@ -601,12 +635,18 @@ class InVar(Var):
         if (ncase == 0) and self.firstcaseismedian:
             ismedian = True
 
-        val = InVal(name=self.name, ncase=ncase,
-                    pct=self.pcts[ncase], num=self.nums[ncase],
-                    dist=self.dist, nummap=self.nummap, valmap=self.valmap,
-                    ismedian=ismedian, datasource=self.datasource)
+        val = InVal(
+            name=self.name,
+            ncase=ncase,
+            pct=self.pcts[ncase],
+            num=self.nums[ncase],
+            dist=self.dist,
+            nummap=self.nummap,
+            valmap=self.valmap,
+            ismedian=ismedian,
+            datasource=self.datasource,
+        )
         return val
-
 
     def getDistMedian(self) -> float:
         """
@@ -620,7 +660,6 @@ class InVar(Var):
         dist = self.dist(**self.distkwargs)
         median = dist.ppf(0.5)
         return median
-
 
     def getDistMean(self) -> float:
         """
@@ -650,7 +689,6 @@ class InVar(Var):
 
         else:
             return None
-
 
 
 ### OutVar Class ###
@@ -693,23 +731,29 @@ class OutVar(Var):
     varstats : list[monaco.VarStat.VarStat]
         A list of all the variable statistics for this variable.
     """
-    def __init__(self,
-                 name              : str,
-                 vals              : list[Any],
-                 valmap            : dict = None,
-                 ndraws            : int  = None,
-                 seed              : int = np.random.get_state(legacy=False)['state']['key'][0],
-                 firstcaseismedian : bool = False,
-                 datasource        : Optional[str] = None,
-                 ):
+
+    def __init__(
+        self,
+        name: str,
+        vals: list[Any],
+        valmap: dict = None,
+        ndraws: int = None,
+        seed: int = np.random.get_state(legacy=False)["state"]["key"][0],
+        firstcaseismedian: bool = False,
+        datasource: Optional[str] = None,
+    ):
         if ndraws is None:
             ndraws = len(vals)
             if firstcaseismedian:
                 ndraws = ndraws - 1
 
-        super().__init__(name=name, ndraws=ndraws, seed=seed,
-                         firstcaseismedian=firstcaseismedian,
-                         datasource=datasource)
+        super().__init__(
+            name=name,
+            ndraws=ndraws,
+            seed=seed,
+            firstcaseismedian=firstcaseismedian,
+            datasource=datasource,
+        )
         self.vals = vals
         self.valmap = valmap
         if valmap is None:
@@ -717,16 +761,16 @@ class OutVar(Var):
         self.genNumMap()
         self.mapVals()
         self.genMaxDim()
-        self.sensitivity_indices : None | dict = None
-        self.sensitivity_ratios  : None | dict = None
-
+        self.sensitivity_indices: None | dict = None
+        self.sensitivity_ratios: None | dict = None
 
     def __repr__(self):
-        return (f"{self.__class__.__name__}('{self.name}', ndraws={self.ndraws}, " +
-                f"vals=[{self.vals[0]}, ..., {self.vals[-1]}], " +
-                f"nums=[{self.nums[0]}, ..., {self.nums[-1]}], " +
-                f"firstcaseismedian={self.firstcaseismedian})")
-
+        return (
+            f"{self.__class__.__name__}('{self.name}', ndraws={self.ndraws}, "
+            + f"vals=[{self.vals[0]}, ..., {self.vals[-1]}], "
+            + f"nums=[{self.nums[0]}, ..., {self.nums[-1]}], "
+            + f"firstcaseismedian={self.firstcaseismedian})"
+        )
 
     def genMaxDim(self) -> None:
         """
@@ -741,17 +785,16 @@ class OutVar(Var):
         if self.maxdim == 0:
             self.isscalar = True
 
-
     def extractValMap(self) -> None:
         """
         Parse the output values and extract a valmap.
         """
-        if self.getVal(0).valmapsource == 'assigned':
+        if self.getVal(0).valmapsource == "assigned":
             self.valmap = self.getVal(0).valmap
             return
 
         if any([self.getVal(i).valmap is not None for i in range(self.ncases)]):
-            uniquevals : set[Any] = set()
+            uniquevals: set[Any] = set()
             for i in range(self.ncases):
                 if self.getVal(i).valmap is not None:
                     uniquevals.update(self.getVal(i).valmap.keys())
@@ -767,7 +810,6 @@ class OutVar(Var):
             for i, val in enumerate(sorted_vals):
                 self.valmap[val] = i
 
-
     def genNumMap(self) -> None:
         """
         Generate the nummap by inverting `valmap`.
@@ -777,7 +819,6 @@ class OutVar(Var):
         else:
             self.nummap = {num: val for val, num in self.valmap.items()}
 
-
     def mapVals(self) -> None:
         """
         Generate `nums` by mapping the values with their valmap.
@@ -786,8 +827,7 @@ class OutVar(Var):
         for i in range(self.ncases):
             self.nums.append(np.asarray(self.getVal(i).num))
 
-
-    def getVal(self, ncase : int) -> OutVal:
+    def getVal(self, ncase: int) -> OutVal:
         """
         Get the variable value for a specific case.
 
@@ -805,11 +845,15 @@ class OutVar(Var):
         if (ncase == 0) and self.firstcaseismedian:
             ismedian = True
 
-        val = OutVal(name=self.name, ncase=ncase, val=self.vals[ncase],
-                     valmap=self.valmap, ismedian=ismedian,
-                     datasource=self.datasource)
+        val = OutVal(
+            name=self.name,
+            ncase=ncase,
+            val=self.vals[ncase],
+            valmap=self.valmap,
+            ismedian=ismedian,
+            datasource=self.datasource,
+        )
         return val
-
 
     def getMedianVal(self) -> OutVal:
         """
@@ -822,12 +866,12 @@ class OutVar(Var):
         """
         val = None
         if self.firstcaseismedian:
-            val = OutVal(name=self.name, ncase=0, val=self.vals[0],
-                         valmap=self.valmap, ismedian=True)
+            val = OutVal(
+                name=self.name, ncase=0, val=self.vals[0], valmap=self.valmap, ismedian=True
+            )
         return val
 
-
-    def split(self) -> dict[str, 'OutVar']:  # Quotes in typing to avoid import error
+    def split(self) -> dict[str, "OutVar"]:  # Quotes in typing to avoid import error
         """
         Split a multidimensional output variable along its outermost dimension,
         and generate individual OutVar objects for each index.
@@ -836,7 +880,7 @@ class OutVar(Var):
         -------
         vars : dict[str : monaco.mc_var.OutVar]
         """
-        vars : dict[str, 'OutVar'] = dict()
+        vars: dict[str, "OutVar"] = dict()
         if self.maxdim > 0:
             # First ensure that the vals have the same shape over all cases
             shape = self.nums[0].shape
@@ -845,29 +889,32 @@ class OutVar(Var):
                     return vars
 
             for i in range(shape[0]):
-                name = self.name + f' [{i}]'
+                name = self.name + f" [{i}]"
                 vals = []
                 for j in range(self.ncases):
                     vals.append(self.vals[j][i])
-                vars[name] = OutVar(name=name, vals=vals, ndraws=self.ndraws,
-                                    valmap=self.valmap,
-                                    firstcaseismedian=self.firstcaseismedian)
+                vars[name] = OutVar(
+                    name=name,
+                    vals=vals,
+                    ndraws=self.ndraws,
+                    valmap=self.valmap,
+                    firstcaseismedian=self.firstcaseismedian,
+                )
                 for varstat in self.varstats:
-                    vars[name].addVarStat(stat=varstat.stat,
-                                          statkwargs=varstat.statkwargs,
-                                          name=varstat.name)
+                    vars[name].addVarStat(
+                        stat=varstat.stat, statkwargs=varstat.statkwargs, name=varstat.name
+                    )
         return vars
 
-
-    def plotSensitivities(self,
-                          sensitivities : Sensitivities = Sensitivities.RATIOS,
-                          ax            : Optional[Axes] = None,
-                          title         : str            = '',
-                          ) -> tuple[Figure, Axes]:
+    def plotSensitivities(
+        self,
+        sensitivities: Sensitivities = Sensitivities.RATIOS,
+        ax: Optional[Axes] = None,
+        title: str = "",
+    ) -> tuple[Figure, Axes]:
         """
         Plot the sensitivity indices for this variable.
         See monaco.mc_plot.plot_sensitivities() for API details.
         """
-        fig, ax = plot_sensitivities(outvar=self, sensitivities=sensitivities,
-                                     ax=ax, title=title)
+        fig, ax = plot_sensitivities(outvar=self, sensitivities=sensitivities, ax=ax, title=title)
         return fig, ax

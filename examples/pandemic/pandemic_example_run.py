@@ -1,6 +1,7 @@
 import numpy as np
 import networkx as nx
 
+
 def pandemic_example_run(nnodes, m0, p, nsteps, n_infected_init, open_scenario=True, seed=12059257):
     # nnodes: total number of nodes
     # m0: max number of connections made by each new node
@@ -10,30 +11,30 @@ def pandemic_example_run(nnodes, m0, p, nsteps, n_infected_init, open_scenario=T
     # open_scenario: if True, a random node will be attempt to be infected every
     #                timestep with probability p
 
-    nodes_status = np.zeros((nsteps+1, nnodes))  # S = 0, I = 1, R = 2
+    nodes_status = np.zeros((nsteps + 1, nnodes))  # S = 0, I = 1, R = 2
     social_graph = nx.barabasi_albert_graph(nnodes, m0, seed=seed)
     infection_dict = dict()
     generator = np.random.RandomState(seed)
 
     # Initialize initial infections
-    initial_infected_nodes = generator.randint(0, nnodes-1, n_infected_init)
+    initial_infected_nodes = generator.randint(0, nnodes - 1, n_infected_init)
     for node in initial_infected_nodes:
         infect_node(nodes_status, 0, node)
 
     # Run the epidemic spread
-    for t in range(1, nsteps+1):
-
+    for t in range(1, nsteps + 1):
         if open_scenario:
-            generator.randint(0, nnodes-1, n_infected_init)
+            generator.randint(0, nnodes - 1, n_infected_init)
             if generator.rand(1) < p:
                 infect_node(nodes_status, t, node)
 
         for node in range(nnodes):
-            if nodes_status[t-1, node] == 1:
+            if nodes_status[t - 1, node] == 1:
                 neighbors = np.array(list(social_graph.neighbors(node)))
                 infections = generator.rand(len(neighbors)) < p
-                infection_dict[node] \
-                    = neighbors[np.logical_and(nodes_status[t, neighbors] == 0, infections)]
+                infection_dict[node] = neighbors[
+                    np.logical_and(nodes_status[t, neighbors] == 0, infections)
+                ]
                 for neighbor in infection_dict[node]:
                     infect_node(nodes_status, t, neighbor)
 
@@ -47,10 +48,10 @@ def infect_node(nodes_status, t, node):
     if nodes_status[t, node] == 0:  # S
         nodes_status[t, node] = 1  # I
         if t < len(nodes_status):
-            nodes_status[t+1:, node] = 2  # R
+            nodes_status[t + 1 :, node] = 2  # R
 
 
-'''
+"""
 ### Test ###
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
@@ -126,4 +127,4 @@ if __name__ == '__main__':
     plt.xlabel('Timestep')
     plt.ylabel('n')
     plt.savefig('sir_curve.png')
-#'''
+#"""

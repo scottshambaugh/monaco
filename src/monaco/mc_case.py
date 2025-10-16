@@ -10,7 +10,7 @@ from monaco.mc_val import OutVal, InVal
 from monaco.globals import get_global_vars
 
 
-class Case():
+class Case:
     """
     Object to hold all the data for a single Monte Carlo case.
 
@@ -63,74 +63,75 @@ class Case():
     simrawoutput : tuple[Any]
         The non-postprocessed outputs from the run function for this case.
     """
-    def __init__(self,
-                 ncase            : int,
-                 ismedian         : bool,
-                 invars           : dict[str, InVar],
-                 constvals        : dict[str, Any] | None = None,
-                 keepsiminput     : bool = True,
-                 keepsimrawoutput : bool = True,
-                 seed             : int = np.random.get_state(legacy=False)['state']['key'][0],
-                 ):
 
+    def __init__(
+        self,
+        ncase: int,
+        ismedian: bool,
+        invars: dict[str, InVar],
+        constvals: dict[str, Any] | None = None,
+        keepsiminput: bool = True,
+        keepsimrawoutput: bool = True,
+        seed: int = np.random.get_state(legacy=False)["state"]["key"][0],
+    ):
         self.ncase = ncase
         self.ismedian = ismedian
         self.invars = invars
-        self.vars : dict[str, InVar | OutVar] = dict(invars)
+        self.vars: dict[str, InVar | OutVar] = dict(invars)
         if constvals is None:
             constvals = dict()
         self.constvals = constvals
-        self.outvars : dict[str, OutVar] = dict()
+        self.outvars: dict[str, OutVar] = dict()
         self.keepsiminput = keepsiminput
         self.keepsimrawoutput = keepsimrawoutput
         self.seed = seed
 
-        self.starttime : datetime | None = None
-        self.endtime   : datetime | None = None
-        self.runtime   : timedelta | None = None
+        self.starttime: datetime | None = None
+        self.endtime: datetime | None = None
+        self.runtime: timedelta | None = None
 
-        self.filepath : Path | None = None
-        self.runsimid : int | None = None
-        self.haspreprocessed  : bool = False
-        self.hasrun           : bool = False
-        self.haspostprocessed : bool = False
+        self.filepath: Path | None = None
+        self.runsimid: int | None = None
+        self.haspreprocessed: bool = False
+        self.hasrun: bool = False
+        self.haspostprocessed: bool = False
 
-        self.invals  : dict[str, InVal]  = self.getInVals()
-        self.outvals : dict[str, OutVal] = dict()
-        self.vals    : dict[str, InVal | OutVal] = dict(self.invals)
+        self.invals: dict[str, InVal] = self.getInVals()
+        self.outvals: dict[str, OutVal] = dict()
+        self.vals: dict[str, InVal | OutVal] = dict(self.invals)
 
-        self.siminput     : tuple[Any] | None = None
-        self.simrawoutput : tuple[Any] | None = None
-
+        self.siminput: tuple[Any] | None = None
+        self.simrawoutput: tuple[Any] | None = None
 
     def __getstate__(self):
         # We delete the large objects to save time multiprocessing
         state = self.__dict__.copy()
-        for k in ('invars', 'outvars', 'vars', 'invals', 'vals', 'constvals'):
+        for k in ("invars", "outvars", "vars", "invals", "vals", "constvals"):
             state.pop(k, None)
         return state
 
     def __setstate__(self, state):
         self.__dict__.update(state)
         invars, outvars, constvals = get_global_vars()
-        self.invars  = invars
+        self.invars = invars
         self.outvars = outvars
         self.constvals = constvals
-        self.vars    = {**invars, **outvars}
-        self.invals  = self.getInVals()
-        self.vals    = {**self.invals, **self.outvals}
-
+        self.vars = {**invars, **outvars}
+        self.invals = self.getInVals()
+        self.vals = {**self.invals, **self.outvals}
 
     def __repr__(self):
-        return (f"{self.__class__.__name__}(ncase={self.ncase}, "
-                f"invals.keys()={self.invals.keys()}, "
-                f"outvals.keys()={self.outvals.keys()}, "
-                f"constvals.keys()={self.constvals.keys()})")
+        return (
+            f"{self.__class__.__name__}(ncase={self.ncase}, "
+            f"invals.keys()={self.invals.keys()}, "
+            f"outvals.keys()={self.outvals.keys()}, "
+            f"constvals.keys()={self.constvals.keys()})"
+        )
 
-
-    def __getitem__(self,
-                    valname : str,
-                    ) -> InVal | OutVal:
+    def __getitem__(
+        self,
+        valname: str,
+    ) -> InVal | OutVal:
         """Get a InVal or OutVal from the case.
 
         Parameters
@@ -144,7 +145,6 @@ class Case():
             The value requested.
         """
         return self.vals[valname]
-
 
     def getInVals(self) -> dict[str, InVal]:
         """
@@ -161,10 +161,10 @@ class Case():
             vals[val.name] = val
         return vals
 
-
-    def addOutVar(self,
-                  outvar : OutVar,
-                  ) -> None:
+    def addOutVar(
+        self,
+        outvar: OutVar,
+    ) -> None:
         """Add an OutVar to the case.
 
         Parameters
@@ -174,7 +174,6 @@ class Case():
         """
         self.outvars[outvar.name] = outvar
         self.vars[outvar.name] = outvar
-
 
     def getOutVals(self) -> dict[str, OutVal]:
         """
@@ -191,13 +190,9 @@ class Case():
             vals[val.name] = val
         return vals
 
-
-    def addOutVal(self,
-                  name   : str,
-                  val    : Any,
-                  split  : bool = True,
-                  valmap : dict[Any, float] | None = None
-                  ) -> None:
+    def addOutVal(
+        self, name: str, val: Any, split: bool = True, valmap: dict[Any, float] | None = None
+    ) -> None:
         """
         Generate an OutVal and add it to the dict of outvals.
 
@@ -215,8 +210,7 @@ class Case():
         if name in self.outvals.keys():
             raise ValueError(f"'{name}' is already an OutVal")
 
-        outval = OutVal(name=name, ncase=self.ncase, val=val,
-                        valmap=valmap, ismedian=self.ismedian)
+        outval = OutVal(name=name, ncase=self.ncase, val=val, valmap=valmap, ismedian=self.ismedian)
         self.outvals[name] = outval
         self.vals[name] = outval
         if split:

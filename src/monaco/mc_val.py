@@ -9,6 +9,7 @@ from monaco.helper_functions import is_num, hashable_val, flatten, hashable_val_
 
 try:
     import pandas as pd
+
     HAS_PANDAS = True
 except ImportError:
     pd = None
@@ -32,24 +33,25 @@ class Val(ABC):
         If the value was imported from a file, this is the filepath. If
         generated through monaco, then None.
     """
-    def __init__(self,
-                 name       : str,
-                 ncase      : int,
-                 ismedian   : bool,
-                 datasource : str | None = None,
-                 ):
+
+    def __init__(
+        self,
+        name: str,
+        ncase: int,
+        ismedian: bool,
+        datasource: str | None = None,
+    ):
         self.name = name
         self.ncase = ncase
         self.ismedian = ismedian
         self.datasource = datasource
 
-        self.val      : Any
-        self.valmap   : dict[Any, float]
-        self.num      : np.float64 | np.ndarray
-        self.nummap   : dict[float, Any]
-        self.isscalar : bool
-        self.shape    : tuple[int, ...]
-
+        self.val: Any
+        self.valmap: dict[Any, float]
+        self.num: np.float64 | np.ndarray
+        self.nummap: dict[float, Any]
+        self.isscalar: bool
+        self.shape: tuple[int, ...]
 
 
 ### InVal Class ###
@@ -94,23 +96,35 @@ class InVal(Val):
         A dictionary mapping nonnumeric values to numbers (the inverse of
         `nummap`).
     """
-    __slots__ = ('name', 'ncase', 'ismedian', 'datasource', 'dist', 'pct', 'num',
-                 'nummap', 'isscalar', 'shape', 'val', 'valmap')
 
-    def __init__(self,
-                 name       : str,
-                 ncase      : int,
-                 pct        : float,
-                 num        : float,
-                 dist       : rv_discrete | rv_continuous,
-                 nummap     : dict[float, Any] | None = None,
-                 valmap     : dict[Any, float] | None = None,
-                 ismedian   : bool = False,
-                 datasource : str | None = None,
-                 ):
+    __slots__ = (
+        "name",
+        "ncase",
+        "ismedian",
+        "datasource",
+        "dist",
+        "pct",
+        "num",
+        "nummap",
+        "isscalar",
+        "shape",
+        "val",
+        "valmap",
+    )
 
-        super().__init__(name=name, ncase=ncase, ismedian=ismedian,
-                         datasource=datasource)
+    def __init__(
+        self,
+        name: str,
+        ncase: int,
+        pct: float,
+        num: float,
+        dist: rv_discrete | rv_continuous,
+        nummap: dict[float, Any] | None = None,
+        valmap: dict[Any, float] | None = None,
+        ismedian: bool = False,
+        datasource: str | None = None,
+    ):
+        super().__init__(name=name, ncase=ncase, ismedian=ismedian, datasource=datasource)
         self.dist = dist
         self.pct = pct
         self.num = num
@@ -124,11 +138,11 @@ class InVal(Val):
         else:
             self.valmap = valmap
 
-
     def __repr__(self):
-        return (f"{self.__class__.__name__}('{self.name}', ncase={self.ncase}, " +
-                f"val={self.val} ({self.num}), pct={self.pct:0.4f})")
-
+        return (
+            f"{self.__class__.__name__}('{self.name}', ncase={self.ncase}, "
+            + f"val={self.val} ({self.num}), pct={self.pct:0.4f})"
+        )
 
     def mapNum(self) -> None:
         """
@@ -139,7 +153,6 @@ class InVal(Val):
         else:
             self.val = self.nummap[self.num]
 
-
     def genValMap(self) -> None:
         """
         Generate the valmap based on the nummap.
@@ -148,7 +161,6 @@ class InVal(Val):
             self.valmap = None
         else:
             self.valmap = {hashable_val(val): num for num, val in self.nummap.items()}
-
 
 
 ### OutVal Class ###
@@ -187,42 +199,55 @@ class OutVal(Val):
         A dictionary mapping numbers to nonnumeric values (the inverse of
         `valmap`).
     """
-    __slots__ = ('name', 'ncase', 'ismedian', 'datasource', 'val', 'valmap',
-                 'num', 'nummap', 'isscalar', 'shape')
 
-    def __init__(self,
-                 name       : str,
-                 ncase      : int,
-                 val        : Any,
-                 valmap     : dict[Any, float] | None = None,
-                 ismedian   : bool = False,
-                 datasource : str | None = None,
-                 ):
-        super().__init__(name=name, ncase=ncase, ismedian=ismedian,
-                         datasource=datasource)
+    __slots__ = (
+        "name",
+        "ncase",
+        "ismedian",
+        "datasource",
+        "val",
+        "valmap",
+        "num",
+        "nummap",
+        "isscalar",
+        "shape",
+    )
+
+    def __init__(
+        self,
+        name: str,
+        ncase: int,
+        val: Any,
+        valmap: dict[Any, float] | None = None,
+        ismedian: bool = False,
+        datasource: str | None = None,
+    ):
+        super().__init__(name=name, ncase=ncase, ismedian=ismedian, datasource=datasource)
         self.val = val
         self.valmap = valmap
         self.convertPandas()
 
         self.genShape()
         if valmap is None:
-            self.valmapsource = 'auto'
+            self.valmapsource = "auto"
             self.extractValMap()
         else:
-            self.valmapsource = 'assigned'
+            self.valmapsource = "assigned"
         self.mapVal()
         self.genNumMap()
 
-
     def __repr__(self):
         if self.isscalar:
-            return (f"{self.__class__.__name__}('{self.name}', ncase={self.ncase}, " +
-                    f"val={self.val} ({self.num}))")
+            return (
+                f"{self.__class__.__name__}('{self.name}', ncase={self.ncase}, "
+                + f"val={self.val} ({self.num}))"
+            )
         else:
-            return (f"{self.__class__.__name__}('{self.name}', ncase={self.ncase}, " +
-                    f"shape={self.shape}, val=[{self.val[0]}, ..., {self.val[-1]}] " +
-                    f"([{self.num[0]}, ..., {self.num[-1]}])")
-
+            return (
+                f"{self.__class__.__name__}('{self.name}', ncase={self.ncase}, "
+                + f"shape={self.shape}, val=[{self.val[0]}, ..., {self.val[-1]}] "
+                + f"([{self.num[0]}, ..., {self.num[-1]}])"
+            )
 
     def convertPandas(self) -> None:
         """
@@ -232,7 +257,6 @@ class OutVal(Val):
         if pd:
             if isinstance(self.val, pd.Series) or isinstance(self.val, pd.Index):
                 self.val = self.val.values
-
 
     def genShape(self) -> None:
         """
@@ -244,7 +268,6 @@ class OutVal(Val):
         self.isscalar = False
         if self.shape == ():
             self.isscalar = True
-
 
     def extractValMap(self) -> None:
         """
@@ -267,7 +290,6 @@ class OutVal(Val):
                 sorted_vals = sorted(set(hashable_vals))
                 self.valmap = {val: idx for idx, val in enumerate(sorted_vals)}
 
-
     def mapVal(self) -> None:
         """
         Map the output value to a number or array of numbers.
@@ -277,7 +299,7 @@ class OutVal(Val):
         elif self.isscalar:
             self.num = self.valmap[hashable_val(self.val)]
         else:
-            num = np.asarray(self.val, dtype='object')
+            num = np.asarray(self.val, dtype="object")
             if len(self.shape) == 1:
                 for i in range(self.shape[0]):
                     num[i] = self.valmap[hashable_val(self.val[i])]
@@ -285,8 +307,7 @@ class OutVal(Val):
                 for i in range(self.shape[0]):
                     for j in range(self.shape[1]):
                         num[i][j] = self.valmap[hashable_val(self.val[i][j])]
-            self.num = np.asarray(num, dtype='float')
-
+            self.num = np.asarray(num, dtype="float")
 
     def genNumMap(self) -> None:
         """
@@ -297,8 +318,7 @@ class OutVal(Val):
         else:
             self.nummap = {hashable_val(num): val for val, num in self.valmap.items()}
 
-
-    def split(self) -> dict[str, 'OutVal']:  # Quotes in typing to avoid import error
+    def split(self) -> dict[str, "OutVal"]:  # Quotes in typing to avoid import error
         """
         Split a output value along its outermost dimension,
         and generate individual OutVal objects for each index.
@@ -310,11 +330,12 @@ class OutVal(Val):
         vals = dict()
         if len(self.shape) > 1:
             for i in range(self.shape[0]):
-                name = self.name + f' [{i}]'
+                name = self.name + f" [{i}]"
                 if HAS_PANDAS and isinstance(self.val, (pd.Series, pd.Index)):
                     val = self.val.iloc[i]
                 else:
                     val = self.val[i]
-                vals[name] = OutVal(name=name, ncase=self.ncase, val=val,
-                                    valmap=self.valmap, ismedian=self.ismedian)
+                vals[name] = OutVal(
+                    name=name, ncase=self.ncase, val=val, valmap=self.valmap, ismedian=self.ismedian
+                )
         return vals

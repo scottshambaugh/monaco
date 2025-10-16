@@ -6,11 +6,12 @@ from monaco.mc_case import Case
 from monaco.helper_functions import vwrite, vwarn, get_list
 
 
-def preprocess_case(preprocfcn: Callable,
-                    case : Case,
-                    debug : bool,
-                    verbose : bool,
-                    ) -> Case:
+def preprocess_case(
+    preprocfcn: Callable,
+    case: Case,
+    debug: bool,
+    verbose: bool,
+) -> Case:
     """
     Preprocess a single Monte Carlo case.
 
@@ -32,17 +33,18 @@ def preprocess_case(preprocfcn: Callable,
         if debug:
             raise
         else:
-            vwarn(verbose, f'\nPreprocessing case {case.ncase} failed')
+            vwarn(verbose, f"\nPreprocessing case {case.ncase} failed")
 
     return case
 
 
-def run_case(runfcn: Callable,
-             case : Case,
-             debug : bool,
-             verbose : bool,
-             runsimid : int,
-             ) -> Case:
+def run_case(
+    runfcn: Callable,
+    case: Case,
+    debug: bool,
+    verbose: bool,
+    runsimid: int,
+) -> Case:
     """
     Run a single Monte Carlo case.
 
@@ -69,16 +71,17 @@ def run_case(runfcn: Callable,
     except Exception:
         if debug:
             raise
-        vwrite(verbose, f'\nRunning case {case.ncase} failed')
+        vwrite(verbose, f"\nRunning case {case.ncase} failed")
 
     return case
 
 
-def postprocess_case(postprocfcn: Callable,
-                     case : Case,
-                     debug : bool,
-                     verbose : bool,
-                     ) -> Case:
+def postprocess_case(
+    postprocfcn: Callable,
+    case: Case,
+    debug: bool,
+    verbose: bool,
+) -> Case:
     """
     Postprocess a single Monte Carlo case.
 
@@ -102,18 +105,20 @@ def postprocess_case(postprocfcn: Callable,
         if debug:
             raise
         else:
-            vwrite(verbose, f'\nPostprocessing case {case.ncase} failed')
+            vwrite(verbose, f"\nPostprocessing case {case.ncase} failed")
 
     return case
 
 
-def execute_full_case(preprocfcn: Callable,
-                      runfcn: Callable,
-                      postprocfcn: Callable,
-                      case: Case,
-                      debug: bool,
-                      verbose: bool,
-                      runsimid: int) -> Case:
+def execute_full_case(
+    preprocfcn: Callable,
+    runfcn: Callable,
+    postprocfcn: Callable,
+    case: Case,
+    debug: bool,
+    verbose: bool,
+    runsimid: int,
+) -> Case:
     """
     Execute the full preprocessing, run, and postprocessing pipeline for a case.
 

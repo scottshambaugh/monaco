@@ -12,14 +12,15 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('./../../src/monaco/'))
+
+sys.path.insert(0, os.path.abspath("./../../src/monaco/"))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'monaco'
-copyright = '2025, Scott Shambaugh'
-author = 'Scott Shambaugh'
+project = "monaco"
+copyright = "2025, Scott Shambaugh"
+author = "Scott Shambaugh"
 
 
 # -- General configuration ---------------------------------------------------
@@ -37,12 +38,12 @@ extensions = [
 ]
 
 source_suffix = {
-    '.rst': 'restructuredtext',
-    '.md': 'markdown',
+    ".rst": "restructuredtext",
+    ".md": "markdown",
 }
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -51,11 +52,11 @@ exclude_patterns = []
 
 
 def linkcode_resolve(domain, info):
-    if domain != 'py':
+    if domain != "py":
         return None
-    if not info['module']:
+    if not info["module"]:
         return None
-    filename = info['module'].replace('.', '/')
+    filename = info["module"].replace(".", "/")
     return "https://github.com/scottshambaugh/monaco/blob/main/src/%s.py" % filename
 
 
@@ -63,17 +64,17 @@ def linkcode_resolve(domain, info):
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 html_static_path = []
-html_logo = '../images/monaco_logo.png'
-html_favicon = '../images/favicon.ico'
+html_logo = "../images/monaco_logo.png"
+html_favicon = "../images/favicon.ico"
 html_theme_options = {
-    'collapse_navigation': False,
-    'sticky_navigation': True,
-    'navigation_depth': -1,
-    'logo_only': True,
-    'display_version': False,
-    'style_nav_header_background': '#e3e3e3',
+    "collapse_navigation": False,
+    "sticky_navigation": True,
+    "navigation_depth": -1,
+    "logo_only": True,
+    "display_version": False,
+    "style_nav_header_background": "#e3e3e3",
 }
 
-autodoc_member_order = 'bysource'
+autodoc_member_order = "bysource"

@@ -2,10 +2,11 @@ from scipy.stats import uniform
 import monaco as mc
 import numpy as np
 
+
 # Define our functions
 def integration_example_preprocess(case):
-    x = case.invals['x'].val
-    y = case.invals['y'].val
+    x = case.invals["x"].val
+    y = case.invals["y"].val
     return (x, y)
 
 
@@ -18,25 +19,27 @@ def integration_example_run(x, y):
 
 
 def integration_example_postprocess(case, isUnderCurve):
-    case.addOutVal('pi_est', isUnderCurve)
+    case.addOutVal("pi_est", isUnderCurve)
 
 
-fcns = {'preprocess' : integration_example_preprocess,
-        'run'        : integration_example_run,
-        'postprocess': integration_example_postprocess}
+fcns = {
+    "preprocess": integration_example_preprocess,
+    "run": integration_example_run,
+    "postprocess": integration_example_postprocess,
+}
 
 # We need to know the limits of integration beforehand, and for integration
 # these should always be uniform dists
 xrange = [-1, 1]
 yrange = [-1, 1]
-totalArea = (xrange[1] - xrange[0])*(yrange[1] - yrange[0])
+totalArea = (xrange[1] - xrange[0]) * (yrange[1] - yrange[0])
 dimension = 2
 
 # Integration best practices:
 # File I/O will crush performance, so recommended not to save case data
 savecasedata = False
 # Use SOBOL over SOBOL_RANDOM for a speedup, since all our dists are uniform
-samplemethod = 'sobol'
+samplemethod = "sobol"
 # Since we want a power of 2, we should not run a 'median' case which would add 1
 firstcaseismedian = False
 
@@ -50,48 +53,74 @@ firstcaseismedian = False
 error = 0.01
 conf = 0.95
 stdev = mc.max_stdev(low=0, high=1)
-print(f'Maximum possible standard deviation: {stdev:0.3f}')
+print(f"Maximum possible standard deviation: {stdev:0.3f}")
 
-nRandom = mc.integration_n_from_err(error=error, dimension=dimension, volume=totalArea,
-                                    stdev=stdev, conf=conf, samplemethod='random')
-nSobol  = mc.integration_n_from_err(error=error, dimension=dimension, volume=totalArea,
-                                    stdev=stdev, conf=conf, samplemethod='sobol')
-print(f'Number of samples needed to reach an error ≤ ±{error} at {round(conf*100, 2)}% ' +
-      f'confidence if using random vs sobol sampling: {nRandom} vs {nSobol}')
+nRandom = mc.integration_n_from_err(
+    error=error,
+    dimension=dimension,
+    volume=totalArea,
+    stdev=stdev,
+    conf=conf,
+    samplemethod="random",
+)
+nSobol = mc.integration_n_from_err(
+    error=error, dimension=dimension, volume=totalArea, stdev=stdev, conf=conf, samplemethod="sobol"
+)
+print(
+    f"Number of samples needed to reach an error ≤ ±{error} at {round(conf * 100, 2)}% "
+    + f"confidence if using random vs sobol sampling: {nRandom} vs {nSobol}"
+)
 
 # The sobol methods need to be a power of 2 for best performance and balance
 ndraws = mc.next_power_of_2(nSobol)
-print(f'Rounding up to next power of 2: {ndraws} samples')
+print(f"Rounding up to next power of 2: {ndraws} samples")
 
 seed = 123639
 
+
 def integration_example_monte_carlo_sim():
+    sim = mc.Sim(
+        name="integration",
+        ndraws=ndraws,
+        fcns=fcns,
+        firstcaseismedian=firstcaseismedian,
+        samplemethod=samplemethod,
+        seed=seed,
+        singlethreaded=True,
+        savecasedata=savecasedata,
+        savesimdata=False,
+        verbose=True,
+        debug=True,
+    )
 
-    sim = mc.Sim(name='integration', ndraws=ndraws, fcns=fcns,
-                 firstcaseismedian=firstcaseismedian, samplemethod=samplemethod,
-                 seed=seed, singlethreaded=True,
-                 savecasedata=savecasedata, savesimdata=False,
-                 verbose=True, debug=True)
-
-    sim.addInVar(name='x', dist=uniform,
-                 distkwargs={'loc': xrange[0], 'scale': (xrange[1] - xrange[0])})  # -1 <= x <= 1
-    sim.addInVar(name='y', dist=uniform,
-                 distkwargs={'loc': yrange[0], 'scale': (yrange[1] - yrange[0])})  # -1 <= y <= 1
+    sim.addInVar(
+        name="x", dist=uniform, distkwargs={"loc": xrange[0], "scale": (xrange[1] - xrange[0])}
+    )  # -1 <= x <= 1
+    sim.addInVar(
+        name="y", dist=uniform, distkwargs={"loc": yrange[0], "scale": (yrange[1] - yrange[0])}
+    )  # -1 <= y <= 1
 
     sim.runSim()
 
     # Note that (True,False) vals are automatically valmapped to the nums (1,0)
-    underCurvePct = sum(sim.outvars['pi_est'].nums)/ndraws
-    err = mc.integration_error(sim.outvars['pi_est'].nums, dimension=dimension,
-                               volume=totalArea, conf=conf,
-                               samplemethod=samplemethod, runningerror=False)
-    stdev = np.std(sim.outvars['pi_est'].nums, ddof=1)
+    underCurvePct = sum(sim.outvars["pi_est"].nums) / ndraws
+    err = mc.integration_error(
+        sim.outvars["pi_est"].nums,
+        dimension=dimension,
+        volume=totalArea,
+        conf=conf,
+        samplemethod=samplemethod,
+        runningerror=False,
+    )
+    stdev = np.std(sim.outvars["pi_est"].nums, ddof=1)
 
-    resultsstr = f'π ≈ {underCurvePct*totalArea:0.5f}, n = {ndraws}, ' + \
-                 f'{round(conf*100, 2)}% error = ±{err:0.5f}, stdev={stdev:0.3f}'
+    resultsstr = (
+        f"π ≈ {underCurvePct * totalArea:0.5f}, n = {ndraws}, "
+        + f"{round(conf * 100, 2)}% error = ±{err:0.5f}, stdev={stdev:0.3f}"
+    )
     print(resultsstr)
 
-    '''
+    """
     import matplotlib.pyplot as plt
     indices_under_curve = [i for i, x in enumerate(sim.outvars['pi_est'].vals) if x]
     fig, ax = mc.plot(sim.invars['x'], sim.invars['y'], highlight_cases=indices_under_curve)
@@ -115,10 +144,10 @@ def integration_example_monte_carlo_sim():
     plt.savefig('pi_error.png', dpi=100)
 
     plt.show()
-    #'''
+    #"""
 
     return sim
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sim = integration_example_monte_carlo_sim()

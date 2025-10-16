@@ -3,6 +3,7 @@ from __future__ import annotations
 
 # Somewhat hacky type checking to avoid circular imports:
 from typing import TYPE_CHECKING, Iterable
+
 if TYPE_CHECKING:
     from monaco.mc_sim import Sim
 
@@ -15,6 +16,7 @@ from monaco.helper_functions import get_cases
 # numba is recommended for speed, as this will be very slow otherwise
 try:
     from numba import jit
+
     HAS_NUMBA = True
 except ImportError:
     HAS_NUMBA = False
@@ -30,13 +32,14 @@ except ImportError:
             return decorator
 
 
-def calc_sensitivities(sim        : 'Sim',
-                       outvarname : str,
-                       cases      : None | int | Iterable[int] = None,
-                       Hj         : float = 1.0,
-                       tol        : float = 1e-6,
-                       verbose    : bool  = False,
-                       ) -> tuple[np.ndarray, np.ndarray]:
+def calc_sensitivities(
+    sim: "Sim",
+    outvarname: str,
+    cases: None | int | Iterable[int] = None,
+    Hj: float = 1.0,
+    tol: float = 1e-6,
+    verbose: bool = False,
+) -> tuple[np.ndarray, np.ndarray]:
     """
     Calculates the global sensitivity indices and ratios for a specific output
     variable to each of a simulation's input variables.
@@ -96,7 +99,7 @@ def calc_sensitivities(sim        : 'Sim',
     cases = get_cases(ncases=sim.ncases, cases=cases)
     ncases = len(cases)
     if ncases != sim.ncases:
-        warn(f'Only using {ncases} of {sim.ncases} cases for D-VARS sensitivity analysis')
+        warn(f"Only using {ncases} of {sim.ncases} cases for D-VARS sensitivity analysis")
 
     phi_opt = calc_phi_opt(sim, outvarname, cases, tol, verbose)
 
@@ -104,17 +107,14 @@ def calc_sensitivities(sim        : 'Sim',
     sensitivities = np.zeros(sim.ninvars)
     for j in range(sim.ninvars):
         sensitivities[j] = calc_Gammaj(Hj, phi_opt[j], variance)
-    ratios = sensitivities/sum(sensitivities)
+    ratios = sensitivities / sum(sensitivities)
 
     return sensitivities, ratios
 
 
-def calc_phi_opt(sim        : 'Sim',
-                 outvarname : str,
-                 cases      : list[int],
-                 tol        : float = 1e-6,
-                 verbose    : bool = False
-                 ) -> np.ndarray:
+def calc_phi_opt(
+    sim: "Sim", outvarname: str, cases: list[int], tol: float = 1e-6, verbose: bool = False
+) -> np.ndarray:
     """
     Calculate the optimal hyperparameters for the covariance functions between
     the output variable and each of the input variables via maximum likelihood
@@ -151,22 +151,17 @@ def calc_phi_opt(sim        : 'Sim',
         phi0s.append(phi0)
         bounds.append((phi_min, phi_max))
 
-    logger = logging.getLogger('monaco')
-    logger.info('Calculating optimal hyperparameters Φ for ' +
-                f"'{outvarname}' covariances...")
+    logger = logging.getLogger("monaco")
+    logger.info("Calculating optimal hyperparameters Φ for " + f"'{outvarname}' covariances...")
     X, Y = full_states(sim, outvarname, cases)
-    res = minimize(L_runner, phi0s, args=(X, Y, verbose), bounds=bounds,
-                   tol=tol, method='L-BFGS-B')
+    res = minimize(L_runner, phi0s, args=(X, Y, verbose), bounds=bounds, tol=tol, method="L-BFGS-B")
     phi_opt = res.x
-    logger.info('Done calculating optimal hyperparameters.')
+    logger.info("Done calculating optimal hyperparameters.")
 
     return phi_opt
 
 
-def full_states(sim : 'Sim',
-                outvarname : str,
-                cases      : list[int]
-                ) -> tuple[np.ndarray, np.ndarray]:
+def full_states(sim: "Sim", outvarname: str, cases: list[int]) -> tuple[np.ndarray, np.ndarray]:
     """
     Get the full input and output states in combined matrices.
 
@@ -196,10 +191,7 @@ def full_states(sim : 'Sim',
     return X, Y
 
 
-def calc_Gammaj(Hj       : float,
-                phij     : float,
-                variance : float
-                ) -> float:
+def calc_Gammaj(Hj: float, phij: float, variance: float) -> float:
     """
     Calculates the IVARS sensitivity index from a learned covariance function.
 
@@ -226,20 +218,16 @@ def calc_Gammaj(Hj       : float,
         The global sensitivity index for this output-input variable pair.
     """
     dh = 1e-3
-    q = int(np.floor(Hj/dh))
-    rjs = np.zeros(q+1)
-    for i in range(q+1):
-        rjs[i] = calc_rj(dh*i, phij)
+    q = int(np.floor(Hj / dh))
+    rjs = np.zeros(q + 1)
+    for i in range(q + 1):
+        rjs[i] = calc_rj(dh * i, phij)
 
     Gammaj = np.trapz(1 - rjs) * dh * variance
     return Gammaj
 
 
-def L_runner(phi     : np.ndarray,
-             X       : np.ndarray,
-             Y       : np.ndarray,
-             verbose : bool = False
-             ) -> float:
+def L_runner(phi: np.ndarray, X: np.ndarray, Y: np.ndarray, verbose: bool = False) -> float:
     """
     A wrapper function for calculating the negative log-likelihood cost.
 
@@ -261,16 +249,13 @@ def L_runner(phi     : np.ndarray,
     """
     L = calc_L(phi, X, Y)
     if verbose:
-        logger = logging.getLogger('monaco')
-        logger.info(f'L = {L:0.4f}, Φ = {phi}')
+        logger = logging.getLogger("monaco")
+        logger.info(f"L = {L:0.4f}, Φ = {phi}")
     return L
 
 
 @jit(nopython=True, cache=True)
-def calc_L(phi : np.ndarray,
-           X   : np.ndarray,
-           Y   : np.ndarray
-           ) -> float:
+def calc_L(phi: np.ndarray, X: np.ndarray, Y: np.ndarray) -> float:
     """
     Calculate the negative log-likelihood cost. Note that this is just-in-time
     compiled by numba for increased speed.
@@ -297,16 +282,17 @@ def calc_L(phi : np.ndarray,
 
     mu = np.linalg.inv(M.T @ Rinv @ M) @ (M.T @ Rinv @ Y)
 
-    L_inner = Y - M*mu
-    L = np.log(Rdet)/m + m*np.log(L_inner.T @ Rinv @ L_inner)
+    L_inner = Y - M * mu
+    L = np.log(Rdet) / m + m * np.log(L_inner.T @ Rinv @ L_inner)
     L = L[0][0]
     return L
 
 
 @jit(nopython=True, cache=True)
-def calc_R(phi : np.ndarray,
-           X   : np.ndarray,
-           ) -> np.ndarray:
+def calc_R(
+    phi: np.ndarray,
+    X: np.ndarray,
+) -> np.ndarray:
     """
     Calculate the correlation matrix between each of the input states.
     Note that this is just-in-time compiled by numba for increased speed.
@@ -336,10 +322,7 @@ def calc_R(phi : np.ndarray,
 
 
 @jit(nopython=True, cache=True)
-def calc_Ruw(phi : np.ndarray,
-             Xu  : np.ndarray,
-             Xw  : np.ndarray
-             ) -> float:
+def calc_Ruw(phi: np.ndarray, Xu: np.ndarray, Xw: np.ndarray) -> float:
     """
     Calculate the correlation between two input states.
     Note that this is just-in-time compiled by numba for increased speed.
@@ -361,14 +344,12 @@ def calc_Ruw(phi : np.ndarray,
     h = Xu - Xw
     Ruw = 1
     for j, hj in enumerate(h):
-        Ruw = Ruw*calc_rj(hj, phi[j])
+        Ruw = Ruw * calc_rj(hj, phi[j])
     return Ruw
 
 
 @jit(nopython=True, cache=True)
-def calc_rj(hj   : float,
-            phij : float
-            ) -> float:
+def calc_rj(hj: float, phij: float) -> float:
     """
     The covariance function (also called a kernel). We currently use a linear
     kernel which has a single hyperparameter that must be learned.
@@ -386,7 +367,7 @@ def calc_rj(hj   : float,
     rj : float
         The covariance.
     """
-    rj = max(0, 1 - phij*abs(hj))  # linear covariance function
+    rj = max(0, 1 - phij * abs(hj))  # linear covariance function
     # rj = np.exp(-(abs(hj)/phij))  # exponential covariance function
     # rj = np.exp(-(hj/phij)**2)  # squared exponential covariance function
     return rj
