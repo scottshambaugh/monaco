@@ -35,6 +35,8 @@ from monaco.helper_functions import (
 from monaco.case_runners import preprocess_case, run_case, postprocess_case, execute_full_case
 from monaco.globals import _worker_init, register_global_vars
 from monaco.dvars_sensitivity import calc_sensitivities
+from monaco.sobol_sensitivity import calc_sobol_sensitivities, SobolIndices
+from monaco.mc_sampling import saltelli_sampling, SaltelliSamples
 from monaco.mc_multi_plot import multi_plot_grid_rect
 
 try:
@@ -260,6 +262,8 @@ class Sim:
         savecasedata: bool = False,
         resultsdir: str | pathlib.Path | None = None,
         logfile: str | pathlib.Path | None = None,
+        nstars: int | None = None,
+        npts: int = 1,
     ) -> None:
         self.name = name
         self.verbose = verbose
@@ -329,6 +333,11 @@ class Sim:
         if not self.singlethreaded and self.usedask and not HAS_DASK:
             vwarn(self.verbose, "Dask is not installed, falling back to multiprocessing")
             self.usedask = False
+
+        # Saltelli sampling parameters for Sobol' sensitivity analysis
+        self._saltelli_samples: SaltelliSamples | None = None
+        self.nstars = nstars
+        self.npts = npts
 
         self.invals_cache = []
 
@@ -638,11 +647,72 @@ class Sim:
                 f"Drawing random samples for {self.ninvars} input variables "
                 + f"via the '{self.samplemethod}' method..."
             )
-            for invar in self.invars.values():
-                if invar.datasource is None:
-                    invar.draw(ninvar_max=self.ninvars)
+
+            if self.samplemethod == SampleMethod.SOBOL_SALTELLI:
+                self._drawVarsSaltelli()
+            else:
+                for invar in self.invars.values():
+                    if invar.datasource is None:
+                        invar.draw(ninvar_max=self.ninvars)
+
             self.logger.info("Done")
         return self
+
+    def _drawVarsSaltelli(self) -> None:
+        """
+        Draw variables using the Saltelli sampling scheme for Sobol' sensitivity.
+
+        This generates a structured sample that allows efficient computation of
+        first-order and total-order Sobol' sensitivity indices.
+        """
+        # Determine nstars from ndraws if not specified
+        if self.nstars is None:
+            # ndraws = nstars * (2 + ninvars * npts)
+            # Solve for nstars
+            self.nstars = self.ndraws // (2 + self.ninvars * self.npts)
+            if self.nstars < 1:
+                raise ValueError(
+                    f"ndraws={self.ndraws} is too small for Saltelli sampling with "
+                    f"{self.ninvars} input variables and npts={self.npts}. "
+                    f"Minimum ndraws = {2 + self.ninvars * self.npts}"
+                )
+
+        # Generate Saltelli samples
+        self._saltelli_samples = saltelli_sampling(
+            nstars=self.nstars,
+            ninvars=self.ninvars,
+            npts=self.npts,
+            scramble=True,
+            seed=self.seed,
+        )
+
+        # Get all sample points as a flattened array
+        all_points = self._saltelli_samples.get_all_points()
+        total_points = self._saltelli_samples.total_points
+
+        # Update ndraws to match actual number of points
+        if self.ndraws != total_points:
+            vwarn(
+                self.verbose,
+                f"Adjusting ndraws from {self.ndraws} to {total_points} "
+                f"to match Saltelli sampling structure "
+                f"(nstars={self.nstars}, npts={self.npts}, ninvars={self.ninvars})."
+            )
+            # Saltelli doesn't use median case
+            self.firstcaseismedian = False
+            # Update ndraws and ncases properly
+            self.ndraws = total_points
+            self.ncases = total_points
+            for invar in self.invars.values():
+                invar.setNDraws(self.ndraws)
+                invar.firstcaseismedian = False
+
+        # Assign percentiles to each InVar from the Saltelli structure
+        for i, invar in enumerate(self.invars.values()):
+            if invar.datasource is None:
+                # Set custom percentiles from Saltelli samples
+                invar.custom_pcts = all_points[:, i].tolist()
+                invar.draw(ninvar_max=self.ninvars)
 
     def runSim(
         self,
@@ -733,6 +803,15 @@ class Sim:
                 self.saveSim()
 
         self.drawVars()
+
+        # For Saltelli sampling, ndraws/ncases may have been updated in drawVars()
+        # Recalculate cases to generate based on the new ncases
+        if self.samplemethod == SampleMethod.SOBOL_SALTELLI:
+            casestogenerate = self._downselectCases(cases=None)
+            casestopreprocess = casestogenerate
+            casestorun = casestogenerate
+            casestopostprocess = casestogenerate
+
         self.genCases(cases=casestogenerate)
         self.executeAllFcns(
             casestopreprocess=casestopreprocess,
@@ -1545,6 +1624,98 @@ class Sim:
                 self.outvars[outvarname].sensitivity_indices = sensitivities_dict
                 self.outvars[outvarname].sensitivity_ratios = ratios_dict
                 self.logger.info("Done calculating sensitivity indices.")
+        return self
+
+    def calcSobolIndices(
+        self,
+        outvarnames: None | str | Iterable[str] = None,
+        method: str = "saltelli_2010",
+    ) -> Sim:
+        """
+        Calculate Sobol' sensitivity indices for the specified outvars.
+
+        This requires the simulation to have been run with Saltelli sampling
+        (samplemethod=SOBOL_SALTELLI). The method calculates variance-based
+        first-order (S_i) and total-order (S_Ti) sensitivity indices.
+
+        Parameters
+        ----------
+        outvarnames : None | str | Iterable[str], default: None
+            The outvar names to calculate sensitivity indices for. If None,
+            then calculates sensitivities for all scalar outvars.
+        method : str, default: 'saltelli_2010'
+            Estimator method for computing indices. Options:
+            - 'saltelli_2002': Original Saltelli estimators
+            - 'saltelli_2010': Improved estimators (recommended)
+            - 'jansen': Jansen estimator for total-order
+
+        Returns
+        -------
+        self : Sim
+            Returns self for method chaining.
+
+        Raises
+        ------
+        ValueError
+            If the simulation was not run with Saltelli sampling.
+
+        Notes
+        -----
+        Results are stored in OutVar attributes:
+        - sobol_indices: SobolIndices object with first_order and total_order dicts
+        - sensitivity_indices: Alias for first_order (for compatibility with plots)
+        - sensitivity_ratios: Normalized first_order indices
+
+        The first-order index S_i measures the direct contribution of
+        input i to output variance. The total-order index S_Ti includes
+        all interactions involving input i.
+
+        References
+        ----------
+        .. [1] Sobol', I. M. (1993). "Sensitivity estimates for nonlinear
+               mathematical models."
+        .. [2] Saltelli, A. (2002). "Making best use of model evaluations to
+               compute sensitivity indices."
+        """
+        if not hasattr(self, "_saltelli_samples") or self._saltelli_samples is None:
+            raise ValueError(
+                "Sobol' sensitivity analysis requires Saltelli sampling. "
+                "Set samplemethod=SampleMethod.SOBOL_SALTELLI when creating the Sim."
+            )
+
+        if outvarnames is None:
+            outvarnames = list(self.scalarOutVars().keys())
+        outvarnames = get_list(outvarnames)
+
+        for outvarname in outvarnames:
+            if not self.outvars[outvarname].isscalar:
+                vwarn(
+                    self.verbose,
+                    f"Output variable '{outvarname}' is not scalar, "
+                    + "skipping Sobol' sensitivity calculations.",
+                )
+            else:
+                indices = calc_sobol_sensitivities(
+                    sim=self,
+                    outvarname=outvarname,
+                    saltelli_samples=self._saltelli_samples,
+                    method=method,
+                )
+
+                self.outvars[outvarname].sobol_indices = indices
+
+                # Also set sensitivity_indices for plotting compatibility
+                self.outvars[outvarname].sensitivity_indices = indices.first_order
+                total_first = sum(indices.first_order.values())
+                if total_first > 0:
+                    self.outvars[outvarname].sensitivity_ratios = {
+                        k: v / total_first for k, v in indices.first_order.items()
+                    }
+                else:
+                    self.outvars[outvarname].sensitivity_ratios = {
+                        k: 0.0 for k in indices.first_order
+                    }
+
         return self
 
     def genCovarianceMatrix(self) -> Sim:

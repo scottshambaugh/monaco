@@ -763,6 +763,7 @@ class OutVar(Var):
         self.genMaxDim()
         self.sensitivity_indices: None | dict = None
         self.sensitivity_ratios: None | dict = None
+        self.sobol_indices = None  # SobolIndices object from sobol_sensitivity.py
 
     def __repr__(self):
         return (

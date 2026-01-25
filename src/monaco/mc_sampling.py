@@ -6,7 +6,188 @@ import sys
 import scipy.stats
 import numpy as np
 from functools import lru_cache
+from dataclasses import dataclass
 from monaco.mc_enums import SampleMethod
+
+
+@dataclass
+class SaltelliSamples:
+    """
+    Container for Saltelli sampling matrices used in Sobol' sensitivity analysis.
+
+    Attributes
+    ----------
+    A : numpy.ndarray
+        Base matrix A, shape (nstars, ninvars). The "star centers".
+    B : numpy.ndarray
+        Base matrix B, shape (nstars, ninvars). Independent samples for
+        total-order estimation.
+    AB : numpy.ndarray
+        Hybrid matrices, shape (ninvars, npts, nstars, ninvars).
+        AB[i, k] is the matrix where column i is interpolated k/(npts) of the
+        way from A[:,i] to B[:,i].
+    nstars : int
+        Number of star centers.
+    npts : int
+        Number of points per arm of the star.
+    ninvars : int
+        Number of input variables (dimensions).
+    total_points : int
+        Total number of sample points: nstars * (2 + ninvars * npts).
+    """
+
+    A: np.ndarray
+    B: np.ndarray
+    AB: np.ndarray
+    nstars: int
+    npts: int
+    ninvars: int
+
+    @property
+    def total_points(self) -> int:
+        """Total number of sample points."""
+        return self.nstars * (2 + self.ninvars * self.npts)
+
+    def get_all_points(self) -> np.ndarray:
+        """
+        Get all sample points as a single array.
+
+        Returns
+        -------
+        points : numpy.ndarray
+            Shape (total_points, ninvars). Points ordered as:
+            A (nstars), B (nstars), AB_0 (npts*nstars), AB_1 (npts*nstars), ...
+        """
+        points = [self.A, self.B]
+        for i in range(self.ninvars):
+            for k in range(self.npts):
+                points.append(self.AB[i, k])
+        return np.vstack(points)
+
+    def get_point_labels(self) -> list[str]:
+        """
+        Get labels identifying each point's role.
+
+        Returns
+        -------
+        labels : list[str]
+            Labels for each point: 'A', 'B', or 'AB_i_k' where i is the
+            dimension and k is the arm point index.
+        """
+        labels = ["A"] * self.nstars + ["B"] * self.nstars
+        for i in range(self.ninvars):
+            for k in range(self.npts):
+                labels.extend([f"AB_{i}_{k}"] * self.nstars)
+        return labels
+
+
+def saltelli_sampling(
+    nstars: int,
+    ninvars: int,
+    npts: int = 1,
+    scramble: bool = True,
+    seed: int = 0,
+) -> SaltelliSamples:
+    """
+    Generate Saltelli sampling matrices for Sobol' sensitivity analysis.
+
+    Creates the "star" sampling pattern where each center point has arms
+    extending along each dimension. This implements a generalized Saltelli
+    scheme that supports multiple points per arm.
+
+    Parameters
+    ----------
+    nstars : int
+        Number of star centers. Should be a power of 2 for best Sobol'
+        sequence properties.
+    ninvars : int
+        Number of input variables (dimensions).
+    npts : int, default: 1
+        Number of points along each arm of the star. With npts=1, this gives
+        the standard Saltelli scheme. Higher values provide finer resolution
+        along each dimension.
+    scramble : bool, default: True
+        Whether to apply Owen's scrambling to the Sobol' sequence.
+    seed : int, default: 0
+        Random seed for scrambling.
+
+    Returns
+    -------
+    samples : SaltelliSamples
+        Container with matrices A, B, and AB.
+
+    Notes
+    -----
+    Total function evaluations required: nstars * (2 + ninvars * npts)
+
+    For standard Saltelli (npts=1): nstars * (ninvars + 2)
+
+    The star structure from each center in A:
+    - The center point itself (from A)
+    - For each dimension i, npts points where only dimension i varies
+      (interpolating from A[:,i] toward B[:,i])
+
+    Matrix B is needed for the total-order sensitivity index estimator.
+
+    References
+    ----------
+    .. [1] Saltelli, A. (2002). "Making best use of model evaluations to
+           compute sensitivity indices." Computer Physics Communications.
+    .. [2] Sobol', I. M. (1993). "Sensitivity estimates for nonlinear
+           mathematical models." Mathematical Modelling and Computational
+           Experiments.
+    """
+    # Generate 2*ninvars dimensions to get independent A and B matrices
+    sampler = scipy.stats.qmc.Sobol(d=2 * ninvars, scramble=scramble, seed=seed)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=UserWarning)
+        samples = sampler.random(n=nstars)
+
+    # Split into A and B matrices
+    A = samples[:, :ninvars]
+    B = samples[:, ninvars:]
+
+    # Create AB hybrid matrices with interpolation for multiple points per arm
+    # AB[i, k] is matrix where column i is interpolated k+1 steps toward B
+    AB = np.zeros((ninvars, npts, nstars, ninvars))
+    for i in range(ninvars):
+        for k in range(npts):
+            # Interpolation factor: k=0 gives 1/npts, k=npts-1 gives 1.0
+            # This ensures the last point equals B[:,i] (standard Saltelli)
+            t = (k + 1) / npts
+            AB[i, k] = A.copy()
+            AB[i, k, :, i] = A[:, i] * (1 - t) + B[:, i] * t
+
+    return SaltelliSamples(
+        A=A,
+        B=B,
+        AB=AB,
+        nstars=nstars,
+        npts=npts,
+        ninvars=ninvars,
+    )
+
+
+def get_saltelli_total_cases(nstars: int, ninvars: int, npts: int = 1) -> int:
+    """
+    Calculate total number of cases needed for Saltelli sampling.
+
+    Parameters
+    ----------
+    nstars : int
+        Number of star centers.
+    ninvars : int
+        Number of input variables.
+    npts : int, default: 1
+        Number of points per arm.
+
+    Returns
+    -------
+    total : int
+        Total cases needed: nstars * (2 + ninvars * npts)
+    """
+    return nstars * (2 + ninvars * npts)
 
 
 def sampling(

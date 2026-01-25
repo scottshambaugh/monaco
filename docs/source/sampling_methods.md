@@ -26,8 +26,79 @@ The only disadvantage of ```sobol_random``` is that it is slower than ```sobol``
 
 Also implemented for completeness are the ```halton```, ```halton_random```, and ```latin_hypercube``` sampling methods. However the Halton sequence usually performs worse than the Sobol sequence, and Latin Hypercube sampling performs no better than random for more than approx. 3 input variables at the cost of speed, so users generally should not use these.
 
+## Sobol' Star Sampling (Saltelli Scheme)
+
+The ```sobol_saltelli``` sampling method implements the Saltelli sampling scheme for computing variance-based Sobol' sensitivity indices. This is a specialized sampling pattern designed specifically for global sensitivity analysis.
+
+### How It Works
+
+Rather than generating independent random samples, Saltelli sampling creates a structured "star" pattern:
+
+1. **Star Centers (Matrix A)**: `nstars` base sample points are generated using the Sobol sequence
+2. **Companion Points (Matrix B)**: An independent set of `nstars` points
+3. **Star Arms (Matrices AB_i)**: For each input variable i, a hybrid matrix where only variable i differs from matrix A
+
+This structure allows efficient computation of first-order (S_i) and total-order (S_Ti) sensitivity indices.
+
+### Parameters
+
+- **nstars**: Number of star center points. Should be a power of 2 for best Sobol sequence properties.
+- **npts**: Number of interpolation points along each star arm. Default is 1 (standard Saltelli).
+
+Total sample points: `nstars * (2 + ninvars * npts)`
+
+For example, with 512 star centers, 3 input variables, and 1 point per arm:
+`512 * (2 + 3 * 1) = 2560` total evaluations.
+
+### Usage
+
+```python
+import monaco as mc
+from scipy.stats import uniform
+
+sim = mc.Sim(
+    name='sensitivity_study',
+    ndraws=1000,  # Will be adjusted to match Saltelli structure
+    fcns={'preprocess': preprocess, 'run': run, 'postprocess': postprocess},
+    samplemethod=mc.SampleMethod.SOBOL_SALTELLI,
+    nstars=512,  # Number of star centers
+    npts=1,      # Points per arm (1 = standard Saltelli)
+)
+
+sim.addInVar('x1', dist=uniform, distkwargs={'loc': 0, 'scale': 1})
+sim.addInVar('x2', dist=uniform, distkwargs={'loc': 0, 'scale': 1})
+sim.runSim()
+
+# Calculate Sobol' sensitivity indices
+sim.calcSobolIndices('output_var')
+
+# Access results
+print(sim.outvars['output_var'].sobol_indices.first_order)  # S_i
+print(sim.outvars['output_var'].sobol_indices.total_order)  # S_Ti
+```
+
+### Interpreting Results
+
+- **First-order index (S_i)**: The fraction of output variance caused directly by input i alone
+- **Total-order index (S_Ti)**: The total fraction of output variance involving input i (including all interactions)
+
+For a well-specified model: `sum(S_i) <= 1` and `sum(S_Ti) >= 1`. The difference indicates the presence of interaction effects.
+
+### References
+
+- Sobol', I. M. (1993). "Sensitivity estimates for nonlinear mathematical models."
+- Saltelli, A. (2002). "Making best use of model evaluations to compute sensitivity indices."
+- Saltelli, A. et al. (2010). "Variance based sensitivity analysis of model output."
+
 ## Best Practices
-What sampling method should you use? ```sobol_random``` has been shown in literature to generally give the best results with fastest convergence, so it is the default. Make sure to use a power of 2 for the number of draws if performing integration. If you are drawing only from uniform distributions, you can fall back to ```sobol``` for a speedup.  ```random``` sampling should only be used as a teaching tool, if a flat frequency spectra is critical, or if the sampling time is otherwise prohibitively long. The others should not be used.
+
+What sampling method should you use?
+
+- **```sobol_random```** (default): Best for general Monte Carlo simulation. Gives the fastest convergence for most use cases. Make sure to use a power of 2 for the number of draws if performing integration.
+- **```sobol```**: Use when drawing only from uniform distributions for a speedup over ```sobol_random```.
+- **```sobol_saltelli```**: Use when your goal is global sensitivity analysis via Sobol' indices. This structured sampling is required for ```calcSobolIndices()```.
+- **```random```**: Only use as a teaching tool, if a flat frequency spectra is critical, or if the sampling time is otherwise prohibitively long.
+- **```halton```**, **```halton_random```**, **```latin_hypercube```**: Generally not recommended.
 
 ## Integration
 For integration, random sampling will converge at a big O rate of <img src="https://render.githubusercontent.com/render/math?math=O(\frac{1}{\sqrt{n}})">, while sobol sampling over *d* dimensions will eventually converge at the faster <img src="https://render.githubusercontent.com/render/math?math=O(\frac{\log(n)^d}{n})">. However, the *n* required to reach this convergence rate grows superexponentially with *d*, and for integrals larger than 3 dimensions sobol sampling will generally perform no better than random. So, if *d ≥ 4*, it is recommended to use random sampling for the speedup. Here are the error plots for a 2-D integral of the unit circle (which converges to π).

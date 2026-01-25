@@ -15,6 +15,7 @@ class SampleMethod(str, Enum):
     HALTON = "halton"
     HALTON_RANDOM = "halton_random"
     LATIN_HYPERCUBE = "latin_hypercube"
+    SOBOL_SALTELLI = "sobol_saltelli"
 
 
 class SimFunctions(str, Enum):

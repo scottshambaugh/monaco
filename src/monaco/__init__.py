@@ -17,6 +17,7 @@ from monaco.gaussian_statistics import *
 from monaco.order_statistics import *
 from monaco.integration_statistics import *
 from monaco.dvars_sensitivity import *
+from monaco.sobol_sensitivity import *
 from monaco.helper_functions import *
 from monaco.case_runners import *
 from monaco.globals import *
