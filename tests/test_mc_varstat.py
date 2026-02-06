@@ -218,7 +218,13 @@ def test_outvarstat_2d(v):
         seed=0,
     )
     outvarstat2 = VarStat(
-        outvar, stat=VarStatType.MIN, bootstrap=True, bootstrap_k=10, conf=0.95, seed=0
+        outvar,
+        stat=VarStatType.MIN,
+        bootstrap=True,
+        bootstrap_k=10,
+        conf=0.95,
+        seed=0,
+        bootstrap_method="basic",
     )
 
     assert np.allclose(
@@ -240,7 +246,13 @@ def test_outvarstat_2d(v):
 def test_outvarstat_2d_irregular(v):
     outvar = OutVar("test", [[0, 0], 1 * v, 2 * v, 0 * v, -1 * v, [0, 0]], firstcaseismedian=True)
     outvarstat1 = VarStat(
-        outvar, stat=VarStatType.MIN, bootstrap=True, bootstrap_k=10, conf=0.95, seed=0
+        outvar,
+        stat=VarStatType.MIN,
+        bootstrap=True,
+        bootstrap_k=10,
+        conf=0.95,
+        seed=0,
+        bootstrap_method="basic",
     )
     assert np.allclose(outvarstat1.vals, [-4, -2, -2, -3, -4, -5.0])
     assert np.allclose(outvarstat1.confidence_interval_low_nums, [-4, -2, -2, -3, -4, -5.0])

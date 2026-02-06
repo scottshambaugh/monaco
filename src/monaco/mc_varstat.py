@@ -386,7 +386,7 @@ class VarStat:
                 if np.isnan(self.confidence_interval_low_nums) or np.isnan(
                     self.confidence_interval_high_nums
                 ):
-                    warn(
+                    raise RuntimeError(
                         f"Bootstrap confidence interval contains NaNs for {self.name}, "
                         + 'try setting bootstrap_method to "basic"'
                     )
@@ -435,7 +435,7 @@ class VarStat:
                 if np.any(np.isnan(self.confidence_interval_low_nums)) or np.any(
                     np.isnan(self.confidence_interval_high_nums)
                 ):
-                    warn(
+                    raise RuntimeError(
                         f"Bootstrap confidence interval contains NaNs for {self.name}, "
                         + 'try setting bootstrap_method to "basic"'
                     )
