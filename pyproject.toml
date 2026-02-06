@@ -47,7 +47,7 @@ dev = [
     "coverage~=7.0",
     "mypy>=1.0",
     "ruff~=0.14",
-    "pre-commit~=3.0",
+    "prek>=0.3",
     "requests~=2.0",
 ]
 docs = [
