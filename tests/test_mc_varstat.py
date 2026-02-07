@@ -236,10 +236,10 @@ def test_outvarstat_2d(v):
 
     assert np.allclose(outvarstat2.vals, [-4, -2, -4, -6, -8, -10.0])
     assert np.allclose(
-        outvarstat2.confidence_interval_low_nums, [-4.0, -2.0, -4.0, -6.0, -8.0, -10.0]
+        outvarstat2.confidence_interval_low_nums, [-8.0, -4.0, -7.5, -11.25, -15.0, -18.75]
     )
     assert np.allclose(
-        outvarstat2.confidence_interval_high_nums, [-2.0, -1.0, -2.0, -3.0, -4.0, -5.0]
+        outvarstat2.confidence_interval_high_nums, [-4.0, -2.0, -4.0, -6.0, -8.0, -10.0]
     )
 
 
@@ -255,8 +255,12 @@ def test_outvarstat_2d_irregular(v):
         bootstrap_method="basic",
     )
     assert np.allclose(outvarstat1.vals, [-4, -2, -2, -3, -4, -5.0])
-    assert np.allclose(outvarstat1.confidence_interval_low_nums, [-4, -2, -2, -3, -4, -5.0])
-    assert np.allclose(outvarstat1.confidence_interval_high_nums, [-2, -1, 0, 0, 0, 0.0])
+    assert np.allclose(
+        outvarstat1.confidence_interval_low_nums, [-8.0, -4.0, -6.0, -9.0, -12.0, -15.0]
+    )
+    assert np.allclose(
+        outvarstat1.confidence_interval_high_nums, [-4.0, -2.0, -2.0, -3.0, -4.0, -5.0]
+    )
 
     outvarstat2 = VarStat(
         outvar,
