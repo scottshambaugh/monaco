@@ -26,6 +26,9 @@
 ### Changed    
 ### Removed    
 
+## [0.20.3] - 2025-02-06
+* Speed up mapVal
+
 ## [0.20.2] - 2025-02-06
 ### Changed    
 * Moved from `flake8` to `ruff` for linting
