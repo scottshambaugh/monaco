@@ -52,6 +52,26 @@ def test_outval_valmap_bool_default():
     assert all(outval.num == [1, 0])
 
 
+def test_outval_valmap_datetime64():
+    dates = np.array(["2020-01-01", "2020-01-03", "2020-01-01"], dtype="datetime64[D]")
+    outval = OutVal(name="test", ncase=1, val=dates)
+    assert outval.valmap == {
+        np.datetime64("2020-01-01", "D"): 0,
+        np.datetime64("2020-01-03", "D"): 1,
+    }
+    assert np.array_equal(outval.num, [0, 1, 0])
+
+
+def test_outval_valmap_timedelta64():
+    deltas = np.array([10, 30, 10], dtype="timedelta64[D]")
+    outval = OutVal(name="test", ncase=1, val=deltas)
+    assert outval.valmap == {
+        np.timedelta64(10, "D"): 0,
+        np.timedelta64(30, "D"): 1,
+    }
+    assert np.array_equal(outval.num, [0, 1, 0])
+
+
 @pytest.mark.skipif(pd is None, reason="Requires the pandas library")
 def test_outval_dataframe():
     nvals = 3

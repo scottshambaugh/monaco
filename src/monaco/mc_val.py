@@ -292,8 +292,12 @@ class OutVal(Val):
                 if kind == "b":  # boolean
                     self.valmap = {True: 1, False: 0}
                     return
+                if kind in "Mm":  # datetime64, timedelta64
+                    unique_sorted = np.unique(vals_array)
+                    self.valmap = {val: idx for idx, val in enumerate(unique_sorted)}
+                    return
 
-            # Slow path: object/datetime/string arrays
+            # Slow path: object/string arrays
             if vals_array is not None:
                 vals_flattened = vals_array.flatten()
             else:
