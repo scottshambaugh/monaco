@@ -824,8 +824,27 @@ class OutVar(Var):
         Generate `nums` by mapping the values with their valmap.
         """
         self.nums = []
-        for i in range(self.ncases):
-            self.nums.append(np.asarray(self.getVal(i).num))
+        if self.valmap is None:
+            # Fast path: no mapping needed, skip OutVal creation entirely
+            for i in range(self.ncases):
+                self.nums.append(np.asarray(self.vals[i]))
+        else:
+            # Vectorized path: pre-compute lookup arrays for searchsorted
+            sorted_keys = np.array(sorted(self.valmap.keys()))
+            mapped_values = np.array([self.valmap[k] for k in sorted_keys])
+            for i in range(self.ncases):
+                val = self.vals[i]
+                arr = np.asanyarray(val)
+                if arr.ndim == 0:
+                    # Scalar
+                    self.nums.append(np.asarray(self.valmap[hashable_val(val)]))
+                elif arr.dtype.kind != "O":
+                    # Vectorized searchsorted for typed arrays
+                    indices = np.searchsorted(sorted_keys, arr.flatten())
+                    self.nums.append(mapped_values[indices].reshape(arr.shape).astype(float))
+                else:
+                    # Fallback for object arrays
+                    self.nums.append(np.asarray(self.getVal(i).num))
 
     def getVal(self, ncase: int) -> OutVal:
         """

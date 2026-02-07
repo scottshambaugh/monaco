@@ -318,15 +318,24 @@ class OutVal(Val):
         elif self.isscalar:
             self.num = self.valmap[hashable_val(self.val)]
         else:
-            num = np.asarray(self.val, dtype="object")
-            if len(self.shape) == 1:
-                for i in range(self.shape[0]):
-                    num[i] = self.valmap[hashable_val(self.val[i])]
+            # Fast path: vectorized searchsorted for non-object numpy arrays
+            arr = np.asanyarray(self.val)
+            if arr.dtype.kind != "O":
+                sorted_keys = np.array(sorted(self.valmap.keys()))
+                mapped_values = np.array([self.valmap[k] for k in sorted_keys])
+                indices = np.searchsorted(sorted_keys, arr.flatten())
+                self.num = mapped_values[indices].reshape(self.shape).astype(float)
             else:
-                for i in range(self.shape[0]):
-                    for j in range(self.shape[1]):
-                        num[i][j] = self.valmap[hashable_val(self.val[i][j])]
-            self.num = np.asarray(num, dtype="float")
+                # Slow path: element-by-element for object arrays
+                num = np.asarray(self.val, dtype="object")
+                if len(self.shape) == 1:
+                    for i in range(self.shape[0]):
+                        num[i] = self.valmap[hashable_val(self.val[i])]
+                else:
+                    for i in range(self.shape[0]):
+                        for j in range(self.shape[1]):
+                            num[i][j] = self.valmap[hashable_val(self.val[i][j])]
+                self.num = np.asarray(num, dtype="float")
 
     def genNumMap(self) -> None:
         """
