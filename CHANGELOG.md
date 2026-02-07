@@ -24,10 +24,13 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
-* Moved from flake8 to ruff for linting
+### Removed    
+
+## [0.20.2] - 2025-02-06
+### Changed    
+* Moved from `flake8` to `ruff` for linting
 * Switch from `pre-commit` to `prek`
 * Speed up valmap generation
-### Removed    
 
 ## [0.20.1] - 2025-10-15
 _No functional changes, CI only_
