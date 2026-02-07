@@ -280,8 +280,23 @@ class OutVal(Val):
                 self.valmap = {hashable_val(self.val): 0}
         else:
             try:
-                vals_flattened = np.asanyarray(self.val).flatten()
+                vals_array = np.asanyarray(self.val)
             except ValueError:
+                vals_array = None
+
+            # Fast path: dtype check avoids O(n) element iteration
+            if vals_array is not None:
+                kind = vals_array.dtype.kind
+                if kind in "iufc":  # int, uint, float, complex
+                    return  # valmap stays None
+                if kind == "b":  # boolean
+                    self.valmap = {True: 1, False: 0}
+                    return
+
+            # Slow path: object/datetime/string arrays
+            if vals_array is not None:
+                vals_flattened = vals_array.flatten()
+            else:
                 vals_flattened = flatten([self.val])
             if all(isinstance(x, (bool, np.bool_)) for x in vals_flattened):
                 self.valmap = {True: 1, False: 0}

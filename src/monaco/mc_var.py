@@ -793,7 +793,7 @@ class OutVar(Var):
             self.valmap = self.getVal(0).valmap
             return
 
-        if any([self.getVal(i).valmap is not None for i in range(self.ncases)]):
+        if any(self.getVal(i).valmap is not None for i in range(self.ncases)):
             uniquevals: set[Any] = set()
             for i in range(self.ncases):
                 if self.getVal(i).valmap is not None:

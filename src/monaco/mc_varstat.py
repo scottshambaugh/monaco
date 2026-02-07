@@ -368,7 +368,7 @@ class VarStat:
             self.nums = self.statsFunctionWrapper(nums)
             if self.bootstrap:
                 res = bootstrap(
-                    (np.asarray(nums),),
+                    (np.asarray(nums, dtype=float),),
                     self.statsFunctionWrapper,
                     confidence_level=self.conf,
                     n_resamples=self.bootstrap_n,
@@ -419,7 +419,7 @@ class VarStat:
                 nums.append(self.statsFunctionWrapper(numsatidx))
                 if self.bootstrap:
                     res = bootstrap(
-                        (numsatidx,),
+                        (np.asarray(numsatidx, dtype=float),),
                         self.statsFunctionWrapper,
                         confidence_level=self.conf,
                         n_resamples=self.bootstrap_n,
