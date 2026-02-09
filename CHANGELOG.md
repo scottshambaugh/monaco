@@ -24,6 +24,7 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+* Fix complex valmaps
 ### Removed    
 
 ## [0.20.3] - 2025-02-06

@@ -284,10 +284,10 @@ class OutVal(Val):
             except ValueError:
                 vals_array = None
 
-            # Fast path: dtype check avoids O(n) element iteration
+            # Fast path: dtype check
             if vals_array is not None:
                 kind = vals_array.dtype.kind
-                if kind in "iufc":  # int, uint, float, complex
+                if kind in "iuf":  # int, uint, float
                     return  # valmap stays None
                 if kind == "b":  # boolean
                     self.valmap = {True: 1, False: 0}
@@ -318,7 +318,7 @@ class OutVal(Val):
         elif self.isscalar:
             self.num = self.valmap[hashable_val(self.val)]
         else:
-            # Fast path: vectorized searchsorted for non-object numpy arrays
+            # Fast path: vectorized searchsorted for numpy arrays
             arr = np.asanyarray(self.val)
             if arr.dtype.kind != "O":
                 sorted_keys = np.array(sorted(self.valmap.keys()))
