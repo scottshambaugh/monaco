@@ -33,7 +33,7 @@ from monaco.helper_functions import (
     log_to_file,
 )
 from monaco.case_runners import preprocess_case, run_case, postprocess_case, execute_full_case
-from monaco.globals import _worker_init, register_global_vars
+from monaco.globals import _worker_init, _fork_worker_init
 from monaco.dvars_sensitivity import calc_sensitivities
 from monaco.mc_multi_plot import multi_plot_grid_rect
 
@@ -499,14 +499,17 @@ class Sim:
         self.logger.info("Initializing multiprocessing pool...")
         if self.ncores is None:
             self.ncores = multiprocessing.cpu_count()
+        # Passed to each worker so it can exit if this parent process is
+        # hard-killed before pool.shutdown() can reap the pool.
+        parent_pid = os.getpid()
         ctx = multiprocessing.get_context(start_method)
         if start_method == "fork":
             # For fork, the global variables don't need to be pickled
-            initializer = register_global_vars
-            data = (self.invars, self.outvars, self.constvals)
+            initializer = _fork_worker_init
+            data = (self.invars, self.outvars, self.constvals, parent_pid)
         else:
             initializer = _worker_init
-            data = self._pickleLargeData()
+            data = (*self._pickleLargeData(), parent_pid)
         self.pool = concurrent.futures.ProcessPoolExecutor(
             max_workers=self.ncores, mp_context=ctx, initializer=initializer, initargs=data
         )

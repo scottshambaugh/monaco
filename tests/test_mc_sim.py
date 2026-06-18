@@ -1,6 +1,13 @@
 # test_mc_sim.py
 
+import os
+import sys
+import time
+import signal
+import subprocess
+
 import pytest
+import psutil
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm, randint
@@ -511,6 +518,85 @@ def test_logging_to_temp_file(tmp_path):
     )
     assert sim.logfile == temp_log
     assert temp_log.exists()
+
+
+# A standalone script (run as a subprocess so we can hard-kill its parent) that
+# starts a pool whose workers register the parent-death guard and record their
+# PIDs. MONACO_TEST_NO_PDEATHSIG disables the guard to prove the test is real.
+_ORPHAN_HELPER_SRC = """
+import os, time, concurrent.futures, multiprocessing
+from monaco.globals import _set_parent_death_signal
+
+def _init(parent_pid):
+    if not os.environ.get("MONACO_TEST_NO_PDEATHSIG"):
+        _set_parent_death_signal(parent_pid)
+    open(os.path.join(os.environ["MONACO_TEST_PIDDIR"], str(os.getpid())), "w").close()
+
+def _busy(x):
+    time.sleep(120)
+
+if __name__ == "__main__":
+    nworkers = 2
+    pool = concurrent.futures.ProcessPoolExecutor(
+        max_workers=nworkers, mp_context=multiprocessing.get_context("spawn"),
+        initializer=_init, initargs=(os.getpid(),))
+    for i in range(nworkers):
+        pool.submit(_busy, i)
+    piddir = os.environ["MONACO_TEST_PIDDIR"]
+    deadline = time.time() + 30
+    while time.time() < deadline and len(os.listdir(piddir)) < nworkers:
+        time.sleep(0.05)
+    print("ready", flush=True)
+    time.sleep(120)
+"""
+
+
+def _start_orphan_helper(tmp_path, no_guard):
+    helper = tmp_path / "orphan_helper.py"
+    helper.write_text(_ORPHAN_HELPER_SRC)
+    piddir = tmp_path / ("noguard" if no_guard else "guard")
+    piddir.mkdir()
+    env = dict(os.environ, MONACO_TEST_PIDDIR=str(piddir))
+    if no_guard:
+        env["MONACO_TEST_NO_PDEATHSIG"] = "1"
+    proc = subprocess.Popen(
+        [sys.executable, str(helper)], stdout=subprocess.PIPE, text=True, env=env
+    )
+    proc.stdout.readline()  # wait for "ready"
+    worker_pids = [int(name) for name in os.listdir(piddir)]
+    assert worker_pids, "helper did not report any worker PIDs"
+    return proc, worker_pids
+
+
+def _hard_kill_and_survivors(proc, worker_pids, wait):
+    if sys.platform == "win32":
+        proc.kill()
+    else:
+        os.kill(proc.pid, signal.SIGKILL)
+    proc.wait(timeout=10)
+    deadline = time.time() + wait
+    while time.time() < deadline and any(psutil.pid_exists(p) for p in worker_pids):
+        time.sleep(0.1)
+    survivors = [p for p in worker_pids if psutil.pid_exists(p)]
+    for p in survivors:  # cleanup so we never leak workers from the test itself
+        try:
+            os.kill(p, signal.SIGKILL)
+        except (ProcessLookupError, PermissionError):
+            pass
+    proc.stdout.close()
+    return survivors
+
+
+def test_pool_workers_die_when_parent_hardkilled(tmp_path):
+    # Without the guard, orphaned workers outlive the hard-killed parent...
+    proc, worker_pids = _start_orphan_helper(tmp_path, no_guard=True)
+    assert _hard_kill_and_survivors(proc, worker_pids, wait=2.0), (
+        "expected orphaned workers to survive without the parent-death guard"
+    )
+    # ...with the guard, they do not.
+    proc, worker_pids = _start_orphan_helper(tmp_path, no_guard=False)
+    survivors = _hard_kill_and_survivors(proc, worker_pids, wait=5.0)
+    assert not survivors, f"orphaned workers survived parent kill: {survivors}"
 
 
 if __name__ == "__main__":
