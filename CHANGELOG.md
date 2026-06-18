@@ -26,8 +26,9 @@
 ### Changed    
 ### Removed    
 
-## [0.20.4] - 2025-06-18
+## [0.21.0] - 2025-06-18
 ### Changed    
+* Fix error in DVARS calculations
 * Fix complex valmaps
 * Fix dask distributed and numpy deprecations
 * Fix random seeds being frozen at import time rather than drawn per object
@@ -36,7 +37,6 @@
 * Fix mutable default `daskkwargs` being shared and mutated between sims
 * Fix order statistics for mapped 1-D variables with two-sided bounds
 * Fix scatter y-axis sharing in rectangular plot grids
-* Fix `multi_plot` error handling for invalid and empty inputs
 * Fix crash drawing a single custom value
 * Fix crash computing correlations with fewer than two scalar variables
 * Worker processes are now killed if parent process terminates

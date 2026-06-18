@@ -390,8 +390,7 @@ def multi_plot_grid_rect(
 
     axs = np.atleast_2d(fig.subplots(nvarsy + 1, nvarsx + 1, sharex="col"))
     for i in range(nvarsy + 1):
-        # Scatter plots occupy columns 1..nvarsx. column 0 is the y-histogram,
-        # which we exclude so its axis isn't linked to the scatter y-axes.
+        # exclude col 0 with the y-histogram so it isn't linked to the scatter axes
         row_scatter_axs = [ax for k, ax in enumerate(axs[i]) if k > 0]
         for j in range(nvarsx + 1):
             ax = axs[i][j]
