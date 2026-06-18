@@ -543,11 +543,11 @@ if __name__ == "__main__":
     for i in range(nworkers):
         pool.submit(_busy, i)
     piddir = os.environ["MONACO_TEST_PIDDIR"]
-    deadline = time.time() + 30
+    deadline = time.time() + 120  # generous: spawn workers import monaco, slow under load
     while time.time() < deadline and len(os.listdir(piddir)) < nworkers:
-        time.sleep(0.05)
+        time.sleep(0.1)
     print("ready", flush=True)
-    time.sleep(120)
+    time.sleep(600)
 """
 
 
