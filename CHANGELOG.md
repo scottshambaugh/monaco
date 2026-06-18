@@ -29,7 +29,7 @@
 ## [0.20.4] - 2025-06-18
 ### Changed    
 * Fix complex valmaps
-* Fix dask distributed deprecation
+* Fix dask distributed and numpy deprecations
 * Worker processes are now killed if parent process terminates
 
 ## [0.20.3] - 2025-02-06

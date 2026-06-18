@@ -223,7 +223,7 @@ def calc_Gammaj(Hj: float, phij: float, variance: float) -> float:
     for i in range(q + 1):
         rjs[i] = calc_rj(dh * i, phij)
 
-    Gammaj = np.trapz(1 - rjs) * dh * variance
+    Gammaj = np.trapezoid(1 - rjs) * dh * variance
     return Gammaj
 
 

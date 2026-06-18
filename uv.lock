@@ -1244,7 +1244,7 @@ requires-dist = [
     { name = "distributed", marker = "extra == 'distributed'", specifier = ">=2024" },
     { name = "matplotlib", specifier = "~=3.6" },
     { name = "numba", marker = "python_full_version < '3.14' and extra == 'numba'", specifier = ">0.61" },
-    { name = "numpy", specifier = ">=1.26" },
+    { name = "numpy", specifier = ">=2.0" },
     { name = "pandas", marker = "extra == 'pandas'", specifier = ">=2.2" },
     { name = "pillow", specifier = ">=10.3.0" },
     { name = "psutil", specifier = "~=5.0" },
@@ -1432,9 +1432,9 @@ name = "numba"
 version = "0.65.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "llvmlite", marker = "python_full_version < '3.14'" },
+    { name = "llvmlite" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' and python_full_version < '3.14'" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/f6/c5/db2ac3685833d626c0dcae6bd2330cd68433e1fd248d15f70998160d3ad7/numba-0.65.1.tar.gz", hash = "sha256:19357146c32fe9ed25059ab915e8465fb13951cf6b0aace3826b76886373ab23", size = 2765600, upload-time = "2026-04-24T02:02:56.551Z" }
 wheels = [
