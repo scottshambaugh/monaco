@@ -448,7 +448,7 @@ class Sim:
         plugin = GlobalsPlugin(*self._pickleLargeData())
 
         if self.client is not None:
-            self.client.register_worker_plugin(plugin, name="sim_globals")
+            self.client.register_plugin(plugin, name="sim_globals")
             return
 
         self.logger.info("Initializing dask client...")
@@ -463,7 +463,7 @@ class Sim:
         self.cluster = self.client.cluster
 
         # Initialize the global variables in each worker
-        self.client.register_worker_plugin(plugin, name="sim_globals")
+        self.client.register_plugin(plugin, name="sim_globals")
 
         nworkers = len(self.cluster.workers)
         nthreads = nworkers * self.cluster.worker_spec[0]["options"]["nthreads"]

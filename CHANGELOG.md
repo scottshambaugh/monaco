@@ -25,6 +25,7 @@
 ### Added    
 ### Changed    
 * Fix complex valmaps
+* Fix dask distributed deprecation
 ### Removed    
 
 ## [0.20.3] - 2025-02-06
