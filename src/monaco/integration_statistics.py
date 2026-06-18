@@ -210,7 +210,7 @@ def integration_args_check(
     samplemethod : monaco.mc_enums.SampleMethod
         Either 'random' or 'sobol'.
     """
-    if (error is not None) and (error < 0):
+    if (error is not None) and (error <= 0):
         raise ValueError(f"{error=} must be positive")
     if dimension < 1:
         raise ValueError(f"{dimension=} must be a positive integer")

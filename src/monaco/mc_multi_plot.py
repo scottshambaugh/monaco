@@ -57,6 +57,8 @@ def multi_plot(
         axes is a tuple of the axes handles for the plots.
     """
     # Split larger vars
+    if len(vars) == 0:
+        raise ValueError("multi_plot requires at least one variable")
     if len(vars) == 1:
         if isinstance(vars[0], OutVar) and vars[0].maxdim == 1:
             var_split = vars[0].split()
@@ -87,8 +89,8 @@ def multi_plot(
         else:
             raise ValueError(
                 "Invalid variable dimensions: "
-                + f"{varx.name} {varx.maxdim}, "
-                + f"{vary.name} {vary.maxdim}"
+                + f"{vars[0].name} {vars[0].maxdim}, "
+                + f"{vars[1].name} {vars[1].maxdim}"
             )
 
     # Many Variable Plots
@@ -388,7 +390,9 @@ def multi_plot_grid_rect(
 
     axs = np.atleast_2d(fig.subplots(nvarsy + 1, nvarsx + 1, sharex="col"))
     for i in range(nvarsy + 1):
-        row_scatter_axs = [ax for k, ax in enumerate(axs[i]) if k < nvarsy + 1]
+        # Scatter plots occupy columns 1..nvarsx. column 0 is the y-histogram,
+        # which we exclude so its axis isn't linked to the scatter y-axes.
+        row_scatter_axs = [ax for k, ax in enumerate(axs[i]) if k > 0]
         for j in range(nvarsx + 1):
             ax = axs[i][j]
             if i == nvarsy and j == 0:

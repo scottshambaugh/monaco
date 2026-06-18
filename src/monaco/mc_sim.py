@@ -143,7 +143,7 @@ class Sim:
         Whether the first case represents the median value.
     samplemethod : monaco.mc_enums.SampleMethod, default: 'sobol_random'
         The random sampling method to use.
-    seed : int, default: np.random.get_state(legacy=False)['state']['key'][0]
+    seed : int | None, default: None
         The random number to seed the simulation.
     singlethreaded : bool, default: False
         Whether to run single threaded. This takes precedence over usedask.
@@ -246,12 +246,12 @@ class Sim:
         fcns: SimulationFunctions | dict[SimFunctions, Callable],
         firstcaseismedian: bool = False,
         samplemethod: SampleMethod = SampleMethod.SOBOL_RANDOM,
-        seed: int = np.random.get_state(legacy=False)["state"]["key"][0],
+        seed: int | None = None,
         singlethreaded: bool = True,
         usedask: bool = False,
         ncores: int | None = None,
         multiprocessing_method: str | None = None,
-        daskkwargs: dict = dict(),
+        daskkwargs: dict | None = None,
         verbose: bool = True,
         debug: bool = False,
         keepsiminput: bool = False,
@@ -271,12 +271,14 @@ class Sim:
             self.fcns = SimulationFunctions.from_dict(fcns)
         self.firstcaseismedian = firstcaseismedian
         self.samplemethod = samplemethod
+        if seed is None:
+            seed = int(np.random.get_state(legacy=False)["state"]["key"][0])
         self.seed = int(seed)
         self.singlethreaded = singlethreaded
         self.usedask = usedask
         self.ncores = ncores
         self.multiprocessing_method = multiprocessing_method
-        self.daskkwargs = daskkwargs
+        self.daskkwargs = dict() if daskkwargs is None else daskkwargs
         self.keepsiminput = keepsiminput
         self.keepsimrawoutput = keepsimrawoutput
         self.savesimdata = savesimdata
@@ -452,14 +454,16 @@ class Sim:
             return
 
         self.logger.info("Initializing dask client...")
+        # Copy so we don't mutate the user-supplied daskkwargs dict
+        daskkwargs = dict(self.daskkwargs)
         if self.ncores is not None:
-            if "n_workers" in self.daskkwargs:
+            if "n_workers" in daskkwargs:
                 vwarn(
                     self.verbose,
                     "Dask argument n_workers is being overridden " + "by Sim argument ncores",
                 )
-            self.daskkwargs["n_workers"] = self.ncores
-        self.client = Client(**self.daskkwargs)
+            daskkwargs["n_workers"] = self.ncores
+        self.client = Client(**daskkwargs)
         self.cluster = self.client.cluster
 
         # Initialize the global variables in each worker
@@ -1561,6 +1565,15 @@ class Sim:
             if self.vars[var].isscalar:
                 allnums.append(self.vars[var].nums)
                 self.covvarlist.append(self.vars[var].name)
+        if len(allnums) < 2:
+            vwarn(
+                self.verbose,
+                "Need at least two scalar variables to generate correlation "
+                + f"coefficients, but found {len(allnums)}.",
+            )
+            self.covs = None
+            self.corrcoeffs = None
+            return self
         self.covs = np.cov(np.asarray(allnums))
         self.corrcoeffs = np.corrcoef(np.asarray(allnums))
 
@@ -1694,8 +1707,8 @@ class Sim:
         self.casespreprocessed = set()
         self.casesrun = set()
         self.casespostprocessed = set()
-        self.corrcoeff = None
-        self.covcoeff = None
+        self.corrcoeffs = None
+        self.covs = None
         self.covvarlist = None
         self.endtime = None
         self.runtime = None
@@ -1790,7 +1803,7 @@ class Sim:
         filepath : pathlib.Path
             The filepath the vars were saved to.
         """
-        if vars == []:
+        if not vars:
             raise ValueError("No vars to save to file.")
 
         if isinstance(filename, str):

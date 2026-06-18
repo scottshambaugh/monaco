@@ -30,6 +30,15 @@
 ### Changed    
 * Fix complex valmaps
 * Fix dask distributed and numpy deprecations
+* Fix random seeds being frozen at import time rather than drawn per object
+* Fix correlation and covariance results not clearing on sim rerun
+* Fix covariance ellipse orientation in 2D scatter plots
+* Fix mutable default `daskkwargs` being shared and mutated between sims
+* Fix order statistics for mapped 1-D variables with two-sided bounds
+* Fix scatter y-axis sharing in rectangular plot grids
+* Fix `multi_plot` error handling for invalid and empty inputs
+* Fix crash drawing a single custom value
+* Fix crash computing correlations with fewer than two scalar variables
 * Worker processes are now killed if parent process terminates
 
 ## [0.20.3] - 2025-02-06

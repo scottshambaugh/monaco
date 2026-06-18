@@ -44,7 +44,7 @@ class VarStat:
         bootstrap distribution.
     conf : float (default: 0.95)
         The confidence level for the confidence interval.
-    seed : int (default: np.random.get_state(legacy=False)['state']['key'][0])
+    seed : int | None (default: None)
         The random seed to use for bootstrapping.
     name : str
         The name of the variable statistic.
@@ -150,7 +150,7 @@ class VarStat:
         bootstrap_k: int = 10,
         bootstrap_method: str = "BCa",
         conf: float = 0.95,
-        seed: int = np.random.get_state(legacy=False)["state"]["key"][0],
+        seed: int | None = None,
         name: str | None = None,
     ):
         self.var = var
@@ -179,6 +179,8 @@ class VarStat:
         self.confidence_interval_low_vals: list[Any] | np.ndarray = []
         self.confidence_interval_high_vals: list[Any] | np.ndarray = []
         self.bootstrap_n: int | None = None
+        if seed is None:
+            seed = int(np.random.get_state(legacy=False)["state"]["key"][0])
         self.seed = seed
 
         if isinstance(stat, Callable):
@@ -549,7 +551,9 @@ class VarStat:
                     ]
             if self.var.nummap is not None:
                 self.checkInNummap(self.nums)
-                self.vals = np.asarray([self.var.nummap[x] for x in self.nums])
+                self.vals = np.asarray([self.var.nummap[x] for x in self.nums.flatten()]).reshape(
+                    self.nums.shape
+                )
             else:
                 self.vals = copy(self.nums)
 
@@ -649,7 +653,9 @@ class VarStat:
                     ]
             if self.var.nummap is not None:
                 self.checkInNummap(self.nums)
-                self.vals = np.asarray([self.var.nummap[x] for x in self.nums])
+                self.vals = np.asarray([self.var.nummap[x] for x in self.nums.flatten()]).reshape(
+                    self.nums.shape
+                )
             else:
                 self.vals = copy(self.nums)
 

@@ -73,6 +73,9 @@ def hashable_val_vectorized(vals: Iterable[Any]) -> list[Any]:
         A list of hashable representations of the values.
     """
     # Type check to see if all values are hashable and of the same type
+    vals = list(vals)
+    if not vals:
+        return []
     first_val = vals[0]
     try:
         hash(first_val)

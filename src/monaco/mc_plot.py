@@ -1420,8 +1420,8 @@ def plot_2d_cov_ellipse(
     eigvals, eigvecs = np.linalg.eigh(covs)  # Use eigh over eig since covs is guaranteed symmetric
     inds = (-eigvals).argsort()  # sort from largest to smallest
     eigvals = eigvals[inds]
-    eigvecs = eigvecs[inds]
-    angle = np.arctan2(eigvecs[0][1], eigvecs[0][0]) * 180 / np.pi
+    eigvecs = eigvecs[:, inds]  # eigh returns eigenvectors as columns
+    angle = np.arctan2(eigvecs[1, 0], eigvecs[0, 0]) * 180 / np.pi
 
     scalefactor = chi2.ppf(p, df=2)
     ellipse_axis_radii = np.sqrt(scalefactor * eigvals)
@@ -1437,8 +1437,8 @@ def plot_2d_cov_ellipse(
     ax.add_patch(ellipse)
 
     # For now plot both eigenaxes
-    plt.axline(xy1=(center[0], center[1]), slope=eigvecs[0][1] / eigvecs[0][0], color="k")
-    plt.axline(xy1=(center[0], center[1]), slope=eigvecs[1][1] / eigvecs[1][0], color="k")
+    plt.axline(xy1=(center[0], center[1]), slope=eigvecs[1, 0] / eigvecs[0, 0], color="k")
+    plt.axline(xy1=(center[0], center[1]), slope=eigvecs[1, 1] / eigvecs[0, 1], color="k")
 
 
 def manage_invar_space(

@@ -30,7 +30,7 @@ class Case:
         Whether to keep the siminput after running.
     keepsimrawoutput : bool, default: True
         Whether to keep the simrawoutput after postprocessing.
-    seed : int, default: np.random.get_state(legacy=False)['state']['key'][0]
+    seed : int | None, default: None
         The random seed to pass to the run function for this case. Not used in
         as part of any Monte Carlo sampling.
 
@@ -72,7 +72,7 @@ class Case:
         constvals: dict[str, Any] | None = None,
         keepsiminput: bool = True,
         keepsimrawoutput: bool = True,
-        seed: int = np.random.get_state(legacy=False)["state"]["key"][0],
+        seed: int | None = None,
     ):
         self.ncase = ncase
         self.ismedian = ismedian
@@ -84,6 +84,8 @@ class Case:
         self.outvars: dict[str, OutVar] = dict()
         self.keepsiminput = keepsiminput
         self.keepsimrawoutput = keepsimrawoutput
+        if seed is None:
+            seed = int(np.random.get_state(legacy=False)["state"]["key"][0])
         self.seed = seed
 
         self.starttime: datetime | None = None

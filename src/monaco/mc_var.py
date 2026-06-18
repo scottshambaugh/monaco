@@ -83,6 +83,8 @@ class Var(ABC):
     ):
         self.name = name
         self.ndraws = ndraws
+        if seed is None:
+            seed = int(np.random.get_state(legacy=False)["state"]["key"][0])
         self.seed = int(seed)
         self.firstcaseismedian = firstcaseismedian
         self.datasource = datasource
@@ -356,7 +358,7 @@ class InVar(Var):
         The random sampling method to use.
     ninvar : int
         The number of the input variable this is.
-    seed : int, default: np.random.get_state(legacy=False)['state']['key'][0]
+    seed : int | None, default: None
         The random seed for drawing this variable and bootstrapping.
     firstcaseismedian : bool, default: False
         Whether the first case represents the median case.
@@ -399,7 +401,7 @@ class InVar(Var):
         pcts: list[float] | None = None,
         samplemethod: SampleMethod = SampleMethod.SOBOL_RANDOM,
         ninvar: int = None,
-        seed: int = np.random.get_state(legacy=False)["state"]["key"][0],
+        seed: int | None = None,
         firstcaseismedian: bool = False,
         autodraw: bool = True,
         datasource: Optional[str] = None,
@@ -559,11 +561,15 @@ class InVar(Var):
                 self.pcts = self.custom_pcts
             else:
                 # Generate uniform percentiles for custom values
-                self.pcts = [i / (self.ndraws - 1) for i in range(self.ndraws)]
-                # p = 0, 1 are marginally defined, so we deconflict with a small offset
                 eps = np.finfo(float).eps
-                self.pcts[0] = eps
-                self.pcts[-1] = 1 - eps
+                if self.ndraws == 1:
+                    # A single draw can't span [0, 1], so use the median
+                    self.pcts = [0.5]
+                else:
+                    self.pcts = [i / (self.ndraws - 1) for i in range(self.ndraws)]
+                    # p = 0, 1 are marginally defined, so deconflict with a small offset
+                    self.pcts[0] = eps
+                    self.pcts[-1] = 1 - eps
                 if self.firstcaseismedian:
                     # First gets median, and we deconflict 0.5 with a small offset
                     self.pcts = [0.5] + [p if p != 0.5 else p + eps for p in self.pcts]
@@ -708,7 +714,7 @@ class OutVar(Var):
         A dictionary mapping nonnumeric values to numbers.
     ndraws : int
         The number of random draws.
-    seed : int, default: np.random.get_state(legacy=False)['state']['key'][0]
+    seed : int | None, default: None
         The random seed for bootstrapping.
     firstcaseismedian : bool, default: False
         Whether the first case represents the median case.
@@ -738,7 +744,7 @@ class OutVar(Var):
         vals: list[Any],
         valmap: dict = None,
         ndraws: int = None,
-        seed: int = np.random.get_state(legacy=False)["state"]["key"][0],
+        seed: int | None = None,
         firstcaseismedian: bool = False,
         datasource: Optional[str] = None,
     ):
@@ -892,7 +898,12 @@ class OutVar(Var):
         val = None
         if self.firstcaseismedian:
             val = OutVal(
-                name=self.name, ncase=0, val=self.vals[0], valmap=self.valmap, ismedian=True
+                name=self.name,
+                ncase=0,
+                val=self.vals[0],
+                valmap=self.valmap,
+                ismedian=True,
+                datasource=self.datasource,
             )
         return val
 
