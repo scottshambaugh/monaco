@@ -99,7 +99,7 @@ def test_calc_sensitivities(ndraws=32, show=False):
     calculated_ratios = list(sim.outvars["f"].sensitivity_ratios.values())
 
     if ndraws == 32:
-        expected_ratios = [0.448420, 0.474647, 0.038287, 0.038644, 0.0, 0.0]
+        expected_ratios = [0.426573, 0.573427, 0.0, 0.0, 0.0, 0.0]
         assert np.allclose(calculated_ratios, expected_ratios, atol=1e-5)
 
 

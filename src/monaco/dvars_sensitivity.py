@@ -283,7 +283,7 @@ def calc_L(phi: np.ndarray, X: np.ndarray, Y: np.ndarray) -> float:
     mu = np.linalg.inv(M.T @ Rinv @ M) @ (M.T @ Rinv @ Y)
 
     L_inner = Y - M * mu
-    L = np.log(Rdet) / m + m * np.log(L_inner.T @ Rinv @ L_inner)
+    L = np.log(Rdet) + m * np.log(L_inner.T @ Rinv @ L_inner)
     L = L[0][0]
     return L
 
@@ -314,7 +314,7 @@ def calc_R(
     for u in range(1, m):
         # do lower triangle only and duplicate across diag
         # diag will be all 1s
-        for w in range(1, u):
+        for w in range(u):
             Ruw = calc_Ruw(phi, X[u, :], X[w, :])
             R[u, w] = Ruw
             R[w, u] = Ruw
