@@ -24,11 +24,16 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+### Removed    
+
+## [0.20.4] - 2025-06-18
+### Changed    
 * Fix complex valmaps
 * Fix dask distributed deprecation
 * Worker processes are now killed if parent process terminates
 
 ## [0.20.3] - 2025-02-06
+### Changed    
 * Speed up mapVal
 
 ## [0.20.2] - 2025-02-06
