@@ -299,20 +299,23 @@ def plot_hist(
     fig, ax = manage_axis(ax, is3d=False)
     invar_space = manage_invar_space(invar_space=invar_space, nvars=1)
 
-    bins: str | np.ndarray = "auto"
-    if "bins" in plotkwargs:
-        bins = plotkwargs["bins"]
-        del plotkwargs["bins"]
+    plotkwargs = dict(plotkwargs)
+    bins: str | np.ndarray = plotkwargs.pop("bins", "auto")
+    user_bins = not isinstance(bins, str)
 
     # Histogram generation
     cases_list = get_cases(var.ncases, cases)
     highlight_cases_list = get_cases(var.ncases, highlight_cases)
     points = get_plot_points(var, invar_space[0])
     nums = slice_by_index(points, cases_list)
+    if len(nums) == 0:
+        raise ValueError("No cases to plot a histogram for")
     counts, bins = np.histogram(nums, bins=bins)
-    binwidth = mode(np.diff(bins), keepdims=False)[0]
-    bins = np.append(bins - binwidth / 2, bins[-1] + binwidth / 2)
-    counts, bins = np.histogram(nums, bins=bins)
+    if not user_bins:
+        # Recenter the auto-generated bins on the data points
+        binwidth = mode(np.diff(bins), keepdims=False)[0]
+        bins = np.append(bins - binwidth / 2, bins[-1] + binwidth / 2)
+        counts, bins = np.histogram(nums, bins=bins)
 
     if isinstance(var, monaco.mc_var.InVar):
         # Loaded from file
@@ -407,7 +410,8 @@ def plot_hist(
         ylabeltext = "Probability Density"
 
     if rug_plot:
-        plot_rug_marks(ax, orientation=orientation, nums=np.asarray(points))
+        rug_cases = sorted(set(cases_list) | set(highlight_cases_list))
+        plot_rug_marks(ax, orientation=orientation, nums=slice_by_index(points, rug_cases))
 
     xlim = ax.get_xlim()
     ylim = ax.get_ylim()
@@ -470,7 +474,8 @@ def plot_hist(
             if varstat.confidence_interval_high_nums is not None:
                 ax.fill_between(
                     xlim,
-                    [varstat.confidence_interval_low_nums, varstat.confidence_interval_high_nums],
+                    varstat.confidence_interval_low_nums,
+                    varstat.confidence_interval_high_nums,
                     color="C0",
                     alpha=0.3,
                 )
@@ -1229,6 +1234,11 @@ def plot_sensitivities(
         sensitivities_dict = outvar.sensitivity_indices
         ax.set_xlabel(f"Sensitivity Index for '{outvar.name}'")
 
+    if sensitivities_dict is None:
+        raise ValueError(
+            f"Sensitivities have not been calculated for '{outvar.name}'. "
+            "Run sim.calcSensitivities() first."
+        )
     y_pos = np.arange(len(sensitivities_dict))
     if sort:
         sens_tuples = sorted(sensitivities_dict.items(), key=lambda item: item[1])

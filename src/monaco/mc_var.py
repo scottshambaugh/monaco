@@ -474,8 +474,10 @@ class InVar(Var):
                 f"Length of 'pcts' ({len(pcts)}) must match " + f"ncases ({self.ncases})"
             )
         pcts = np.asarray(pcts)
-        if any(pcts <= 0) or any(pcts > 1):
-            # Disallow 0 due to https://github.com/scipy/scipy/issues/23358
+        if any(pcts <= 0) or any(pcts >= 1):
+            # By scipy convention (scipy/scipy#23358), dist.ppf(0) and dist.ppf(1)
+            # return the lower and upper bounds of the support, which are -inf and
+            # +inf for unbounded distributions. Disallow both endpoints.
             raise ValueError("Percentiles must be between 0 and 1")
         if pcts[0] != 0.5 and self.firstcaseismedian:
             raise ValueError(
@@ -552,7 +554,7 @@ class InVar(Var):
 
             if self.valmap is not None:
                 for val in self.vals:
-                    self.nums.append(self.valmap[val])
+                    self.nums.append(self.valmap[hashable_val(val)])
             else:
                 nums = np.asarray(self.vals)
                 self.nums = nums.tolist()

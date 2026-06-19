@@ -801,12 +801,13 @@ class Sim:
         self.logger.info("Generating cases...")
         self.genCaseSeeds()
 
-        # If we are rerunning partial cases we don't want to reset this
-        if cases is None:
-            self.cases = []
+        # self.cases is a dense list indexed by ncase. Reset it for a full
+        # generation. For a partial generation, keep the existing cases and
+        # only replace the requested slots.
+        if cases is None or len(self.cases) != self.ncases:
+            self.cases = [None] * self.ncases
 
         cases_downselect = self._downselectCases(cases)
-        existing = {case.ncase: i for i, case in enumerate(self.cases)}
         if self.verbose:
             pbar = tqdm(
                 total=len(cases_downselect), desc="Generating cases", unit="case", position=0
@@ -815,7 +816,7 @@ class Sim:
             ismedian = False
             if self.firstcaseismedian and ncase == 0:
                 ismedian = True
-            case = Case(
+            self.cases[ncase] = Case(
                 ncase=ncase,
                 ismedian=ismedian,
                 invars=self.invars,
@@ -824,18 +825,13 @@ class Sim:
                 keepsimrawoutput=self.keepsimrawoutput,
                 seed=int(self.caseseeds[ncase]),
             )
-            if ncase in existing:
-                self.cases[existing[ncase]] = case
-            else:
-                self.cases.append(case)
             if self.verbose:
                 pbar.update(1)
         if self.verbose:
             pbar.refresh()
             pbar.close()
-        self.cases.sort(key=lambda case: case.ncase)
 
-        self.invals_cache = [case.invals for case in self.cases]
+        self.invals_cache = [case.invals if case is not None else None for case in self.cases]
         return self
 
     def genCaseSeeds(self) -> Sim:
@@ -990,6 +986,7 @@ class Sim:
         preprocessedcases = dict()
         runcases = dict()
         postprocessedcases = dict()
+        futures = None
         try:
             for case in self.cases:
                 if case.ncase in casestopreprocess_downselect:
@@ -1037,6 +1034,8 @@ class Sim:
                 future.release()
 
         except KeyboardInterrupt:
+            if futures is not None:
+                self.client.cancel(futures)
             raise
 
         self.restorePickledCases(fullyexecutedcases)
@@ -1118,6 +1117,7 @@ class Sim:
         # Dask parallel processing
         else:
             self.initDaskClient()
+            futures = None
             try:
                 for i in cases_downselect:
                     case = self.cases[i]
@@ -1136,6 +1136,8 @@ class Sim:
                     future.release()
 
             except KeyboardInterrupt:
+                if futures is not None:
+                    self.client.cancel(futures)
                 raise
 
         # We stripped data from the cases during pickling, so we need to re-attach it
@@ -1220,6 +1222,7 @@ class Sim:
         # Dask parallel processing
         else:
             self.initDaskClient()
+            futures = None
             try:
                 for i in cases_downselect:
                     case = self.cases[i]
@@ -1238,6 +1241,8 @@ class Sim:
                     future.release()
 
             except KeyboardInterrupt:
+                if futures is not None:
+                    self.client.cancel(futures)
                 raise
 
         # We stripped data from the cases during pickling, so we need to re-attach it
@@ -1320,6 +1325,7 @@ class Sim:
         # Dask parallel processing
         else:
             self.initDaskClient()
+            futures = None
             try:
                 for i in cases_downselect:
                     case = self.cases[i]
@@ -1338,6 +1344,8 @@ class Sim:
                     future.release()
 
             except KeyboardInterrupt:
+                if futures is not None:
+                    self.client.cancel(futures)
                 raise
 
         # We stripped data from the cases during pickling, so we need to re-attach it
@@ -1826,6 +1834,12 @@ class Sim:
             vwarn(self.verbose, f"{filepath.name} already exists, overwriting.")
 
         if filepath.suffix.lower() == ".csv":
+            nonscalar = [name for name, var in vars.items() if not var.isscalar]
+            if nonscalar:
+                raise ValueError(
+                    f"Cannot export non-scalar vars {nonscalar} to a csv file. "
+                    "Use a json file instead."
+                )
             varnames = list(vars.keys())
             for i, var in enumerate(vars.values()):
                 if i == 0:
@@ -2032,25 +2046,35 @@ class Sim:
 
         for i, (valname, nums) in enumerate(data.items()):
             if dists[i] is None or distskwargs[i] is None:
-                pcts = [None for _ in range(self.ncases)]
-                if distskwargs[i] is None:
-                    distskwargs[i] = dict()
+                # No distribution provided, so import the draws as a custom-value
+                # InVar. With a nummap the imported nums are the numbers, so map
+                # them back to their values for the vals input.
+                if nummaps[i] is not None:
+                    vals = [nummaps[i][num] for num in nums]
+                else:
+                    vals = list(nums)
+                self.addInVar(
+                    name=valname,
+                    vals=vals,
+                    nummap=nummaps[i],
+                    seed=None,
+                    datasource=str(filepath.resolve()),
+                )
             else:
                 dist = dists[i](**distskwargs[i])
                 pcts = np.asarray(dist.cdf(nums))
-
-            self.addInVar(
-                name=valname,
-                dist=dists[i],
-                distkwargs=distskwargs[i],
-                nummap=nummaps[i],
-                seed=None,
-                datasource=str(filepath.resolve()),
-            )
-            nums = np.asarray(nums).tolist()
-            self.invars[valname].nums = nums
-            self.invars[valname].pcts = pcts
-            self.invars[valname].mapNums()
+                self.addInVar(
+                    name=valname,
+                    dist=dists[i],
+                    distkwargs=distskwargs[i],
+                    nummap=nummaps[i],
+                    seed=None,
+                    datasource=str(filepath.resolve()),
+                )
+                nums = np.asarray(nums).tolist()
+                self.invars[valname].nums = nums
+                self.invars[valname].pcts = pcts
+                self.invars[valname].mapNums()
 
             for case in self.cases:
                 case.invars[valname] = self.invars[valname]
@@ -2224,7 +2248,7 @@ class Sim:
         if dirpath is not None:
             self.resultsdir = pathlib.Path(dirpath)
 
-        self.cases = []
+        self.cases = [None] * self.ncases
         casesloaded = set()
         casesstale = set()
         casesnotloaded = self._allCases()
@@ -2242,13 +2266,12 @@ class Sim:
                             or (not case.hasrun)
                             or (case.runtime is None)
                         ):  # only load case if it completed running
-                            self.cases.append(None)
                             vwarn(
                                 self.verbose,
                                 f"{filepath.name} did not finish running, " + "not loaded",
                             )
                         else:
-                            self.cases.append(case)
+                            self.cases[ncase] = case
 
                             if case.runsimid != self.runsimid:
                                 vwarn(
@@ -2299,32 +2322,24 @@ class Sim:
                 self.verbose,
                 "The following extra .mcsim and .mccase files were found in the "
                 + "results directory, run removeExtraResultsFiles() to clean them "
-                + f"up: [{', '.join([str(i) for i in sorted(extrafiles)])}]",
+                + f"up: [{', '.join(sorted(f.name for f in extrafiles))}]",
             )
 
-    def _findExtraResultsFiles(self) -> set[str]:
+    def _findExtraResultsFiles(self) -> set[pathlib.Path]:
         """
         Find .mcsim and .mccase files that we don't expect to see in the
         results directory.
 
         Returns
         -------
-        filenames : set[str]
-            The extra files.
+        extrafiles : set[pathlib.Path]
+            The full paths of the extra files.
         """
         files = set(self.resultsdir.glob("**/*.mcsim")) | set(self.resultsdir.glob("**/*.mccase"))
-        filenames = set(file.name for file in files)
-        try:
-            filenames.remove(f"{self.name}.mcsim")
-        except Exception:
-            pass
-        for ncase in range(self.ncases):
-            try:
-                filenames.remove(f"{self.name}_{ncase}.mccase")
-            except Exception:
-                pass
-
-        return filenames
+        expectednames = {f"{self.name}.mcsim"}
+        expectednames |= {f"{self.name}_{ncase}.mccase" for ncase in range(self.ncases)}
+        extrafiles = {file for file in files if file.name not in expectednames}
+        return extrafiles
 
     def removeExtraResultsFiles(self) -> None:
         """
@@ -2332,9 +2347,8 @@ class Sim:
         directory.
         """
         extrafiles = self._findExtraResultsFiles()
-        for file in extrafiles:
-            filepath = self.resultsdir / file
-            filepath.unlink()
+        for filepath in extrafiles:
+            filepath.unlink(missing_ok=True)
 
     def _pickleLargeData(
         self,

@@ -44,6 +44,16 @@
 * Fix crash when rerunning a subset of cases, and raise a clear error on unsupported partial runs
 * Fix order statistic percentile bounds spuriously rejecting valid small-sample cases
 * Fix off-by-one in order statistic percentile (ORDERSTATP) bound values
+* Fix loaded cases being misaligned by case number after a partial load
+* Fix importing input variables without providing distributions
+* Fix custom values with unhashable elements failing to map
+* Fix custom percentiles of exactly 1 producing infinite draws
+* Fix confidence interval shading on horizontal histograms
+* Fix user-supplied histogram bins being overridden
+* Fix histogram rug marks ignoring the case filter
+* Raise an error when exporting non-scalar variables to csv
+* Fix removal of extra results files located in subdirectories
+* Cancel in-flight dask futures on keyboard interrupt
 * Worker processes are now killed if parent process terminates
 
 ## [0.20.3] - 2025-02-06
