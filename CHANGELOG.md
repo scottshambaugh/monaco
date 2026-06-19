@@ -25,7 +25,7 @@
 ### Changed    
 ### Removed    
 
-## [0.21.0] - 2025-06-18
+## [0.21.0] - 2026-06-18
 ### Changed    
 * Fix error in DVARS calculations
 * Fix off-by-one in order statistic tolerance interval minimum sample sizes
@@ -60,11 +60,11 @@
 * Worker processes are now killed if parent process terminates
 * Cancel in-flight dask futures on keyboard interrupt
 
-## [0.20.3] - 2025-02-06
+## [0.20.3] - 2026-02-06
 ### Changed    
 * Speed up mapVal
 
-## [0.20.2] - 2025-02-06
+## [0.20.2] - 2026-02-06
 ### Changed    
 * Moved from `flake8` to `ruff` for linting
 * Switch from `pre-commit` to `prek`
