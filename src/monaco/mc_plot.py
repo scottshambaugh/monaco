@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
 from scipy.stats import rv_continuous, rv_discrete, chi2, mode
 from copy import copy, deepcopy
-from typing import Optional, Iterable
+from typing import Optional, Iterable, Any
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib.patches import Ellipse
@@ -416,6 +416,9 @@ def plot_hist(
     xlim = ax.get_xlim()
     ylim = ax.get_ylim()
 
+    def varstat_plotpoint(x):
+        return varstat_to_plotspace(var, x, invar_space[0])
+
     # Highlight cases and VarStats
     if orientation == PlotOrientation.VERTICAL:
         for i in highlight_cases_list:
@@ -429,14 +432,17 @@ def plot_hist(
                 **plotkwargs,
             )
         for i, varstat in enumerate(var.varstats):
-            nums = get_list(varstat.nums)
+            nums = [varstat_plotpoint(n) for n in get_list(varstat.nums)]
             if length(nums) == 1:  # Single Statistic
                 plt.plot([nums[0], nums[0]], ylim, linestyle="-", color="C0", alpha=1, **plotkwargs)
             elif length(nums) == 3:  # Sided Order Statistics
                 plt.plot([nums[1], nums[1]], ylim, linestyle="-", color="C0", alpha=1, **plotkwargs)
             if varstat.confidence_interval_high_nums is not None:
                 ax.fill_between(
-                    [varstat.confidence_interval_low_nums, varstat.confidence_interval_high_nums],
+                    [
+                        varstat_plotpoint(varstat.confidence_interval_low_nums),
+                        varstat_plotpoint(varstat.confidence_interval_high_nums),
+                    ],
                     [ylim[0], ylim[0]],
                     [ylim[1], ylim[1]],
                     color="C0",
@@ -466,7 +472,7 @@ def plot_hist(
                 **plotkwargs,
             )
         for varstat in var.varstats:
-            nums = get_list(varstat.nums)
+            nums = [varstat_plotpoint(n) for n in get_list(varstat.nums)]
             if length(nums) == 1:  # Single Statistic
                 plt.plot(xlim, [nums[0], nums[0]], linestyle="-", color="C0", alpha=1, **plotkwargs)
             elif length(nums) == 3:  # Sided Order Statistics
@@ -474,8 +480,8 @@ def plot_hist(
             if varstat.confidence_interval_high_nums is not None:
                 ax.fill_between(
                     xlim,
-                    varstat.confidence_interval_low_nums,
-                    varstat.confidence_interval_high_nums,
+                    varstat_plotpoint(varstat.confidence_interval_low_nums),
+                    varstat_plotpoint(varstat.confidence_interval_high_nums),
                     color="C0",
                     alpha=0.3,
                 )
@@ -716,16 +722,24 @@ def plot_2d_line(
     for i in highlight_cases_list:
         plt.plot(varx_points[i], vary_points[i], linestyle="-", color="C1", alpha=0.9, **plotkwargs)
 
+    def varstat_plotpoint(y):
+        return varstat_to_plotspace(vary, y, invar_space[1])
+
     for varstat in vary.varstats:
         varx_points_max = max(varx_points, key=len)
         if length(varstat.nums[0]) == 1:  # Single Statistic
             plt.plot(
-                varx_points_max, varstat.nums[:], linestyle="-", color="C0", alpha=0.9, **plotkwargs
+                varx_points_max,
+                varstat_plotpoint(varstat.nums[:]),
+                linestyle="-",
+                color="C0",
+                alpha=0.9,
+                **plotkwargs,
             )
         elif length(varstat.nums[0]) == 3:  # Sided Order Statistic
             plt.plot(
                 varx_points_max,
-                varstat.nums[:, 1],
+                varstat_plotpoint(varstat.nums[:, 1]),
                 linestyle="-",
                 color="C0",
                 alpha=0.9,
@@ -735,16 +749,16 @@ def plot_2d_line(
         if varstat.confidence_interval_high_nums is not None:
             ax.fill_between(
                 varx_points_max,
-                varstat.confidence_interval_low_nums,
-                varstat.confidence_interval_high_nums,
+                varstat_plotpoint(varstat.confidence_interval_low_nums),
+                varstat_plotpoint(varstat.confidence_interval_high_nums),
                 color="C0",
                 alpha=0.3,
             )
         if length(varstat.nums[0]) in (2, 3):  # Sided Order Statistic
             ax.fill_between(
                 varx_points_max,
-                np.asarray(varstat.nums)[:, 0],
-                np.asarray(varstat.nums)[:, -1],
+                varstat_plotpoint(np.asarray(varstat.nums)[:, 0]),
+                varstat_plotpoint(np.asarray(varstat.nums)[:, -1]),
                 color="C0",
                 alpha=0.3,
             )
@@ -1508,6 +1522,39 @@ def get_plot_points(
     if isinstance(var, monaco.mc_var.InVar) and invar_space == InVarSpace.PCTS:
         plot_points = var.pcts
     return plot_points
+
+
+def varstat_to_plotspace(
+    var: InVar | OutVar,
+    value: Any,
+    invar_space: InVarSpace,
+) -> Any:
+    """
+    Map a num-space VarStat value into the plotting space for a variable.
+
+    VarStats are computed in num-space, so to overlay them on a plot drawn in
+    pcts space they must be mapped through the variable's own nums-to-pcts
+    relationship. Returns the value unchanged unless the variable is an InVar
+    being plotted in pcts space.
+
+    Parameters
+    ----------
+    var : InVar | OutVar
+        The variable the VarStat belongs to.
+    value : float | numpy.ndarray
+        The num-space value(s) to map.
+    invar_space : monaco.InVarSpace
+        The space the variable is being plotted in.
+
+    Returns
+    -------
+    plot_value : float | numpy.ndarray
+        The value(s) in the plotting space.
+    """
+    if isinstance(var, monaco.mc_var.InVar) and invar_space == InVarSpace.PCTS:
+        order = np.argsort(var.nums)
+        return np.interp(value, np.asarray(var.nums)[order], np.asarray(var.pcts)[order])
+    return value
 
 
 def get_var_steps(var: InVar | OutVar) -> OutVar:

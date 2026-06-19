@@ -18,6 +18,56 @@ def test_gen_plots():
     assert True
 
 
+def test_varstat_to_plotspace():
+    import scipy.stats
+    from monaco.mc_var import InVar, OutVar
+    from monaco.mc_plot import varstat_to_plotspace
+    from monaco.mc_enums import SampleMethod
+
+    invar = InVar(
+        "norm",
+        ndraws=10000,
+        dist=scipy.stats.norm,
+        distkwargs={"loc": 0, "scale": 1},
+        samplemethod=SampleMethod.RANDOM,
+        seed=1,
+    )
+    # An InVar plotted in pcts space maps a num to its percentile
+    assert varstat_to_plotspace(invar, 0.0, InVarSpace.PCTS) == pytest.approx(0.5, abs=0.02)
+    assert varstat_to_plotspace(invar, 2.0, InVarSpace.PCTS) == pytest.approx(0.9772, abs=0.02)
+    # In nums space the value is returned unchanged
+    assert varstat_to_plotspace(invar, 2.0, InVarSpace.NUMS) == 2.0
+    # OutVars are never plotted in pcts space, so the value is unchanged
+    outvar = OutVar("out", vals=[1.0, 2.0, 3.0])
+    assert varstat_to_plotspace(outvar, 2.0, InVarSpace.PCTS) == 2.0
+
+
+def test_plot_hist_varstat_in_pct_space():
+    import matplotlib.pyplot as plt
+    import scipy.stats
+    from monaco.mc_var import InVar
+    from monaco.mc_plot import plot_hist
+    from monaco.mc_enums import SampleMethod, StatBound
+
+    invar = InVar(
+        "norm",
+        ndraws=10000,
+        dist=scipy.stats.norm,
+        distkwargs={"loc": 0, "scale": 1},
+        samplemethod=SampleMethod.RANDOM,
+        seed=1,
+    )
+    invar.addVarStat(
+        stat="sigma", statkwargs={"sig": 2, "bound": StatBound.ONESIDED}, bootstrap=False
+    )
+    # The varstat overlay should sit in pcts space (~cdf(2)), not at the num value ~2.0
+    fig, ax = plot_hist(invar, invar_space=InVarSpace.PCTS)
+    overlay_x = [line.get_xdata()[0] for line in ax.get_lines() if line.get_color() == "C0"]
+    plt.close("all")
+    assert len(overlay_x) == 1
+    assert overlay_x[0] == pytest.approx(0.9772, abs=0.02)
+
+
 ### Plot Testing ###
 def plot_testing(show=False):
     import numpy as np
@@ -35,6 +85,7 @@ def plot_testing(show=False):
     )
     from monaco.mc_enums import SampleMethod
 
+    print("Generating test plots for visual inspection...")
     generator = np.random.RandomState(74494861)
     invarseeds = generator.randint(0, 2**31 - 1, size=10)
     plt.close("all")
@@ -161,7 +212,10 @@ def plot_testing(show=False):
     plot_integration_error(invars["randint2"], volume=1, dimension=1, refval=0.5, conf=0.95)
 
     if show:
+        print("Showing...")
         plt.show(block=True)
+
+    print("Done")
 
 
 if __name__ == "__main__":

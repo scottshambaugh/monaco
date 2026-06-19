@@ -18,7 +18,6 @@
 - Ray support?
 - Support for scipy's [new stats infrastructure](https://docs.scipy.org/doc/scipy/tutorial/stats/rv_infrastructure.html)
 ### Known Bugs:
-- Cannot plot a varstat in percentile space
 ----
 
 ## [Unreleased]
@@ -57,6 +56,7 @@
 * Fix crash splitting an output variable with mixed scalar and vector cases
 * Fix crashes consuming a partially loaded or incomplete set of cases
 * Fix per-variable `invar_space` being ignored or crashing in multi-variable plots
+* Fix varstats being plotted in num space instead of percentile space
 * Worker processes are now killed if parent process terminates
 * Cancel in-flight dask futures on keyboard interrupt
 
