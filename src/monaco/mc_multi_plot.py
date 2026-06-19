@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from typing import Optional, Iterable
-from monaco.mc_plot import plot_hist, plot_2d_scatter
+from warnings import warn
+from monaco.mc_plot import plot_hist, plot_2d_scatter, manage_invar_space
 from monaco.mc_var import InVar, OutVar
 from monaco.mc_enums import PlotOrientation, InVarSpace
 from monaco.helper_functions import empty_list, get_list
@@ -96,6 +97,13 @@ def multi_plot(
     # Many Variable Plots
     elif len(vars) > 2:
         scalarvars = [var for var in vars if var.isscalar]
+        if len(scalarvars) < len(vars):
+            warn(
+                f"Dropping {len(vars) - len(scalarvars)} non-scalar variable(s) "
+                "from the multi-variable plot grid."
+            )
+        if len(scalarvars) < 2:
+            raise ValueError("multi_plot requires at least two scalar variables for a grid plot.")
         fig, axs = multi_plot_grid_tri(
             vars=scalarvars,
             cases=cases,
@@ -167,6 +175,7 @@ def multi_plot_2d_scatter_hist(
         x-axis plots, respectively.
     """
     fig = handle_fig(fig)
+    invar_space = manage_invar_space(invar_space, 2)
 
     gs = fig.add_gridspec(4, 4)
     ax1 = fig.add_subplot(gs[3, 1:4])
@@ -179,7 +188,7 @@ def multi_plot_2d_scatter_hist(
         highlight_cases=highlight_cases,
         cumulative=cumulative,
         rug_plot=False,
-        invar_space=invar_space,
+        invar_space=[invar_space[0]],
         ax=ax1,
         title="",
         plotkwargs=plotkwargs,
@@ -190,7 +199,7 @@ def multi_plot_2d_scatter_hist(
         highlight_cases=highlight_cases,
         cumulative=cumulative,
         rug_plot=False,
-        invar_space=invar_space,
+        invar_space=[invar_space[1]],
         ax=ax2,
         title="",
         plotkwargs=plotkwargs,
@@ -215,7 +224,7 @@ def multi_plot_2d_scatter_hist(
     ax3.set_xlabel("")
     ax3.set_ylabel("")
     ax3.xaxis.set_tick_params(labelbottom=False)
-    ax3.yaxis.set_tick_params(labelbottom=False)
+    ax3.yaxis.set_tick_params(labelleft=False)
 
     plt.suptitle(title, y=0.93)
 
@@ -276,6 +285,7 @@ def multi_plot_grid_tri(
     fig = handle_fig(fig)
 
     nvars = len(vars)
+    invar_space = manage_invar_space(invar_space, nvars)
     axs = np.atleast_2d(fig.subplots(nvars, nvars, sharex="col"))
     for i in range(nvars):
         row_scatter_axs = [ax for k, ax in enumerate(axs[i]) if k < i]
@@ -288,7 +298,7 @@ def multi_plot_grid_tri(
                     highlight_cases=highlight_cases,
                     cumulative=cumulative,
                     rug_plot=False,
-                    invar_space=invar_space,
+                    invar_space=[invar_space[i]],
                     ax=ax,
                     title="",
                     plotkwargs=plotkwargs,
@@ -307,7 +317,7 @@ def multi_plot_grid_tri(
                     rug_plot=rug_plot,
                     cov_plot=cov_plot,
                     cov_p=cov_p,
-                    invar_space=invar_space,
+                    invar_space=[invar_space[j], invar_space[i]],
                     ax=ax,
                     title="",
                     plotkwargs=plotkwargs,
@@ -388,6 +398,11 @@ def multi_plot_grid_rect(
     nvarsx = len(varsx)
     nvarsy = len(varsy)
 
+    # An iterable invar_space maps to the x vars first, then the y vars
+    invar_space = manage_invar_space(invar_space, nvarsx + nvarsy)
+    invar_space_x = invar_space[:nvarsx]
+    invar_space_y = invar_space[nvarsx:]
+
     axs = np.atleast_2d(fig.subplots(nvarsy + 1, nvarsx + 1, sharex="col"))
     for i in range(nvarsy + 1):
         # exclude col 0 with the y-histogram so it isn't linked to the scatter axes
@@ -403,7 +418,7 @@ def multi_plot_grid_rect(
                     highlight_cases=highlight_cases,
                     cumulative=cumulative,
                     rug_plot=False,
-                    invar_space=invar_space,
+                    invar_space=[invar_space_x[j - 1]],
                     orientation=PlotOrientation.VERTICAL,
                     ax=ax,
                     title="",
@@ -416,7 +431,7 @@ def multi_plot_grid_rect(
                     highlight_cases=highlight_cases,
                     cumulative=cumulative,
                     rug_plot=False,
-                    invar_space=invar_space,
+                    invar_space=[invar_space_y[i]],
                     orientation=PlotOrientation.HORIZONTAL,
                     ax=ax,
                     title="",
@@ -434,7 +449,7 @@ def multi_plot_grid_rect(
                     rug_plot=rug_plot,
                     cov_plot=cov_plot,
                     cov_p=cov_p,
-                    invar_space=invar_space,
+                    invar_space=[invar_space_x[j - 1], invar_space_y[i]],
                     ax=ax,
                     title="",
                     plotkwargs=plotkwargs,

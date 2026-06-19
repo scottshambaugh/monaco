@@ -53,8 +53,12 @@
 * Fix histogram rug marks ignoring the case filter
 * Raise an error when exporting non-scalar variables to csv
 * Fix removal of extra results files located in subdirectories
-* Cancel in-flight dask futures on keyboard interrupt
+* Fix output values being corrupted in place when mapping object-array data
+* Fix crash splitting an output variable with mixed scalar and vector cases
+* Fix crashes consuming a partially loaded or incomplete set of cases
+* Fix per-variable `invar_space` being ignored or crashing in multi-variable plots
 * Worker processes are now killed if parent process terminates
+* Cancel in-flight dask futures on keyboard interrupt
 
 ## [0.20.3] - 2025-02-06
 ### Changed    

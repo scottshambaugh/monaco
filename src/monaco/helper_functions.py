@@ -36,7 +36,9 @@ def next_power_of_2(x: int) -> int:
     if x <= 0:
         return 0
     else:
-        return int(2 ** np.ceil(np.log2(x)))
+        # Integer bit math avoids the float precision loss of 2**ceil(log2(x))
+        # for large x (above 2**53)
+        return 1 << (int(x) - 1).bit_length()
 
 
 def hash_str_repeatable(s: str) -> int:

@@ -330,16 +330,19 @@ class OutVal(Val):
                 indices = np.searchsorted(sorted_keys, flat)
                 self.num = mapped_values[indices].reshape(self.shape).astype(float)
             else:
-                # Slow path: element-by-element for object arrays
-                num = np.asarray(self.val, dtype="object")
+                # Slow path: element-by-element for object arrays. asarray avoids
+                # a copy, and we write into a separate array so we never mutate
+                # the caller's values.
+                val = np.asarray(self.val, dtype="object")
+                num = np.empty(self.shape, dtype="float")
                 if len(self.shape) == 1:
                     for i in range(self.shape[0]):
-                        num[i] = self.valmap[hashable_val(self.val[i])]
+                        num[i] = self.valmap[hashable_val(val[i])]
                 else:
                     for i in range(self.shape[0]):
                         for j in range(self.shape[1]):
-                            num[i][j] = self.valmap[hashable_val(self.val[i][j])]
-                self.num = np.asarray(num, dtype="float")
+                            num[i][j] = self.valmap[hashable_val(val[i][j])]
+                self.num = num
 
     def genNumMap(self) -> None:
         """

@@ -924,10 +924,13 @@ class OutVar(Var):
         """
         vars: dict[str, "OutVar"] = dict()
         if self.maxdim > 0:
-            # First ensure that the vals have the same shape over all cases
-            shape = self.nums[0].shape
+            # First ensure that the vals have the same shape over all cases. Bail
+            # out for ragged or scalar (0-d) cases rather than indexing into them.
+            if np.ndim(self.nums[0]) < 1:
+                return vars
+            shape = np.shape(self.nums[0])
             for num in self.nums:
-                if num.shape[0] != shape[0]:
+                if np.ndim(num) < 1 or np.shape(num)[0] != shape[0]:
                     return vars
 
             for i in range(shape[0]):

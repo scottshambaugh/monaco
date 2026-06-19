@@ -843,6 +843,8 @@ class Sim:
     def restorePickledCases(self, cases: list[Case]) -> None:
         """Restore the pickled cases to their original state."""
         for case in cases:
+            if case is None:
+                continue
             case.invars = self.invars
             case.invals = self.invals_cache[case.ncase]
             case.vals = {**case.invals, **case.outvals}
@@ -989,6 +991,8 @@ class Sim:
         futures = None
         try:
             for case in self.cases:
+                if case is None:
+                    continue
                 if case.ncase in casestopreprocess_downselect:
                     case.haspreprocessed = False
                 if case.ncase in casestorun_downselect:
@@ -1372,6 +1376,8 @@ class Sim:
             If the outvals were imported from a file, this is the filepath. If
             generated through monaco, then None.
         """
+        if any(case is None for case in self.cases):
+            raise ValueError("Cannot generate output variables until all cases have been run.")
         outval_names = list(self.cases[0].outvals.keys())
         if self.verbose:
             pbar = tqdm(
@@ -2060,6 +2066,9 @@ class Sim:
                     seed=None,
                     datasource=str(filepath.resolve()),
                 )
+                # drawVars() skips imported invars, so draw now to populate
+                # nums/vals/pcts
+                self.invars[valname].draw()
             else:
                 dist = dists[i](**distskwargs[i])
                 pcts = np.asarray(dist.cdf(nums))
@@ -2200,6 +2209,8 @@ class Sim:
             self.resultsdir = pathlib.Path(dirpath)
 
         for ncase in cases_downselect:
+            if self.cases[ncase] is None:
+                continue
             filepath = self.resultsdir / f"{self.name}_{ncase}.mccase"
             self.cases[ncase].filepath = filepath
             try:
