@@ -43,6 +43,7 @@
 * Fix crash computing correlations with fewer than two scalar variables
 * Fix crash when rerunning a subset of cases, and raise a clear error on unsupported partial runs
 * Fix order statistic percentile bounds spuriously rejecting valid small-sample cases
+* Fix off-by-one in order statistic percentile (ORDERSTATP) bound values
 * Worker processes are now killed if parent process terminates
 
 ## [0.20.3] - 2025-02-06

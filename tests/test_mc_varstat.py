@@ -57,7 +57,7 @@ bound = StatBound.ONESIDED
         (
             VarStatType.ORDERSTATP,
             {"p": sig2pct(3, bound), "c": 0.50, "bound": StatBound.ALL},
-            [2.9472576, 3.0069887, 3.0265706],
+            [2.9264164, 3.0060487, 3.0176566],
             [],
             [],
         ),
@@ -229,7 +229,7 @@ def test_outvarstat_2d(v):
 
     assert np.allclose(
         outvarstat1.vals,
-        [[-4, -2, 4], [-2, -1, 2], [-4, -2, 4], [-6, -3, 6], [-8, -4, 8], [-10, -5, 10]],
+        [[-4, 0, 4], [-2, 0, 2], [-4, 0, 4], [-6, 0, 6], [-8, 0, 8], [-10, 0, 10]],
     )
     assert outvarstat1.confidence_interval_low_nums is None
     assert outvarstat1.confidence_interval_high_nums is None
@@ -296,4 +296,4 @@ def test_outvarstat_1d_orderstatp(v):
         bootstrap=False,
         seed=0,
     )
-    assert all(outvarstat.vals == np.array([-0.4, -0.2, 4.0, 6.0, 8.0, 10.0]))
+    assert all(outvarstat.vals == np.array([-1.0, -0.5, 2.0, 3.0, 4.0, 5.0]))

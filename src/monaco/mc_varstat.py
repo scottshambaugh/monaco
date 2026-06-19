@@ -512,7 +512,11 @@ class VarStat:
                     )
             elif self.side == VarStatSide.ALL:
                 self.nums = np.asarray(
-                    [sortednums[self.k - 1], np.median(sortednums), sortednums[-self.k]]
+                    [
+                        sortednums[self.k - 1],
+                        sortednums[(len(sortednums) - 1) // 2],
+                        sortednums[-self.k],
+                    ]
                 )
                 if self.var.nummap is not None:
                     self.checkInNummap(self.nums)
@@ -546,7 +550,7 @@ class VarStat:
                 elif self.side == VarStatSide.ALL:
                     self.nums[i, :] = [
                         sortednums[self.k - 1],
-                        sortednums[int(np.round(len(sortednums) / 2) - 1)],
+                        sortednums[(len(sortednums) - 1) // 2],
                         sortednums[-self.k],
                     ]
             if self.var.nummap is not None:
@@ -587,14 +591,21 @@ class VarStat:
         self.k = order_stat_P_k(n=self.ncases, P=self.p, c=self.c, bound=bound)
 
         (iPl, iP, iPu) = get_iP(n=self.ncases, P=self.p)
+        # get_iP returns 1-based positions, work in 0-based indices from here
+        iPl, iP, iPu = iPl - 1, iP - 1, iPu - 1
         if self.var.isscalar:
             sortednums = sorted([self.var.nums[case] for case in self.cases])
+            n = len(sortednums)
+            # clamp the degenerate edges to the sample min/max
+            ilo = min(max(iPl - self.k, 0), n - 1)
+            imid = min(max(iP, 0), n - 1)
+            ihi = min(max(iPu + self.k, 0), n - 1)
             if self.bound == StatBound.ONESIDED_LOWER:
-                self.nums = sortednums[iPl - self.k]
+                self.nums = sortednums[ilo]
             elif self.bound == StatBound.ONESIDED_UPPER:
-                self.nums = sortednums[iPu + self.k]
+                self.nums = sortednums[ihi]
             elif self.bound == StatBound.NEAREST:
-                self.nums = sortednums[iP]
+                self.nums = sortednums[imid]
             if self.bound in (
                 StatBound.ONESIDED_LOWER,
                 StatBound.ONESIDED_UPPER,
@@ -604,16 +615,14 @@ class VarStat:
                     self.checkInNummap(self.nums)
                     self.vals = self.var.nummap[self.nums]
             elif self.bound == StatBound.TWOSIDED:
-                self.nums = np.asarray([sortednums[iPl - self.k], sortednums[iPu + self.k]])
+                self.nums = np.asarray([sortednums[ilo], sortednums[ihi]])
                 if self.var.nummap is not None:
                     self.checkInNummap(self.nums)
                     self.vals = np.asarray(
                         [self.var.nummap[self.nums[0]], self.var.nummap[self.nums[1]]]
                     )
             elif self.bound == StatBound.ALL:
-                self.nums = np.asarray(
-                    [sortednums[iPl - self.k], sortednums[iP], sortednums[iPu + self.k]]
-                )
+                self.nums = np.asarray([sortednums[ilo], sortednums[imid], sortednums[ihi]])
                 if self.var.nummap is not None:
                     self.checkInNummap(self.nums)
                     self.vals = np.asarray(
@@ -637,20 +646,20 @@ class VarStat:
             for i in range(npoints):
                 numsatidx = [get_list(x)[i] for x in nums if len(get_list(x)) > i]
                 sortednums = sorted(numsatidx)
+                n = len(sortednums)
+                ilo = min(max(iPl - self.k, 0), n - 1)
+                imid = min(max(iP, 0), n - 1)
+                ihi = min(max(iPu + self.k, 0), n - 1)
                 if self.bound == StatBound.ONESIDED_LOWER:
-                    self.nums[i] = sortednums[iPl - self.k]
+                    self.nums[i] = sortednums[ilo]
                 elif self.bound == StatBound.ONESIDED_UPPER:
-                    self.nums[i] = sortednums[iPu + self.k]
+                    self.nums[i] = sortednums[ihi]
                 elif self.bound == StatBound.NEAREST:
-                    self.nums[i] = sortednums[iP]
+                    self.nums[i] = sortednums[imid]
                 elif self.bound == StatBound.TWOSIDED:
-                    self.nums[i, :] = [sortednums[iPl - self.k], sortednums[iPu + self.k]]
+                    self.nums[i, :] = [sortednums[ilo], sortednums[ihi]]
                 elif self.bound == StatBound.ALL:
-                    self.nums[i, :] = [
-                        sortednums[iPl - self.k],
-                        sortednums[iP],
-                        sortednums[iPu + self.k],
-                    ]
+                    self.nums[i, :] = [sortednums[ilo], sortednums[imid], sortednums[ihi]]
             if self.var.nummap is not None:
                 self.checkInNummap(self.nums)
                 self.vals = np.asarray([self.var.nummap[x] for x in self.nums.flatten()]).reshape(
