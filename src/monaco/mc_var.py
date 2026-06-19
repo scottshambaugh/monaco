@@ -851,7 +851,11 @@ class OutVar(Var):
                         self.nums.append(np.asarray(self.valmap[hashable_val(val)]))
                     elif arr.dtype.kind != "O":
                         # Vectorized searchsorted for typed arrays
-                        indices = np.searchsorted(sorted_keys, arr.flatten())
+                        flat = arr.flatten()
+                        missing = flat[~np.isin(flat, sorted_keys)]
+                        if missing.size:
+                            raise KeyError(f"Value(s) {np.unique(missing).tolist()} not in valmap")
+                        indices = np.searchsorted(sorted_keys, flat)
                         self.nums.append(mapped_values[indices].reshape(arr.shape).astype(float))
                     else:
                         self.nums.append(np.asarray(self.getVal(i).num))

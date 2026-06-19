@@ -107,7 +107,11 @@ def calc_sensitivities(
     sensitivities = np.zeros(sim.ninvars)
     for j in range(sim.ninvars):
         sensitivities[j] = calc_Gammaj(Hj, phi_opt[j], variance)
-    ratios = sensitivities / sum(sensitivities)
+    sensitivities_sum = sum(sensitivities)
+    if sensitivities_sum == 0:
+        ratios = np.zeros(sim.ninvars)
+    else:
+        ratios = sensitivities / sensitivities_sum
 
     return sensitivities, ratios
 

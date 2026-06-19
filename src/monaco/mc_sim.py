@@ -664,6 +664,12 @@ class Sim:
             The case numbers to run. If None, then all cases are run.
         """
         cases_downselect = self._downselectCases(cases=cases)
+        if (cases_downselect | self.casesrun) != self._allCases():
+            raise ValueError(
+                "Cannot run only a subset of cases unless the remaining cases "
+                "have already been run. Run the full sim with runSim() first, or "
+                "use runIncompleteSim() to resume an incomplete sim."
+            )
         self.logger.info(
             f"Running '{self.name}' Monte Carlo simulation with "
             + f"{len(cases_downselect)}/{self.ncases} cases..."
@@ -689,7 +695,7 @@ class Sim:
 
         self.logger.info(
             f"Resuming incomplete '{self.name}' Monte Carlo simulation with "
-            f"{len(casestopostprocess)}/{self.ncases} cases left to preprocess, "
+            f"{len(casestopreprocess)}/{self.ncases} cases left to preprocess, "
             f"{len(casestorun)}/{self.ncases} cases left to run, and "
             f"{len(casestopostprocess)}/{self.ncases} cases left to postprocess..."
         )
@@ -800,6 +806,7 @@ class Sim:
             self.cases = []
 
         cases_downselect = self._downselectCases(cases)
+        existing = {case.ncase: i for i, case in enumerate(self.cases)}
         if self.verbose:
             pbar = tqdm(
                 total=len(cases_downselect), desc="Generating cases", unit="case", position=0
@@ -808,17 +815,19 @@ class Sim:
             ismedian = False
             if self.firstcaseismedian and ncase == 0:
                 ismedian = True
-            self.cases.append(
-                Case(
-                    ncase=ncase,
-                    ismedian=ismedian,
-                    invars=self.invars,
-                    constvals=self.constvals,
-                    keepsiminput=self.keepsiminput,
-                    keepsimrawoutput=self.keepsimrawoutput,
-                    seed=int(self.caseseeds[ncase]),
-                )
+            case = Case(
+                ncase=ncase,
+                ismedian=ismedian,
+                invars=self.invars,
+                constvals=self.constvals,
+                keepsiminput=self.keepsiminput,
+                keepsimrawoutput=self.keepsimrawoutput,
+                seed=int(self.caseseeds[ncase]),
             )
+            if ncase in existing:
+                self.cases[existing[ncase]] = case
+            else:
+                self.cases.append(case)
             if self.verbose:
                 pbar.update(1)
         if self.verbose:

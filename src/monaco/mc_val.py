@@ -323,7 +323,11 @@ class OutVal(Val):
             if arr.dtype.kind != "O":
                 sorted_keys = np.array(sorted(self.valmap.keys()))
                 mapped_values = np.array([self.valmap[k] for k in sorted_keys])
-                indices = np.searchsorted(sorted_keys, arr.flatten())
+                flat = arr.flatten()
+                missing = flat[~np.isin(flat, sorted_keys)]
+                if missing.size:
+                    raise KeyError(f"Value(s) {np.unique(missing).tolist()} not in valmap")
+                indices = np.searchsorted(sorted_keys, flat)
                 self.num = mapped_values[indices].reshape(self.shape).astype(float)
             else:
                 # Slow path: element-by-element for object arrays

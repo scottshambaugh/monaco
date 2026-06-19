@@ -82,6 +82,9 @@ def order_stat_TI_n(
             f"n exceeded {nmax=} for P{100 * p}/{c * 100}. "
             + "Increase nmax or loosen constraints."
         )
+    u = n[0] + 1 - k
+    if u >= l and EPTI(n[0], l, u, p) >= c:
+        return int(n[0])
 
     for i in range(maxsteps):
         step = (n[1] - n[0]) / 2
@@ -90,7 +93,7 @@ def order_stat_TI_n(
             return int(n[1])
         else:
             u = ntemp + 1 - k
-            if EPTI(ntemp, l, u, p) <= c:
+            if EPTI(ntemp, l, u, p) < c:
                 n[0] = ntemp
             else:
                 n[1] = ntemp
@@ -327,33 +330,23 @@ def order_stat_P_n(
 
     (iPl, iP, iPu) = get_iP(n[0], P)
     if bound == StatBound.TWOSIDED:
-        l = iPl - k + 1  # we won't be using assymmetrical order stats
-        u = iPu + k - 1
-        if l <= 0 or u >= n[1] + 1 or EPYP(n[0], l, u, P) < c:
-            raise ValueError(
-                f"n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} "
-                + f"at {c=}. Increase nmax, raise k, or loosen constraints."
-            )
+        l = max(iPl - k, 0)
+        u = min(iPu + k, n[0] + 1)
     elif bound == StatBound.ONESIDED_UPPER:
         l = 0
-        u = iPu + k - 1
-        if u >= n[1] + 1 or EPYP(n[0], l, u, P) < c:
-            raise ValueError(
-                f"n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} "
-                + f"at {c=}. Increase nmax, raise k, or loosen constraints."
-            )
+        u = min(iPu + k, n[0] + 1)
     elif bound == StatBound.ONESIDED_LOWER:
-        l = iPl - k + 1
+        l = max(iPl - k, 0)
         u = n[0] + 1
-        if l <= 0 or EPYP(n[0], l, u, P) < c:
-            raise ValueError(
-                f"n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} "
-                + f"at {c=}. Increase nmax, raise k, or loosen constraints."
-            )
     else:
         raise ValueError(
             f"{bound=} must be {StatBound.ONESIDED_UPPER}, "
             + f"{StatBound.ONESIDED_LOWER}, or {StatBound.TWOSIDED}"
+        )
+    if EPYP(n[0], l, u, P) < c:
+        raise ValueError(
+            f"n ouside bounds of {nmin=}:{nmax=} for {P=} with {k=} "
+            + f"at {c=}. Increase nmax, raise k, or loosen constraints."
         )
 
     for i in range(maxsteps):

@@ -29,6 +29,8 @@
 ## [0.21.0] - 2025-06-18
 ### Changed    
 * Fix error in DVARS calculations
+* Fix off-by-one in order statistic tolerance interval minimum sample sizes
+* Fix silent mismapping of values missing from a user-supplied valmap
 * Fix complex valmaps
 * Fix dask distributed and numpy deprecations
 * Fix random seeds being frozen at import time rather than drawn per object
@@ -39,6 +41,8 @@
 * Fix scatter y-axis sharing in rectangular plot grids
 * Fix crash drawing a single custom value
 * Fix crash computing correlations with fewer than two scalar variables
+* Fix crash when rerunning a subset of cases, and raise a clear error on unsupported partial runs
+* Fix order statistic percentile bounds spuriously rejecting valid small-sample cases
 * Worker processes are now killed if parent process terminates
 
 ## [0.20.3] - 2025-02-06
