@@ -1,6 +1,7 @@
 # test_order_statistics.py
 
 import pytest
+import scipy.stats
 from monaco.order_statistics import (
     order_stat_TI_n,
     order_stat_TI_k,
@@ -10,6 +11,7 @@ from monaco.order_statistics import (
     order_stat_P_k,
     order_stat_P_c,
     order_stat_var_check,
+    _binom_cdf,
 )
 from monaco.mc_enums import StatBound
 
@@ -102,3 +104,22 @@ def test_order_stat_P_n(k, c, P, bound, ans):
 def test_order_stat_var_check_errors(kwargs, match):
     with pytest.raises(ValueError, match=match):
         order_stat_var_check(**kwargs)
+
+
+@pytest.mark.parametrize(
+    "k, n, p",
+    [
+        (-1, 10, 0.3),
+        (0, 10, 0.3),
+        (3, 10, 0.3),
+        (3.7, 10, 0.3),
+        (9, 10, 0.3),
+        (10, 10, 0.3),
+        (12, 10, 0.3),
+        (500, 1000, 0.51),
+    ],
+)
+def test_binom_cdf(k, n, p):
+    assert _binom_cdf(k, n, p) == pytest.approx(
+        scipy.stats.binom.cdf(k, n, p), rel=1e-12, abs=1e-15
+    )

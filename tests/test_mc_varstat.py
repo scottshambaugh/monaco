@@ -297,3 +297,30 @@ def test_outvarstat_1d_orderstatp(v):
         seed=0,
     )
     assert all(outvarstat.vals == np.array([-1.0, -0.5, 2.0, 3.0, 4.0, 5.0]))
+
+
+@pytest.mark.parametrize(
+    "stat, statkwargs",
+    [
+        (VarStatType.ORDERSTATTI, {"p": 0.9, "c": 0.5, "bound": StatBound.ALL}),
+        (VarStatType.ORDERSTATP, {"p": 0.5, "c": 0.5, "bound": StatBound.ALL}),
+        (VarStatType.VARIANCE, dict()),
+    ],
+)
+def test_outvarstat_1d_vectorized_matches_ragged(stat, statkwargs):
+    rng = np.random.default_rng(0)
+    vals = [rng.normal(size=5) for _ in range(30)]
+    # Extra trailing points force the per-point path
+    vals_ragged = [*vals[:-2], np.append(vals[-2], 1), np.append(vals[-1], 0)]
+    kwargs = dict(stat=stat, statkwargs=statkwargs, bootstrap_method="basic", seed=0)
+    outvarstat = VarStat(OutVar("test", vals), **kwargs)
+    outvarstat_ragged = VarStat(OutVar("test", vals_ragged), **kwargs)
+    assert np.allclose(outvarstat.nums, np.asarray(outvarstat_ragged.nums)[:5], rtol=0, atol=1e-12)
+    if outvarstat.confidence_interval_low_nums is not None:
+        for attr in ("confidence_interval_low_nums", "confidence_interval_high_nums"):
+            assert np.allclose(
+                getattr(outvarstat, attr),
+                getattr(outvarstat_ragged, attr)[:5],
+                rtol=0,
+                atol=1e-12,
+            )

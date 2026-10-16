@@ -414,22 +414,40 @@ class VarStat:
                 confidence_interval_low_nums = []
                 confidence_interval_high_nums = []
 
-            # Calculate nums and confidence interval for each point in the sequence
-            nums = []
-            for i in range(npoints):
-                numsatidx = np.array([x[i] for x in nums_list if len(x) > i])
-                nums.append(self.statsFunctionWrapper(numsatidx))
+            # Custom functions may not respect the axis kwarg
+            if not isinstance(self.stat, Callable) and all(len(x) == npoints for x in nums_list):
+                numsarray = np.stack(nums_list, axis=1)
+                nums = list(self.statsFunctionWrapper(numsarray, axis=-1))
                 if self.bootstrap:
                     res = bootstrap(
-                        (np.asarray(numsatidx, dtype=float),),
+                        (np.asarray(numsarray, dtype=float),),
                         self.statsFunctionWrapper,
                         confidence_level=self.conf,
                         n_resamples=self.bootstrap_n,
+                        batch=max(1, 2**22 // numsarray.size),
+                        axis=-1,
                         random_state=self.seed,
                         method=self.bootstrap_method,
                     )
-                    confidence_interval_low_nums.append(res.confidence_interval.low)
-                    confidence_interval_high_nums.append(res.confidence_interval.high)
+                    confidence_interval_low_nums = list(res.confidence_interval.low)
+                    confidence_interval_high_nums = list(res.confidence_interval.high)
+            else:
+                # Calculate nums and confidence interval for each point in the sequence
+                nums = []
+                for i in range(npoints):
+                    numsatidx = np.array([x[i] for x in nums_list if len(x) > i])
+                    nums.append(self.statsFunctionWrapper(numsatidx))
+                    if self.bootstrap:
+                        res = bootstrap(
+                            (np.asarray(numsatidx, dtype=float),),
+                            self.statsFunctionWrapper,
+                            confidence_level=self.conf,
+                            n_resamples=self.bootstrap_n,
+                            random_state=self.seed,
+                            method=self.bootstrap_method,
+                        )
+                        confidence_interval_low_nums.append(res.confidence_interval.low)
+                        confidence_interval_high_nums.append(res.confidence_interval.high)
             self.nums = nums
             if self.bootstrap:
                 self.confidence_interval_low_nums = confidence_interval_low_nums
@@ -495,9 +513,9 @@ class VarStat:
         self.k = order_stat_TI_k(n=self.ncases, p=self.p, c=self.c, bound=self.bound)
 
         if self.var.isscalar:
-            sortednums = sorted([self.var.nums[case] for case in self.cases])
+            sortednums = np.sort(np.asarray([self.var.nums[case] for case in self.cases]))
             if self.side == VarStatSide.LOW:
-                sortednums.reverse()
+                sortednums = sortednums[::-1]
             if self.side in (VarStatSide.HIGH, VarStatSide.LOW):
                 self.nums = sortednums[-self.k]
                 if self.var.nummap is not None:
@@ -538,21 +556,35 @@ class VarStat:
                 self.nums = np.empty((npoints, 2))
             elif self.side == VarStatSide.ALL:
                 self.nums = np.empty((npoints, 3))
-            for i in range(npoints):
-                numsatidx = [x[i] for x in nums if (len(x.shape) > 0 and x.shape[0] > i)]
-                sortednums = sorted(numsatidx)
+            if all(len(x.shape) == 1 and x.shape[0] == npoints for x in nums):
+                sortednums_iter = [(slice(None), np.sort(np.stack(nums), axis=0))]
+            else:
+                sortednums_iter = (
+                    (
+                        i,
+                        np.sort(
+                            np.asarray(
+                                [x[i] for x in nums if (len(x.shape) > 0 and x.shape[0] > i)]
+                            )
+                        ),
+                    )
+                    for i in range(npoints)
+                )
+            for i, sortednums in sortednums_iter:
                 if self.side == VarStatSide.LOW:
-                    sortednums.reverse()
+                    sortednums = sortednums[::-1]
                 if self.side in (VarStatSide.HIGH, VarStatSide.LOW):
                     self.nums[i] = sortednums[-self.k]
                 elif self.side == VarStatSide.BOTH:
-                    self.nums[i, :] = [sortednums[self.k - 1], sortednums[-self.k]]
+                    self.nums[i, :] = np.transpose([sortednums[self.k - 1], sortednums[-self.k]])
                 elif self.side == VarStatSide.ALL:
-                    self.nums[i, :] = [
-                        sortednums[self.k - 1],
-                        sortednums[(len(sortednums) - 1) // 2],
-                        sortednums[-self.k],
-                    ]
+                    self.nums[i, :] = np.transpose(
+                        [
+                            sortednums[self.k - 1],
+                            sortednums[(len(sortednums) - 1) // 2],
+                            sortednums[-self.k],
+                        ]
+                    )
             if self.var.nummap is not None:
                 self.checkInNummap(self.nums)
                 self.vals = np.asarray([self.var.nummap[x] for x in self.nums.flatten()]).reshape(
@@ -594,7 +626,7 @@ class VarStat:
         # get_iP returns 1-based positions, work in 0-based indices from here
         iPl, iP, iPu = iPl - 1, iP - 1, iPu - 1
         if self.var.isscalar:
-            sortednums = sorted([self.var.nums[case] for case in self.cases])
+            sortednums = np.sort(np.asarray([self.var.nums[case] for case in self.cases]))
             n = len(sortednums)
             # clamp the degenerate edges to the sample min/max
             ilo = min(max(iPl - self.k, 0), n - 1)
@@ -637,15 +669,24 @@ class VarStat:
 
         elif self.var.maxdim == 1:
             nums = [self.var.nums[case] for case in self.cases]
-            npoints = max(len(get_list(x)) for x in nums)
+            if all(isinstance(x, np.ndarray) and x.ndim == 1 for x in nums) and (
+                len(set(x.shape[0] for x in nums)) == 1
+            ):
+                npoints = nums[0].shape[0]
+                sortednums_iter = [(slice(None), np.sort(np.stack(nums), axis=0))]
+            else:
+                nums = [get_list(x) for x in nums]
+                npoints = max(len(x) for x in nums)
+                sortednums_iter = (
+                    (i, np.sort(np.asarray([x[i] for x in nums if len(x) > i])))
+                    for i in range(npoints)
+                )
             self.nums = np.empty(npoints)
             if self.bound == StatBound.TWOSIDED:
                 self.nums = np.empty((npoints, 2))
             elif self.bound == StatBound.ALL:
                 self.nums = np.empty((npoints, 3))
-            for i in range(npoints):
-                numsatidx = [get_list(x)[i] for x in nums if len(get_list(x)) > i]
-                sortednums = sorted(numsatidx)
+            for i, sortednums in sortednums_iter:
                 n = len(sortednums)
                 ilo = min(max(iPl - self.k, 0), n - 1)
                 imid = min(max(iP, 0), n - 1)
@@ -657,9 +698,11 @@ class VarStat:
                 elif self.bound == StatBound.NEAREST:
                     self.nums[i] = sortednums[imid]
                 elif self.bound == StatBound.TWOSIDED:
-                    self.nums[i, :] = [sortednums[ilo], sortednums[ihi]]
+                    self.nums[i, :] = np.transpose([sortednums[ilo], sortednums[ihi]])
                 elif self.bound == StatBound.ALL:
-                    self.nums[i, :] = [sortednums[ilo], sortednums[imid], sortednums[ihi]]
+                    self.nums[i, :] = np.transpose(
+                        [sortednums[ilo], sortednums[imid], sortednums[ihi]]
+                    )
             if self.var.nummap is not None:
                 self.checkInNummap(self.nums)
                 self.vals = np.asarray([self.var.nummap[x] for x in self.nums.flatten()]).reshape(

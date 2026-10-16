@@ -1,11 +1,13 @@
 # order_statistics.py
 from __future__ import annotations
 
-import scipy.stats
+import functools
 import numpy as np
+import scipy.special
 from monaco.mc_enums import StatBound
 
 
+@functools.lru_cache(maxsize=1024)
 def order_stat_TI_n(
     k: int,
     p: float,
@@ -102,6 +104,7 @@ def order_stat_TI_n(
     )
 
 
+@functools.lru_cache(maxsize=1024)
 def order_stat_TI_p(
     n: int,
     k: int,
@@ -158,6 +161,7 @@ def order_stat_TI_p(
     raise ValueError(f"With {p=}, could not converge under {ptol=} in {maxsteps} steps.")
 
 
+@functools.lru_cache(maxsize=1024)
 def order_stat_TI_k(
     n: int,
     p: float,
@@ -262,6 +266,7 @@ def order_stat_TI_c(
     return c
 
 
+@functools.lru_cache(maxsize=1024)
 def order_stat_P_n(
     k: int,
     P: float,
@@ -375,6 +380,7 @@ def order_stat_P_n(
     )
 
 
+@functools.lru_cache(maxsize=1024)
 def order_stat_P_k(
     n: int,
     P: float,
@@ -549,7 +555,7 @@ def EPYP(
         TODO Description
     """
     order_stat_var_check(n=n, l=l, u=u, p=p)
-    c = scipy.stats.binom.cdf(u - 1, n, p) - scipy.stats.binom.cdf(l - 1, n, p)
+    c = _binom_cdf(u - 1, n, p) - _binom_cdf(l - 1, n, p)
     return c
 
 
@@ -579,8 +585,25 @@ def EPTI(
         TODO Description
     """
     order_stat_var_check(n=n, l=l, u=u, p=p)
-    c = scipy.stats.binom.cdf(u - l - 1, n, p)
+    c = _binom_cdf(u - l - 1, n, p)
     return c
+
+
+def _binom_cdf(
+    k: float,
+    n: int,
+    p: float,
+) -> float:
+    """
+    Fast scalar equivalent of scipy.stats.binom.cdf(k, n, p) for integer n >= 1
+    and 0 < p < 1.
+    """
+    k = np.floor(k)
+    if k < 0:
+        return np.float64(0.0)
+    elif k >= n:
+        return np.float64(1.0)
+    return scipy.special.betaincc(k + 1, n - k, p)
 
 
 def get_iP(
