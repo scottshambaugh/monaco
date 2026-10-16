@@ -44,6 +44,31 @@ def test_order_stat_TI_k_warning():
         _ = order_stat_TI_k(n=20, p=0.99, c=0.90, bound=StatBound.TWOSIDED)
 
 
+def test_order_stat_TI_onesided():
+    n = order_stat_TI_n(k=2, p=0.99, c=0.90, bound=StatBound.ONESIDED)
+    assert n == 388
+    c = order_stat_TI_c(n=n, k=2, p=0.99, bound=StatBound.ONESIDED)
+    assert c == pytest.approx(1 - scipy.stats.binom.cdf(1, n, 0.01))
+    assert c >= 0.90
+    assert order_stat_TI_c(n=n - 1, k=2, p=0.99, bound=StatBound.ONESIDED) < 0.90
+    assert order_stat_TI_p(n=n, k=2, c=0.90, bound=StatBound.ONESIDED) == pytest.approx(0.9900122)
+    assert order_stat_TI_k(n=n, p=0.99, c=0.90, bound=StatBound.ONESIDED) == 2
+
+
+@pytest.mark.parametrize(
+    "fcn, kwargs",
+    [
+        (order_stat_TI_n, {"k": 2, "p": 0.99, "c": 0.90}),
+        (order_stat_TI_p, {"n": 100, "k": 2, "c": 0.90}),
+        (order_stat_TI_c, {"n": 100, "k": 2, "p": 0.90}),
+        (order_stat_TI_k, {"n": 100, "p": 0.90, "c": 0.90}),
+    ],
+)
+def test_order_stat_TI_invalid_bound(fcn, kwargs):
+    with pytest.raises(ValueError, match="must be"):
+        fcn(bound=StatBound.ONESIDED_UPPER, **kwargs)
+
+
 # Order Statistic Percentile Functions
 @pytest.mark.parametrize(
     "n, k, P, bound, ans",

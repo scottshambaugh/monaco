@@ -307,6 +307,52 @@ def test_sim_extendoutvars(sim_singlethreaded):
             assert len(sim.outvars["casenum_index"][i].val) == sim.ncases
 
 
+def test_sim_extendoutvars_named(sim_singlethreaded):
+    sim = sim_singlethreaded
+    sim.verbose = True
+    with pytest.warns(UserWarning, match="'casenum_out' is scalar"):
+        sim.extendOutVars(["casenum_list", "casenum_out"])
+    for i in range(sim.ncases):
+        assert len(sim.outvars["casenum_list"][i].val) == sim.ncases
+        assert len(sim.outvars["casenum_array"][i].val) == i + 1
+
+
+def test_sim_outvars_str_valmap(sim_base):
+    sim = sim_base
+
+    def postprocess(case, casenum_out):
+        case.addOutVal("parity", "odd" if case.ncase % 2 else "even")
+
+    fcns = sim_testing_fcns()
+    fcns[SimFunctions.POSTPROCESS] = postprocess
+    sim.fcns = SimulationFunctions.from_dict(fcns)
+    sim.runSim()
+    outvar = sim.outvars["parity"]
+    assert set(outvar.valmap) == {"even", "odd"}
+    assert outvar.vals == ["odd" if i % 2 else "even" for i in range(sim.ncases)]
+    assert [outvar.nummap[int(num)] for num in outvar.nums] == outvar.vals
+
+
+def test_sim_cov_too_few_vars():
+    sim = Sim(
+        name="Sim cov",
+        ndraws=4,
+        fcns=sim_testing_fcns(),
+        verbose=True,
+        samplemethod=SampleMethod.RANDOM,
+        seed=74494861,
+        singlethreaded=True,
+        savesimdata=False,
+        savecasedata=False,
+    )
+    sim.addInVar(name="Var1", dist=norm, distkwargs={"loc": 10, "scale": 4})
+    sim.drawVars()
+    with pytest.warns(UserWarning, match="Need at least two scalar variables"):
+        sim.genCovarianceMatrix()
+    assert sim.covs is None
+    assert sim.corrcoeffs is None
+
+
 def test_sim_custom_vals():
     seed = 74494861
     sim = Sim(
@@ -460,6 +506,59 @@ def test_sim_postprocess_failure(sim_fixture):
     assert len(sim.casespreprocessed) == sim.ncases
     assert len(sim.casesrun) == sim.ncases
     assert len(sim.casespostprocessed) == sim.ncases - 1
+
+
+def _staged_preprocess_failure(case):
+    if case.ncase == 0:
+        raise Exception("Preprocess failure")
+    return sim_testing_preprocess(case)
+
+
+def _staged_run_failure(casenum_in):
+    if casenum_in == 1:
+        raise Exception("Run failure")
+    return sim_testing_run(casenum_in)
+
+
+def _staged_postprocess_failure(case, casenum_out):
+    if casenum_out == 2:
+        raise Exception("Postprocess failure")
+    sim_testing_postprocess(case, casenum_out)
+
+
+@pytest.mark.skipif(not HAS_DASK, reason="Dask is not installed")
+def test_sim_dask_run_incomplete(sim_base):
+    sim = sim_base
+    sim.singlethreaded = False
+    sim.usedask = True
+    sim.verbose = True
+    sim.ncores = 1
+    sim.daskkwargs = {"n_workers": 2}
+    sim.debug = False
+    sim.fcns = SimulationFunctions.from_dict(
+        {
+            SimFunctions.PREPROCESS: _staged_preprocess_failure,
+            SimFunctions.RUN: _staged_run_failure,
+            SimFunctions.POSTPROCESS: _staged_postprocess_failure,
+        }
+    )
+    try:
+        with pytest.warns(UserWarning, match="n_workers is being overridden"):
+            sim.runSim()
+        assert len(sim.cluster.workers) == 1
+        assert sim.casespreprocessed == set(range(1, sim.ncases))
+        assert sim.casesrun == set(range(2, sim.ncases))
+        assert sim.casespostprocessed == set(range(3, sim.ncases))
+
+        # Resuming chains preprocess -> run -> postprocess only where needed
+        sim.fcns = SimulationFunctions.from_dict(sim_testing_fcns())
+        sim.runIncompleteSim()
+        assert sim.casespreprocessed == set(range(sim.ncases))
+        assert sim.casesrun == set(range(sim.ncases))
+        assert sim.casespostprocessed == set(range(sim.ncases))
+        assert sim.outvars["casenum_out"].vals == list(range(sim.ncases))
+    finally:
+        sim._cleanup()
 
 
 # Does not test the plot appearances, but does check that the codepaths can run

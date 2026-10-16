@@ -72,6 +72,27 @@ def test_outval_valmap_timedelta64():
     assert np.array_equal(outval.num, [0, 1, 0])
 
 
+def test_outval_valmap_unhashable_1d():
+    val = [{"a": 1}, {"b": 2}, {"a": 1}]
+    outval = OutVal(name="test", ncase=1, val=val)
+    assert outval.valmap == {"{'a': 1}": 0, "{'b': 2}": 1}
+    assert np.array_equal(outval.num, [0, 1, 0])
+    assert outval.val[0] == {"a": 1}
+
+
+def test_outval_valmap_unhashable_2d_assigned():
+    val = [[{"a": 1}, {"b": 2}], [{"b": 2}, {"b": 2}]]
+    valmap = {"{'a': 1}": 5, "{'b': 2}": 7}
+    outval = OutVal(name="test", ncase=1, val=val, valmap=valmap)
+    assert outval.valmapsource == "assigned"
+    assert np.array_equal(outval.num, [[5, 7], [7, 7]])
+
+
+def test_outval_valmap_missing():
+    with pytest.raises(KeyError, match="not in valmap"):
+        OutVal(name="test", ncase=1, val=["a", "c"], valmap={"a": 0, "b": 1})
+
+
 @pytest.mark.skipif(pd is None, reason="Requires the pandas library")
 def test_outval_dataframe():
     nvals = 3

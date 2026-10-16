@@ -1,5 +1,6 @@
 # test_dvars_sensitivity.py
 
+import pytest
 import monaco as mc
 import numpy as np
 import matplotlib.pyplot as plt
@@ -101,6 +102,27 @@ def test_calc_sensitivities(ndraws=32, show=False):
     if ndraws == 32:
         expected_ratios = [0.426573, 0.573427, 0.0, 0.0, 0.0, 0.0]
         assert np.allclose(calculated_ratios, expected_ratios, atol=1e-5)
+
+
+def test_calc_R_without_dists():
+    from monaco.dvars_sensitivity import calc_R, calc_dists, calc_Ruw
+
+    rng = np.random.default_rng(0)
+    X = rng.random((8, 3))
+    phi = np.array([0.5, 1.5, 3.0])
+    R = calc_R(phi, X, None)
+    assert np.allclose(R, calc_R(phi, X, calc_dists(X)))
+    for u in range(X.shape[0]):
+        for w in range(X.shape[0]):
+            if u != w:
+                assert R[u, w] == pytest.approx(calc_Ruw(phi, X[u], X[w]))
+    assert np.allclose(np.diag(R), 1)
+
+
+def test_calc_dists_too_large():
+    from monaco.dvars_sensitivity import calc_dists
+
+    assert calc_dists(np.zeros((6000, 1))) is None
 
 
 if __name__ == "__main__":

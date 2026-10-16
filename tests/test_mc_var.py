@@ -106,11 +106,33 @@ def test_invar_getVal(invar_custom_dist):
 
 
 def test_invar_getMean(invar_lognorm_random):
-    pytest.approx(invar_lognorm_random.getDistMean(), lognorm_mu + lognorm_sigma**2 / 2)
+    assert invar_lognorm_random.getDistMean() == pytest.approx(
+        np.exp(lognorm_mu + lognorm_sigma**2 / 2)
+    )
+
+
+@pytest.mark.parametrize(
+    "dist, distkwargs, mean",
+    [
+        (norm, {"loc": 10, "scale": 4}, 10),
+        (randint, {"low": 1, "high": 4}, 2),
+        (custom_dist, dict(), 5),
+    ],
+)
+def test_invar_getDistMean(dist, distkwargs, mean):
+    invar = InVar(
+        "test",
+        ndraws=10,
+        dist=dist,
+        distkwargs=distkwargs,
+        seed=invarseeds[0],
+        samplemethod=SampleMethod.RANDOM,
+    )
+    assert invar.getDistMean() == pytest.approx(mean)
 
 
 def test_invar_getMedian(invar_lognorm_random):
-    pytest.approx(invar_lognorm_random.getDistMedian(), lognorm_mu)
+    assert invar_lognorm_random.getDistMedian() == pytest.approx(np.exp(lognorm_mu))
 
 
 def test_invar_nummap():

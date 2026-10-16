@@ -68,6 +68,45 @@ def test_plot_hist_varstat_in_pct_space():
     assert overlay_x[0] == pytest.approx(0.9772, abs=0.02)
 
 
+def test_plot_sensitivities_indices_unsorted():
+    import matplotlib.pyplot as plt
+    from monaco.mc_var import OutVar
+    from monaco.mc_plot import plot_sensitivities
+
+    outvar = OutVar(name="test", vals=[1, 0, 2, 2])
+    with pytest.raises(ValueError, match="Sensitivities have not been calculated"):
+        plot_sensitivities(outvar, sensitivities="indices")
+
+    outvar.sensitivity_indices = {"a": 0.3, "b": 0.1, "c": 0.2}
+    fig, ax = plot_sensitivities(outvar, sensitivities="indices", sort=False)
+    bars = sorted(ax.patches, key=lambda bar: -bar.get_y())
+    assert [bar.get_width() for bar in bars] == pytest.approx([0.3, 0.1, 0.2])
+    assert ax.get_xlabel() == "Sensitivity Index for 'test'"
+    plt.close("all")
+
+
+def test_plot_category_labels_yz():
+    import matplotlib.pyplot as plt
+    from scipy.stats import randint, norm
+    from monaco.mc_var import InVar
+    from monaco.mc_plot import plot_2d_scatter, plot_3d_scatter
+    from monaco.mc_enums import SampleMethod
+
+    nummap = {1: "a", 2: "b", 3: "c"}
+    kwargs = dict(ndraws=20, samplemethod=SampleMethod.RANDOM, seed=1)
+    varx = InVar(name="x", dist=norm, distkwargs={"loc": 0, "scale": 1}, **kwargs)
+    varcat = InVar(
+        name="cat", dist=randint, distkwargs={"low": 1, "high": 4}, nummap=nummap, **kwargs
+    )
+
+    fig, ax = plot_2d_scatter(varx, varcat)
+    assert [t.get_text() for t in ax.get_yticklabels()] == ["a", "b", "c"]
+
+    fig, ax = plot_3d_scatter(varx, varx, varcat)
+    assert [t.get_text() for t in ax.get_zticklabels()] == ["a", "b", "c"]
+    plt.close("all")
+
+
 ### Plot Testing ###
 def plot_testing(show=False):
     import numpy as np

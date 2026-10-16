@@ -1,11 +1,49 @@
 # test_mc_multi_plot.py
 
-# import pytest
+import pytest
+
 
 # Does not test the plot appearances, but does check that the codepaths can run
 def test_gen_plots():
     plot_testing(show=False)
     assert True
+
+
+def test_multi_plot_split_1d_outvar():
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from monaco.mc_var import OutVar
+    from monaco.mc_multi_plot import multi_plot
+
+    outvar = OutVar(name="pos", vals=[np.array([i, 2 * i]) for i in range(10)])
+    fig, axs = multi_plot([outvar])
+    labels = {ax.get_xlabel() for ax in axs} | {ax.get_ylabel() for ax in axs}
+    assert {"pos [0]", "pos [1]"} <= labels
+    plt.close("all")
+
+
+def test_multi_plot_drops_nonscalar():
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from monaco.mc_var import OutVar
+    from monaco.mc_multi_plot import multi_plot
+
+    x = OutVar(name="x", vals=list(range(10)))
+    y = OutVar(name="y", vals=[i**2 for i in range(10)])
+    v = OutVar(name="v", vals=[np.array([i, i]) for i in range(10)])
+
+    with pytest.warns(UserWarning, match="Dropping 1 non-scalar variable"):
+        fig, axs = multi_plot([x, y, v])
+    axs = np.ravel(axs)
+    assert len(axs) == 4
+    labels = {ax.get_xlabel() for ax in axs} | {ax.get_ylabel() for ax in axs}
+    assert {"x", "y"} <= labels
+    assert "v" not in labels
+
+    with pytest.warns(UserWarning, match="Dropping 2"):
+        with pytest.raises(ValueError, match="at least two scalar variables"):
+            multi_plot([x, v, v])
+    plt.close("all")
 
 
 ### Plot Testing ###

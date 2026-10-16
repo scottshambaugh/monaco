@@ -206,6 +206,34 @@ def test_varstat_nummap():
     assert all(val in valmap.keys() for val in outvarstat_p.vals)
 
 
+@pytest.mark.parametrize(
+    "stat, bound, nvals",
+    [
+        (VarStatType.ORDERSTATTI, StatBound.TWOSIDED, 2),
+        (VarStatType.ORDERSTATTI, StatBound.ALL, 3),
+        (VarStatType.ORDERSTATP, StatBound.TWOSIDED, 2),
+        (VarStatType.ORDERSTATP, StatBound.ALL, 3),
+    ],
+)
+def test_varstat_orderstat_nummap_multibound(stat, bound, nvals):
+    nummap = {1: "a", 2: "b", 3: "c", 4: "d", 5: "e"}
+    invar = InVar(
+        "test",
+        ndraws=100,
+        dist=randint,
+        distkwargs={"low": 1, "high": 6},
+        nummap=nummap,
+        samplemethod=SampleMethod.RANDOM,
+        seed=12345,
+    )
+    invarstat = VarStat(
+        invar, stat=stat, statkwargs={"p": 0.5, "c": 0.5, "bound": bound}, bootstrap=False
+    )
+    assert len(invarstat.nums) == nvals
+    assert list(invarstat.vals) == [nummap[x] for x in invarstat.nums]
+    assert list(invarstat.nums) == sorted(invarstat.nums)
+
+
 def test_outvarstat_2d(v):
     outvar = OutVar("test", [1 * v, 2 * v, 0 * v, -1 * v, -2 * v], firstcaseismedian=True)
     outvarstat1 = VarStat(

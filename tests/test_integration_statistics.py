@@ -54,6 +54,12 @@ def test_integration_n_from_err():
     )
 
 
+def test_integration_n_from_err_sobol_high_dim_fallback():
+    kwargs = dict(error=0.01, dimension=10, volume=1, stdev=1, conf=0.95)
+    n_random = integration_n_from_err(samplemethod=SampleMethod.RANDOM, **kwargs)
+    assert integration_n_from_err(samplemethod=SampleMethod.SOBOL, **kwargs) == n_random
+
+
 @pytest.mark.parametrize(
     "error,dimension,volume,stdev,conf,samplemethod",
     [

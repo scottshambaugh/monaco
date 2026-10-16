@@ -256,6 +256,42 @@ def test_sim_import_invars(sim, filename):
     assert sim.outvars["casenum"].vals == list(range(sim.ncases))
 
 
+def test_sim_import_invars_no_dists(sim):
+    filename = "invars.json"
+    filepath = sim.resultsdir / filename
+    var1 = sim.invars["Var1"]
+    var2 = sim.invars["Var2"]
+
+    sim.exportInVars(filename)
+    sim.reset()
+    sim.importInVars(filepath, nummaps=[var1.nummap, None])
+    assert sim.invars["Var1"].nummap == var1.nummap
+    assert sim.invars["Var1"].nums == var1.nums
+    assert list(sim.invars["Var1"].vals) == list(var1.vals)
+    assert np.allclose(sim.invars["Var2"].vals, var2.vals)
+    assert sim.invars["Var2"].dist is None
+    assert sim.cases[3].invals["Var1"].val == var1.vals[3]
+
+    sim.runSim()
+    assert sim.outvars["casenum"].vals == list(range(sim.ncases))
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        dict(dists=[randint], distskwargs=[dict(), dict()]),
+        dict(dists=[randint, norm], distskwargs=[dict()]),
+        dict(nummaps=[None]),
+    ],
+)
+def test_sim_import_invars_length_mismatch(sim, kwargs):
+    filename = "invars.json"
+    sim.exportInVars(filename)
+    sim.reset()
+    with pytest.raises(ValueError, match="must match the number of invars"):
+        sim.importInVars(sim.resultsdir / filename, **kwargs)
+
+
 @pytest.mark.parametrize("filename", ["invars.csv", "invars.json"])
 def test_sim_import_outvars(sim, filename):
     filepath = sim.resultsdir / filename
