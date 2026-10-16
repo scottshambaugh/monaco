@@ -132,7 +132,7 @@ def is_num(val: Any) -> bool:
     isnum : bool
         Returns True if the input is a number, False otherwise.
     """
-    if isinstance(val, bool) or isinstance(val, str):
+    if isinstance(val, (bool, np.bool_, str)):
         return False
     else:
         try:
@@ -141,6 +141,29 @@ def is_num(val: Any) -> bool:
             return False
         else:
             return True
+
+
+def is_numeric(val: Any) -> bool:
+    """
+    Type checking function to see if the input is a non-bool number or an
+    array of them.
+
+    Parameters
+    ----------
+    val : Any
+        The value to check.
+
+    Returns
+    -------
+    isnumeric : bool
+        Returns True if the input is numeric, False otherwise.
+    """
+    if not isinstance(val, (np.ndarray, list, tuple)):
+        return is_num(val)
+    try:
+        return np.asanyarray(val).dtype.kind in "iuf"
+    except (ValueError, TypeError):
+        return False
 
 
 def length(x: Any) -> int | None:

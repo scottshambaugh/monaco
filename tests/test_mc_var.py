@@ -371,3 +371,10 @@ def plot_testing(show=False):
 
 if __name__ == "__main__":
     plot_testing(show=True)
+
+
+def test_outvar_extractvalmap_numeric_fast_path():
+    assert OutVar("test", vals=[1.5, 2, np.float64(3), np.array([1, 2])]).valmap is None
+    assert OutVar("test", vals=[True, False]).valmap == {False: 0, True: 1}
+    outvar = OutVar("test", vals=[["b", "c"], "a", ["c"]])
+    assert outvar.valmap == {"a": 0, "b": 1, "c": 2}

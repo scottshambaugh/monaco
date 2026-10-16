@@ -332,8 +332,6 @@ class Sim:
             vwarn(self.verbose, "Dask is not installed, falling back to multiprocessing")
             self.usedask = False
 
-        self.invals_cache = []
-
         # Configure logging based on verbose flag
         configure_logging(self.verbose)
         self.logfile = log_to_file(logfile)
@@ -381,6 +379,7 @@ class Sim:
     ) -> None:
         """Function to unpickle self when loading from file."""
         self.__dict__.update(state)
+        self.__dict__.pop("invals_cache", None)  # from older saved sims
         if self.resultsdir is not None and getattr(self, "_omit_cases_for_pickling", False):
             self.loadCases()
             del self._omit_cases_for_pickling
@@ -648,6 +647,9 @@ class Sim:
             for invar in self.invars.values():
                 if invar.datasource is None:
                     invar.draw(ninvar_max=self.ninvars)
+            for case in self.cases:
+                if case is not None:
+                    case.resetInVals()
             self.logger.info("Done")
         return self
 
@@ -831,7 +833,6 @@ class Sim:
             pbar.refresh()
             pbar.close()
 
-        self.invals_cache = [case.invals if case is not None else None for case in self.cases]
         return self
 
     def genCaseSeeds(self) -> Sim:
@@ -846,8 +847,7 @@ class Sim:
             if case is None:
                 continue
             case.invars = self.invars
-            case.invals = self.invals_cache[case.ncase]
-            case.vals = {**case.invals, **case.outvals}
+            case.resetInVals()
             case.outvars = self.outvars
             case.vars = self.vars
             case.constvals = self.constvals
@@ -1425,7 +1425,8 @@ class Sim:
             self.outvars[varname] = outvar
             self.vars[varname] = outvar
             for case in self.cases:
-                case.addOutVar(outvar)
+                if case.outvars is not self.outvars or case.vars is not self.vars:
+                    case.addOutVar(outvar)
 
             if self.verbose:
                 pbar.update(1)
@@ -2087,7 +2088,7 @@ class Sim:
 
             for case in self.cases:
                 case.invars[valname] = self.invars[valname]
-                case.invals[valname] = self.invars[valname].getVal(case.ncase)
+                case.resetInVals()
 
         self.logger.info(f"InVals loaded from '{filepath.name}' and converted to variables")
         return self

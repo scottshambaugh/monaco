@@ -14,7 +14,14 @@ from monaco.mc_varstat import VarStat
 from monaco.mc_enums import SampleMethod, Sensitivities, VarStatType, InVarSpace
 from monaco.mc_sampling import sampling
 from monaco.mc_plot import plot, plot_sensitivities
-from monaco.helper_functions import empty_list, hashable_val, flatten, get_list, is_num
+from monaco.helper_functions import (
+    empty_list,
+    hashable_val,
+    flatten,
+    get_list,
+    is_num,
+    is_numeric,
+)
 
 
 ### Var Base Class ###
@@ -474,7 +481,7 @@ class InVar(Var):
                 f"Length of 'pcts' ({len(pcts)}) must match " + f"ncases ({self.ncases})"
             )
         pcts = np.asarray(pcts)
-        if any(pcts <= 0) or any(pcts >= 1):
+        if np.any(pcts <= 0) or np.any(pcts >= 1):
             # By scipy convention (scipy/scipy#23358), dist.ppf(0) and dist.ppf(1)
             # return the lower and upper bounds of the support, which are -inf and
             # +inf for unbounded distributions. Disallow both endpoints.
@@ -602,7 +609,7 @@ class InVar(Var):
 
         nums = np.asarray(self.nums)
         self.nums = nums.tolist()
-        if any(np.isinf(nums)):
+        if np.any(np.isinf(nums)):
             warn(
                 "Infinite value drawn. Check distribution and parameters: "
                 + f"{self.dist=}, {self.distkwargs=}"
@@ -614,7 +621,7 @@ class InVar(Var):
                     + f"Consider using {SampleMethod.SOBOL_RANDOM} instead."
                 )
 
-        if any(np.isnan(nums)):
+        if np.any(np.isnan(nums)):
             raise ValueError(
                 "Invalid draw. Check distribution and parameters: "
                 + f"{self.dist=}, {self.distkwargs=}"
@@ -797,17 +804,31 @@ class OutVar(Var):
         """
         Parse the output values and extract a valmap.
         """
-        if self.getVal(0).valmapsource == "assigned":
+        if self.valmap is not None:
             self.valmap = self.getVal(0).valmap
             return
 
-        if any(self.getVal(i).valmap is not None for i in range(self.ncases)):
+        anyvalmap = False
+        casevalmaps = []
+        casevals = []
+        for i in range(self.ncases):
+            if is_numeric(self.vals[i]):
+                # Non-bool numeric values never generate a valmap
+                casevalmaps.append(None)
+                casevals.append(self.vals[i])
+            else:
+                outval = self.getVal(i)
+                anyvalmap = anyvalmap or outval.valmap is not None
+                casevalmaps.append(outval.valmap)
+                casevals.append(outval.val)
+
+        if anyvalmap:
             uniquevals: set[Any] = set()
-            for i in range(self.ncases):
-                if self.getVal(i).valmap is not None:
-                    uniquevals.update(self.getVal(i).valmap.keys())
+            for valmap, val in zip(casevalmaps, casevals):
+                if valmap is not None:
+                    uniquevals.update(valmap.keys())
                 else:
-                    uniquevals.update(set(flatten([self.getVal(i).val])))
+                    uniquevals.update(set(flatten([val])))
 
             # Sort values, handling None values by putting them first
             sorted_vals = sorted([x for x in uniquevals if x is not None])

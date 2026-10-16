@@ -98,9 +98,9 @@ class Case:
         self.hasrun: bool = False
         self.haspostprocessed: bool = False
 
-        self.invals: dict[str, InVal] = self.getInVals()
+        self._invals: dict[str, InVal] | None = None
         self.outvals: dict[str, OutVal] = dict()
-        self.vals: dict[str, InVal | OutVal] = dict(self.invals)
+        self._vals: dict[str, InVal | OutVal] | None = None
 
         self.siminput: tuple[Any] | None = None
         self.simrawoutput: tuple[Any] | None = None
@@ -108,7 +108,7 @@ class Case:
     def __getstate__(self):
         # We delete the large objects to save time multiprocessing
         state = self.__dict__.copy()
-        for k in ("invars", "outvars", "vars", "invals", "vals", "constvals"):
+        for k in ("invars", "outvars", "vars", "_invals", "_vals", "constvals"):
             state.pop(k, None)
         return state
 
@@ -119,8 +119,39 @@ class Case:
         self.outvars = outvars
         self.constvals = constvals
         self.vars = {**invars, **outvars}
-        self.invals = self.getInVals()
-        self.vals = {**self.invals, **self.outvals}
+        self.resetInVals()
+
+    @property
+    def invals(self) -> dict[str, InVal]:
+        """The input values for this case, generated from the InVars on first
+        access."""
+        if self._invals is None:
+            self._invals = self.getInVals()
+        return self._invals
+
+    @invals.setter
+    def invals(self, invals: dict[str, InVal]) -> None:
+        self._invals = invals
+        self._vals = None
+
+    @property
+    def vals(self) -> dict[str, InVal | OutVal]:
+        """All the input and output values for this case."""
+        if self._vals is None:
+            self._vals = {**self.invals, **self.outvals}
+        return self._vals
+
+    @vals.setter
+    def vals(self, vals: dict[str, InVal | OutVal]) -> None:
+        self._vals = vals
+
+    def resetInVals(self) -> None:
+        """
+        Clear any generated input values, so that they are regenerated from the
+        InVars the next time they are accessed.
+        """
+        self._invals = None
+        self._vals = None
 
     def __repr__(self):
         return (
@@ -214,7 +245,10 @@ class Case:
 
         outval = OutVal(name=name, ncase=self.ncase, val=val, valmap=valmap, ismedian=self.ismedian)
         self.outvals[name] = outval
-        self.vals[name] = outval
+        if self._vals is not None:
+            self._vals[name] = outval
         if split:
-            self.outvals.update(outval.split())
-            self.vals.update(outval.split())
+            splitvals = outval.split()
+            self.outvals.update(splitvals)
+            if self._vals is not None:
+                self._vals.update(splitvals)

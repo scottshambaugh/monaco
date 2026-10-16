@@ -8,6 +8,7 @@ from monaco.helper_functions import (
     next_power_of_2,
     hash_str_repeatable,
     is_num,
+    is_numeric,
     length,
     get_list,
     slice_by_index,
@@ -47,6 +48,7 @@ def test_hash_str_repeatable():
     "val, ans",
     [
         (True, False),
+        (np.True_, False),
         (0, True),
         (1.0, True),
         ("1", False),
@@ -60,6 +62,26 @@ def test_hash_str_repeatable():
 )
 def test_is_num(val, ans):
     assert is_num(val) == ans
+
+
+@pytest.mark.parametrize(
+    "val, ans",
+    [
+        (1, True),
+        (1.0, True),
+        (np.int64(1), True),
+        (np.array([1.0, 2.0]), True),
+        ([1, 2], True),
+        (True, False),
+        (np.True_, False),
+        (np.array([True]), False),
+        ("1", False),
+        (["a", 1], False),
+        (None, False),
+    ],
+)
+def test_is_numeric(val, ans):
+    assert is_numeric(val) == ans
 
 
 @pytest.mark.parametrize(

@@ -58,3 +58,32 @@ def test_case_get_out_vals(case):
     outvar = OutVar("TestOut", vals=["a"] * 5 + ["b"] * 5)
     case.addOutVar(outvar)
     assert case.getOutVals()["TestOut"].val == "a"
+
+
+def test_case_lazy_invals(case):
+    assert case._invals is None
+    case.addOutVal("TestOut", [[1, 2], [3, 4]])
+    assert list(case.vals.keys()) == ["Test", "TestOut", "TestOut [0]", "TestOut [1]"]
+    case.addOutVal("TestOut2", 5)
+    assert list(case.vals.keys())[-1] == "TestOut2"
+    case.resetInVals()
+    assert case._invals is None
+    assert case["Test"].val == pytest.approx(10)
+
+
+def test_case_pickle_drops_invals(case):
+    import pickle
+    from monaco.globals import register_global_vars
+
+    case.addOutVal("TestOut", 1)
+    assert case.invals["Test"].val == pytest.approx(10)
+    state = case.__getstate__()
+    assert "_invals" not in state and "_vals" not in state
+    register_global_vars(case.invars, dict(), dict())
+    try:
+        case2 = pickle.loads(pickle.dumps(case))
+    finally:
+        register_global_vars(dict(), dict(), dict())
+    assert case2._invals is None
+    assert case2["Test"].val == pytest.approx(10)
+    assert case2["TestOut"].val == 1
