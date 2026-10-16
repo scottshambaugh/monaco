@@ -71,13 +71,10 @@ def integration_error(
             error1sig = np.minimum(error1sig_random, error1sig_sobol)
 
     else:
-        # Use Welford's algorithm to calculate the running variance
-        M = np.zeros(n)  # Running mean
-        S = np.zeros(n)  # Sum of variances
-        M[0] = nums[0]
-        for i in range(1, n):
-            M[i] = M[i - 1] + (nums[i] - M[i - 1]) / (i + 1)
-            S[i] = S[i - 1] + (nums[i] - M[i - 1]) * (nums[i] - M[i])
+        # Shift by the first sample to avoid catastrophic cancellation
+        x = np.asarray(nums, dtype=float) - nums[0]
+        S = np.cumsum(x * x) - np.cumsum(x) ** 2 / np.arange(1, n + 1)
+        S = np.maximum(S, 0)
         variances = np.zeros(n)
         variances[1:] = S[1:] / np.arange(1, n)
         stdevs = np.sqrt(variances)
