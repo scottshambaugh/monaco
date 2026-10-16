@@ -12,16 +12,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
 from scipy.stats import rv_continuous, rv_discrete, chi2, mode
-from copy import copy, deepcopy
+from copy import copy
 from typing import Optional, Iterable, Any
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib.patches import Ellipse
+from matplotlib.collections import LineCollection
+from matplotlib.lines import Line2D
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 from monaco.helper_functions import get_list, slice_by_index, length, empty_list, get_cases
 from monaco.gaussian_statistics import conf_ellipsoid_sig2pct
 from monaco.integration_statistics import integration_error
 from monaco.mc_enums import SampleMethod, PlotOrientation, InVarSpace, Sensitivities
+
+LINE_COLLECTION_MIN_CASES = 20
 
 
 # If cases or highlight_cases are None, will plot all. Set to [] to plot none.
@@ -715,12 +719,18 @@ def plot_2d_line(
     reg_cases = set(cases_list) - set(highlight_cases_list)
     varx_points = get_plot_points(varx, invar_space[0])
     vary_points = get_plot_points(vary, invar_space[1])
-    for i in reg_cases:
-        plt.plot(
-            varx_points[i], vary_points[i], linestyle="-", color="black", alpha=0.2, **plotkwargs
-        )
-    for i in highlight_cases_list:
-        plt.plot(varx_points[i], vary_points[i], linestyle="-", color="C1", alpha=0.9, **plotkwargs)
+    plot_line_ensemble(
+        ax, varx_points, vary_points, reg_cases, color="black", alpha=0.2, plotkwargs=plotkwargs
+    )
+    plot_line_ensemble(
+        ax,
+        varx_points,
+        vary_points,
+        highlight_cases_list,
+        color="C1",
+        alpha=0.9,
+        plotkwargs=plotkwargs,
+    )
 
     def varstat_plotpoint(y):
         return varstat_to_plotspace(vary, y, invar_space[1])
@@ -890,20 +900,26 @@ def plot_2p5d_line(
         fig is the figure handle for the plot.
         ax is the axes handle for the plot.
     """
-    var0 = deepcopy(varx)
-    var1 = deepcopy(vary)
-    var2 = deepcopy(varz)
     npoints = 0
-    for var in (var0, var1, var2):
+    for var in (varx, vary, varz):
         if var.maxdim == 1:
             npoints = max(npoints, max(len(num) for num in var.nums))
-    for var in (var0, var1, var2):
-        if var.maxdim == 0:
-            for i in range(var.ncases):
-                var.nums[i] = np.asarray([var.nums[i] for _ in range(npoints)])
-                if isinstance(var, monaco.mc_var.InVar):
-                    var.pcts[i] = [float(var.pcts[i]) for _ in range(npoints)]
-            var.maxdim = 1
+
+    def tile_scalar_var(var: InVar | OutVar) -> InVar | OutVar:
+        if var.maxdim != 0:
+            return var
+        var_tiled = copy(var)
+        var_tiled.nums = list(np.repeat(np.asarray(var.nums)[:, np.newaxis], npoints, axis=1))
+        if isinstance(var, monaco.mc_var.InVar):
+            var_tiled.pcts = list(
+                np.repeat(np.asarray(var.pcts, dtype=float)[:, np.newaxis], npoints, axis=1)
+            )
+        var_tiled.maxdim = 1
+        return var_tiled
+
+    var0 = tile_scalar_var(varx)
+    var1 = tile_scalar_var(vary)
+    var2 = tile_scalar_var(varz)
 
     fig, ax = plot_3d_line(
         varx=var0,
@@ -969,26 +985,26 @@ def plot_3d_line(
     varx_points = get_plot_points(varx, invar_space[0])
     vary_points = get_plot_points(vary, invar_space[1])
     varz_points = get_plot_points(varz, invar_space[2])
-    for i in reg_cases:
-        ax.plot(
-            varx_points[i],
-            vary_points[i],
-            varz_points[i],
-            linestyle="-",
-            color="black",
-            alpha=0.3,
-            **plotkwargs,
-        )
-    for i in highlight_cases_list:
-        ax.plot(
-            varx_points[i],
-            vary_points[i],
-            varz_points[i],
-            linestyle="-",
-            color="C1",
-            alpha=0.9,
-            **plotkwargs,
-        )
+    plot_line_ensemble(
+        ax,
+        varx_points,
+        vary_points,
+        reg_cases,
+        color="black",
+        alpha=0.3,
+        plotkwargs=plotkwargs,
+        z_points=varz_points,
+    )
+    plot_line_ensemble(
+        ax,
+        varx_points,
+        vary_points,
+        highlight_cases_list,
+        color="C1",
+        alpha=0.9,
+        plotkwargs=plotkwargs,
+        z_points=varz_points,
+    )
 
     ax.set_xlabel(varx.name)
     ax.set_ylabel(vary.name)
@@ -1555,6 +1571,77 @@ def varstat_to_plotspace(
         order = np.argsort(var.nums)
         return np.interp(value, np.asarray(var.nums)[order], np.asarray(var.pcts)[order])
     return value
+
+
+def plot_line_ensemble(
+    ax: Axes,
+    x_points: list,
+    y_points: list,
+    cases: Iterable[int],
+    color: str,
+    alpha: float,
+    plotkwargs: dict = dict(),
+    z_points: Optional[list] = None,
+) -> None:
+    """
+    Plot one 2D or 3D line per case, all with the same style.
+
+    Many 2D cases are drawn as a single LineCollection, which is much faster
+    than one line artist per case.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        The target axis.
+    x_points : list
+        The x points for every case.
+    y_points : list
+        The y points for every case.
+    cases : Iterable[int]
+        The cases to plot.
+    color : str
+        The line color.
+    alpha : float
+        The line alpha.
+    plotkwargs : dict, default: dict()
+        Extra Line2D keyword arguments.
+    z_points : list, default: None
+        The z points for every case. If not None, plot 3D lines.
+    """
+    cases = list(cases)
+    if not cases:
+        return
+    points_list = [x_points, y_points] if z_points is None else [x_points, y_points, z_points]
+    if plotkwargs or z_points is not None or len(cases) < LINE_COLLECTION_MIN_CASES:
+        for i in cases:
+            ax.plot(
+                *[points[i] for points in points_list],
+                linestyle="-",
+                color=color,
+                alpha=alpha,
+                **plotkwargs,
+            )
+        return
+
+    segments = [
+        np.column_stack(
+            [np.asarray(x_points[i], dtype=float), np.asarray(y_points[i], dtype=float)]
+        )
+        for i in cases
+    ]
+    lines = LineCollection(
+        segments,
+        colors=color,
+        alpha=alpha,
+        linestyles="-",
+        linewidths=plt.rcParams["lines.linewidth"],
+        capstyle=plt.rcParams["lines.solid_capstyle"],
+        joinstyle=plt.rcParams["lines.solid_joinstyle"],
+        antialiaseds=plt.rcParams["lines.antialiased"],
+        zorder=Line2D.zorder,
+    )
+    ax.add_collection(lines, autolim=True)
+    ax.autoscale_view()
 
 
 def get_var_steps(var: InVar | OutVar) -> OutVar:

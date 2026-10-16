@@ -220,3 +220,33 @@ def plot_testing(show=False):
 
 if __name__ == "__main__":
     plot_testing(show=True)
+
+
+def test_plot_line_ensemble_collection():
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from matplotlib.collections import LineCollection
+    from monaco.mc_var import OutVar
+    from monaco.mc_plot import plot, LINE_COLLECTION_MIN_CASES
+
+    ncases = LINE_COLLECTION_MIN_CASES + 5
+    t = np.arange(10.0)
+    varx = OutVar(name="x", vals=[t] * ncases)
+    vary = OutVar(name="y", vals=[i * t for i in range(ncases)])
+
+    fig, ax = plot(varx, vary, highlight_cases=[0])
+    collections = [c for c in ax.collections if type(c) is LineCollection]
+    assert len(collections) == 1
+    assert len(collections[0].get_segments()) == ncases - 1
+    assert len(ax.lines) == 1
+    assert ax.get_xlim()[0] < 0 and ax.get_xlim()[1] > 9
+    assert ax.get_ylim()[1] > 9 * (ncases - 1)
+    plt.close("all")
+
+    vars_scalar = OutVar(name="s", vals=list(range(ncases)))
+    nums_orig = list(vars_scalar.nums)
+    fig, ax = plot(vars_scalar, vary)
+    assert vars_scalar.maxdim == 0
+    assert vars_scalar.nums == nums_orig
+    assert ax.get_xlim()[1] > ncases - 1
+    plt.close("all")
