@@ -985,6 +985,10 @@ class Sim:
         casestorun_downselect = self._downselectCases(cases=casestorun)
         casestopostprocess_downselect = self._downselectCases(cases=casestopostprocess)
 
+        fullpipeline = (
+            casestopreprocess_downselect == casestorun_downselect == casestopostprocess_downselect
+        )
+
         preprocessedcases = dict()
         runcases = dict()
         postprocessedcases = dict()
@@ -999,6 +1003,21 @@ class Sim:
                     case.hasrun = False
                 if case.ncase in casestopostprocess_downselect:
                     case.haspostprocessed = False
+
+                if fullpipeline:
+                    if case.ncase in casestopreprocess_downselect:
+                        inputs = (
+                            self.fcns.preprocess,
+                            self.fcns.run,
+                            self.fcns.postprocess,
+                            case,
+                            self.debug,
+                            self.verbose,
+                            self.runsimid,
+                        )
+                        case_delayed = dask.delayed(execute_full_case)(*inputs)
+                        postprocessedcases[case.ncase] = case_delayed
+                    continue
 
                 if case.ncase in casestopreprocess_downselect:
                     inputs = (self.fcns.preprocess, case, self.debug, self.verbose)
@@ -2214,10 +2233,6 @@ class Sim:
                 continue
             filepath = self.resultsdir / f"{self.name}_{ncase}.mccase"
             self.cases[ncase].filepath = filepath
-            try:
-                filepath.unlink()
-            except FileNotFoundError:
-                pass
             with open(filepath, "wb") as file:
                 cloudpickle.dump(self.cases[ncase], file)
 

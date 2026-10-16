@@ -28,6 +28,8 @@
 ## [0.22.0] - 2026-10-16
 ### Added    
 * Python 3.15 support
+### Changed    
+* Performance improvements across the board.
 ### Removed    
 * Python 3.10 support
 
