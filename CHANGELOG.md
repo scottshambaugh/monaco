@@ -30,6 +30,9 @@
 * Python 3.15 support
 ### Changed    
 * Performance improvements across the board.
+* Fix crash when passing `fig` to multi plots
+* Fix crash generating valmaps for values mixing `None` and strings
+* Automatic outvar valmaps are now sorted, so numbering is stable across runs
 ### Removed    
 * Python 3.10 support
 
