@@ -166,6 +166,27 @@ def is_numeric(val: Any) -> bool:
         return False
 
 
+def sort_none_first(vals: Iterable[Any]) -> list[Any]:
+    """
+    Sort values, putting any None first.
+
+    Parameters
+    ----------
+    vals : Iterable[Any]
+        The values to sort.
+
+    Returns
+    -------
+    sorted_vals : list[Any]
+        The sorted values.
+    """
+    vals = list(vals)
+    sorted_vals = sorted(x for x in vals if x is not None)
+    if len(sorted_vals) < len(vals):
+        sorted_vals.insert(0, None)
+    return sorted_vals
+
+
 def length(x: Any) -> int | None:
     """
     Genericized length function that works on scalars (which have length 1).

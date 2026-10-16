@@ -288,7 +288,7 @@ def test_sim_import_invars_length_mismatch(sim, kwargs):
     filename = "invars.json"
     sim.exportInVars(filename)
     sim.reset()
-    with pytest.raises(ValueError, match="must match the number of invars"):
+    with pytest.raises(ValueError, match=r"^Length of \w+ \(\d\) must match the number of invars"):
         sim.importInVars(sim.resultsdir / filename, **kwargs)
 
 

@@ -22,6 +22,18 @@ def test_multi_plot_split_1d_outvar():
     plt.close("all")
 
 
+def test_multi_plot_fig():
+    import matplotlib.pyplot as plt
+    from monaco.mc_var import OutVar
+    from monaco.mc_multi_plot import multi_plot
+
+    x = OutVar(name="x", vals=list(range(10)))
+    y = OutVar(name="y", vals=[i**2 for i in range(10)])
+    fig = plt.figure()
+    fig_out, _ = multi_plot([x, y], fig=fig)
+    assert fig_out is fig
+
+
 def test_multi_plot_drops_nonscalar():
     import numpy as np
     import matplotlib.pyplot as plt

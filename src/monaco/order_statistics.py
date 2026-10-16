@@ -31,9 +31,9 @@ def order_stat_TI_n(
 
     .. code-block::
 
-        n = order_stat_TI_n(k=2, p=0.99, c=0.90, bound='1-sided') = 389
+        n = order_stat_TI_n(k=2, p=0.99, c=0.90, bound='1-sided') = 388
 
-    The 388th value of x when sorted from low to high, or sorted(x)[-2], will
+    The 387th value of x when sorted from low to high, or sorted(x)[-2], will
     bound the upper end of the measurement with P99/90.
 
     '2-sided' gives the result for the measurement lying between the k'th lowest

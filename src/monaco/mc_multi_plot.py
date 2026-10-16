@@ -488,6 +488,6 @@ def handle_fig(fig: Optional[Figure]) -> Figure:
     if fig is None:
         fig = plt.figure()
     else:
-        plt.figure(fig.num)
+        plt.figure(fig.number)
     plt.clf()
     return fig

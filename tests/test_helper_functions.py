@@ -17,6 +17,7 @@ from monaco.helper_functions import (
     get_cases,
     timeit,
     hashable_val_vectorized,
+    sort_none_first,
 )
 
 # Only test with pandas if installed
@@ -213,3 +214,8 @@ def test_hashable_val_vectorized_fallback_path():
     result = hashable_val_vectorized(vals)
     expected = ["[1, 2]", "string", 42]
     assert result == expected
+
+
+def test_sort_none_first():
+    assert sort_none_first(["b", None, "a"]) == [None, "a", "b"]
+    assert sort_none_first([2, 1]) == [1, 2]

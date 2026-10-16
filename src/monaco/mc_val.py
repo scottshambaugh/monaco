@@ -5,7 +5,13 @@ import numpy as np
 from typing import Any
 from scipy.stats import rv_discrete, rv_continuous
 from abc import ABC
-from monaco.helper_functions import is_num, hashable_val, flatten, hashable_val_vectorized
+from monaco.helper_functions import (
+    is_num,
+    hashable_val,
+    flatten,
+    hashable_val_vectorized,
+    sort_none_first,
+)
 
 try:
     import pandas as pd
@@ -306,7 +312,7 @@ class OutVal(Val):
                 self.valmap = {True: 1, False: 0}
             elif any(not is_num(x) for x in vals_flattened):
                 hashable_vals = hashable_val_vectorized(vals_flattened)
-                sorted_vals = sorted(set(hashable_vals))
+                sorted_vals = sort_none_first(set(hashable_vals))
                 self.valmap = {val: idx for idx, val in enumerate(sorted_vals)}
 
     def mapVal(self) -> None:

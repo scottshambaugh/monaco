@@ -31,6 +31,7 @@ from monaco.helper_functions import (
     empty_list,
     hash_str_repeatable,
     log_to_file,
+    sort_none_first,
 )
 from monaco.case_runners import preprocess_case, run_case, postprocess_case, execute_full_case
 from monaco.globals import _worker_init, _fork_worker_init
@@ -1424,9 +1425,7 @@ class Sim:
                     else:
                         uniquevals.update(case.outvals[varname].valmap.keys())
                 if uniquevals is not None:
-                    valmap = dict()
-                    for i, val in enumerate(uniquevals):
-                        valmap[val] = i
+                    valmap = {val: i for i, val in enumerate(sort_none_first(uniquevals))}
             else:
                 valmap = self.cases[0].outvals[varname].valmap
 
@@ -1515,7 +1514,7 @@ class Sim:
                     rep = pd.Series([vals.iloc[-1]] * deficit, index=range(len(vals), n_points))
                     outvar.vals[i] = pd.concat([vals, rep])
                 elif HAS_PANDAS and isinstance(vals, pd.Index):
-                    rep = pd.Index([vals.iloc[-1]] * deficit, dtype=vals.dtype)
+                    rep = pd.Index([vals[-1]] * deficit, dtype=vals.dtype)
                     outvar.vals[i] = pd.Index(
                         np.concatenate([vals.to_numpy(), rep.to_numpy()]), dtype=vals.dtype
                     )
@@ -2048,12 +2047,12 @@ class Sim:
             distskwargs = get_list(distskwargs)
             if len(dists) != len(data):
                 raise ValueError(
-                    f"Length of dists ({len(dists)}) ",
+                    f"Length of dists ({len(dists)}) "
                     f"must match the number of invars ({len(data)}).",
                 )
             if len(distskwargs) != len(data):
                 raise ValueError(
-                    f"Length of distskwargs ({len(distskwargs)}) ",
+                    f"Length of distskwargs ({len(distskwargs)}) "
                     f"must match the number of invars ({len(data)}).",
                 )
         else:
@@ -2064,7 +2063,7 @@ class Sim:
             nummaps = get_list(nummaps)
             if len(nummaps) != len(data):
                 raise ValueError(
-                    f"Length of nummaps ({len(nummaps)}) ",
+                    f"Length of nummaps ({len(nummaps)}) "
                     f"must match the number of invars ({len(data)}).",
                 )
         else:
@@ -2137,7 +2136,7 @@ class Sim:
             nummaps = get_list(nummaps)
             if len(nummaps) != len(data):
                 raise ValueError(
-                    f"Length of nummaps ({len(nummaps)}) ",
+                    f"Length of nummaps ({len(nummaps)}) "
                     f"must match the number of outvars ({len(data)}).",
                 )
             valmaps = []

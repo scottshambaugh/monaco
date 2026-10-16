@@ -88,6 +88,11 @@ def test_outval_valmap_unhashable_2d_assigned():
     assert np.array_equal(outval.num, [[5, 7], [7, 7]])
 
 
+def test_outval_valmap_none_and_str():
+    outval = OutVal(name="test", ncase=1, val=["b", None, "a"])
+    assert outval.valmap == {None: 0, "a": 1, "b": 2}
+
+
 def test_outval_valmap_missing():
     with pytest.raises(KeyError, match="not in valmap"):
         OutVal(name="test", ncase=1, val=["a", "c"], valmap={"a": 0, "b": 1})

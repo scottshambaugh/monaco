@@ -21,6 +21,7 @@ from monaco.helper_functions import (
     get_list,
     is_num,
     is_numeric,
+    sort_none_first,
 )
 
 
@@ -830,14 +831,7 @@ class OutVar(Var):
                 else:
                     uniquevals.update(set(flatten([val])))
 
-            # Sort values, handling None values by putting them first
-            sorted_vals = sorted([x for x in uniquevals if x is not None])
-            if None in uniquevals:
-                sorted_vals.insert(0, None)
-
-            self.valmap = dict()
-            for i, val in enumerate(sorted_vals):
-                self.valmap[val] = i
+            self.valmap = {val: i for i, val in enumerate(sort_none_first(uniquevals))}
 
     def genNumMap(self) -> None:
         """

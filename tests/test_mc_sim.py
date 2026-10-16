@@ -328,7 +328,7 @@ def test_sim_outvars_str_valmap(sim_base):
     sim.fcns = SimulationFunctions.from_dict(fcns)
     sim.runSim()
     outvar = sim.outvars["parity"]
-    assert set(outvar.valmap) == {"even", "odd"}
+    assert outvar.valmap == {"even": 0, "odd": 1}
     assert outvar.vals == ["odd" if i % 2 else "even" for i in range(sim.ncases)]
     assert [outvar.nummap[int(num)] for num in outvar.nums] == outvar.vals
 
