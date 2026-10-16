@@ -158,7 +158,10 @@ def calc_phi_opt(
     logger = logging.getLogger("monaco")
     logger.info("Calculating optimal hyperparameters Φ for " + f"'{outvarname}' covariances...")
     X, Y = full_states(sim, outvarname, cases)
-    res = minimize(L_runner, phi0s, args=(X, Y, verbose), bounds=bounds, tol=tol, method="L-BFGS-B")
+    D = calc_dists(X)
+    res = minimize(
+        L_runner, phi0s, args=(X, Y, verbose, D), bounds=bounds, tol=tol, method="L-BFGS-B"
+    )
     phi_opt = res.x
     logger.info("Done calculating optimal hyperparameters.")
 
@@ -223,15 +226,20 @@ def calc_Gammaj(Hj: float, phij: float, variance: float) -> float:
     """
     dh = 1e-3
     q = int(np.floor(Hj / dh))
-    rjs = np.zeros(q + 1)
-    for i in range(q + 1):
-        rjs[i] = calc_rj(dh * i, phij)
+    hjs = dh * np.arange(q + 1)
+    rjs = np.maximum(0, 1 - phij * np.abs(hjs))
 
     Gammaj = np.trapezoid(1 - rjs) * dh * variance
     return Gammaj
 
 
-def L_runner(phi: np.ndarray, X: np.ndarray, Y: np.ndarray, verbose: bool = False) -> float:
+def L_runner(
+    phi: np.ndarray,
+    X: np.ndarray,
+    Y: np.ndarray,
+    verbose: bool = False,
+    D: np.ndarray | None = None,
+) -> float:
     """
     A wrapper function for calculating the negative log-likelihood cost.
 
@@ -245,24 +253,49 @@ def L_runner(phi: np.ndarray, X: np.ndarray, Y: np.ndarray, verbose: bool = Fals
         The state matrix for the output variables nums.
     verbose : bool
         Whether to print the values at each step.
+    D : numpy.ndarray | None, default None
+        Optional precomputed pairwise distances from calc_dists.
 
     Returns
     -------
     L : float
         The negative log-likelihood cost.
     """
-    L = calc_L(phi, X, Y)
+    L = calc_L(phi, X, Y, D)
     if verbose:
         logger = logging.getLogger("monaco")
         logger.info(f"L = {L:0.4f}, Φ = {phi}")
     return L
 
 
-@jit(nopython=True, cache=True)
-def calc_L(phi: np.ndarray, X: np.ndarray, Y: np.ndarray) -> float:
+def calc_dists(X: np.ndarray) -> np.ndarray | None:
     """
-    Calculate the negative log-likelihood cost. Note that this is just-in-time
-    compiled by numba for increased speed.
+    Precompute the per-dimension absolute pairwise distances between each of
+    the input states, for reuse across likelihood evaluations.
+
+    Parameters
+    ----------
+    X : numpy.ndarray
+        The state matrix for all the input variables percentiles.
+
+    Returns
+    -------
+    D : numpy.ndarray | None
+        Array of shape (ninvars, m, m) where D[j, u, w] = |X[u, j] - X[w, j]|,
+        or None if it would be larger than 256 MiB.
+    """
+    m, d = X.shape
+    if d * m * m * 8 > 256 * 1024**2:
+        return None
+    D = np.empty((d, m, m), dtype=np.float64)
+    for j in range(d):
+        D[j] = np.abs(X[:, None, j] - X[None, :, j])
+    return D
+
+
+def calc_L(phi: np.ndarray, X: np.ndarray, Y: np.ndarray, D: np.ndarray | None = None) -> float:
+    """
+    Calculate the negative log-likelihood cost.
 
     Parameters
     ----------
@@ -272,6 +305,8 @@ def calc_L(phi: np.ndarray, X: np.ndarray, Y: np.ndarray) -> float:
         The state matrix for all the input variables percentiles.
     Y : numpy.ndarray
         The state matrix for the output variables nums.
+    D : numpy.ndarray | None, default None
+        Optional precomputed pairwise distances from calc_dists.
 
     Returns
     -------
@@ -280,7 +315,7 @@ def calc_L(phi: np.ndarray, X: np.ndarray, Y: np.ndarray) -> float:
     """
     m = len(Y)
     M = np.ones((m, 1))
-    R = calc_R(phi, X)
+    R = calc_R(phi, X, D)
     Rinv = np.linalg.inv(R)
     Rdet = max(np.linalg.det(R), 1e-12)  # Protect for poor conditioning
 
@@ -292,14 +327,15 @@ def calc_L(phi: np.ndarray, X: np.ndarray, Y: np.ndarray) -> float:
     return L
 
 
-@jit(nopython=True, cache=True)
 def calc_R(
     phi: np.ndarray,
     X: np.ndarray,
+    D: np.ndarray | None = None,
 ) -> np.ndarray:
     """
-    Calculate the correlation matrix between each of the input states.
-    Note that this is just-in-time compiled by numba for increased speed.
+    Calculate the correlation matrix between each of the input states. This is
+    the elementwise product over each input variable of the covariance function
+    calc_rj applied to the pairwise distances.
 
     Parameters
     ----------
@@ -307,21 +343,29 @@ def calc_R(
         The hyperparameters for the covariance function.
     X : numpy.ndarray
         The state matrix for all the input variables percentiles.
+    D : numpy.ndarray | None, default None
+        Optional precomputed pairwise distances from calc_dists. If None, the
+        distances are computed on the fly one input variable at a time.
 
     Returns
     -------
     R : float
         The correlation matrix.
     """
-    m = X.shape[0]
+    m, d = X.shape
     R = np.ones((m, m), dtype=np.float64)
-    for u in range(1, m):
-        # do lower triangle only and duplicate across diag
-        # diag will be all 1s
-        for w in range(u):
-            Ruw = calc_Ruw(phi, X[u, :], X[w, :])
-            R[u, w] = Ruw
-            R[w, u] = Ruw
+    rj = np.empty((m, m), dtype=np.float64)
+    for j in range(d):
+        if D is None:
+            np.subtract(X[:, None, j], X[None, :, j], out=rj)
+            np.abs(rj, out=rj)
+            np.multiply(rj, phi[j], out=rj)
+        else:
+            np.multiply(D[j], phi[j], out=rj)
+        np.subtract(1, rj, out=rj)
+        np.maximum(rj, 0, out=rj)
+        R *= rj
+    np.fill_diagonal(R, 1)
     return R
 
 
