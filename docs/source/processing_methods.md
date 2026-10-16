@@ -12,7 +12,7 @@ The `singlethreaded=True` parameter forces serial execution regardless of other 
 
 ```python
 sim = mc.Sim(
-    name='MySimulation',
+    name="MySimulation",
     ndraws=1000,
     fcns=my_functions,
     singlethreaded=True,  # Enable serial processing
@@ -32,13 +32,13 @@ Setting `singlethreaded=False` enables parallel processing, while `usedask=False
 
 ```python
 sim = mc.Sim(
-    name='MySimulation',
+    name="MySimulation",
     ndraws=1000,
     fcns=my_functions,
-    singlethreaded=False,            # Enable parallel processing
-    usedask=False,                   # Use multiprocessing instead of Dask
-    ncores=4,                        # Optional: specify number of cores
-    multiprocessing_method='spawn',  # Optional: set start method ('fork', 'spawn', or 'forkserver')
+    singlethreaded=False,  # Enable parallel processing
+    usedask=False,  # Use multiprocessing instead of Dask
+    ncores=4,  # Optional: specify number of cores
+    multiprocessing_method="spawn",  # Optional: set start method ('fork', 'spawn', or 'forkserver')
 )
 ```
 
@@ -64,18 +64,18 @@ Setting `singlethreaded=False` enables parallel processing, and `usedask=True` s
 
 ```python
 sim = mc.Sim(
-    name='MySimulation',
+    name="MySimulation",
     ndraws=1000,
     fcns=my_functions,
     singlethreaded=False,  # Enable parallel processing
-    usedask=True,          # Use Dask
-    ncores=4,              # Optional: overrides n_workers in daskkwargs
-    daskkwargs={           # Optional: Dask client configuration
-        'n_workers': 4,
-        'threads_per_worker': 1,
-        'memory_limit': '2GB',
-        'dashboard_address': ':8787'
-    }
+    usedask=True,  # Use Dask
+    ncores=4,  # Optional: overrides n_workers in daskkwargs
+    daskkwargs={  # Optional: Dask client configuration
+        "n_workers": 4,
+        "threads_per_worker": 1,
+        "memory_limit": "2GB",
+        "dashboard_address": ":8787",
+    },
 )
 ```
 
@@ -87,6 +87,7 @@ Note that network bandwidth might be the bottleneck for computations that don't 
 
 ```python
 import coiled
+
 cluster = coiled.Cluster(
     n_workers=8,
     worker_memory="8 GiB",
@@ -103,7 +104,8 @@ Note that default port for the Dask client scheduler (8786) is different than th
 
 ```python
 from dask.distributed import Client
-existing_scheduler_address = 'tcp://127.0.0.1:8786'
+
+existing_scheduler_address = "tcp://127.0.0.1:8786"
 client = Client(existing_scheduler_address)
 cluster = client.cluster
 
