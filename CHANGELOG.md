@@ -25,6 +25,12 @@
 ### Changed    
 ### Removed    
 
+## [0.22.0] - 2026-10-16
+### Added    
+* Python 3.15 support
+### Removed    
+* Python 3.10 support
+
 ## [0.21.0] - 2026-06-18
 ### Changed    
 * Fix error in DVARS calculations
