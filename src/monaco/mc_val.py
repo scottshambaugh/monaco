@@ -326,8 +326,13 @@ class OutVal(Val):
         else:
             # Fast path: vectorized searchsorted for numpy arrays
             arr = np.asanyarray(self.val)
+            sorted_keys = None
             if arr.dtype.kind != "O":
-                sorted_keys = np.array(sorted(self.valmap.keys()))
+                try:
+                    sorted_keys = np.array(sorted(self.valmap.keys()))
+                except TypeError:
+                    pass
+            if sorted_keys is not None:
                 mapped_values = np.array([self.valmap[k] for k in sorted_keys])
                 flat = arr.flatten()
                 missing = flat[~np.isin(flat, sorted_keys)]

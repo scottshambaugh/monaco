@@ -3,6 +3,7 @@
 import os
 import time
 import multiprocessing
+from enum import Enum
 
 import pytest
 import numpy as np
@@ -330,6 +331,26 @@ def test_sim_outvars_str_valmap(sim_base):
     outvar = sim.outvars["parity"]
     assert outvar.valmap == {"even": 0, "odd": 1}
     assert outvar.vals == ["odd" if i % 2 else "even" for i in range(sim.ncases)]
+    assert [outvar.nummap[int(num)] for num in outvar.nums] == outvar.vals
+
+
+class Parity(Enum):
+    EVEN = 0
+    ODD = 1
+
+
+def test_sim_outvars_enum_valmap(sim_base):
+    sim = sim_base
+
+    def postprocess(case, casenum_out):
+        case.addOutVal("parity", Parity.ODD if case.ncase % 2 else Parity.EVEN)
+
+    fcns = sim_testing_fcns()
+    fcns[SimFunctions.POSTPROCESS] = postprocess
+    sim.fcns = SimulationFunctions.from_dict(fcns)
+    sim.runSim()
+    outvar = sim.outvars["parity"]
+    assert outvar.valmap == {Parity.EVEN: 0, Parity.ODD: 1}
     assert [outvar.nummap[int(num)] for num in outvar.nums] == outvar.vals
 
 

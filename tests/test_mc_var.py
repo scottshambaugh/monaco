@@ -2,6 +2,7 @@
 
 import pytest
 import numpy as np
+from enum import Enum
 from scipy.stats import rv_discrete, randint, norm, lognorm
 from monaco.mc_var import InVar, OutVar
 from monaco.mc_enums import SampleMethod
@@ -148,6 +149,17 @@ def test_invar_nummap():
         firstcaseismedian=False,
     )
     assert invar.vals == ["f", "e", "f", "f", "a", "e", "e", "a", "e", "e"]
+
+
+class Mode(Enum):
+    LOW = 1
+    HIGH = 2
+
+
+def test_invar_custom_vals_unorderable():
+    invar = InVar("custom", ndraws=4, vals=["b", 2, Mode.HIGH, Mode.LOW], samplemethod=None)
+    assert invar.nummap == {0: 2, 1: "b", 2: Mode.LOW, 3: Mode.HIGH}
+    assert invar.nums == [1, 0, 3, 2]
 
 
 def test_invar_custom_vals():
@@ -340,6 +352,21 @@ def test_outvar_genMaxDim(vals, maxdim):
 def test_outvar_extractValMap():
     outvar = OutVar("test", ["a", "b", "c", ["b"]], firstcaseismedian=True)
     assert outvar.valmap == {"a": 0, "b": 1, "c": 2}
+
+
+def test_outvar_valmap_unorderable():
+    outvar = OutVar("test", vals=[Mode.HIGH, Mode.LOW, Mode.HIGH])
+    assert outvar.valmap == {Mode.LOW: 0, Mode.HIGH: 1}
+    assert np.array_equal(outvar.nums, [1, 0, 1])
+
+    outvar = OutVar("test", vals=["a", 1, None])
+    assert outvar.valmap == {None: 0, 1: 1, "a": 2}
+    assert np.array_equal(outvar.nums, [2, 1, 0])
+
+    outvar = OutVar("test", vals=[np.array(["a", "b"]), [1, None]])
+    assert outvar.valmap == {None: 0, 1: 1, "a": 2, "b": 3}
+    assert np.array_equal(outvar.nums[0], [2, 3])
+    assert np.array_equal(outvar.nums[1], [1, 0])
 
     # Mixed types
     outvar = OutVar("test", [1, 2, None, 4], firstcaseismedian=True)

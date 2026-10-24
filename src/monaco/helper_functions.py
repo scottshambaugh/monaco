@@ -4,6 +4,7 @@ from __future__ import annotations
 import warnings
 import logging
 import numpy as np
+from enum import Enum
 from operator import itemgetter
 from tqdm import tqdm
 from typing import Callable, Any, Sequence, Iterable, Sized, Optional
@@ -181,10 +182,27 @@ def sort_none_first(vals: Iterable[Any]) -> list[Any]:
         The sorted values.
     """
     vals = list(vals)
-    sorted_vals = sorted(x for x in vals if x is not None)
+    not_none = [x for x in vals if x is not None]
+    try:
+        sorted_vals = sorted(not_none)
+    except TypeError:
+        sorted_vals = sorted(not_none, key=_fallback_sort_key)
     if len(sorted_vals) < len(vals):
         sorted_vals.insert(0, None)
     return sorted_vals
+
+
+def _fallback_sort_key(x: Any) -> tuple[str, str, Any]:
+    if is_num(x):
+        return ("", "", x)
+    t = type(x)
+    if isinstance(x, Enum):
+        val = x.value
+    elif isinstance(x, str):
+        val = x
+    else:
+        val = repr(x)
+    return (t.__module__, t.__qualname__, val)
 
 
 def length(x: Any) -> int | None:

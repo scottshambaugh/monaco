@@ -2,6 +2,7 @@
 
 import pytest
 import time
+from enum import Enum, Flag
 import logging
 import numpy as np
 from monaco.helper_functions import (
@@ -219,3 +220,27 @@ def test_hashable_val_vectorized_fallback_path():
 def test_sort_none_first():
     assert sort_none_first(["b", None, "a"]) == [None, "a", "b"]
     assert sort_none_first([2, 1]) == [1, 2]
+
+
+class Color(Enum):
+    RED = 3
+    GREEN = 1
+    BLUE = 2
+
+
+class Perm(Flag):
+    R = 1
+    W = 2
+
+
+def test_sort_none_first_unorderable():
+    assert sort_none_first({Color.BLUE, None, Color.RED, Color.GREEN}) == [
+        None,
+        Color.GREEN,
+        Color.BLUE,
+        Color.RED,
+    ]
+    assert sort_none_first(["b", 10, None, 2.5, "a", 2]) == [None, 2, 2.5, 10, "a", "b"]
+    assert sort_none_first([Color.GREEN, "a", 1]) == [1, "a", Color.GREEN]
+    assert sort_none_first([Perm.R | Perm.W, Perm.R, 1]) == [1, Perm.R, Perm.R | Perm.W]
+    assert sort_none_first(["it's", "b", 1]) == [1, "b", "it's"]

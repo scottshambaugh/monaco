@@ -23,6 +23,7 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+* Fix crash generating valmaps for unsortable values like enums
 ### Removed    
 
 ## [0.22.0] - 2026-10-16
