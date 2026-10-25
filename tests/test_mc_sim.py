@@ -334,6 +334,39 @@ def test_sim_outvars_str_valmap(sim_base):
     assert [outvar.nummap[int(num)] for num in outvar.nums] == outvar.vals
 
 
+def constval_preprocess(case):
+    return (case.constvals["k"],)
+
+
+def constval_postprocess(case, k):
+    case.addOutVal("k", k)
+
+
+def test_sim_multiprocessing_pool_refreshes_vars():
+    fcns = sim_testing_fcns()
+    fcns[SimFunctions.PREPROCESS] = constval_preprocess
+    fcns[SimFunctions.POSTPROCESS] = constval_postprocess
+    sim = Sim(
+        name="Sim pool refresh",
+        ndraws=3,
+        fcns=fcns,
+        seed=0,
+        verbose=False,
+        singlethreaded=False,
+        ncores=2,
+        savesimdata=False,
+        savecasedata=False,
+    )
+    sim.addConstVal(name="k", val=1)
+    sim.runSim()
+    assert sim.outvars["k"].vals == [1, 1, 1]
+    sim.addConstVal(name="k", val=2)
+    sim.setNDraws(4)
+    sim.runSim()
+    assert sim.outvars["k"].vals == [2, 2, 2, 2]
+    sim._cleanup()
+
+
 class Parity(Enum):
     EVEN = 0
     ODD = 1

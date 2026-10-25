@@ -20,6 +20,7 @@ from tqdm import tqdm
 from typing import Callable, Any, Iterable, Optional, Generic
 from typing_extensions import TypeVarTuple, Unpack
 from dataclasses import dataclass
+from hashlib import sha512
 from scipy.stats import rv_continuous, rv_discrete
 from monaco.mc_case import Case
 from monaco.mc_var import InVar, OutVar, InVarSpace
@@ -485,8 +486,16 @@ class Sim:
         if self.singlethreaded or self.usedask:
             vwarn(self.verbose, "Multiprocessing pool is not needed in singlethreaded or dask mode")
             return
-        elif self.pool is not None:
-            return
+
+        # Workers only receive the vars at startup, so restart them if the vars have changed
+        blobs = self._pickleLargeData()
+        data_hash = sha512(b"".join(blobs)).digest()
+        if self.pool is not None:
+            if data_hash == self._pool_data_hash:
+                return
+            self.pool.shutdown(wait=True)
+            self.pool = None
+        self._pool_data_hash = data_hash
 
         start_method = self.multiprocessing_method
         if start_method not in multiprocessing.get_all_start_methods():
@@ -512,7 +521,7 @@ class Sim:
             data = (self.invars, self.outvars, self.constvals, parent_pid)
         else:
             initializer = _worker_init
-            data = (*self._pickleLargeData(), parent_pid)
+            data = (*blobs, parent_pid)
         self.pool = concurrent.futures.ProcessPoolExecutor(
             max_workers=self.ncores, mp_context=ctx, initializer=initializer, initargs=data
         )
