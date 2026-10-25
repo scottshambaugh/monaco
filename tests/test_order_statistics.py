@@ -99,6 +99,8 @@ def test_order_stat_P_k(n, c, P, bound, ans):
 def test_order_stat_P_k_warning():
     with pytest.raises(ValueError, match="is too small"):
         order_stat_P_k(n=10, c=0.999, P=0.05, bound=StatBound.ONESIDED_LOWER)
+    with pytest.raises(ValueError, match="is too small"):
+        order_stat_P_k(n=100, c=0.5, P=0.99865, bound=StatBound.TWOSIDED)
 
 
 @pytest.mark.parametrize(

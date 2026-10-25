@@ -415,7 +415,7 @@ def order_stat_P_k(
         k = [1, min(iPl, n + 1 - iPu)]
         l = iPl - k[1] + 1  # we won't be using assymmetrical order stats
         u = iPu + k[1] - 1
-        if l <= 0 or u >= n + 1 or EPYP(n, l, u, P) < c:
+        if l <= 0 or u >= n + 1 or u < l or EPYP(n, l, u, P) < c:
             raise ValueError(
                 f"{n=} is too small to meet {P=} at {c=} for {bound} percentile "
                 + "confidence interval at any order statistic. Use order_stat_P_n "
