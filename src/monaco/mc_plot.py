@@ -904,20 +904,17 @@ def plot_2p5d_line(
         fig is the figure handle for the plot.
         ax is the axes handle for the plot.
     """
-    npoints = 0
-    for var in (varx, vary, varz):
-        if var.maxdim == 1:
-            npoints = max(npoints, max(len(num) for num in var.nums))
+    # Cases may have different lengths, so tile each scalar to match its case
+    var_1d = next(var for var in (varx, vary, varz) if var.maxdim == 1)
+    npoints = [len(num) for num in var_1d.nums]
 
     def tile_scalar_var(var: InVar | OutVar) -> InVar | OutVar:
         if var.maxdim != 0:
             return var
         var_tiled = copy(var)
-        var_tiled.nums = list(np.repeat(np.asarray(var.nums)[:, np.newaxis], npoints, axis=1))
+        var_tiled.nums = [np.full(n, num) for n, num in zip(npoints, var.nums)]
         if isinstance(var, monaco.mc_var.InVar):
-            var_tiled.pcts = list(
-                np.repeat(np.asarray(var.pcts, dtype=float)[:, np.newaxis], npoints, axis=1)
-            )
+            var_tiled.pcts = [np.full(n, pct, dtype=float) for n, pct in zip(npoints, var.pcts)]
         var_tiled.maxdim = 1
         return var_tiled
 

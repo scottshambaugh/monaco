@@ -80,6 +80,21 @@ def test_plot_1d_var_cases():
     assert np.array_equal(lines[0].get_ydata(), [0, 2, 4])
 
 
+def test_plot_2p5d_line_ragged():
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import scipy.stats
+    from monaco.mc_var import InVar, OutVar
+    from monaco.mc_plot import plot
+
+    outvar = OutVar("line", vals=[np.arange(3 + i) for i in range(4)])
+    invar = InVar("x", ndraws=4, dist=scipy.stats.norm, samplemethod="random", seed=1)
+    _, ax = plot(outvar, invar)
+    lengths = sorted(len(line.get_xdata()) for line in ax.get_lines())
+    plt.close("all")
+    assert lengths == [3, 4, 5, 6]
+
+
 def test_plot_hist_varstat_in_pct_space():
     import matplotlib.pyplot as plt
     import scipy.stats
