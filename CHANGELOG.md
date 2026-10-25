@@ -33,6 +33,7 @@
 * Fix splitting pandas outvals by label instead of position
 * Fix scatter plot covariance ellipses ignoring `cases` and `invar_space`
 * Fix `plot()` ignoring `cases` for a single 1-D variable
+* Fix outvars being dropped or crashing when cases fail, which now get `None` outvals
 ### Removed    
 
 ## [0.22.0] - 2026-10-16

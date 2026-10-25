@@ -1406,7 +1406,8 @@ class Sim:
         """
         if any(case is None for case in self.cases):
             raise ValueError("Cannot generate output variables until all cases have been run.")
-        outval_names = list(self.cases[0].outvals.keys())
+        # Failed cases may be missing outvals, so gather names across all cases
+        outval_names = list(dict.fromkeys(name for case in self.cases for name in case.outvals))
         if self.verbose:
             pbar = tqdm(
                 total=len(outval_names),
@@ -1422,23 +1423,28 @@ class Sim:
             seed = (self.seed - 1 - i_var) % 2**32
             self.outvarseeds.append(seed)
 
+            outvals = [case.outvals.get(varname) for case in self.cases]
+            firstoutval = next(outval for outval in outvals if outval is not None)
+
             # Generate valmap
-            if self.cases[0].outvals[varname].valmapsource == "auto":
+            if firstoutval.valmapsource == "auto":
                 uniquevals: set[Any] = set()
                 valmap: dict[Any, float] = None
-                for case in self.cases:
-                    if case.outvals[varname].valmap is None:
+                for outval in outvals:
+                    if outval is None:
+                        uniquevals.add(None)
+                    elif outval.valmap is None:
                         uniquevals = None
                         break
                     else:
-                        uniquevals.update(case.outvals[varname].valmap.keys())
+                        uniquevals.update(outval.valmap.keys())
                 if uniquevals is not None:
                     valmap = {val: i for i, val in enumerate(sort_none_first(uniquevals))}
             else:
-                valmap = self.cases[0].outvals[varname].valmap
+                valmap = firstoutval.valmap
 
             # Generate vals
-            vals = [case.outvals[varname].val for case in self.cases]
+            vals = [None if outval is None else outval.val for outval in outvals]
             outvar = OutVar(
                 name=varname,
                 vals=vals,

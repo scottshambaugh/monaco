@@ -549,6 +549,46 @@ def test_sim_preprocess_failure_skips_later_stages(sim_base):
     assert sim.cases[0].outvals == {}
 
 
+def partial_postprocess(case, casenum_out):
+    case.addOutVal("y", float(casenum_out))
+    if case.ncase == 0:
+        raise Exception("Postprocess testing failed for case 0")
+    case.addOutVal("z", "even" if casenum_out % 2 == 0 else "odd")
+
+
+@pytest.mark.parametrize("failcase", [0, 2])
+def test_sim_genoutvars_failed_cases(sim_base, failcase):
+    sim = sim_base
+
+    def preprocess(case):
+        if case.ncase == failcase:
+            raise Exception(f"Preprocess testing failed for case {failcase}")
+        return (case.ncase,)
+
+    fcns = {
+        SimFunctions.PREPROCESS: preprocess,
+        SimFunctions.RUN: sim_testing_run,
+        SimFunctions.POSTPROCESS: sim_testing_postprocess,
+    }
+    sim.fcns = SimulationFunctions.from_dict(fcns)
+    sim.debug = False
+    sim.runSim()
+    assert np.isnan(sim.outvars["casenum_out"].nums[failcase])
+    assert sim.outvars["casenum_out"].nums[1] == 1
+
+
+def test_sim_genoutvars_partial_postprocess(sim_base):
+    sim = sim_base
+    fcns = sim_testing_fcns()
+    fcns[SimFunctions.POSTPROCESS] = partial_postprocess
+    sim.fcns = SimulationFunctions.from_dict(fcns)
+    sim.debug = False
+    sim.runSim()
+    assert list(sim.outvars) == ["y", "z"]
+    assert sim.outvars["z"].vals[0] is None
+    assert sim.outvars["z"].valmap == {None: 0, "even": 1, "odd": 2}
+
+
 @pytest.mark.parametrize("sim_fixture", SIM_FIXTURES, indirect=True)
 def test_sim_run_failure(sim_fixture):
     if sim_fixture is None:
