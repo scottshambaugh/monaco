@@ -7,6 +7,7 @@ import logging
 import numpy as np
 from monaco.helper_functions import (
     next_power_of_2,
+    atomic_open,
     hash_str_repeatable,
     is_num,
     is_numeric,
@@ -253,3 +254,17 @@ def test_none_to_nan():
     assert none_to_nan(2) == 2
     assert none_to_nan("a") == "a"
     assert np.array_equal(none_to_nan(np.array(["a", None], dtype=object)), ["a", None])
+
+
+def test_atomic_open(tmp_path):
+    filepath = tmp_path / "file.txt"
+    with atomic_open(filepath, "w") as f:
+        f.write("a")
+    assert filepath.read_text() == "a"
+
+    with pytest.raises(RuntimeError):
+        with atomic_open(filepath, "w") as f:
+            f.write("b")
+            raise RuntimeError
+    assert filepath.read_text() == "a"
+    assert list(tmp_path.iterdir()) == [filepath]

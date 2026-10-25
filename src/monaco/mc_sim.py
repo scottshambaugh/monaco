@@ -27,6 +27,7 @@ from monaco.mc_var import InVar, OutVar, InVarSpace
 from monaco.mc_enums import SimFunctions, SampleMethod
 from monaco.helper_functions import (
     get_list,
+    atomic_open,
     configure_logging,
     vwarn,
     empty_list,
@@ -1886,7 +1887,7 @@ class Sim:
                 else:
                     data_csv = np.vstack([data_csv, np.asarray(var.nums)])
 
-            with open(filepath, "w", newline="") as f:
+            with atomic_open(filepath, "w", newline="") as f:
                 writer = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
                 writer.writerow(varnames)
                 for i in range(self.ncases):
@@ -1900,7 +1901,7 @@ class Sim:
             for varname, var in vars.items():
                 data_json[varname] = np.asarray(var.nums).tolist()
 
-            with open(filepath, "w", newline="") as f:
+            with atomic_open(filepath, "w", newline="") as f:
                 json.dump(data_json, f, indent=0)
 
         return filepath
@@ -2203,19 +2204,14 @@ class Sim:
             self.filepath = pathlib.Path(filepath)
 
         try:
-            self.filepath.unlink()
-        except FileNotFoundError:
-            pass
-        self.filepath.touch()
-
-        if include_cases:
-            with open(self.filepath, "wb") as file:
-                cloudpickle.dump(self, file)
-        else:
-            self._omit_cases_for_pickling = True
-            with open(self.filepath, "wb") as file:
-                cloudpickle.dump(self, file, protocol=5)
-            del self._omit_cases_for_pickling
+            with atomic_open(self.filepath) as file:
+                if include_cases:
+                    cloudpickle.dump(self, file)
+                else:
+                    self._omit_cases_for_pickling = True
+                    cloudpickle.dump(self, file, protocol=5)
+        finally:
+            self.__dict__.pop("_omit_cases_for_pickling", None)
 
         self.logger.info(f"Sim results saved in '{self.filepath}'")
 
@@ -2246,7 +2242,7 @@ class Sim:
                 continue
             filepath = self.resultsdir / f"{self.name}_{ncase}.mccase"
             self.cases[ncase].filepath = filepath
-            with open(filepath, "wb") as file:
+            with atomic_open(filepath) as file:
                 cloudpickle.dump(self.cases[ncase], file)
 
         self.logger.info(f"Raw case results saved in '{self.resultsdir}'")

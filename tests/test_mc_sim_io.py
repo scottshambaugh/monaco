@@ -120,6 +120,19 @@ def test_sim_save_load_sim(sim, include_cases):
     assert sim2.cases[0]["Var1"].num == sim.cases[0]["Var1"].num
 
 
+def test_sim_save_failure_keeps_existing_file(sim):
+    import threading
+
+    sim_file = sim.resultsdir / "sim_io_test.mcsim"
+    saved = sim_file.read_bytes()
+    sim.addConstVal(name="lock", val=threading.Lock())
+    with pytest.raises(TypeError):
+        sim.saveSim(include_cases=False)
+    assert sim_file.read_bytes() == saved
+    assert list(sim.resultsdir.glob("*.tmp")) == []
+    assert not hasattr(sim, "_omit_cases_for_pickling")
+
+
 def test_sim_load_partial(sim_without_1_2):
     (sim, log) = sim_without_1_2
     assert len(log) == 4

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import warnings
+import os
 import logging
 import numpy as np
 from enum import Enum
@@ -11,6 +12,7 @@ from typing import Callable, Any, Sequence, Iterable, Sized, Optional
 from pathlib import Path
 from time import time
 from functools import wraps
+from contextlib import contextmanager
 from hashlib import sha512
 
 # Optional imports
@@ -371,6 +373,19 @@ def configure_logging(verbose: bool = True) -> None:
     handler = logging.StreamHandler()
     handler.setLevel(logger.level)
     logger.addHandler(handler)
+
+
+@contextmanager
+def atomic_open(filepath: str | Path, mode: str = "wb", **kwargs):
+    """Open a temp file for writing, which replaces filepath only if writing succeeds."""
+    filepath = Path(filepath)
+    tmppath = filepath.with_name(filepath.name + ".tmp")
+    try:
+        with open(tmppath, mode, **kwargs) as file:
+            yield file
+        os.replace(tmppath, filepath)
+    finally:
+        tmppath.unlink(missing_ok=True)
 
 
 def log_to_file(filepath: Optional[str | Path] = None) -> None | Path:
