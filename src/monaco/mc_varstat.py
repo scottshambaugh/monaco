@@ -13,7 +13,7 @@ from scipy.stats import bootstrap, moment, skew, kurtosis, mode
 from scipy.stats.mstats import gmean
 from typing import Any, Callable, Iterable
 from warnings import warn
-from monaco.helper_functions import get_list, get_cases, flatten
+from monaco.helper_functions import get_list, get_cases, flatten, get_seed
 from monaco.gaussian_statistics import pct2sig, sig2pct
 from monaco.order_statistics import order_stat_TI_n, order_stat_TI_k, order_stat_P_k, get_iP
 from monaco.mc_enums import StatBound, VarStatType, VarStatSide
@@ -179,9 +179,7 @@ class VarStat:
         self.confidence_interval_low_vals: list[Any] | np.ndarray = []
         self.confidence_interval_high_vals: list[Any] | np.ndarray = []
         self.bootstrap_n: int | None = None
-        if seed is None:
-            seed = int(np.random.get_state(legacy=False)["state"]["key"][0])
-        self.seed = seed
+        self.seed = get_seed(seed)
 
         if isinstance(stat, Callable):
             self.setName(f"{self.var.name} {str(stat)}")

@@ -20,6 +20,20 @@ except ImportError:
     pd = None
 
 
+DEFAULT_SEED = 2**31
+_default_seeds = np.random.default_rng(DEFAULT_SEED)
+
+
+def get_seed(seed: int | None) -> int:
+    """
+    Return the seed, or if None the next seed from a generator seeded with
+    DEFAULT_SEED, so that unseeded objects differ but are repeatable.
+    """
+    if seed is None:
+        return int(_default_seeds.integers(2**32))
+    return int(seed)
+
+
 def next_power_of_2(x: int) -> int:
     """
     Returns the next power of two greater than or equal to the input.

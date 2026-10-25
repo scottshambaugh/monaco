@@ -1,13 +1,13 @@
 # mc_case.py
 from __future__ import annotations
 
-import numpy as np
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 from monaco.mc_var import OutVar, InVar
 from monaco.mc_val import OutVal, InVal
 from monaco.globals import get_global_vars
+from monaco.helper_functions import get_seed
 
 
 class Case:
@@ -84,9 +84,7 @@ class Case:
         self.outvars: dict[str, OutVar] = dict()
         self.keepsiminput = keepsiminput
         self.keepsimrawoutput = keepsimrawoutput
-        if seed is None:
-            seed = int(np.random.get_state(legacy=False)["state"]["key"][0])
-        self.seed = seed
+        self.seed = get_seed(seed)
 
         self.starttime: datetime | None = None
         self.endtime: datetime | None = None

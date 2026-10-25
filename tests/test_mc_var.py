@@ -1,6 +1,8 @@
 # test_mc_var.py
 
 import pytest
+import subprocess
+import sys
 import numpy as np
 from enum import Enum
 from scipy.stats import rv_discrete, randint, norm, lognorm
@@ -149,6 +151,19 @@ def test_invar_nummap():
         firstcaseismedian=False,
     )
     assert invar.vals == ["f", "e", "f", "f", "a", "e", "e", "a", "e", "e"]
+
+
+def test_invar_unseeded():
+    a = InVar("a", ndraws=3, dist=norm, samplemethod=SampleMethod.RANDOM)
+    b = InVar("b", ndraws=3, dist=norm, samplemethod=SampleMethod.RANDOM)
+    assert a.seed != b.seed
+    assert a.nums != b.nums
+
+
+def test_invar_unseeded_repeatable():
+    code = "from monaco.helper_functions import get_seed; print(get_seed(None), get_seed(None))"
+    outputs = {subprocess.check_output([sys.executable, "-c", code]) for _ in range(2)}
+    assert len(outputs) == 1
 
 
 class Mode(Enum):

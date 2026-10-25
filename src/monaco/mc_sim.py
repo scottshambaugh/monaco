@@ -32,6 +32,7 @@ from monaco.helper_functions import (
     hash_str_repeatable,
     log_to_file,
     sort_none_first,
+    get_seed,
 )
 from monaco.case_runners import preprocess_case, run_case, postprocess_case, execute_full_case
 from monaco.globals import _worker_init, _fork_worker_init
@@ -272,9 +273,7 @@ class Sim:
             self.fcns = SimulationFunctions.from_dict(fcns)
         self.firstcaseismedian = firstcaseismedian
         self.samplemethod = samplemethod
-        if seed is None:
-            seed = int(np.random.get_state(legacy=False)["state"]["key"][0])
-        self.seed = int(seed)
+        self.seed = get_seed(seed)
         self.singlethreaded = singlethreaded
         self.usedask = usedask
         self.ncores = ncores

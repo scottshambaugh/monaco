@@ -22,6 +22,7 @@ from monaco.helper_functions import (
     is_num,
     is_numeric,
     sort_none_first,
+    get_seed,
 )
 
 
@@ -91,9 +92,7 @@ class Var(ABC):
     ):
         self.name = name
         self.ndraws = ndraws
-        if seed is None:
-            seed = int(np.random.get_state(legacy=False)["state"]["key"][0])
-        self.seed = int(seed)
+        self.seed = get_seed(seed)
         self.firstcaseismedian = firstcaseismedian
         self.datasource = datasource
 
