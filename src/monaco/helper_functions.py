@@ -99,7 +99,7 @@ def hashable_val_vectorized(vals: Iterable[Any]) -> list[Any]:
     try:
         hash(first_val)
         first_type = type(first_val)
-        if all(isinstance(v, first_type) for v in vals):
+        if all(isinstance(v, first_type) and not is_nan(v) for v in vals):
             return list(vals)
     except TypeError:
         pass
@@ -112,11 +112,35 @@ def hashable_val_vectorized(vals: Iterable[Any]) -> list[Any]:
     return result
 
 
+_NAN = float("nan")
+_NAT = np.datetime64("NaT", "ns")
+_NAT_TIMEDELTA = np.timedelta64("NaT", "ns")
+
+
+def is_nan(val: Any) -> bool:
+    """Check if a scalar value is NaN or NaT."""
+    if isinstance(val, float):
+        return np.isnan(val)
+    if isinstance(val, (np.datetime64, np.timedelta64)):
+        return np.isnat(val)
+    return False
+
+
+def is_nan_array(arr: np.ndarray) -> np.ndarray:
+    """Elementwise check if an array's values are NaN or NaT."""
+    if arr.dtype.kind in "fc":
+        return np.isnan(arr)
+    if arr.dtype.kind in "Mm":
+        return np.isnat(arr)
+    return np.zeros(arr.shape, dtype=bool)
+
+
 def hashable_val(val: Any) -> Any:
     """
     For `nummap` and `valmap`, we need to use values as keys in a dictionary.
     This function will return the string representation of a value if that
-    value is not hashable.
+    value is not hashable. NaN and NaT are replaced with canonical objects so
+    that they can be looked up.
 
     Parameters
     ----------
@@ -128,6 +152,12 @@ def hashable_val(val: Any) -> Any:
     hashable_val : Any
         A hashable representation of the val.
     """
+    if is_nan(val):
+        if isinstance(val, np.datetime64):
+            return _NAT
+        if isinstance(val, np.timedelta64):
+            return _NAT_TIMEDELTA
+        return _NAN
     try:
         hash(val)
         return val
@@ -198,7 +228,7 @@ def is_numeric(val: Any) -> bool:
 
 def sort_none_first(vals: Iterable[Any]) -> list[Any]:
     """
-    Sort values, putting any None first.
+    Sort values, putting any None first, followed by any NaN or NaT.
 
     Parameters
     ----------
@@ -211,14 +241,14 @@ def sort_none_first(vals: Iterable[Any]) -> list[Any]:
         The sorted values.
     """
     vals = list(vals)
-    not_none = [x for x in vals if x is not None]
+    nones = [None] if None in vals else []
+    nans = [x for x in vals if is_nan(x)]
+    others = [x for x in vals if x is not None and not is_nan(x)]
     try:
-        sorted_vals = sorted(not_none)
+        sorted_vals = sorted(others)
     except TypeError:
-        sorted_vals = sorted(not_none, key=_fallback_sort_key)
-    if len(sorted_vals) < len(vals):
-        sorted_vals.insert(0, None)
-    return sorted_vals
+        sorted_vals = sorted(others, key=_fallback_sort_key)
+    return nones + nans + sorted_vals
 
 
 def _fallback_sort_key(x: Any) -> tuple[str, str, Any]:

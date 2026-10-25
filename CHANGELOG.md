@@ -37,6 +37,7 @@
 * Saving and exporting files is now atomic, so a failed write no longer clobbers an existing file
 * Fix rerunning failed cases and rerunning postprocessing
 * Fix `order_stat_TI_n` crashing for 2-sided intervals with large `k` or small `p`
+* Fix NaN and NaT values in valmaps
 ### Removed    
 
 ## [0.22.0] - 2026-10-16

@@ -9,7 +9,7 @@ from copy import copy
 from typing import Any, Callable, Iterable, Optional, NamedTuple
 from warnings import warn
 from abc import ABC, abstractmethod
-from monaco.mc_val import Val, InVal, OutVal
+from monaco.mc_val import Val, InVal, OutVal, valmap_lookup_arrays, map_array
 from monaco.mc_varstat import VarStat
 from monaco.mc_enums import SampleMethod, Sensitivities, VarStatType, InVarSpace
 from monaco.mc_sampling import sampling
@@ -830,7 +830,7 @@ class OutVar(Var):
                 if valmap is not None:
                     uniquevals.update(valmap.keys())
                 else:
-                    uniquevals.update(set(flatten([val])))
+                    uniquevals.update(hashable_val(x) for x in flatten([val]))
 
             # Numbers with some None values are left numeric, with None becoming NaN
             if not all(x is None or is_num(x) for x in uniquevals):
@@ -856,14 +856,9 @@ class OutVar(Var):
                 self.nums.append(np.asarray(none_to_nan(self.vals[i])))
         else:
             # Vectorized path: pre-compute lookup arrays for searchsorted
-            try:
-                sorted_keys = np.array(sorted(self.valmap.keys()))
-                mapped_values = np.array([self.valmap[k] for k in sorted_keys])
-                use_fast_path = True
-            except TypeError:
-                use_fast_path = False
+            lookup = valmap_lookup_arrays(self.valmap)
             for i in range(self.ncases):
-                if use_fast_path:
+                if lookup is not None:
                     val = self.vals[i]
                     arr = np.asanyarray(val)
                     if arr.ndim == 0:
@@ -871,12 +866,7 @@ class OutVar(Var):
                         self.nums.append(np.asarray(self.valmap[hashable_val(val)]))
                     elif arr.dtype.kind != "O":
                         # Vectorized searchsorted for typed arrays
-                        flat = arr.flatten()
-                        missing = flat[~np.isin(flat, sorted_keys)]
-                        if missing.size:
-                            raise KeyError(f"Value(s) {np.unique(missing).tolist()} not in valmap")
-                        indices = np.searchsorted(sorted_keys, flat)
-                        self.nums.append(mapped_values[indices].reshape(arr.shape).astype(float))
+                        self.nums.append(map_array(arr, *lookup))
                     else:
                         self.nums.append(np.asarray(self.getVal(i).num))
                 else:

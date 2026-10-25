@@ -392,6 +392,18 @@ def test_outvar_valmap_unorderable():
     assert np.array_equal(outvar.nums[1], [np.nan, 3], equal_nan=True)
 
 
+def test_outvar_valmap_nan_nat():
+    outvar = OutVar("test", vals=["a", float("nan"), "a", np.float64("nan")])
+    assert len(outvar.valmap) == 2
+    assert np.array_equal(outvar.nums, [1, 0, 1, 0])
+
+    outvar = OutVar("test", vals=[np.datetime64("2020-01-01"), np.datetime64("NaT", "D")])
+    assert np.array_equal(outvar.nums, [1, 0])
+
+    outvar = OutVar("test", vals=[np.array(["a", "b"]), np.array([np.nan, 1.0])])
+    assert np.array_equal(outvar.nums[1], [0, 1])
+
+
 @pytest.fixture
 def outvars_split():
     outvars = dict()

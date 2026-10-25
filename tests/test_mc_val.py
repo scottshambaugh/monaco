@@ -80,6 +80,13 @@ def test_outval_valmap_timedelta64():
     assert np.array_equal(outval.num, [0, 1, 0])
 
 
+def test_outval_valmap_nat():
+    dates = np.array(["2020-01-01", "NaT", "2020-01-01"], dtype="datetime64[D]")
+    outval = OutVal(name="test", ncase=1, val=dates)
+    assert len(outval.valmap) == 2
+    assert np.array_equal(outval.num, [0, 1, 0])
+
+
 def test_outval_valmap_unhashable_1d():
     val = [{"a": 1}, {"b": 2}, {"a": 1}]
     outval = OutVal(name="test", ncase=1, val=val)

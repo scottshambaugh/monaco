@@ -7,6 +7,7 @@ from scipy.stats import rv_discrete, rv_continuous
 from abc import ABC
 from monaco.helper_functions import (
     is_num,
+    is_nan_array,
     hashable_val,
     none_to_nan,
     flatten,
@@ -302,7 +303,7 @@ class OutVal(Val):
                     return
                 if kind in "Mm":  # datetime64, timedelta64
                     unique_sorted = np.unique(vals_array)
-                    self.valmap = {val: idx for idx, val in enumerate(unique_sorted)}
+                    self.valmap = {hashable_val(val): idx for idx, val in enumerate(unique_sorted)}
                     return
 
             # Slow path: object/string arrays
@@ -328,20 +329,11 @@ class OutVal(Val):
         else:
             # Fast path: vectorized searchsorted for numpy arrays
             arr = np.asanyarray(self.val)
-            sorted_keys = None
+            lookup = None
             if arr.dtype.kind != "O":
-                try:
-                    sorted_keys = np.array(sorted(self.valmap.keys()))
-                except TypeError:
-                    pass
-            if sorted_keys is not None:
-                mapped_values = np.array([self.valmap[k] for k in sorted_keys])
-                flat = arr.flatten()
-                missing = flat[~np.isin(flat, sorted_keys)]
-                if missing.size:
-                    raise KeyError(f"Value(s) {np.unique(missing).tolist()} not in valmap")
-                indices = np.searchsorted(sorted_keys, flat)
-                self.num = mapped_values[indices].reshape(self.shape).astype(float)
+                lookup = valmap_lookup_arrays(self.valmap)
+            if lookup is not None:
+                self.num = map_array(arr, *lookup)
             else:
                 # Slow path: element-by-element for object arrays. asarray avoids
                 # a copy, and we write into a separate array so we never mutate
@@ -384,3 +376,33 @@ class OutVal(Val):
                     name=name, ncase=self.ncase, val=val, valmap=self.valmap, ismedian=self.ismedian
                 )
         return vals
+
+
+def valmap_lookup_arrays(valmap: dict[Any, float]) -> tuple[np.ndarray, np.ndarray] | None:
+    """
+    Get the sorted valmap keys and their values for `map_array`, or None if the
+    keys cannot be sorted into a typed array.
+    """
+    keys = list(valmap.keys())
+    try:
+        sorted(keys)
+    except TypeError:
+        return None
+    sorted_keys = np.sort(np.array(keys))  # numpy sorts NaN and NaT to the end
+    if sorted_keys.dtype.kind == "O":
+        return None
+    mapped_values = np.array([valmap[hashable_val(k)] for k in sorted_keys])
+    return sorted_keys, mapped_values
+
+
+def map_array(arr: np.ndarray, sorted_keys: np.ndarray, mapped_values: np.ndarray) -> np.ndarray:
+    """Map a typed array to numbers with the lookup from `valmap_lookup_arrays`."""
+    flat = arr.flatten()
+    found = np.isin(flat, sorted_keys)
+    if is_nan_array(sorted_keys).any():
+        found |= is_nan_array(flat)
+    missing = flat[~found]
+    if missing.size:
+        raise KeyError(f"Value(s) {np.unique(missing).tolist()} not in valmap")
+    indices = np.searchsorted(sorted_keys, flat)
+    return mapped_values[indices].reshape(arr.shape).astype(float)

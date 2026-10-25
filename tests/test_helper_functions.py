@@ -19,6 +19,7 @@ from monaco.helper_functions import (
     flatten,
     get_cases,
     timeit,
+    hashable_val,
     hashable_val_vectorized,
     sort_none_first,
 )
@@ -222,6 +223,12 @@ def test_hashable_val_vectorized_fallback_path():
 def test_sort_none_first():
     assert sort_none_first(["b", None, "a"]) == [None, "a", "b"]
     assert sort_none_first([2, 1]) == [1, 2]
+
+
+def test_sort_none_first_nan():
+    nan = hashable_val(float("nan"))
+    assert hashable_val(np.float64("nan")) is nan
+    assert sort_none_first({2.0, nan, None, 1.0}) == [None, nan, 1.0, 2.0]
 
 
 class Color(Enum):
