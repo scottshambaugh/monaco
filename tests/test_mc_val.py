@@ -31,6 +31,14 @@ def test_outval(outval_3_by_2):
     assert np.array_equal(outval_3_by_2.val, [[0, 0], [0, 0], [0, 0]])
 
 
+def test_outval_split_pandas():
+    pd = pytest.importorskip("pandas")
+    df = pd.DataFrame([[1, 2], [3, 4], [5, 6]], index=[10, 20, 30])
+    outvals = OutVal(name="df", ncase=0, val=df).split()
+    assert list(outvals) == ["df [0]", "df [1]", "df [2]"]
+    assert np.array_equal(outvals["df [1]"].val, [3, 4])
+
+
 def test_outval_split(outval_3_by_2):
     outvalssplit = outval_3_by_2.split()
     assert outvalssplit["test [0]"].val == [0, 0]

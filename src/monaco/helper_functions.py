@@ -232,6 +232,13 @@ def _fallback_sort_key(x: Any) -> tuple[str, str, Any]:
     return (t.__module__, t.__qualname__, val)
 
 
+def index_outer(x: Any, i: int) -> Any:
+    """Index by position along the outermost dimension, including for pandas objects."""
+    if hasattr(x, "iloc"):
+        return x.iloc[i]
+    return x[i]
+
+
 def length(x: Any) -> int | None:
     """
     Genericized length function that works on scalars (which have length 1).

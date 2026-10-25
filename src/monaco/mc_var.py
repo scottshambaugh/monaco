@@ -23,6 +23,7 @@ from monaco.helper_functions import (
     is_num,
     is_numeric,
     sort_none_first,
+    index_outer,
     get_seed,
 )
 
@@ -954,7 +955,7 @@ class OutVar(Var):
                 name = self.name + f" [{i}]"
                 vals = []
                 for j in range(self.ncases):
-                    vals.append(self.vals[j][i])
+                    vals.append(index_outer(self.vals[j], i))
                 vars[name] = OutVar(
                     name=name,
                     vals=vals,

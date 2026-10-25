@@ -404,6 +404,19 @@ def outvars_split():
     return outvars
 
 
+def test_outvar_split_pandas():
+    pd = pytest.importorskip("pandas")
+    df = pd.DataFrame([[1, 2], [3, 4], [5, 6]], index=[10, 20, 30])
+    outvar = OutVar("df", [df, df])
+    outvars = outvar.split()
+    assert list(outvars) == ["df [0]", "df [1]", "df [2]"]
+    assert np.array_equal(outvars["df [1]"].vals[0], [3, 4])
+
+    series = pd.Series([1, 2, 3], index=[10, 20, 30])
+    outvars = OutVar("s", [series, series]).split()
+    assert outvars["s [0]"].vals == [1, 1]
+
+
 def test_outvar_split(outvars_split):
     assert np.array_equal(outvars_split["test [0]"].nums, [[1, 1], [1, 1], [1, 1], [1, 1], [1, 1]])
     assert np.array_equal(outvars_split["test [1]"].nums, [[2, 2], [2, 2], [2, 2], [2, 2], [2, 2]])

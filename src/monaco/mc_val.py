@@ -12,6 +12,7 @@ from monaco.helper_functions import (
     flatten,
     hashable_val_vectorized,
     sort_none_first,
+    index_outer,
 )
 
 try:
@@ -378,10 +379,7 @@ class OutVal(Val):
         if len(self.shape) > 1:
             for i in range(self.shape[0]):
                 name = self.name + f" [{i}]"
-                if HAS_PANDAS and isinstance(self.val, (pd.Series, pd.Index)):
-                    val = self.val.iloc[i]
-                else:
-                    val = self.val[i]
+                val = index_outer(self.val, i)
                 vals[name] = OutVal(
                     name=name, ncase=self.ncase, val=val, valmap=self.valmap, ismedian=self.ismedian
                 )
