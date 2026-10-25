@@ -851,6 +851,18 @@ class Sim:
         self.caseseeds = list(generator.randint(0, 2**31 - 1, size=self.ncases))
         return self
 
+    def _recordCaseStatus(self, case: Case) -> None:
+        """Record which steps a case has completed."""
+        for done, completed in (
+            (case.haspreprocessed, self.casespreprocessed),
+            (case.hasrun, self.casesrun),
+            (case.haspostprocessed, self.casespostprocessed),
+        ):
+            if done:
+                completed.add(case.ncase)
+            else:
+                completed.discard(case.ncase)
+
     def restorePickledCases(self, cases: list[Case]) -> None:
         """Restore the pickled cases to their original state."""
         for case in cases:
@@ -972,12 +984,7 @@ class Sim:
 
         for case in fullyexecutedcases:
             self.cases[case.ncase] = case
-            if case.haspreprocessed:
-                self.casespreprocessed.add(case.ncase)
-            if case.hasrun:
-                self.casesrun.add(case.ncase)
-            if case.haspostprocessed:
-                self.casespostprocessed.add(case.ncase)
+            self._recordCaseStatus(case)
         return self
 
     def executeFullPipelineDask(
@@ -1077,12 +1084,7 @@ class Sim:
         for case in fullyexecutedcases:
             if any([case.haspreprocessed, case.hasrun, case.haspostprocessed]):
                 self.cases[case.ncase] = case
-            if case.haspreprocessed:
-                self.casespreprocessed.add(case.ncase)
-            if case.hasrun:
-                self.casesrun.add(case.ncase)
-            if case.haspostprocessed:
-                self.casespostprocessed.add(case.ncase)
+            self._recordCaseStatus(case)
         return self
 
     def preProcessCases(
@@ -1181,7 +1183,7 @@ class Sim:
         for case in preprocessedcases:
             if case.haspreprocessed:
                 self.cases[case.ncase] = case
-                self.casespreprocessed.add(case.ncase)
+            self._recordCaseStatus(case)
         return self
 
     def runCases(
@@ -1286,7 +1288,7 @@ class Sim:
         for case in runcases:
             if case.hasrun:
                 self.cases[case.ncase] = case
-                self.casesrun.add(case.ncase)
+            self._recordCaseStatus(case)
         return self
 
     def postProcessCases(
@@ -1389,7 +1391,7 @@ class Sim:
         for case in postprocessedcases:
             if case.haspostprocessed:
                 self.cases[case.ncase] = case
-                self.casespostprocessed.add(case.ncase)
+            self._recordCaseStatus(case)
         return self
 
     def genOutVars(

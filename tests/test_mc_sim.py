@@ -589,6 +589,40 @@ def test_sim_genoutvars_partial_postprocess(sim_base):
     assert sim.outvars["z"].valmap == {None: 0, "even": 1, "odd": 2}
 
 
+def test_sim_rerun_failed_subset(sim_base):
+    sim = sim_base
+    sim.runSim()
+    sim.fcns = SimulationFunctions.from_dict(
+        {
+            SimFunctions.PREPROCESS: sim_testing_preprocess,
+            SimFunctions.RUN: sim_testing_run_failure,
+            SimFunctions.POSTPROCESS: sim_testing_postprocess,
+        }
+    )
+    sim.debug = False
+    sim.runSim(cases=[0])
+    assert 0 in sim.casespreprocessed
+    assert 0 not in sim.casesrun
+    assert 0 not in sim.casespostprocessed
+
+
+def test_sim_resume_partial_postprocess(sim_base):
+    sim = sim_base
+    sim.keepsimrawoutput = True
+    fcns = sim_testing_fcns()
+    fcns[SimFunctions.POSTPROCESS] = partial_postprocess
+    sim.fcns = SimulationFunctions.from_dict(fcns)
+    sim.debug = False
+    sim.runSim()
+    assert 0 not in sim.casespostprocessed
+
+    sim.fcns = SimulationFunctions.from_dict(sim_testing_fcns())
+    sim.runIncompleteSim()
+    assert sim.casespostprocessed == set(range(sim.ncases))
+    sim.postProcessCases()
+    assert sim.casespostprocessed == set(range(sim.ncases))
+
+
 @pytest.mark.parametrize("sim_fixture", SIM_FIXTURES, indirect=True)
 def test_sim_run_failure(sim_fixture):
     if sim_fixture is None:

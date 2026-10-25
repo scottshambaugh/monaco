@@ -143,6 +143,11 @@ class Case:
     def vals(self, vals: dict[str, InVal | OutVal]) -> None:
         self._vals = vals
 
+    def clearOutVals(self) -> None:
+        """Remove all output values from this case."""
+        self.outvals = dict()
+        self._vals = None
+
     def resetInVals(self) -> None:
         """
         Clear any generated input values, so that they are regenerated from the

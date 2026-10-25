@@ -99,6 +99,7 @@ def postprocess_case(
     """
     if not case.hasrun:
         return case
+    case.clearOutVals()
     try:
         postprocfcn(case, *get_list(case.simrawoutput))
         case.haspostprocessed = True
