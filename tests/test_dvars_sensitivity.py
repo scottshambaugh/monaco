@@ -5,6 +5,7 @@ import monaco as mc
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import uniform
+from types import SimpleNamespace
 
 np.set_printoptions(suppress=True, precision=6)
 
@@ -102,6 +103,36 @@ def test_calc_sensitivities(ndraws=32, show=False):
     if ndraws == 32:
         expected_ratios = [0.426573, 0.573427, 0.0, 0.0, 0.0, 0.0]
         assert np.allclose(calculated_ratios, expected_ratios, atol=1e-5)
+
+
+def stub_sim(X, y):
+    invars = {f"x{j}": SimpleNamespace(pcts=list(X[:, j])) for j in range(X.shape[1])}
+    outvars = {"f": SimpleNamespace(nums=list(y))}
+    return SimpleNamespace(ncases=len(y), ninvars=X.shape[1], invars=invars, outvars=outvars)
+
+
+def test_calc_sensitivities_many_cases():
+    from monaco.dvars_sensitivity import calc_sensitivities
+
+    rng = np.random.default_rng(1)
+    X = rng.random((150, 4))
+    y = 10 * X[:, 0] + 3 * X[:, 1] + 0.3 * X[:, 2]
+    _, ratios = calc_sensitivities(stub_sim(X, y), "f")
+    assert np.allclose(ratios, [0.828599, 0.164339, 0.007062, 0.0], atol=1e-3)
+
+
+def test_calc_sensitivities_degenerate():
+    from monaco.dvars_sensitivity import calc_sensitivities
+
+    rng = np.random.default_rng(1)
+    X = rng.random((20, 2))
+    indices, ratios = calc_sensitivities(stub_sim(X, np.full(20, 3.0)), "f")
+    assert np.array_equal(indices, [0, 0])
+    assert np.array_equal(ratios, [0, 0])
+
+    X[:, 0] = X[:, 0] > 0.5
+    _, ratios = calc_sensitivities(stub_sim(X, X[:, 0] + 0.1 * X[:, 1]), "f")
+    assert ratios[0] > 0.99
 
 
 def test_calc_R_without_dists():

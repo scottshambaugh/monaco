@@ -9,9 +9,12 @@ if TYPE_CHECKING:
 
 import logging
 import numpy as np
+from scipy.linalg import cho_factor, cho_solve
 from scipy.optimize import minimize
 from warnings import warn
 from monaco.helper_functions import get_cases
+
+R_REGULARIZATION = 1e-8
 
 # numba is recommended for speed, as this will be very slow otherwise
 try:
@@ -101,9 +104,12 @@ def calc_sensitivities(
     if ncases != sim.ncases:
         warn(f"Only using {ncases} of {sim.ncases} cases for D-VARS sensitivity analysis")
 
+    variance = np.var(np.asarray(sim.outvars[outvarname].nums)[cases])
+    if variance == 0:
+        return np.zeros(sim.ninvars), np.zeros(sim.ninvars)
+
     phi_opt = calc_phi_opt(sim, outvarname, cases, tol, verbose)
 
-    variance = np.var(np.asarray(sim.outvars[outvarname].nums)[cases])
     sensitivities = np.zeros(sim.ninvars)
     for j in range(sim.ninvars):
         sensitivities[j] = calc_Gammaj(Hj, phi_opt[j], variance)
@@ -315,14 +321,15 @@ def calc_L(phi: np.ndarray, X: np.ndarray, Y: np.ndarray, D: np.ndarray | None =
     """
     m = len(Y)
     M = np.ones((m, 1))
-    R = calc_R(phi, X, D)
-    Rinv = np.linalg.inv(R)
-    Rdet = max(np.linalg.det(R), 1e-12)  # Protect for poor conditioning
+    R = calc_R(phi, X, D) + R_REGULARIZATION * np.eye(m)
+    R_cho = cho_factor(R)
+    logdetR = 2 * np.sum(np.log(np.diag(R_cho[0])))
 
-    mu = np.linalg.inv(M.T @ Rinv @ M) @ (M.T @ Rinv @ Y)
+    RinvM = cho_solve(R_cho, M)
+    mu = (RinvM.T @ Y) / (RinvM.T @ M)
 
     L_inner = Y - M * mu
-    L = np.log(Rdet) + m * np.log(L_inner.T @ Rinv @ L_inner)
+    L = logdetR + m * np.log(L_inner.T @ cho_solve(R_cho, L_inner))
     L = L[0][0]
     return L
 

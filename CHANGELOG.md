@@ -25,6 +25,7 @@
 ### Changed    
 * Fix crash generating valmaps for unsortable values like enums
 * Fix 1-sided order statistic tolerance intervals for `p < 0.5`
+* Fix D-VARS likelihood above ~35 cases, and crashes on constant outputs
 ### Removed    
 
 ## [0.22.0] - 2026-10-16
