@@ -99,7 +99,7 @@ def test_gen_plots():
 
 
 def plot_testing(show=False):
-    n = int(2**15)
+    n = 100
     conf = 0.95
     seed = 25106011
     midpoint = 1

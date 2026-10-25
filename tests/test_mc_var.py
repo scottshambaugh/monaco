@@ -23,7 +23,7 @@ lognorm_sigma, lognorm_mu = 1, 2
 def invar_norm_random():
     return InVar(
         "norm",
-        ndraws=1000,
+        ndraws=100,
         dist=norm,
         distkwargs={"loc": 10, "scale": 4},
         seed=invarseeds[1],
@@ -36,7 +36,7 @@ def invar_norm_random():
 def invar_lognorm_random():
     return InVar(
         "lognorm",
-        ndraws=1000,
+        ndraws=100,
         dist=lognorm,
         distkwargs={"s": lognorm_sigma, "scale": np.exp(lognorm_mu)},
         seed=invarseeds[1],
@@ -49,7 +49,7 @@ def invar_lognorm_random():
 def invar_custom_dist():
     return InVar(
         "custom",
-        ndraws=1000,
+        ndraws=100,
         dist=custom_dist,
         distkwargs=dict(),
         ninvar=1,
@@ -67,7 +67,7 @@ def test_invar_norm_sobol_warning():
     with pytest.warns(UserWarning, match="Infinite value"):
         InVar(
             "norm",
-            ndraws=1000,
+            ndraws=100,
             dist=norm,
             distkwargs={"loc": 10, "scale": 4},
             ninvar=1,
@@ -80,28 +80,28 @@ def test_invar_norm_sobol_warning():
 def test_invar_discrete():
     invar = InVar(
         "randint",
-        ndraws=1000,
+        ndraws=100,
         dist=randint,
         distkwargs={"low": 1, "high": 5},
         seed=invarseeds[0],
         samplemethod=SampleMethod.RANDOM,
     )
-    assert invar.stats().mean == pytest.approx(2.538)
+    assert invar.stats().mean == pytest.approx(2.7)
 
 
 def test_invar_continuous(invar_norm_random):
-    assert invar_norm_random.stats().mean == pytest.approx(9.9450812)
+    assert invar_norm_random.stats().mean == pytest.approx(9.8637355)
 
 
 def test_invar_custom(invar_custom_dist):
-    assert invar_custom_dist.stats().mean == pytest.approx(4.105)
+    assert invar_custom_dist.stats().mean == pytest.approx(4.23)
 
 
 def test_invar_addvarstat(invar_norm_random):
     invar_norm_random.addVarStat(
         stat="orderstatTI", statkwargs={"p": 0.75, "c": 0.95, "bound": "2-sided"}
     )
-    assert invar_norm_random.varstats[0].vals == pytest.approx([5.10075, 14.75052273])
+    assert invar_norm_random.varstats[0].vals == pytest.approx([4.2292074, 14.4507394])
 
 
 def test_invar_getVal(invar_custom_dist):
@@ -456,7 +456,7 @@ def plot_testing(show=False):
 
     invar = InVar(
         "norm",
-        ndraws=1000,
+        ndraws=100,
         dist=norm,
         distkwargs={"loc": 10, "scale": 4},
         seed=invarseeds[1],

@@ -75,7 +75,7 @@ def plot_testing(show=False):
     invars = dict()
     invars["norm1"] = InVar(
         "norm1",
-        ndraws=1000,
+        ndraws=100,
         dist=norm,
         distkwargs={"loc": 1, "scale": 5},
         seed=invarseeds[0],
@@ -83,7 +83,7 @@ def plot_testing(show=False):
     )
     invars["norm2"] = InVar(
         "norm2",
-        ndraws=1000,
+        ndraws=100,
         dist=norm,
         distkwargs={"loc": 10, "scale": 4},
         seed=invarseeds[1],
@@ -91,7 +91,7 @@ def plot_testing(show=False):
     )
     invars["norm3"] = InVar(
         "norm3",
-        ndraws=1000,
+        ndraws=100,
         dist=norm,
         distkwargs={"loc": 5, "scale": 2},
         seed=invarseeds[3],

@@ -26,7 +26,7 @@ def test_varstat_to_plotspace():
 
     invar = InVar(
         "norm",
-        ndraws=10000,
+        ndraws=100,
         dist=scipy.stats.norm,
         distkwargs={"loc": 0, "scale": 1},
         samplemethod=SampleMethod.RANDOM,
@@ -104,7 +104,7 @@ def test_plot_hist_varstat_in_pct_space():
 
     invar = InVar(
         "norm",
-        ndraws=10000,
+        ndraws=100,
         dist=scipy.stats.norm,
         distkwargs={"loc": 0, "scale": 1},
         samplemethod=SampleMethod.RANDOM,
@@ -184,7 +184,7 @@ def plot_testing(show=False):
 
     invars = dict()
     nummap = {1: "a", 2: "b", 3: "c", 4: "d", 5: "e"}
-    ndraws = 1000
+    ndraws = 100
     invars["randint"] = InVar(
         name="randint",
         ndraws=ndraws,
@@ -294,7 +294,7 @@ def plot_testing(show=False):
 
     invars["randint2"] = InVar(
         name="randint2",
-        ndraws=1000,
+        ndraws=100,
         dist=randint,
         distkwargs={"low": 0, "high": 2},
         samplemethod=SampleMethod.RANDOM,

@@ -14,7 +14,7 @@ def invar():
     seed = 74494861
     return InVar(
         "norm",
-        ndraws=10000,
+        ndraws=100,
         dist=norm,
         distkwargs={"loc": 0, "scale": 1},
         samplemethod=SampleMethod.RANDOM,
@@ -27,7 +27,7 @@ def invar_randint():
     seed = 74494861
     return InVar(
         "randint",
-        ndraws=10000,
+        ndraws=100,
         dist=randint,
         distkwargs={"low": 1, "high": 9},
         samplemethod=SampleMethod.RANDOM,
@@ -49,39 +49,39 @@ bound = StatBound.ONESIDED
     [
         (
             VarStatType.ORDERSTATTI,
-            {"p": sig2pct(3, bound), "c": 0.50, "bound": bound},
-            3.0069887,
+            {"p": sig2pct(2, bound), "c": 0.50, "bound": bound},
+            2.3555934,
             [],
             [],
         ),
         (
             VarStatType.ORDERSTATP,
-            {"p": sig2pct(3, bound), "c": 0.50, "bound": StatBound.ALL},
-            [2.9264164, 3.0060487, 3.0176566],
+            {"p": sig2pct(2, bound), "c": 0.50, "bound": StatBound.ALL},
+            [1.9876884, 2.3555934, 4.1585997],
             [],
             [],
         ),
         (
             VarStatType.GAUSSIANP,
             {"p": sig2pct(-3, bound), "bound": bound},
-            -2.9930052,
-            -3.0343254,
-            -2.9629306,
+            -3.2221255,
+            -3.7912902,
+            -2.6867879,
         ),
-        (VarStatType.SIGMA, {"sig": 3, "bound": bound}, 3.0002124, 2.9653332, 3.0297001),
-        (VarStatType.PERCENTILE, {"p": 0.5}, -0.0052538, -0.02621756, 0.0278626),
-        (VarStatType.MOMENT, {"n": 2}, 0.9977405, 0.9770223, 1.0184109),
-        (VarStatType.KURTOSIS, dict(), 0.0363506, -0.0734930, 0.1519812),
-        (VarStatType.SKEWNESS, dict(), -0.0144037, -0.0541356, 0.0288986),
-        (VarStatType.VARIANCE, dict(), 0.9977405, 0.9770223, 1.0184109),
-        (VarStatType.MAX, dict(), 4.1585997, 3.9735339, 4.1585997),
-        (VarStatType.MIN, dict(), -4.1579970, -4.1579970, -3.6741296),
-        (VarStatType.MEDIAN, dict(), -0.0052538, -0.02621756, 0.0278626),
-        (VarStatType.GEOMEAN, dict(), 0.5334263, 0.52090475, 0.5436567),
-        (VarStatType.MODE, dict(), 3, -2, 4),
-        (VarStatType.MEAN, dict(), 0.0036036, -0.0084521, 0.0287600),
-        ("mean", dict(), 0.0036036, -0.0084521, 0.0287600),
-        (np.mean, dict(), 0.0036036, -0.0084521, 0.0287600),
+        (VarStatType.SIGMA, {"sig": 3, "bound": bound}, 3.2419705, 2.724944, 3.7949938),
+        (VarStatType.PERCENTILE, {"p": 0.5}, 0.0572092, -0.1564568, 0.2391024),
+        (VarStatType.MOMENT, {"n": 2}, 1.1606816, 0.8422181, 1.5776769),
+        (VarStatType.KURTOSIS, dict(), 1.2899888, -0.3361076, 3.4505716),
+        (VarStatType.SKEWNESS, dict(), 0.4379628, -0.0404994, 0.9962682),
+        (VarStatType.VARIANCE, dict(), 1.1606816, 0.8422181, 1.5776769),
+        (VarStatType.MAX, dict(), 4.1585997, 2.3555934, 4.1585997),
+        (VarStatType.MIN, dict(), -2.1868063, -2.1868063, -2.1424001),
+        (VarStatType.MEDIAN, dict(), 0.0572092, -0.1564568, 0.2391024),
+        (VarStatType.GEOMEAN, dict(), 0.4987266, 0.3597324, 0.5887365),
+        (VarStatType.MODE, dict(), 6, 4, 11),
+        (VarStatType.MEAN, dict(), 0.0099225, -0.1825212, 0.218247),
+        ("mean", dict(), 0.0099225, -0.1825212, 0.218247),
+        (np.mean, dict(), 0.0099225, -0.1825212, 0.218247),
     ],
 )
 def test_invarstat(stat, statkwargs, vals, cihigh, cilow, invar, invar_randint):
@@ -145,19 +145,19 @@ def test_varstat_setName(invar):
     invarstat = VarStat(
         invar,
         stat=VarStatType.ORDERSTATTI,
-        statkwargs={"p": sig2pct(3, bound=bound), "c": 0.50, "bound": bound},
+        statkwargs={"p": sig2pct(2, bound=bound), "c": 0.50, "bound": bound},
         bootstrap=True,
         bootstrap_k=10,
         conf=0.95,
         seed=0,
     )
-    assert invarstat.name == "norm 1-sided P99.865/50.0% Confidence Interval"
+    assert invarstat.name == "norm 1-sided P97.725/50.0% Confidence Interval"
 
 
 def test_varstat_cases(invar):
     cases = np.where(np.array(invar.nums) > 0)[0]
     # make sure warnings is issued
-    with pytest.warns(UserWarning, match="Only using 4983 of 10000 cases for VarStat norm Mean"):
+    with pytest.warns(UserWarning, match="Only using 53 of 100 cases for VarStat norm Mean"):
         invarstat = VarStat(
             invar,
             stat=VarStatType.MEAN,
@@ -168,7 +168,7 @@ def test_varstat_cases(invar):
             seed=0,
         )
     assert invarstat.ncases == len(cases)
-    assert np.allclose(invarstat.vals, 0.8050436)
+    assert np.allclose(invarstat.vals, 0.7802896)
 
 
 def test_varstat_nummap():

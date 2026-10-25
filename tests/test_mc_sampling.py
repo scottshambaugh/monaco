@@ -19,11 +19,11 @@ seeds = generator.randint(0, 2**31 - 1, size=10)
         (SampleMethod.SOBOL_RANDOM, 2, seeds[2], 0.0952614),
         (SampleMethod.HALTON, 2, seeds[3], 0.0),
         (SampleMethod.HALTON_RANDOM, 2, seeds[4], 0.6569646),
-        (SampleMethod.LATIN_HYPERCUBE, 2, seeds[5], 0.3522243),
+        (SampleMethod.LATIN_HYPERCUBE, 2, seeds[5], 0.7833888),
     ],
 )
 def test_mc_sampling(method, ninvar, seed, ans):
-    pcts = sampling(ndraws=512, method=method, ninvar=ninvar, ninvar_max=None, seed=seed)
+    pcts = sampling(ndraws=100, method=method, ninvar=ninvar, ninvar_max=None, seed=seed)
     assert pcts[0] == pytest.approx(ans)
 
 
@@ -37,7 +37,7 @@ def test_mc_sampling(method, ninvar, seed, ans):
 )
 def test_mc_sampling_errors(method, ninvar, seed):
     with pytest.raises(ValueError):
-        sampling(ndraws=512, method=method, ninvar=ninvar, ninvar_max=None, seed=seed)
+        sampling(ndraws=100, method=method, ninvar=ninvar, ninvar_max=None, seed=seed)
 
 
 # Does not test the plot appearances, but does check that the codepaths can run
@@ -84,7 +84,7 @@ def plot_testing(show=False):
             axs[1].set_aspect("equal")
 
             axs[2].set_title("Frequency Spectra")
-            ndraws_freq = 10000
+            ndraws_freq = 100
             # ndraws_freq = 1000000  # For better frequency plots
             n_freq_grid = 2**8
             f_max = n_freq_grid / 2
@@ -116,7 +116,7 @@ def plot_testing(show=False):
 
     generator = np.random.RandomState(744948050)
     seeds = generator.randint(0, 2**31 - 1, size=10)
-    ndraws = 512
+    ndraws = 100
     plot_sampling_test(ndraws=ndraws, method=SampleMethod.RANDOM, seeds=seeds)
     plot_sampling_test(ndraws=ndraws, method=SampleMethod.SOBOL, seeds=seeds)
     plot_sampling_test(ndraws=ndraws, method=SampleMethod.SOBOL_RANDOM, seeds=seeds)

@@ -102,7 +102,8 @@ def sim_base():
         seed=seed,
         debug=True,
         singlethreaded=True,
-        daskkwargs=dict(),
+        ncores=2,
+        daskkwargs={"n_workers": 2, "threads_per_worker": 1},
         savesimdata=False,
         savecasedata=False,
     )
