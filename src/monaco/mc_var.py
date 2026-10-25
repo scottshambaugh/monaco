@@ -16,6 +16,7 @@ from monaco.mc_sampling import sampling
 from monaco.mc_plot import plot, plot_sensitivities
 from monaco.helper_functions import (
     empty_list,
+    none_to_nan,
     hashable_val,
     flatten,
     get_list,
@@ -830,7 +831,9 @@ class OutVar(Var):
                 else:
                     uniquevals.update(set(flatten([val])))
 
-            self.valmap = {val: i for i, val in enumerate(sort_none_first(uniquevals))}
+            # Numbers with some None values are left numeric, with None becoming NaN
+            if not all(x is None or is_num(x) for x in uniquevals):
+                self.valmap = {val: i for i, val in enumerate(sort_none_first(uniquevals))}
 
     def genNumMap(self) -> None:
         """
@@ -849,7 +852,7 @@ class OutVar(Var):
         if self.valmap is None:
             # Fast path: no mapping needed, skip OutVal creation entirely
             for i in range(self.ncases):
-                self.nums.append(np.asarray(self.vals[i]))
+                self.nums.append(np.asarray(none_to_nan(self.vals[i])))
         else:
             # Vectorized path: pre-compute lookup arrays for searchsorted
             try:

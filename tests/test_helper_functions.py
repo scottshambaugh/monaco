@@ -10,6 +10,7 @@ from monaco.helper_functions import (
     hash_str_repeatable,
     is_num,
     is_numeric,
+    none_to_nan,
     length,
     get_list,
     slice_by_index,
@@ -244,3 +245,11 @@ def test_sort_none_first_unorderable():
     assert sort_none_first([Color.GREEN, "a", 1]) == [1, "a", Color.GREEN]
     assert sort_none_first([Perm.R | Perm.W, Perm.R, 1]) == [1, Perm.R, Perm.R | Perm.W]
     assert sort_none_first(["it's", "b", 1]) == [1, "b", "it's"]
+
+
+def test_none_to_nan():
+    assert np.isnan(none_to_nan(None))
+    assert np.array_equal(none_to_nan([1, None]), [1, np.nan], equal_nan=True)
+    assert none_to_nan(2) == 2
+    assert none_to_nan("a") == "a"
+    assert np.array_equal(none_to_nan(np.array(["a", None], dtype=object)), ["a", None])

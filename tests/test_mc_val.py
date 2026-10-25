@@ -93,6 +93,15 @@ def test_outval_valmap_none_and_str():
     assert outval.valmap == {None: 0, "a": 1, "b": 2}
 
 
+def test_outval_none_and_num():
+    outval = OutVal(name="test", ncase=1, val=None)
+    assert outval.valmap is None
+    assert np.isnan(outval.num)
+    outval = OutVal(name="test", ncase=1, val=[1, None])
+    assert outval.valmap is None
+    assert np.array_equal(outval.num, [1, np.nan], equal_nan=True)
+
+
 def test_outval_valmap_missing():
     with pytest.raises(KeyError, match="not in valmap"):
         OutVal(name="test", ncase=1, val=["a", "c"], valmap={"a": 0, "b": 1})

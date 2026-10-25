@@ -383,9 +383,13 @@ def test_outvar_valmap_unorderable():
     assert np.array_equal(outvar.nums[0], [2, 3])
     assert np.array_equal(outvar.nums[1], [1, 0])
 
-    # Mixed types
     outvar = OutVar("test", [1, 2, None, 4], firstcaseismedian=True)
-    assert outvar.valmap == {None: 0, 1: 1, 2: 2, 4: 3}
+    assert outvar.valmap is None
+    assert np.array_equal(outvar.nums, [1, 2, np.nan, 4], equal_nan=True)
+
+    outvar = OutVar("test", [np.array([1.5, 2.5]), [None, 3], None])
+    assert outvar.valmap is None
+    assert np.array_equal(outvar.nums[1], [np.nan, 3], equal_nan=True)
 
 
 @pytest.fixture

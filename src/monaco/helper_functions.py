@@ -133,6 +133,19 @@ def hashable_val(val: Any) -> Any:
         return str(val)
 
 
+def none_to_nan(val: Any) -> Any:
+    """Convert None to NaN in otherwise numeric values."""
+    if val is None:
+        return np.nan
+    arr = np.asanyarray(val)
+    if arr.dtype.kind == "O":
+        try:
+            return arr.astype(float)
+        except (TypeError, ValueError):
+            pass
+    return val
+
+
 def is_num(val: Any) -> bool:
     """
     Type checking function to see if the input is a number.

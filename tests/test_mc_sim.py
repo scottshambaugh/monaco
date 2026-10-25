@@ -367,6 +367,22 @@ def test_sim_multiprocessing_pool_refreshes_vars():
     sim._cleanup()
 
 
+def test_sim_outvars_none_and_num(sim_base):
+    sim = sim_base
+
+    def postprocess(case, casenum_out):
+        case.addOutVal("y", None if case.ncase == 1 else float(case.ncase))
+
+    fcns = sim_testing_fcns()
+    fcns[SimFunctions.POSTPROCESS] = postprocess
+    sim.fcns = SimulationFunctions.from_dict(fcns)
+    sim.runSim()
+    outvar = sim.outvars["y"]
+    assert outvar.valmap is None
+    assert np.isnan(outvar.nums[1])
+    assert outvar.nums[2] == 2.0
+
+
 class Parity(Enum):
     EVEN = 0
     ODD = 1
