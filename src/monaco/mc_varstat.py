@@ -508,7 +508,8 @@ class VarStat:
             + "Confidence Interval"
         )
 
-        self.k = order_stat_TI_k(n=self.ncases, p=self.p, c=self.c, bound=self.bound)
+        p = 1 - self.p if self.side == VarStatSide.LOW else self.p
+        self.k = order_stat_TI_k(n=self.ncases, p=p, c=self.c, bound=self.bound)
 
         if self.var.isscalar:
             sortednums = np.sort(np.asarray([self.var.nums[case] for case in self.cases]))

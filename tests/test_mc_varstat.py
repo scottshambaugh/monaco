@@ -109,6 +109,16 @@ def test_invarstat(stat, statkwargs, vals, cihigh, cilow, invar, invar_randint):
     assert np.allclose(invarstat.confidence_interval_high_vals, cihigh)
 
 
+def test_invarstat_orderstatti_onesided_low(invar):
+    statkwargs = {"c": 0.95, "bound": StatBound.ONESIDED}
+    low = VarStat(invar, stat=VarStatType.ORDERSTATTI, statkwargs={"p": 0.05, **statkwargs})
+    high = VarStat(invar, stat=VarStatType.ORDERSTATTI, statkwargs={"p": 0.95, **statkwargs})
+    sortednums = np.sort(invar.nums)
+    assert low.k == high.k
+    assert low.vals == sortednums[low.k - 1]
+    assert high.vals == sortednums[-high.k]
+
+
 def test_varstat_setName(invar):
     bound = StatBound.ONESIDED
     invarstat = VarStat(
