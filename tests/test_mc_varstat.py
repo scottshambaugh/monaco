@@ -119,6 +119,27 @@ def test_invarstat_orderstatti_onesided_low(invar):
     assert high.vals == sortednums[-high.k]
 
 
+@pytest.mark.parametrize(
+    "stat, statkwargs",
+    [
+        (VarStatType.ORDERSTATTI, {"p": 0.9, "c": 0.9, "bound": StatBound.ONESIDED}),
+        (VarStatType.ORDERSTATTI, {"p": 0.1, "c": 0.9, "bound": StatBound.ONESIDED}),
+        (VarStatType.ORDERSTATTI, {"p": 0.8, "c": 0.5, "bound": StatBound.ALL}),
+        (VarStatType.ORDERSTATP, {"p": 0.5, "c": 0.9, "bound": StatBound.ALL}),
+    ],
+)
+def test_outvarstat_orderstat_ragged(stat, statkwargs):
+    rng = np.random.default_rng(0)
+    vals = [rng.normal(size=1 if i < 40 else 2) for i in range(100)]
+    vals[0] = rng.normal(size=3)
+    outvarstat = VarStat(OutVar("ragged", vals=vals), stat=stat, statkwargs=statkwargs)
+    for i in range(2):
+        pointvals = [v[i] for v in vals if len(v) > i]
+        pointstat = VarStat(OutVar("point", vals=pointvals), stat=stat, statkwargs=statkwargs)
+        assert np.allclose(outvarstat.nums[i], pointstat.nums)
+    assert np.all(np.isnan(outvarstat.nums[2]))
+
+
 def test_varstat_setName(invar):
     bound = StatBound.ONESIDED
     invarstat = VarStat(

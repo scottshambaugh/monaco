@@ -27,6 +27,7 @@
 * Fix 1-sided order statistic tolerance intervals for `p < 0.5`
 * Fix D-VARS likelihood above ~35 cases, and crashes on constant outputs
 * Fix multiprocessing workers using stale vars after changing and rerunning a sim
+* Fix order statistic varstats on ragged 1-D outvars
 ### Removed    
 
 ## [0.22.0] - 2026-10-16

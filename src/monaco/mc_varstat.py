@@ -570,27 +570,27 @@ class VarStat:
                     for i in range(npoints)
                 )
             for i, sortednums in sortednums_iter:
+                # Ragged points can have fewer samples, so need their own k
+                try:
+                    k = order_stat_TI_k(n=len(sortednums), p=p, c=self.c, bound=self.bound)
+                except ValueError:
+                    self.nums[i] = np.nan
+                    continue
                 if self.side == VarStatSide.LOW:
                     sortednums = sortednums[::-1]
                 if self.side in (VarStatSide.HIGH, VarStatSide.LOW):
-                    self.nums[i] = sortednums[-self.k]
+                    self.nums[i] = sortednums[-k]
                 elif self.side == VarStatSide.BOTH:
-                    self.nums[i, :] = np.transpose([sortednums[self.k - 1], sortednums[-self.k]])
+                    self.nums[i, :] = np.transpose([sortednums[k - 1], sortednums[-k]])
                 elif self.side == VarStatSide.ALL:
                     self.nums[i, :] = np.transpose(
                         [
-                            sortednums[self.k - 1],
+                            sortednums[k - 1],
                             sortednums[(len(sortednums) - 1) // 2],
-                            sortednums[-self.k],
+                            sortednums[-k],
                         ]
                     )
-            if self.var.nummap is not None:
-                self.checkInNummap(self.nums)
-                self.vals = np.asarray([self.var.nummap[x] for x in self.nums.flatten()]).reshape(
-                    self.nums.shape
-                )
-            else:
-                self.vals = copy(self.nums)
+            self.genMappedVals()
 
         else:
             # Suppress warning since this will become valid when Var is split
@@ -687,9 +687,16 @@ class VarStat:
                 self.nums = np.empty((npoints, 3))
             for i, sortednums in sortednums_iter:
                 n = len(sortednums)
-                ilo = min(max(iPl - self.k, 0), n - 1)
+                # Ragged points can have fewer samples, so need their own k and iP
+                try:
+                    k = order_stat_P_k(n=n, P=self.p, c=self.c, bound=bound)
+                except ValueError:
+                    self.nums[i] = np.nan
+                    continue
+                iPl, iP, iPu = (x - 1 for x in get_iP(n=n, P=self.p))
+                ilo = min(max(iPl - k, 0), n - 1)
                 imid = min(max(iP, 0), n - 1)
-                ihi = min(max(iPu + self.k, 0), n - 1)
+                ihi = min(max(iPu + k, 0), n - 1)
                 if self.bound == StatBound.ONESIDED_LOWER:
                     self.nums[i] = sortednums[ilo]
                 elif self.bound == StatBound.ONESIDED_UPPER:
@@ -702,13 +709,7 @@ class VarStat:
                     self.nums[i, :] = np.transpose(
                         [sortednums[ilo], sortednums[imid], sortednums[ihi]]
                     )
-            if self.var.nummap is not None:
-                self.checkInNummap(self.nums)
-                self.vals = np.asarray([self.var.nummap[x] for x in self.nums.flatten()]).reshape(
-                    self.nums.shape
-                )
-            else:
-                self.vals = copy(self.nums)
+            self.genMappedVals()
 
         else:
             # Suppress warning since this will become valid when Var is split
@@ -729,6 +730,17 @@ class VarStat:
             self.bound = StatBound.TWOSIDED
         else:
             self.bound = self.statkwargs["bound"]
+
+    def genMappedVals(self) -> None:
+        """Map 1-D nums to vals, leaving NaN points as None."""
+        if self.var.nummap is None:
+            self.vals = copy(self.nums)
+            return
+        nums = self.nums.flatten()
+        notnan = nums[~np.isnan(nums)]
+        self.checkInNummap(notnan)
+        vals = [None if np.isnan(x) else self.var.nummap[x] for x in nums]
+        self.vals = np.asarray(vals).reshape(self.nums.shape)
 
     def checkInNummap(self, nums: Any) -> None:
         """Check if the numbers are in the nummap."""
