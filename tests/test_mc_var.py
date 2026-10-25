@@ -166,6 +166,13 @@ def test_invar_unseeded_repeatable():
     assert len(outputs) == 1
 
 
+def test_invar_custom_vals_unhashable():
+    invar = InVar("custom", ndraws=3, vals=[{"a": 1}, {"b": 2}, {"a": 1}], samplemethod=None)
+    assert invar.getVal(0).val == {"a": 1}
+    assert invar.getVal(1).val == {"b": 2}
+    assert invar.nums == [0, 1, 0]
+
+
 class Mode(Enum):
     LOW = 1
     HIGH = 2

@@ -38,6 +38,7 @@
 * Fix rerunning failed cases and rerunning postprocessing
 * Fix `order_stat_TI_n` crashing for 2-sided intervals with large `k` or small `p`
 * Fix NaN and NaT values in valmaps
+* Fix unhashable custom invar values being passed to cases as strings
 ### Removed    
 
 ## [0.22.0] - 2026-10-16
