@@ -25,6 +25,8 @@ Hahn, Gerald J., and Meeker, William Q. "Statistical Intervals: A Guide for
 # Order Statistic Tolerance Interval Functions
 def test_order_stat_TI_n():
     assert order_stat_TI_n(k=2, p=0.99, c=0.90, bound=StatBound.TWOSIDED) == 667
+    assert order_stat_TI_n(k=5, p=0.01, c=0.5, bound=StatBound.TWOSIDED) == 10
+    assert order_stat_TI_n(k=50, p=0.01, c=0.5, bound=StatBound.TWOSIDED) == 101
 
 
 def test_order_stat_TI_p():

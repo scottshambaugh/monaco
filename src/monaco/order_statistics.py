@@ -38,7 +38,7 @@ def order_stat_TI_n(
 
     '2-sided' gives the result for the measurement lying between the k'th lowest
     and k'th highest measurements. If we run the above function with
-    bound='2-sided', then n = 668, and we can say that the true measurement lies
+    bound='2-sided', then n = 667, and we can say that the true measurement lies
     between sorted(x)[1] and sorted(x)[-2] with P99/90.
 
     See chapter 5 of Reference [1]_ for statistical background.
@@ -95,7 +95,7 @@ def order_stat_TI_n(
             return int(n[1])
         else:
             u = ntemp + 1 - k
-            if EPTI(ntemp, l, u, p) < c:
+            if u < l or EPTI(ntemp, l, u, p) < c:
                 n[0] = ntemp
             else:
                 n[1] = ntemp
