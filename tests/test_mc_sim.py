@@ -528,6 +528,27 @@ def test_sim_preprocess_failure(sim_fixture):
     assert len(sim.casespostprocessed) == sim.ncases - 1
 
 
+def sim_testing_run_defaults(casenum_in=0):
+    return casenum_in
+
+
+def test_sim_preprocess_failure_skips_later_stages(sim_base):
+    sim = sim_base
+    fcns = {
+        SimFunctions.PREPROCESS: sim_testing_preprocess_failure,
+        SimFunctions.RUN: sim_testing_run_defaults,
+        SimFunctions.POSTPROCESS: sim_testing_postprocess,
+    }
+    sim.fcns = SimulationFunctions.from_dict(fcns)
+    sim.debug = False
+    sim.drawVars()
+    sim.genCases()
+    sim.executeAllFcns()
+    assert 0 not in sim.casesrun
+    assert 0 not in sim.casespostprocessed
+    assert sim.cases[0].outvals == {}
+
+
 @pytest.mark.parametrize("sim_fixture", SIM_FIXTURES, indirect=True)
 def test_sim_run_failure(sim_fixture):
     if sim_fixture is None:

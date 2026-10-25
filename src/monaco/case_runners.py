@@ -58,6 +58,8 @@ def run_case(
     case : monaco.mc_case.Case
         The same case, run.
     """
+    if not case.haspreprocessed:
+        return case
     try:
         case.starttime = datetime.now()
         case.simrawoutput = runfcn(*get_list(case.siminput))
@@ -95,6 +97,8 @@ def postprocess_case(
     case : monaco.mc_case.Case
         The same case, postprocessed.
     """
+    if not case.hasrun:
+        return case
     try:
         postprocfcn(case, *get_list(case.simrawoutput))
         case.haspostprocessed = True
@@ -147,16 +151,7 @@ def execute_full_case(
     case : monaco.mc_case.Case
         The same case, executed.
     """
-    # Preprocess
     case = preprocess_case(preprocfcn, case, debug, verbose)
-    if not case.haspreprocessed:
-        return case
-
-    # Run
     case = run_case(runfcn, case, debug, verbose, runsimid)
-    if not case.hasrun:
-        return case
-
-    # Postprocess
     case = postprocess_case(postprocfcn, case, debug, verbose)
     return case

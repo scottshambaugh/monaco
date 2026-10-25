@@ -29,6 +29,7 @@
 * Fix multiprocessing workers using stale vars after changing and rerunning a sim
 * Fix order statistic varstats on ragged 1-D outvars
 * Numeric outvals mixed with `None` now stay numeric, with `None` as NaN
+* Fix running and postprocessing cases whose earlier step failed
 ### Removed    
 
 ## [0.22.0] - 2026-10-16
