@@ -142,6 +142,7 @@ def plot(
             fig, ax = plot_2d_line(
                 varx=var0,
                 vary=var1,
+                cases=cases,
                 highlight_cases=highlight_cases,
                 invar_space=invar_space,
                 ax=ax,

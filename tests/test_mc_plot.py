@@ -66,6 +66,20 @@ def test_plot_2d_scatter_cov_ellipse_cases_and_space():
     plt.close("all")
 
 
+def test_plot_1d_var_cases():
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from monaco.mc_var import OutVar
+    from monaco.mc_plot import plot
+
+    outvar = OutVar("line", vals=[np.arange(3) * i for i in range(6)])
+    _, ax = plot(outvar, cases=[2])
+    lines = ax.get_lines()
+    plt.close("all")
+    assert len(lines) == 1
+    assert np.array_equal(lines[0].get_ydata(), [0, 2, 4])
+
+
 def test_plot_hist_varstat_in_pct_space():
     import matplotlib.pyplot as plt
     import scipy.stats
