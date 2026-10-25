@@ -26,27 +26,23 @@
 ### Removed    
 
 ## [0.23.0] - 2026-10-25
-### Added    
 ### Changed    
-* Fix crash generating valmaps for unsortable values like enums
+* Faster tests
+* Fix crash generating valmaps for unsortable values
 * Fix 1-sided order statistic tolerance intervals for `p < 0.5`
 * Fix D-VARS likelihood above ~35 cases, and crashes on constant outputs
 * Fix multiprocessing workers using stale vars after changing and rerunning a sim
 * Fix order statistic varstats on ragged 1-D outvars
-* Numeric outvals mixed with `None` now stay numeric, with `None` as NaN
+* Numeric outvals mixed with `None` now cast None to NaN so that they stay numeric
 * Fix running and postprocessing cases whose earlier step failed
 * Fix splitting pandas outvals by label instead of position
 * Fix scatter plot covariance ellipses ignoring `cases` and `invar_space`
 * Fix `plot()` ignoring `cases` for a single 1-D variable
 * Fix outvars being dropped or crashing when cases fail, which now get `None` outvals
-* Saving and exporting files is now atomic, so a failed write no longer clobbers an existing file
-* Fix rerunning failed cases and rerunning postprocessing
+* Saving and exporting files is now atomic for safer writing of files
 * Fix `order_stat_TI_n` crashing for 2-sided intervals with large `k` or small `p`
-* Fix NaN and NaT values in valmaps
+* Fix NaN and NaT values not resolving to the same value in valmaps
 * Fix unhashable custom invar values being passed to cases as strings
-* Fix 2.5-D line plots crashing when 1-D cases have different lengths
-* Fix unclear error from 2-sided `order_stat_P_k` when `n` is too small
-### Removed    
 
 ## [0.22.0] - 2026-10-16
 ### Added    
