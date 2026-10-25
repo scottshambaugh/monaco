@@ -31,6 +31,7 @@
 * Numeric outvals mixed with `None` now stay numeric, with `None` as NaN
 * Fix running and postprocessing cases whose earlier step failed
 * Fix splitting pandas outvals by label instead of position
+* Fix scatter plot covariance ellipses ignoring `cases` and `invar_space`
 ### Removed    
 
 ## [0.22.0] - 2026-10-16

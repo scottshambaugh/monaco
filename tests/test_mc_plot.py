@@ -42,6 +42,30 @@ def test_varstat_to_plotspace():
     assert varstat_to_plotspace(outvar, 2.0, InVarSpace.PCTS) == 2.0
 
 
+def test_plot_2d_scatter_cov_ellipse_cases_and_space():
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import scipy.stats
+    from matplotlib.patches import Ellipse
+    from monaco.mc_var import InVar
+    from monaco.mc_enums import SampleMethod
+
+    kwargs = dict(ndraws=100, dist=scipy.stats.norm, samplemethod=SampleMethod.RANDOM)
+    x = InVar("x", distkwargs={"loc": 100, "scale": 10}, seed=1, **kwargs)
+    y = InVar("y", distkwargs={"loc": 50, "scale": 10}, seed=2, **kwargs)
+    cases = list(range(10))
+    _, ax = plot_2d_scatter(x, y, cases=cases, cov_plot=True, invar_space=InVarSpace.PCTS)
+    (ellipse,) = [p for p in ax.patches if isinstance(p, Ellipse)]
+    plt.close("all")
+    assert ellipse.center == pytest.approx(
+        (np.mean(np.asarray(x.pcts)[cases]), np.mean(np.asarray(y.pcts)[cases]))
+    )
+
+    _, ax = plot_2d_scatter(x, y, cases=[], cov_plot=True)
+    assert not ax.patches
+    plt.close("all")
+
+
 def test_plot_hist_varstat_in_pct_space():
     import matplotlib.pyplot as plt
     import scipy.stats

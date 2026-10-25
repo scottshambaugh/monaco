@@ -650,12 +650,15 @@ def plot_2d_scatter(
             **plotkwargs,
         )
 
-    if cov_plot:
+    if cov_plot and (cases_list or highlight_cases_list):
         if cov_p is None:
             cov_p = conf_ellipsoid_sig2pct(3.0, df=2)  # 3-sigma for 2D gaussian
         cov_p_list = get_list(cov_p)
+        cov_cases = sorted(set(cases_list) | set(highlight_cases_list))
         for p in cov_p_list:
-            plot_2d_cov_ellipse(ax=ax, varx=varx, vary=vary, p=p)
+            plot_2d_cov_ellipse(
+                ax=ax, varx=varx, vary=vary, p=p, cases=cov_cases, invar_space=invar_space[:2]
+            )
 
     if rug_plot:
         all_cases = set(cases_list) | set(highlight_cases_list)
@@ -1429,6 +1432,7 @@ def plot_2d_cov_ellipse(
     vary: InVar | OutVar,
     p: float,
     cases: None | int | Iterable[int] = None,
+    invar_space: InVarSpace | Iterable[InVarSpace] = InVarSpace.NUMS,
 ) -> None:
     """
     Add a covariance ellipse to a 2D scatter plot.
@@ -1446,14 +1450,21 @@ def plot_2d_cov_ellipse(
     cases : None | int | Iterable[int], default: None
         The cases to use for the covariance ellipse. If None, all cases will
         be used.
+    invar_space : monaco.InVarSpace | Iterable[InVarSpace], default: 'nums'
+        The space to plot invars in, either 'nums' or 'pcts'. If an iterable,
+        specifies this individually for each of varx and vary.
     """
     if ax is None:
         return
 
     cases = get_cases(ncases=varx.ncases, cases=cases)
+    invar_space = manage_invar_space(invar_space=invar_space, nvars=2)
 
     # See https://www.visiondummy.com/2014/04/draw-error-ellipse-representing-covariance-matrix/
-    allnums = [np.asarray(varx.nums)[cases], np.asarray(vary.nums)[cases]]
+    allnums = [
+        np.asarray(get_plot_points(varx, invar_space[0]))[cases],
+        np.asarray(get_plot_points(vary, invar_space[1]))[cases],
+    ]
     center = [np.mean(allnums[0]), np.mean(allnums[1])]
 
     covs = np.cov(np.asarray(allnums))
