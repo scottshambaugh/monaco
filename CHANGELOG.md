@@ -23,6 +23,11 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+### Removed    
+
+## [0.23.0] - 2026-10-25
+### Added    
+### Changed    
 * Fix crash generating valmaps for unsortable values like enums
 * Fix 1-sided order statistic tolerance intervals for `p < 0.5`
 * Fix D-VARS likelihood above ~35 cases, and crashes on constant outputs
@@ -40,6 +45,7 @@
 * Fix NaN and NaT values in valmaps
 * Fix unhashable custom invar values being passed to cases as strings
 * Fix 2.5-D line plots crashing when 1-D cases have different lengths
+* Fix unclear error from 2-sided `order_stat_P_k` when `n` is too small
 ### Removed    
 
 ## [0.22.0] - 2026-10-16
