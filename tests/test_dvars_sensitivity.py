@@ -101,7 +101,7 @@ def test_calc_sensitivities(ndraws=32, show=False):
     calculated_ratios = list(sim.outvars["f"].sensitivity_ratios.values())
 
     if ndraws == 32:
-        expected_ratios = [0.426573, 0.573427, 0.0, 0.0, 0.0, 0.0]
+        expected_ratios = [0.463434, 0.522018, 0.014548, 0.0, 0.0, 0.0]
         assert np.allclose(calculated_ratios, expected_ratios, atol=1e-5)
 
 
@@ -154,6 +154,35 @@ def test_calc_dists_too_large():
     from monaco.dvars_sensitivity import calc_dists
 
     assert calc_dists(np.zeros((6000, 1))) is None
+
+
+@pytest.mark.parametrize("use_dists", [True, False])
+def test_calc_L_grad_matches_finite_differences(use_dists):
+    from scipy.optimize import approx_fprime
+    from monaco.dvars_sensitivity import calc_L, calc_L_grad, calc_dists
+
+    rng = np.random.default_rng(0)
+    X = rng.random((60, 4))
+    Y = (10 * X[:, 0] + 3 * np.sin(6 * X[:, 1]) + 0.1 * rng.random(60))[:, None]
+    D = calc_dists(X) if use_dists else None
+    for phi in [np.ones(4), np.array([0.0, 0.5, 1.5, 3.0])]:
+        L, grad = calc_L_grad(phi, X, Y, D)
+        assert L == pytest.approx(calc_L(phi, X, Y, D))
+        fd = approx_fprime(phi, lambda p: calc_L(p, X, Y, D), 1e-7)
+        assert np.allclose(grad, fd, rtol=1e-4, atol=1e-3)
+
+
+def test_calc_sensitivities_many_invars_large_output():
+    # With many invars and a large output scale, a poor optimizer start used to give uniform ratios
+    from monaco.dvars_sensitivity import calc_sensitivities
+
+    rng = np.random.default_rng(2)
+    X = rng.random((128, 31))
+    y = 1e7 * (10 * X[:, 0] + 3 * X[:, 1])
+    _, ratios = calc_sensitivities(stub_sim(X, y), "f")
+    assert ratios[0] > 0.8
+    assert ratios[1] > 0.1
+    assert ratios[2:].sum() < 0.01
 
 
 if __name__ == "__main__":

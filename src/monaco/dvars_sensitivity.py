@@ -153,7 +153,8 @@ def calc_phi_opt(
     """
     phi_max = 1e6
     phi_min = 0
-    phi0 = 1
+    # Start where the mean correlation between uniform percentile states is 0.5 for stability
+    phi0 = 3 * (1 - 0.5 ** (1 / sim.ninvars))
 
     phi0s = []
     bounds = []
@@ -164,9 +165,16 @@ def calc_phi_opt(
     logger = logging.getLogger("monaco")
     logger.info("Calculating optimal hyperparameters Φ for " + f"'{outvarname}' covariances...")
     X, Y = full_states(sim, outvarname, cases)
+    Y = (Y - Y.mean()) / Y.std()  # Standardize so relative convergence is not affected by scale
     D = calc_dists(X)
     res = minimize(
-        L_runner, phi0s, args=(X, Y, verbose, D), bounds=bounds, tol=tol, method="L-BFGS-B"
+        L_grad_runner,
+        phi0s,
+        args=(X, Y, verbose, D),
+        jac=True,
+        bounds=bounds,
+        tol=tol,
+        method="L-BFGS-B",
     )
     phi_opt = res.x
     logger.info("Done calculating optimal hyperparameters.")
@@ -332,6 +340,86 @@ def calc_L(phi: np.ndarray, X: np.ndarray, Y: np.ndarray, D: np.ndarray | None =
     L = logdetR + m * np.log(L_inner.T @ cho_solve(R_cho, L_inner))
     L = L[0][0]
     return L
+
+
+def calc_L_grad(
+    phi: np.ndarray, X: np.ndarray, Y: np.ndarray, D: np.ndarray | None = None
+) -> tuple[float, np.ndarray]:
+    """
+    Calculate the negative log-likelihood cost and its analytic gradient with
+    respect to the hyperparameters.
+
+    With e = Y - M*mu and alpha = R^-1 e, the gradient is
+    dL/dphi_j = sum((R^-1 - m * alpha alpha^T / (e^T alpha)) * dR/dphi_j),
+    where the mu term drops out because mu is the generalized least squares
+    optimum. Since R is a product of the per-variable kernels r_j,
+    dR/dphi_j = -D_j * R / r_j where r_j > 0, and 0 elsewhere.
+
+    Parameters
+    ----------
+    phi : numpy.ndarray
+        The hyperparameters for the covariance function.
+    X : numpy.ndarray
+        The state matrix for all the input variables percentiles.
+    Y : numpy.ndarray
+        The state matrix for the output variables nums.
+    D : numpy.ndarray | None, default None
+        Optional precomputed pairwise distances from calc_dists.
+
+    Returns
+    -------
+    L : float
+        The negative log-likelihood cost.
+    grad : numpy.ndarray
+        The gradient of L with respect to phi.
+    """
+    m, d = X.shape
+    M = np.ones((m, 1))
+    R0 = calc_R(phi, X, D)
+    R = R0 + R_REGULARIZATION * np.eye(m)
+    R_cho = cho_factor(R)
+    logdetR = 2 * np.sum(np.log(np.diag(R_cho[0])))
+
+    RinvM = cho_solve(R_cho, M)
+    mu = (RinvM.T @ Y) / (RinvM.T @ M)
+    e = Y - M * mu
+    alpha = cho_solve(R_cho, e)
+    eRe = (e.T @ alpha)[0, 0]
+    L = logdetR + m * np.log(eRe)
+
+    W = cho_solve(R_cho, np.eye(m))
+    W -= (m / eRe) * (alpha @ alpha.T)
+    W *= R0
+
+    grad = np.zeros(d)
+    rj = np.empty((m, m), dtype=np.float64)
+    for j in range(d):
+        Dj = np.abs(X[:, None, j] - X[None, :, j]) if D is None else D[j]
+        np.multiply(Dj, -phi[j], out=rj)
+        rj += 1
+        rj[rj <= 0] = np.inf
+        np.divide(Dj, rj, out=rj)
+        rj *= W
+        grad[j] = -rj.sum()
+    return L, grad
+
+
+def L_grad_runner(
+    phi: np.ndarray,
+    X: np.ndarray,
+    Y: np.ndarray,
+    verbose: bool = False,
+    D: np.ndarray | None = None,
+) -> tuple[float, np.ndarray]:
+    """
+    A wrapper function for calculating the negative log-likelihood cost and
+    its gradient, for use as an optimizer objective with jac=True.
+    """
+    L, grad = calc_L_grad(phi, X, Y, D)
+    if verbose:
+        logger = logging.getLogger("monaco")
+        logger.info(f"L = {L:0.4f}, Φ = {phi}")
+    return L, grad
 
 
 def calc_R(
