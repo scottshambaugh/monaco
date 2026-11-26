@@ -16,7 +16,7 @@ import logging
 from datetime import datetime, timedelta
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
-from tqdm import tqdm
+from tqdm import tqdm as _tqdm_base
 from typing import Callable, Any, Iterable, Optional, Generic
 from typing_extensions import TypeVarTuple, Unpack
 from dataclasses import dataclass
@@ -40,6 +40,12 @@ from monaco.case_runners import preprocess_case, run_case, postprocess_case, exe
 from monaco.globals import _worker_init, _fork_worker_init
 from monaco.dvars_sensitivity import calc_sensitivities
 from monaco.mc_multi_plot import multi_plot_grid_rect
+
+
+class tqdm(_tqdm_base):
+    # The monitor thread is unsafe to have running when forking worker processes
+    monitor_interval = 0
+
 
 try:
     import dask
@@ -159,9 +165,11 @@ class Sim:
         available cores. This will override the n_workers kwarg in daskkwargs
         if provided.
     multiprocessing_method : str, default: None
-        The method to use for multiprocessing. If None, will use the method
-        specified by the multiprocessing.get_start_method() function.
-        Valid options are: 'fork', 'spawn', 'forkserver'.
+        The method to use for multiprocessing. If None, will use 'forkserver'
+        where available, and otherwise the method specified by the
+        multiprocessing.get_start_method() function. Valid options are:
+        'fork', 'spawn', 'forkserver'. 'fork' is fastest but can deadlock if
+        any threads are running when the workers are created.
     daskkwargs : dict, default: dict()
         Keyword arguments (kwargs) to pass to the dask Client constructor, see:
         https://distributed.dask.org/en/stable/api.html#client
@@ -499,7 +507,10 @@ class Sim:
         self._pool_data_hash = data_hash
 
         start_method = self.multiprocessing_method
-        if start_method not in multiprocessing.get_all_start_methods():
+        available_methods = multiprocessing.get_all_start_methods()
+        if start_method is None and "forkserver" in available_methods:
+            start_method = "forkserver"
+        elif start_method not in available_methods:
             start_method = multiprocessing.get_start_method()
             if self.multiprocessing_method is not None:
                 vwarn(
@@ -517,6 +528,9 @@ class Sim:
         parent_pid = os.getpid()
         ctx = multiprocessing.get_context(start_method)
         if start_method == "fork":
+            if _tqdm_base.monitor is not None:
+                _tqdm_base.monitor.exit()
+                _tqdm_base.monitor = None
             # For fork, the global variables don't need to be pickled
             initializer = _fork_worker_init
             data = (self.invars, self.outvars, self.constvals, parent_pid)

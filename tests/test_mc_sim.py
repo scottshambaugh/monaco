@@ -2,6 +2,7 @@
 
 import os
 import time
+import threading
 import multiprocessing
 from enum import Enum
 
@@ -845,3 +846,62 @@ def test_worker_dies_when_parent_hardkilled(tmp_path, guarded):
 if __name__ == "__main__":
     plot_testing(show=True)
     plt.show()
+
+
+def _tmonitor_threads():
+    from tqdm._monitor import TMonitor
+
+    return [t for t in threading.enumerate() if isinstance(t, TMonitor)]
+
+
+def test_progress_bars_do_not_start_tqdm_monitor(sim_base):
+    sim = sim_base
+    sim.verbose = True
+    sim.runSim()
+    assert _tmonitor_threads() == []
+
+
+@pytest.mark.skipif(
+    "fork" not in multiprocessing.get_all_start_methods(), reason="fork unavailable"
+)
+def test_fork_pool_stops_existing_tqdm_monitor():
+    from tqdm import tqdm as tqdm_base
+
+    pbar = tqdm_base(total=1, disable=False, file=open(os.devnull, "w"))
+    try:
+        assert tqdm_base.monitor is not None
+        sim = Sim(
+            name="Sim fork",
+            ndraws=2,
+            fcns=sim_testing_fcns(),
+            verbose=False,
+            singlethreaded=False,
+            ncores=1,
+            multiprocessing_method="fork",
+            savesimdata=False,
+            savecasedata=False,
+        )
+        sim.initMultiprocessingPool()
+        assert tqdm_base.monitor is None
+        assert _tmonitor_threads() == []
+        sim._cleanup()
+    finally:
+        pbar.close()
+
+
+def test_multiprocessing_defaults_to_forkserver():
+    if "forkserver" not in multiprocessing.get_all_start_methods():
+        pytest.skip("forkserver unavailable")
+    sim = Sim(
+        name="Sim default method",
+        ndraws=2,
+        fcns=sim_testing_fcns(),
+        verbose=False,
+        singlethreaded=False,
+        ncores=1,
+        savesimdata=False,
+        savecasedata=False,
+    )
+    sim.initMultiprocessingPool()
+    assert sim.pool._mp_context.get_start_method() == "forkserver"
+    sim._cleanup()

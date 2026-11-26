@@ -46,9 +46,11 @@ sim = mc.Sim(
 
 The multiprocessing start method affects how worker processes are created and can have significant speed implications:
 
-* `'fork'`: The default method on Linux. It provides fast startup with shared memory from the parent process, which can potentially lead to issues with unsafe memory management.
-* `'spawn'`: The default method on Windows and macOS, and will become the default for Linux in Python 3.14. It has a slower startup and requires pickling data but creates completely separate, memory-safe processes.
-* `'forkserver'`: Offers a hybrid approach that preserves most of fork's speed while avoiding many (but not all) of its thread-safety pitfalls.
+The default is `'forkserver'` where it is available (Linux and macOS), and `'spawn'` on Windows.
+
+* `'forkserver'`: The default method. Workers are forked from a clean single-threaded server process, which preserves most of fork's speed while avoiding its thread-safety pitfalls. Like spawn, it requires pickling data and your simulation functions must be importable.
+* `'spawn'`: The default method on Windows. It has a slower startup and requires pickling data but creates completely separate, memory-safe processes.
+* `'fork'`: The fastest startup, as workers share memory with the parent process without pickling. However, forking a process that has any threads running can deadlock the workers, so only use it if you know your program is single-threaded when the sim runs.
 
 ## Dask Distributed Computing
 

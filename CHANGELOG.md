@@ -23,6 +23,8 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+* Multiprocessing now defaults to the `'forkserver'` start method where available
+* Progress bars no longer start tqdm's monitor thread, and an existing monitor thread is stopped before forking workers, to prevent deadlocks with the `'fork'` start method
 ### Removed    
 
 ## [0.23.0] - 2026-10-25
