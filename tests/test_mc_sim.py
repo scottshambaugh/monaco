@@ -1,6 +1,7 @@
 # test_mc_sim.py
 
 import os
+import sys
 import time
 import threading
 import multiprocessing
@@ -26,6 +27,9 @@ try:
     HAS_PANDAS = True
 except ImportError:
     HAS_PANDAS = False
+
+# Fork starts workers much faster than the forkserver default, but is only safe to rely on for Linux
+MP_METHOD = "fork" if sys.platform.startswith("linux") else None
 
 SIM_FIXTURES = [
     "sim_singlethreaded",
@@ -104,6 +108,7 @@ def sim_base():
         debug=True,
         singlethreaded=True,
         ncores=2,
+        multiprocessing_method=MP_METHOD,
         daskkwargs={"n_workers": 2, "threads_per_worker": 1},
         savesimdata=False,
         savecasedata=False,
@@ -356,6 +361,7 @@ def test_sim_multiprocessing_pool_refreshes_vars():
         verbose=False,
         singlethreaded=False,
         ncores=2,
+        multiprocessing_method=MP_METHOD,
         savesimdata=False,
         savecasedata=False,
     )
@@ -905,3 +911,10 @@ def test_multiprocessing_defaults_to_forkserver():
     sim.initMultiprocessingPool()
     assert sim.pool._mp_context.get_start_method() == "forkserver"
     sim._cleanup()
+
+
+def test_singlethreaded_run_does_not_keep_invals(sim_base):
+    sim = sim_base
+    sim.runSim()
+    assert all(case._invals is None for case in sim.cases)
+    assert sim.cases[1].invals["Var1"].val == sim.invars["Var1"].vals[1]
