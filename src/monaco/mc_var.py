@@ -335,6 +335,20 @@ class Var(ABC):
         pass
 
 
+def _is_scalar(val: Any) -> bool:
+    try:
+        return np.ndim(val) == 0
+    except ValueError:  # ragged nested sequences
+        return False
+
+
+def _is_numeric_array(val: Any) -> bool:
+    try:
+        return np.asarray(val).dtype.kind in "iufc"
+    except ValueError:  # ragged nested sequences
+        return False
+
+
 ### InVar Class ###
 class InVar(Var):
     """
@@ -507,21 +521,26 @@ class InVar(Var):
 
     def extractNumMap(self) -> None:
         """
-        Parse the input values and extract a nummap.
+        Parse the input values and extract a nummap. Scalar values that are not
+        numbers, and array values that are not numeric arrays, are each mapped
+        to a number as a whole.
         """
-        try:
-            vals_flattened = np.asanyarray(self.custom_vals).flatten()
-        except ValueError:
-            vals_flattened = flatten([self.custom_vals])
-        if all(isinstance(x, (bool, np.bool_)) for x in vals_flattened):
-            self.nummap = {1: True, 0: False}
-        elif any(not is_num(x) for x in vals_flattened):
-            # Keys are hashable, but map back to the original values
-            originals = dict()
-            for x in vals_flattened:
-                originals.setdefault(hashable_val(x), x)
-            sorted_keys = sort_none_first(originals.keys())
-            self.nummap = {idx: originals[key] for idx, key in enumerate(sorted_keys)}
+        vals = self.custom_vals
+        if all(_is_scalar(x) for x in vals):
+            if all(isinstance(x, (bool, np.bool_)) for x in vals):
+                self.nummap = {1: True, 0: False}
+                return
+            if all(is_num(x) for x in vals):
+                return
+        elif all(_is_numeric_array(x) for x in vals):
+            return
+
+        # Keys are hashable, but map back to the original values
+        originals = dict()
+        for x in vals:
+            originals.setdefault(hashable_val(x), x)
+        sorted_keys = sort_none_first(originals.keys())
+        self.nummap = {idx: originals[key] for idx, key in enumerate(sorted_keys)}
 
     def genValMap(self) -> None:
         """
@@ -571,7 +590,7 @@ class InVar(Var):
             if self.valmap is not None:
                 for val in self.vals:
                     self.nums.append(self.valmap[hashable_val(val)])
-            elif all(np.ndim(val) == 0 for val in self.vals):
+            elif all(_is_scalar(val) for val in self.vals):
                 self.nums = np.asarray(self.vals).tolist()
             else:
                 # Read-only views avoid copying, and protect the user's arrays from in-place edits
@@ -580,6 +599,8 @@ class InVar(Var):
                     num = np.asarray(val).view()
                     num.flags.writeable = False
                     self.nums.append(num)
+            self.maxdim = max(np.ndim(num) for num in self.nums)
+            self.isscalar = self.maxdim == 0
 
             if self.custom_pcts is not None:
                 self.pcts = self.custom_pcts

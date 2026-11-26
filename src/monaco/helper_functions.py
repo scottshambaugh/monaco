@@ -152,6 +152,10 @@ def hashable_val(val: Any) -> Any:
     hashable_val : Any
         A hashable representation of the val.
     """
+    if isinstance(val, np.ndarray) and val.ndim > 0 and val.dtype.kind != "O":
+        # str() abbreviates large arrays, so key by contents to avoid collisions
+        contents = sha512(np.ascontiguousarray(val).tobytes()).digest()
+        return ("ndarray", val.dtype.str, val.shape, contents)
     if is_nan(val):
         if isinstance(val, np.datetime64):
             return _NAT

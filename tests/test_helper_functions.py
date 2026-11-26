@@ -220,6 +220,19 @@ def test_hashable_val_vectorized_fallback_path():
     assert result == expected
 
 
+def test_hashable_val_large_arrays():
+    a = np.zeros(2000)
+    b = a.copy()
+    b[1000] = 1
+    assert str(a) == str(b)  # str abbreviates, so it can't be used as the key
+    assert hashable_val(a) != hashable_val(b)
+    assert hashable_val(a) == hashable_val(a.copy())
+    assert hashable_val(a) != hashable_val(a.astype(np.float32))
+    assert hashable_val(a) != hashable_val(a.reshape(2, 1000))
+    obj = np.array([{"a": 1}], dtype=object)
+    assert hashable_val(obj) == str(obj)
+
+
 def test_sort_none_first():
     assert sort_none_first(["b", None, "a"]) == [None, "a", "b"]
     assert sort_none_first([2, 1]) == [1, 2]

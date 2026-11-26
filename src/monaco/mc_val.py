@@ -131,8 +131,8 @@ class InVal(Val):
         self.pct = pct
         self.num = num
         self.nummap = nummap
-        self.isscalar = True
-        self.shape = ()
+        self.shape = num.shape if isinstance(num, np.ndarray) else ()
+        self.isscalar = self.shape == ()
 
         self.mapNum()
         if valmap is None:

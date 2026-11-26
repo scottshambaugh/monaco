@@ -31,6 +31,10 @@
 * Cases no longer keep their generated invals after preprocessing, reducing memory for single-threaded sims
 * Custom array invar vals are now passed to preprocessing as read-only numpy arrays that share memory with the originals, instead of being copied into nested lists using ~4x their memory. Note that custom list vals now also arrive as arrays rather than lists
 * Ragged custom array invar vals can now be drawn, run, and exported to json (stats are still unsupported for them)
+* Fix invars with numeric array vals being marked as scalar, which broke covariance matrices, csv export, and plotting
+* Fix custom invar vals of non-numeric arrays (such as bool, string, or timedelta arrays) or all-empty arrays failing to draw. Non-numeric arrays are now each mapped to a number as a whole
+* Fix custom string invar vals being returned as `np.str_` instead of `str`
+* Fix large arrays that only differ in their middle being treated as the same value in valmaps
 ### Removed    
 
 ## [0.23.0] - 2026-10-25

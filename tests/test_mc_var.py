@@ -249,6 +249,48 @@ def test_invar_custom_vals_arrays():
     )
     assert isinstance(invar.getVal(1).val, np.ndarray)
     assert np.array_equal(invar.getVal(1).val, [3, 4])
+    assert not invar.isscalar
+    assert invar.maxdim == 1
+    assert not invar.getVal(1).isscalar
+    assert invar.getVal(1).shape == (2,)
+
+
+@pytest.mark.parametrize(
+    "vals",
+    [
+        [np.array([True, False]), np.array([False, False]), np.array([True, False])],
+        [np.array(["a", "b"]), np.array(["c"]), np.array(["a", "b"])],
+        [np.array([1, 2], dtype="m8[s]"), np.array([3], dtype="m8[s]"), np.array([1, 2], "m8[s]")],
+        [[[1, 2], [3]], [[4]], [[1, 2], [3]]],
+        [np.zeros(2000, bool), np.r_[np.zeros(1999, bool), True], np.zeros(2000, bool)],
+    ],
+)
+def test_invar_custom_vals_nonnumeric_arrays(vals):
+    # Each array is mapped to a number as a whole, and maps back to the original object
+    invar = InVar("custom", ndraws=3, vals=vals, samplemethod=None, firstcaseismedian=False)
+    assert invar.isscalar
+    assert len(invar.nummap) == 2
+    assert invar.nums[0] == invar.nums[2] != invar.nums[1]
+    for i, val in enumerate(vals):
+        assert invar.getVal(i).val is invar.nummap[invar.nums[i]]
+        assert np.array_equal(
+            np.asarray(invar.getVal(i).val, dtype=object), np.asarray(val, dtype=object)
+        )
+
+
+def test_invar_custom_vals_empty_arrays():
+    invar = InVar(
+        "custom", ndraws=2, vals=[np.array([])] * 2, samplemethod=None, firstcaseismedian=False
+    )
+    assert invar.nummap is None
+    assert invar.getVal(1).val.shape == (0,)
+
+
+def test_invar_custom_vals_strings_stay_str():
+    invar = InVar(
+        "custom", ndraws=3, vals=["b", "a", "b"], samplemethod=None, firstcaseismedian=False
+    )
+    assert type(invar.getVal(0).val) is str
 
 
 def test_invar_custom_vals_errors():
