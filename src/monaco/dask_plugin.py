@@ -3,6 +3,11 @@ from dask.distributed import WorkerPlugin
 from monaco.globals import _worker_init
 
 
+__all__ = [
+    "GlobalsPlugin",
+]
+
+
 class GlobalsPlugin(WorkerPlugin):
     def __init__(self, invars_blob, outvars_blob, constvals_blob):
         self.invars_blob = invars_blob

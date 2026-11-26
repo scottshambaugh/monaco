@@ -23,6 +23,7 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+* Submodules now define `__all__`, so imported names like `np`, `plt`, and `tqdm` no longer leak into the `monaco` namespace. `from monaco import *` again includes the plotting functions
 * Multiprocessing now defaults to the `'forkserver'` start method where available
 * Progress bars no longer start tqdm's monitor thread, and an existing monitor thread is stopped before forking workers, to prevent deadlocks with the `'fork'` start method
 * Faster `import monaco` and multiprocessing worker startup, by only importing matplotlib, pandas, and dask when they are used

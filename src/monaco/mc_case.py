@@ -10,6 +10,11 @@ from monaco.globals import get_global_vars
 from monaco.helper_functions import get_seed
 
 
+__all__ = [
+    "Case",
+]
+
+
 class Case:
     """
     Object to hold all the data for a single Monte Carlo case.

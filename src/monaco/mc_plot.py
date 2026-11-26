@@ -25,6 +25,33 @@ from monaco.gaussian_statistics import conf_ellipsoid_sig2pct
 from monaco.integration_statistics import integration_error
 from monaco.mc_enums import SampleMethod, PlotOrientation, InVarSpace, Sensitivities
 
+__all__ = [
+    "LINE_COLLECTION_MIN_CASES",
+    "plot",
+    "plot_hist",
+    "plot_cdf",
+    "plot_2d_scatter",
+    "plot_2d_line",
+    "plot_3d_scatter",
+    "plot_2p5d_line",
+    "plot_3d_line",
+    "plot_cov_corr",
+    "plot_integration_convergence",
+    "plot_integration_error",
+    "plot_sensitivities",
+    "manage_axis",
+    "apply_category_labels",
+    "get_hist_lim",
+    "plot_rug_marks",
+    "plot_2d_cov_ellipse",
+    "manage_invar_space",
+    "get_plot_points",
+    "varstat_to_plotspace",
+    "plot_line_ensemble",
+    "get_var_steps",
+]
+
+
 LINE_COLLECTION_MIN_CASES = 20
 
 

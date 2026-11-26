@@ -4,6 +4,12 @@ import pickle
 import signal
 import sys
 
+__all__ = [
+    "register_global_vars",
+    "get_global_vars",
+]
+
+
 _GLOBAL_INVARS = dict()
 _GLOBAL_OUTVARS = dict()
 _GLOBAL_CONSTVALS = dict()

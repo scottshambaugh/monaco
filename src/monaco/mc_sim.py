@@ -45,6 +45,15 @@ if TYPE_CHECKING:
     from matplotlib.axes import Axes
 
 
+__all__ = [
+    "HAS_DASK",
+    "SimInput",
+    "SimOutput",
+    "SimulationFunctions",
+    "Sim",
+]
+
+
 class tqdm(_tqdm_base):
     # The monitor thread is unsafe to have running when forking worker processes
     monitor_interval = 0

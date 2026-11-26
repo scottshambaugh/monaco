@@ -18,6 +18,15 @@ from monaco.helper_functions import (
 )
 
 
+__all__ = [
+    "Val",
+    "InVal",
+    "OutVal",
+    "valmap_lookup_arrays",
+    "map_array",
+]
+
+
 ### Val Base Class ###
 class Val(ABC):
     """

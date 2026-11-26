@@ -19,6 +19,11 @@ from monaco.order_statistics import order_stat_TI_n, order_stat_TI_k, order_stat
 from monaco.mc_enums import StatBound, VarStatType, VarStatSide
 
 
+__all__ = [
+    "VarStat",
+]
+
+
 class VarStat:
     """
     A variable statistic for a Monte Carlo variable.

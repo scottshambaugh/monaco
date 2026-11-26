@@ -13,6 +13,15 @@ from monaco.mc_enums import PlotOrientation, InVarSpace
 from monaco.helper_functions import empty_list, get_list
 
 
+__all__ = [
+    "multi_plot",
+    "multi_plot_2d_scatter_hist",
+    "multi_plot_grid_tri",
+    "multi_plot_grid_rect",
+    "handle_fig",
+]
+
+
 def multi_plot(
     vars: list[InVar | OutVar],
     cases: None | int | Iterable[int] = None,

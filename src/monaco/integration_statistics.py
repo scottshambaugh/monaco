@@ -8,6 +8,15 @@ from monaco.gaussian_statistics import pct2sig
 from monaco.mc_enums import SampleMethod
 
 
+__all__ = [
+    "integration_error",
+    "integration_n_from_err",
+    "integration_args_check",
+    "max_variance",
+    "max_stdev",
+]
+
+
 def integration_error(
     nums: np.ndarray,
     dimension: int,
