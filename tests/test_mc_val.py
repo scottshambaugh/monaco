@@ -132,3 +132,17 @@ def test_outval_dataframe():
 
     outval2 = OutVal(name="test2", ncase=1, val=df.index, ismedian=True)
     assert outval2.val[0] == np.datetime64("2020-01-01T00:00:00.000000000")
+
+
+def test_vals_have_no_dict_and_load_old_pickle_state():
+    outval = OutVal(name="test", ncase=0, val=[1.0, 2.0])
+    assert not hasattr(outval, "__dict__")
+    # Pickles from before Val had __slots__ store their state as (dict, slots)
+    old_state = (
+        {"valmapsource": "auto"},
+        {k: getattr(outval, k) for k in OutVal.__slots__ if k != "valmapsource"},
+    )
+    loaded = OutVal.__new__(OutVal)
+    loaded.__setstate__(old_state)
+    assert loaded.valmapsource == "auto"
+    assert loaded.val == [1.0, 2.0]

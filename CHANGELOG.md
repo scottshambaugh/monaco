@@ -35,6 +35,7 @@
 * Fix custom invar vals of non-numeric arrays (such as bool, string, or timedelta arrays) or all-empty arrays failing to draw. Non-numeric arrays are now each mapped to a number as a whole
 * Fix custom string invar vals being returned as `np.str_` instead of `str`
 * Fix large arrays that only differ in their middle being treated as the same value in valmaps
+* InVals and OutVals no longer each carry a `__dict__`, using ~25% less memory per outval and pickling faster. Previously saved sims still load
 ### Removed    
 
 ## [0.23.0] - 2026-10-25

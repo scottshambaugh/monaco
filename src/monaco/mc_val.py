@@ -36,6 +36,9 @@ class Val(ABC):
         generated through monaco, then None.
     """
 
+    # Subclasses declare the attribute slots, so values don't each carry a __dict__
+    __slots__ = ()
+
     def __init__(
         self,
         name: str,
@@ -54,6 +57,14 @@ class Val(ABC):
         self.nummap: dict[float, Any]
         self.isscalar: bool
         self.shape: tuple[int, ...]
+
+    def __setstate__(self, state):
+        # Pickles from before Val had __slots__ store their state as (dict, slots)
+        if isinstance(state, tuple):
+            dict_state, slot_state = state
+            state = {**(dict_state or {}), **(slot_state or {})}
+        for key, value in state.items():
+            setattr(self, key, value)
 
 
 ### InVal Class ###
@@ -213,6 +224,7 @@ class OutVal(Val):
         "nummap",
         "isscalar",
         "shape",
+        "valmapsource",
     )
 
     def __init__(
