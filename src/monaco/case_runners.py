@@ -35,6 +35,8 @@ def preprocess_case(
         else:
             vwarn(verbose, f"\nPreprocessing case {case.ncase} failed")
 
+    # Invals are regenerated on access, so don't hold them in memory for every case
+    case.resetInVals()
     return case
 
 
