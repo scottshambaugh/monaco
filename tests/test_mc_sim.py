@@ -153,26 +153,52 @@ def sim_multiprocessing_expanded(sim_base):
     return sim
 
 
+@pytest.fixture(scope="session")
+def dask_client():
+    # Starting a dask cluster is slow, so all the dask sims share one. conftest.py runs the dask
+    # tests last, since the cluster's threads would make forking worker processes unsafe
+    from dask.distributed import Client
+
+    client = Client(n_workers=2, threads_per_worker=1)
+    yield client
+    client.close()
+    client.cluster.close()
+
+
+def attach_dask_client(sim, client):
+    sim.singlethreaded = False
+    sim.usedask = True
+    sim.client = client
+    sim.cluster = client.cluster
+
+
+def detach_dask_client(sim):
+    # Keep the sim's cleanup from closing the shared client
+    sim.client = None
+    sim.cluster = None
+
+
 @pytest.fixture
-def sim_dask(sim_base):
+def sim_dask(sim_base, request):
     if not HAS_DASK:
-        return None
+        yield None
+        return
     sim = sim_base
     sim.name = "Sim dask"
-    sim.singlethreaded = False
-    sim.usedask = True
+    attach_dask_client(sim, request.getfixturevalue("dask_client"))
     sim.runSim()
-    return sim
+    yield sim
+    detach_dask_client(sim)
 
 
 @pytest.fixture
-def sim_dask_expanded(sim_base):
+def sim_dask_expanded(sim_base, request):
     if not HAS_DASK:
-        return None
+        yield None
+        return
     sim = sim_base
     sim.name = "Sim dask expanded"
-    sim.singlethreaded = False
-    sim.usedask = True
+    attach_dask_client(sim, request.getfixturevalue("dask_client"))
     sim.drawVars()
     sim.genCases()
     sim.initDaskClient()
@@ -180,7 +206,8 @@ def sim_dask_expanded(sim_base):
     sim.runCases()
     sim.postProcessCases()
     sim.genOutVars()
-    return sim
+    yield sim
+    detach_dask_client(sim)
 
 
 @pytest.fixture
@@ -817,7 +844,7 @@ def test_worker_dies_when_parent_hardkilled(tmp_path, guarded):
     # A worker registered via _set_parent_death_signal must not outlive its
     # parent when the parent is hard-killed (SIGKILL/OOM) with no chance to run
     # pool.shutdown(). The unguarded case is the sanity check: it should survive.
-    ctx = multiprocessing.get_context()
+    ctx = multiprocessing.get_context(MP_METHOD)
     parent = ctx.Process(target=_orphan_idle_parent, args=(str(tmp_path / "parent_ready"),))
     parent.start()
     child = None
@@ -832,7 +859,9 @@ def test_worker_dies_when_parent_hardkilled(tmp_path, guarded):
 
         parent.kill()  # hard kill: no chance to clean up after itself
 
-        deadline = time.time() + 10
+        # The guarded worker should exit within a watchdog poll, and the unguarded sanity check
+        # only needs to show that the worker stays alive for a while
+        deadline = time.time() + (10 if guarded else 1.5)
         while time.time() < deadline and child.is_alive():
             time.sleep(0.1)
 
