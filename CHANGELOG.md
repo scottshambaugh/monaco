@@ -23,21 +23,20 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
-* Submodules now define `__all__`, so imported names like `np`, `plt`, and `tqdm` no longer leak into the `monaco` namespace. `from monaco import *` again includes the plotting functions
-* Multiprocessing now defaults to the `'forkserver'` start method where available
-* Progress bars no longer start tqdm's monitor thread, and an existing monitor thread is stopped before forking workers, to prevent deadlocks with the `'fork'` start method
-* Faster `import monaco` and multiprocessing worker startup, by only importing matplotlib, pandas, and dask when they are used
-* D-VARS sensitivity analysis is ~10x faster for large sims, by using an analytic gradient for the likelihood optimization
-* Fix D-VARS sensitivities stopping at uniform ratios for sims with many invars or large output values, by scaling the optimizer start to the number of invars and standardizing the output
-* Cases no longer keep their generated invals after preprocessing, reducing memory for single-threaded sims
-* Custom array invar vals are now passed to preprocessing as read-only numpy arrays that share memory with the originals, instead of being copied into nested lists using ~4x their memory. Note that custom list vals now also arrive as arrays rather than lists
-* Ragged custom array invar vals can now be drawn, run, and exported to json (stats are still unsupported for them)
-* Fix invars with numeric array vals being marked as scalar, which broke covariance matrices, csv export, and plotting
-* Fix custom invar vals of non-numeric arrays (such as bool, string, or timedelta arrays) or all-empty arrays failing to draw. Non-numeric arrays are now each mapped to a number as a whole
-* Fix custom string invar vals being returned as `np.str_` instead of `str`
-* Fix large arrays that only differ in their middle being treated as the same value in valmaps
-* InVals and OutVals no longer each carry a `__dict__`, using ~25% less memory per outval and pickling faster. Previously saved sims still load
 ### Removed    
+
+## [0.24.0] - 2026-11-26
+### Changed    
+* Multiprocessing now defaults to the `'forkserver'` start method where available
+* Matplotlib, pandas, and dask are now lazily imported
+* Imported names like `np` no longer leak into the `monaco` namespace
+* D-VARS sensitivity analysis is ~10x faster for large sims
+* Less memory used by cases and vals
+* Faster tests
+* Fix D-VARS sensitivities not converging with many invars or large outputs
+* Fix custom array invar vals using ~4x their memory as nested lists
+* Fix invars with array vals being treated as scalar
+* Fix custom invar vals of ragged, empty, or non-numeric arrays failing to draw
 
 ## [0.23.0] - 2026-10-25
 ### Changed    

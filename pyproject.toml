@@ -1,6 +1,6 @@
 [project]
 name = "monaco"
-version = "0.23.0"
+version = "0.24.0"
 description = "Quantify uncertainty and sensitivities in your models with an industry-grade Monte Carlo library."
 authors = [{ name = "Scott Shambaugh", email = "scott@theshamblog.com" }]
 requires-python = ">=3.11.0,<3.16"
@@ -55,6 +55,10 @@ docs = [
     "sphinx_rtd_theme~=2.0",
     "myst-parser>=0.15",
 ]
+
+[tool.uv]
+# Only resolve to package versions that have been out for a day, to avoid compromised releases
+exclude-newer = "1 day"
 
 [build-system]
 requires = ["uv_build"]
