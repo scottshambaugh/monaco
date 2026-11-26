@@ -231,6 +231,26 @@ def test_invar_custom_vals():
     assert invar.pcts == [0.5, 0.2, 0.3, 0.4]
 
 
+def test_invar_custom_vals_arrays():
+    vals = [np.full((2, 2), 1.0), np.arange(3), np.ones(1)]
+    invar = InVar("custom", ndraws=3, vals=vals, samplemethod=None, firstcaseismedian=False)
+    for i, val in enumerate(vals):
+        inval = invar.getVal(i).val
+        assert np.shares_memory(inval, val)
+        assert np.array_equal(inval, val)
+        assert not inval.flags.writeable
+        assert val.flags.writeable
+    with pytest.raises(ValueError, match="read-only"):
+        invar.getVal(1).val *= 2
+    assert np.array_equal(vals[1], np.arange(3))
+
+    invar = InVar(
+        "custom", ndraws=2, vals=[[1, 2], [3, 4]], samplemethod=None, firstcaseismedian=False
+    )
+    assert isinstance(invar.getVal(1).val, np.ndarray)
+    assert np.array_equal(invar.getVal(1).val, [3, 4])
+
+
 def test_invar_custom_vals_errors():
     with pytest.raises(ValueError, match="Either 'dist' or 'vals' must be provided"):
         InVar(

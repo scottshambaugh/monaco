@@ -26,6 +26,11 @@
 * Multiprocessing now defaults to the `'forkserver'` start method where available
 * Progress bars no longer start tqdm's monitor thread, and an existing monitor thread is stopped before forking workers, to prevent deadlocks with the `'fork'` start method
 * Faster `import monaco` and multiprocessing worker startup, by only importing matplotlib, pandas, and dask when they are used
+* D-VARS sensitivity analysis is ~10x faster for large sims, by using an analytic gradient for the likelihood optimization
+* Fix D-VARS sensitivities stopping at uniform ratios for sims with many invars or large output values, by scaling the optimizer start to the number of invars and standardizing the output
+* Cases no longer keep their generated invals after preprocessing, reducing memory for single-threaded sims
+* Custom array invar vals are now passed to preprocessing as read-only numpy arrays that share memory with the originals, instead of being copied into nested lists using ~4x their memory. Note that custom list vals now also arrive as arrays rather than lists
+* Ragged custom array invar vals can now be drawn, run, and exported to json (stats are still unsupported for them)
 ### Removed    
 
 ## [0.23.0] - 2026-10-25

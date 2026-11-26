@@ -571,9 +571,15 @@ class InVar(Var):
             if self.valmap is not None:
                 for val in self.vals:
                     self.nums.append(self.valmap[hashable_val(val)])
+            elif all(np.ndim(val) == 0 for val in self.vals):
+                self.nums = np.asarray(self.vals).tolist()
             else:
-                nums = np.asarray(self.vals)
-                self.nums = nums.tolist()
+                # Read-only views avoid copying, and protect the user's arrays from in-place edits
+                self.nums = []
+                for val in self.vals:
+                    num = np.asarray(val).view()
+                    num.flags.writeable = False
+                    self.nums.append(num)
 
             if self.custom_pcts is not None:
                 self.pcts = self.custom_pcts

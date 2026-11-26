@@ -242,6 +242,37 @@ def test_sim_export_json(sim):
     np.testing.assert_allclose(outvars["casenum"], expected_data["casenum"])
 
 
+def test_sim_export_json_ragged_invar(tmp_path):
+    def preprocess(case):
+        return (case.invals["ragged"].val,)
+
+    def run(x):
+        return (x.sum(),)
+
+    def postprocess(case, total):
+        case.addOutVal("total", total)
+
+    sim = Sim(
+        name="ragged",
+        ndraws=3,
+        fcns={"preprocess": preprocess, "run": run, "postprocess": postprocess},
+        firstcaseismedian=False,
+        singlethreaded=True,
+        savecasedata=False,
+        savesimdata=False,
+        verbose=False,
+        resultsdir=tmp_path,
+    )
+    vals = [np.arange(i + 1.0) for i in range(3)]
+    sim.addInVar(name="ragged", vals=vals)
+    sim.runSim()
+    assert sim.outvars["total"].nums == [0.0, 1.0, 3.0]
+
+    sim.exportInVars("invars.json")
+    with open(tmp_path / "invars.json", "r") as file:
+        assert json.load(file)["ragged"] == [[0.0], [0.0, 1.0], [0.0, 1.0, 2.0]]
+
+
 @pytest.mark.parametrize("filename", ["invars.csv", "invars.json"])
 def test_sim_import_invars(sim, filename):
     filepath = sim.resultsdir / filename

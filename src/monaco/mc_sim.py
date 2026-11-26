@@ -1920,7 +1920,7 @@ class Sim:
         elif filepath.suffix.lower() == ".json":
             data_json = dict()
             for varname, var in vars.items():
-                data_json[varname] = np.asarray(var.nums).tolist()
+                data_json[varname] = [np.asarray(num).tolist() for num in var.nums]
 
             with atomic_open(filepath, "w", newline="") as f:
                 json.dump(data_json, f, indent=0)
