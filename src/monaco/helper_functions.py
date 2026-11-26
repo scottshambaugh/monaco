@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import warnings
 import os
+import sys
 import logging
 import numpy as np
 from enum import Enum
@@ -15,11 +16,10 @@ from functools import wraps
 from contextlib import contextmanager
 from hashlib import sha512
 
-# Optional imports
-try:
-    import pandas as pd
-except ImportError:
-    pd = None
+
+def _pandas():
+    # A pandas object can only exist if pandas was already imported, so avoid importing it
+    return sys.modules.get("pandas")
 
 
 DEFAULT_SEED = 2**31
@@ -313,7 +313,7 @@ def get_list(x: Any) -> list[Any]:
         return [
             x,
         ]
-    elif pd and isinstance(x, pd.DataFrame):
+    elif (pd := _pandas()) and isinstance(x, pd.DataFrame):
         return [
             x,
         ]

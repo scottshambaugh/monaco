@@ -4,31 +4,9 @@ import pickle
 import signal
 import sys
 
-try:
-    from dask.distributed import WorkerPlugin
-
-    HAS_DASK = True
-except ImportError:
-    HAS_DASK = False
-
 _GLOBAL_INVARS = dict()
 _GLOBAL_OUTVARS = dict()
 _GLOBAL_CONSTVALS = dict()
-
-
-if HAS_DASK:
-
-    class GlobalsPlugin(WorkerPlugin):
-        def __init__(self, invars_blob, outvars_blob, constvals_blob):
-            self.invars_blob = invars_blob
-            self.outvars_blob = outvars_blob
-            self.constvals_blob = constvals_blob
-
-        def setup(self, worker):
-            _worker_init(self.invars_blob, self.outvars_blob, self.constvals_blob)
-
-else:
-    GlobalsPlugin = None
 
 
 def _set_parent_death_signal(parent_pid: int | None = None) -> None:

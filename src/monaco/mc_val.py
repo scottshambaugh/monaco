@@ -6,6 +6,7 @@ from typing import Any
 from scipy.stats import rv_discrete, rv_continuous
 from abc import ABC
 from monaco.helper_functions import (
+    _pandas,
     is_num,
     is_nan_array,
     hashable_val,
@@ -15,14 +16,6 @@ from monaco.helper_functions import (
     sort_none_first,
     index_outer,
 )
-
-try:
-    import pandas as pd
-
-    HAS_PANDAS = True
-except ImportError:
-    pd = None
-    HAS_PANDAS = False
 
 
 ### Val Base Class ###
@@ -263,7 +256,7 @@ class OutVal(Val):
         If the output value is a pandas dataseries or index, convert it to a
         format we understand.
         """
-        if pd:
+        if pd := _pandas():
             if isinstance(self.val, pd.Series) or isinstance(self.val, pd.Index):
                 self.val = self.val.values
 

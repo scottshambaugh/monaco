@@ -12,12 +12,11 @@ import multiprocessing
 import concurrent.futures
 import warnings
 import logging
+import importlib.util
 
 from datetime import datetime, timedelta
-from matplotlib.figure import Figure
-from matplotlib.axes import Axes
 from tqdm import tqdm as _tqdm_base
-from typing import Callable, Any, Iterable, Optional, Generic
+from typing import TYPE_CHECKING, Callable, Any, Iterable, Optional, Generic
 from typing_extensions import TypeVarTuple, Unpack
 from dataclasses import dataclass
 from hashlib import sha512
@@ -39,7 +38,11 @@ from monaco.helper_functions import (
 from monaco.case_runners import preprocess_case, run_case, postprocess_case, execute_full_case
 from monaco.globals import _worker_init, _fork_worker_init
 from monaco.dvars_sensitivity import calc_sensitivities
-from monaco.mc_multi_plot import multi_plot_grid_rect
+from monaco.helper_functions import _pandas
+
+if TYPE_CHECKING:
+    from matplotlib.figure import Figure
+    from matplotlib.axes import Axes
 
 
 class tqdm(_tqdm_base):
@@ -47,21 +50,7 @@ class tqdm(_tqdm_base):
     monitor_interval = 0
 
 
-try:
-    import dask
-    from dask.distributed import Client, progress, as_completed
-    from monaco.globals import GlobalsPlugin
-
-    HAS_DASK = True
-except ImportError:
-    HAS_DASK = False
-
-try:
-    import pandas as pd
-
-    HAS_PANDAS = True
-except ImportError:
-    HAS_PANDAS = False
+HAS_DASK = importlib.util.find_spec("distributed") is not None
 
 
 # Type variables for generic function signatures
@@ -455,6 +444,9 @@ class Sim:
         if not HAS_DASK:
             vwarn(self.verbose, "Dask is not installed, skipping dask client initialization")
             return
+
+        from dask.distributed import Client
+        from monaco.dask_plugin import GlobalsPlugin
 
         plugin = GlobalsPlugin(*self._pickleLargeData())
 
@@ -1011,6 +1003,8 @@ class Sim:
         Execute the full preprocessing, run, and postprocessing pipeline for all the cases.
         """
         self.initDaskClient()
+        import dask
+        from dask.distributed import progress, as_completed
 
         casestopreprocess_downselect = self._downselectCases(cases=casestopreprocess)
         casestorun_downselect = self._downselectCases(cases=casestorun)
@@ -1166,6 +1160,9 @@ class Sim:
         # Dask parallel processing
         else:
             self.initDaskClient()
+            import dask
+            from dask.distributed import progress, as_completed
+
             futures = None
             try:
                 for i in cases_downselect:
@@ -1271,6 +1268,9 @@ class Sim:
         # Dask parallel processing
         else:
             self.initDaskClient()
+            import dask
+            from dask.distributed import progress, as_completed
+
             futures = None
             try:
                 for i in cases_downselect:
@@ -1374,6 +1374,9 @@ class Sim:
         # Dask parallel processing
         else:
             self.initDaskClient()
+            import dask
+            from dask.distributed import progress, as_completed
+
             futures = None
             try:
                 for i in cases_downselect:
@@ -1541,10 +1544,10 @@ class Sim:
                 elif isinstance(vals, np.ndarray):
                     rep = np.repeat(vals[-1][np.newaxis, ...], deficit, axis=0)
                     outvar.vals[i] = np.concatenate([vals, rep], axis=0)
-                elif HAS_PANDAS and isinstance(vals, pd.Series):
+                elif (pd := _pandas()) and isinstance(vals, pd.Series):
                     rep = pd.Series([vals.iloc[-1]] * deficit, index=range(len(vals), n_points))
                     outvar.vals[i] = pd.concat([vals, rep])
-                elif HAS_PANDAS and isinstance(vals, pd.Index):
+                elif pd and isinstance(vals, pd.Index):
                     rep = pd.Index([vals[-1]] * deficit, dtype=vals.dtype)
                     outvar.vals[i] = pd.Index(
                         np.concatenate([vals.to_numpy(), rep.to_numpy()]), dtype=vals.dtype
@@ -1754,6 +1757,8 @@ class Sim:
                 invars.append(scalarvar)
             elif isinstance(scalarvar, OutVar) and scalarvar.isscalar:
                 scalaroutvars.append(scalarvar)
+
+        from monaco.mc_multi_plot import multi_plot_grid_rect
 
         fig, axs = multi_plot_grid_rect(
             varsx=invars,
